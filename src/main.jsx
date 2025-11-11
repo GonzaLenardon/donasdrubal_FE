@@ -5,11 +5,10 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js'; // si querés JS (modals, dr
 
 /* import './index.css';
  */ import App from './App.jsx';
-import Users from './components/Users.jsx';
+import './css/style.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Users />
-    {/* <App /> */}
+    <App />
   </StrictMode>
 );

@@ -4,6 +4,7 @@ import Modal from '../components/Modal.jsx'; // ✅ import del nuevo modal
 import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
 import { Button } from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
   const [userList, setUserList] = useState([]);
@@ -12,6 +13,7 @@ const Users = () => {
   const [newUser, SetNewUser] = useState({});
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     getAllUser();
@@ -63,11 +65,22 @@ const Users = () => {
   };
 
   const modalUpUser = (item) => {
-    const { id_usuario, rol, nombre, datosImpositivos, cuit, domicilio } = item;
-    SetNewUser({
-      id_usuario,
+    const {
+      id,
       rol,
       nombre,
+      email,
+      telefono,
+      datosImpositivos,
+      cuit,
+      domicilio,
+    } = item;
+    SetNewUser({
+      id,
+      rol,
+      nombre,
+      email,
+      telefono,
       datosImpositivos,
       cuit,
       domicilio,
@@ -80,6 +93,8 @@ const Users = () => {
     SetNewUser({
       nombre: '',
       rol: '',
+      email: '',
+      telefono: '',
       datosImpositivos: '',
       cuit: '',
       domicilio: '',
@@ -90,6 +105,7 @@ const Users = () => {
 
   const handleUser = (e) => {
     const { name, value } = e.target;
+    console.log(name, value);
     SetNewUser((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -114,6 +130,10 @@ const Users = () => {
     return true; // ✅ Agregá esto para asegurar que retorne true si todo está OK
   };
 
+  const handleVer = async (user) => {
+    navigate('/userdetalles', { state: { user } });
+  };
+
   return (
     <>
       <div>
@@ -133,18 +153,22 @@ const Users = () => {
                 <th>Nombre</th>
                 <th>Rol</th>
                 <th>Cuit</th>
+                <th>email</th>
+                <th>Telefono</th>
                 <th>Domicilio</th>
                 <th>Datos Impositivos</th>
-
                 <th>Actualizar</th>
+                <th>Detalles</th>
               </tr>
             </thead>
             <tbody>
               {userList.map((user) => (
-                <tr key={user.id_usuario}>
+                <tr key={user.id}>
                   <td>{user.nombre}</td>
                   <td>{user.rol}</td>
                   <td>{user.cuit}</td>
+                  <td>{user.email}</td>
+                  <td>{user.telefono}</td>
                   <td>{user.domicilio}</td>
                   <td>{user.datosImpositivos}</td>
                   <td>
@@ -157,6 +181,18 @@ const Users = () => {
                       }}
                     >
                       Actualizar
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="btn btn-sm btn-success"
+                      style={{ width: '80px' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleVer(user);
+                      }}
+                    >
+                      Ver
                     </button>
                   </td>
                 </tr>
@@ -235,6 +271,28 @@ const Users = () => {
             name="cuit"
             type="text"
             value={newUser?.cuit || ''}
+            onChange={handleUser}
+          />
+        </div>
+
+        <div className="py-1 fw-bold">
+          <label>Email</label>
+          <input
+            className="form-control rounded"
+            name="email"
+            type="text"
+            value={newUser?.email || ''}
+            onChange={handleUser}
+          />
+        </div>
+
+        <div className="py-1 fw-bold">
+          <label>Telefono</label>
+          <input
+            className="form-control rounded"
+            name="telefono"
+            type="text"
+            value={newUser?.telefono || ''}
             onChange={handleUser}
           />
         </div>
