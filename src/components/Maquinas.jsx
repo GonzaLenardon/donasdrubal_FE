@@ -1,7 +1,7 @@
 import { React, useEffect, useState } from 'react';
-import { getUsers } from '../api/users';
+
 import { allMaquinas } from '../api/maquinas';
-import { Calibraciones } from '../api/calibraciones';
+import { allUsers } from '../api/users';
 
 const Maquinas = () => {
   const [userList, setUserList] = useState();
@@ -16,7 +16,7 @@ const Maquinas = () => {
 
   const getAllUser = async () => {
     try {
-      const resp = await getUsers();
+      const resp = await allUsers();
       setUserList(resp);
     } catch (error) {
       console.error('Error al traer usuarios:', error);

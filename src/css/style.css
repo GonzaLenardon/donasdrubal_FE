@@ -1,9 +1,27 @@
 #root {
   font-size: 1em;
+  margin: 0;
+  padding: 0;
+}
+
+/* *,
+::after,
+::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+} */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .container-view {
-  width: 90%;
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -25,18 +43,45 @@
             USER DETAILS
 =====================================*/
 
-.container-datos-user {
-  background-color: rgba(26, 144, 16, 0.818);
+.container-datos {
+  background-color: rgba(30, 41, 59, 0.7);
+  padding: 1.2em;
   margin: 1em 0;
-  border-radius: 15px;
+  border-radius: 14px;
+  color: #fff;
+  display: flex;
+  justify-content: space-between; /* distribuye uniformemente */
+  gap: 2em; /* separación entre columnas */
+  position: relative; /* necesario para ::before */
 }
 
-.name {
-  display: inline-block;
-  margin: 0.5em;
-  color: white;
+.container-datos::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -30%;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.datos-user {
+  flex: 1; /* cada div ocupa el mismo espacio */
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em; /* separación entre líneas */
+}
+
+.datos-user:first-child {
+  border-right: 2px solid wheat;
+  padding-right: 1.5em;
+}
+
+.user-name {
+  font-size: 1.6em;
   font-weight: bold;
-  font-size: 2.5em;
+  margin-bottom: 0.3em;
 }
 
 /* ==================================
@@ -66,6 +111,7 @@
   background: #fff;
   width: 60%;
   max-width: 800px;
+  min-height: 600px;
   border-radius: 12px;
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
   overflow: hidden;
@@ -102,7 +148,8 @@
 .modal-footer {
   padding: 15px 20px;
   display: flex;
-  justify-content: center;
+  justify-content: end;
+  gap: 1em;
   border-top: 1px solid #ddd;
 }
 
@@ -130,3 +177,266 @@
 /* ==================================
             FIN MODAL 
 =====================================*/
+
+/* =================================
+         PATH
+=====================================*/
+
+.path {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.home-link {
+  color: #888; /* más tenue */
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.home-link:hover {
+  color: #007bff; /* azul al pasar el mouse */
+  text-decoration: underline;
+}
+
+.separator {
+  margin: 0 0.3em;
+}
+
+.current-section {
+  color: #222;
+  font-weight: 600;
+}
+
+/* ///////////////////////////////////
+ */
+
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc;
+}
+
+/* Sidebar */
+.sidebar {
+  /*  width: 240px; */
+  min-width: 240px;
+  background-color: #1e293b;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h2 {
+  text-align: center;
+  font-size: 1.3rem;
+  margin-bottom: 30px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin-bottom: 15px;
+}
+
+.nav-link {
+  color: #e2e8f0;
+  text-decoration: none; /* ✅ sin subrayado */
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #334155;
+}
+
+/* Contenido principal */
+.main-content {
+  flex-grow: 1;
+  padding: 30px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  color: #2563eb;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-current {
+  font-weight: 500;
+  color: #0f172a;
+}
+
+/* =============================
+        CALIBRACIONES
+================================ */
+.calibracion-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1.5rem;
+}
+
+.calibracion-registro {
+  background-color: #fff;
+  border-radius: 12px;
+  border: 1px solid #e1e1e1;
+  padding: 1.5rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+}
+
+.calibracion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.calibracion-titulo {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.calibracion-resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.calibracion-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.8rem 1rem;
+}
+
+.dato-item {
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dato-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #444;
+  margin-bottom: 0.2rem;
+}
+
+.dato-valor {
+  font-size: 0.9rem;
+  color: #555;
+  word-break: break-word;
+}
+
+.btn-editver {
+  width: 50px;
+}
+
+/* =========== ACORDION  ================== */
+.acordeon-item {
+  background: #f9fafb; /* casi blanco */
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  padding: 5px 18px;
+  transition: all 0.3s ease;
+}
+
+.acordeon-item.active {
+  background-color: rgba(30, 41, 59, 0.3);
+}
+
+/* HEADER SIEMPRE VISIBLE */
+.acordeon-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+/* TEXTO PRINCIPAL */
+.acordeon-info {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+}
+
+/* CUERPO (SOLO SE VE AL ABRIR) */
+.acordeon-body {
+  padding-top: 10px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* GRID DE DATOS */
+.acordeon-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* ajustá según tu gusto */
+  gap: 12px;
+  padding: 10px 0;
+}
+
+/* MINI CARDS DE CADA DATO */
+.dato-item {
+  background: #ffffff; /* blanco puro */
+  border: 1px solid #ececec;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.dato-label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 3px;
+}
+
+/* FLECHITA */
+.arrow {
+  transition: transform 0.3s ease;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}
+
+/* ANIMACIÓN */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

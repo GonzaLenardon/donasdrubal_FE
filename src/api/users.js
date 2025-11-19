@@ -12,7 +12,7 @@ export const addUser = async (user) => {
   return res.data;
 };
 
-export const getUsers = async () => {
+export const allUsers = async () => {
   const resp = await axios.get(`${url}/user`);
   return resp.data;
 };
@@ -26,4 +26,9 @@ export const upUser = async (user) => {
   });
 
   return res.data;
+};
+
+export const getUser = async (id) => {
+  const resp = await axios.get(`${url}/user/${id}`);
+  return resp.data;
 };

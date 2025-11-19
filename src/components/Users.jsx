@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { addUser, getUsers, upUser } from '../api/users.js';
+import { addUser, allUsers, upUser } from '../api/users.js';
 import Modal from '../components/Modal.jsx'; // ✅ import del nuevo modal
 import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
@@ -21,7 +21,7 @@ const Users = () => {
 
   const getAllUser = async () => {
     try {
-      const resp = await getUsers();
+      const resp = await allUsers();
       setUserList(resp);
     } catch (error) {
       console.error('Error al traer usuarios:', error);
@@ -131,23 +131,27 @@ const Users = () => {
   };
 
   const handleVer = async (user) => {
-    navigate('/userdetalles', { state: { user } });
+    /* navigate(`/user/${user.id}/detalles`, { state: { user } }); */
+    navigate(`/user/${user.id}/detalles`, { state: { user: user } });
   };
 
   return (
     <>
-      <div>
-        <h2>Usuarios</h2>
-        <button
-          type="button"
-          className="btn btn-warning ms-5"
-          onClick={modalNewUser}
-        >
-          Nuevo
-        </button>
+      <div className="container-sm ">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h5 className="mb-0">Usuarios</h5>
+
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={modalNewUser}
+          >
+            +
+          </button>
+        </div>
 
         <div className="container-sm">
-          <table className="table table-hover fs-5">
+          <table className="table table-hover">
             <thead>
               <tr>
                 <th>Nombre</th>
@@ -157,8 +161,7 @@ const Users = () => {
                 <th>Telefono</th>
                 <th>Domicilio</th>
                 <th>Datos Impositivos</th>
-                <th>Actualizar</th>
-                <th>Detalles</th>
+                <th className="d-flex  justify-content-center">Actualizar</th>
               </tr>
             </thead>
             <tbody>
@@ -172,28 +175,27 @@ const Users = () => {
                   <td>{user.domicilio}</td>
                   <td>{user.datosImpositivos}</td>
                   <td>
-                    <button
-                      className="btn btn-sm btn-primary"
-                      style={{ width: '80px' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        modalUpUser(user);
-                      }}
-                    >
-                      Actualizar
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-success"
-                      style={{ width: '80px' }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleVer(user);
-                      }}
-                    >
-                      Ver
-                    </button>
+                    <div className="d-flex gap-2 justify-content-center ">
+                      <button
+                        className="btn btn-sm btn-primary btn-editver"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          modalUpUser(user);
+                        }}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn btn-sm btn-warning btn-editver"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleVer(user);
+                        }}
+                      >
+                        Ver
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -211,12 +213,22 @@ const Users = () => {
         title={isUpdate ? 'Actualizar Usuario' : 'Nuevo Usuario'}
         onClose={modalClose}
         footer={
-          <button
-            className="btn btn-success w-50"
-            onClick={isUpdate ? updateUser : insertUser}
-          >
-            {isUpdate ? 'Actualizar ✅' : 'Aceptar ✅'}
-          </button>
+          <>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={modalClose}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              onClick={isUpdate ? updateUser : insertUser}
+            >
+              {isUpdate ? 'Actualizar ' : 'Aceptar '}
+            </button>
+          </>
         }
       >
         <div className="py-1 fw-bold">

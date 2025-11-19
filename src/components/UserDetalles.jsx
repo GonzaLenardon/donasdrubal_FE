@@ -1,126 +1,128 @@
-import { React, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { allMaquinas } from '../api/maquinas';
-import { Calibraciones } from '../api/calibraciones';
-import { Spinner } from 'react-bootstrap';
+import { ModalMaquinas } from './ModalMaquinas.jsx';
+import { getUser } from '../api/users.js';
 
 const UserDetalles = () => {
-  const location = useLocation();
-  const { user } = location.state || {};
-  const [maquinas, setMaquinas] = useState();
-  const [calibraciones, setCalibraciones] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState('');
+  const { id_User } = useParams();
+  const navigate = useNavigate();
+  const [maquinas, setMaquinas] = useState([]);
+  const [modal, setModal] = useState(false);
+  const [maquinaEdit, setMaquinaEdit] = useState({});
+  const [usuario, setUsuario] = useState();
 
   useEffect(() => {
-    getMaquinas();
+    Maquinas();
+    user();
   }, []);
 
-  const getMaquinas = async () => {
+  const Maquinas = async () => {
     try {
-      setLoading(true);
-      /*    setModal(false); */
-
-      const res = await allMaquinas(user.id);
-      console.log('dadadadada', res);
-      setMsg(res.mensaje);
+      console.log('paso x aca');
+      const res = await allMaquinas(id_User);
       setMaquinas(res);
     } catch (error) {
-      setMsg(error.message);
-    } finally {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      setLoading(false);
-      setMsg('');
+      console.log(error.message);
     }
   };
 
-  const getCalibracion = async (maquina) => {
+  const user = async () => {
     try {
-      setLoading(true);
-      const resp = await Calibraciones(maquina);
-      setMsg(resp.message);
-      setCalibraciones(resp.data);
-      console.log(resp);
+      console.log('paso x aca');
+      const res = await getUser(id_User);
+      setUsuario(res);
+      console.log('usuario', res);
     } catch (error) {
-      setMsg(error.message);
-    } finally {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      setLoading(false);
-      setMsg('');
+      console.log(error.message);
     }
   };
 
   return (
     <>
-      <div className="container-view">
-        <div className="container-datos-user">
-          <h2 className="name">{user.nombre}</h2>
-
-          <div className="d-flex  justify-content-around">
-            <p>
-              <strong>Localidad :</strong>
-              {user.localidad}
-            </p>
-            <p>
-              <strong>Condicion IVA :</strong>
-              {user.datosImpositivos}
-            </p>
-            <p>
-              <strong>Telefono :</strong>
-              {user.telefono}
-            </p>
-          </div>
-        </div>
-        {user ? (
-          <>
-            <div className="container-sm">
-              <h2 className="d-inline-block me-3">Maquinas</h2>
-              <button type="button" className="btn btn-warning">
-                {' '}
-                +{' '}
-              </button>
-              <table className="table table-hover fs-5">
-                <thead>
-                  <tr>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Tipo</th>
-                    <th>Responsable</th>
-                    <th>Servicios</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {maquinas?.map((maq) => (
-                    <tr key={maq.id}>
-                      <td>{maq.marca}</td>
-                      <td>{maq.modelo}</td>
-                      <td>{maq.tipo_maquina}</td>
-                      <td>{maq.responsable}</td>
-
-                      <td>
-                        <button
-                          className="btn btn-sm btn-success"
-                          style={{ width: '80px' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            getCalibracion(maq.id);
-                          }}
-                        >
-                          Ver
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      <div className="container-view ">
+        {usuario && (
+          <div className="container-datos">
+            <div className="datos-user">
+              <div className="user-name">{usuario.nombre}</div>
+              <span>{usuario.datosImpositivos}</span>
+              <span>{usuario.telefono}</span>
             </div>
-          </>
-        ) : (
-          <p>No se recibió usuario</p>
+          </div>
         )}
+
+        <div className="container-sm ">
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h5 className="mb-0">Máquinas</h5>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setMaquinaEdit({});
+                setModal(true);
+              }}
+            >
+              +
+            </button>
+          </div>
+
+          <table className="table table-hover">
+            <thead>
+              <tr>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Tipo</th>
+                <th>Responsable</th>
+                <th className="d-flex justify-content-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {maquinas.map((maq) => (
+                <tr key={maq.id}>
+                  <td>{maq.marca}</td>
+                  <td>{maq.modelo}</td>
+                  <td>{maq.tipo_maquina}</td>
+                  <td>{maq.responsable}</td>
+                  <td>
+                    <div className="d-flex gap-2 justify-content-center">
+                      <button
+                        className="btn btn-sm btn-primary btn-editver"
+                        onClick={() => {
+                          setMaquinaEdit(maq);
+                          setModal(true);
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="btn btn-sm btn-warning btn-editver"
+                        onClick={() =>
+                          navigate(
+                            `/user/${id_User}/detalles/maquina/${maq.id}/calibraciones`
+                          )
+                        }
+                      >
+                        Ver
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/*  <Spinner loading={loading} msg={msg} /> */}
+      {modal && (
+        <ModalMaquinas
+          onClose={() => {
+            setModal(false);
+            setMaquinaEdit(null);
+          }}
+          onSaved={() => Maquinas()} // 🔥 recarga lista
+          maquina={maquinaEdit}
+          setMaquinaEdit={setMaquinaEdit}
+        />
+      )}
     </>
   );
 };
