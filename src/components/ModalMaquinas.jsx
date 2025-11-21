@@ -13,6 +13,8 @@ export const ModalMaquinas = ({
 
   if (!maquina) return null; // evita crasheos
 
+  console.log('maquina ', maquina);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setMaquinaEdit((prev) => ({ ...prev, [name]: value }));
@@ -48,7 +50,7 @@ export const ModalMaquinas = ({
       <div className="modal-overlay">
         <div className="custom-modal">
           <div className="modal-header">
-            <h5>{maquina ? 'Editar Máquina' : 'Agregar Máquina'}</h5>
+            <h5>{maquina.id ? 'Editar Máquina' : 'Agregar Máquina'}</h5>
             <button className="btn-close" onClick={onClose}></button>
           </div>
 
@@ -97,17 +99,6 @@ export const ModalMaquinas = ({
               />
             </div>
 
-            <div className="form-group mb-3 py-1 fw-bold">
-              <label>ID Usuario</label>
-              <input
-                type="number"
-                className="form-control"
-                name="user_id"
-                value={maquina.user_id || ''}
-                onChange={handleChange}
-              />
-            </div>
-
             <div className="modal-footer">
               <button
                 type="button"
@@ -121,7 +112,7 @@ export const ModalMaquinas = ({
                 className="btn btn-primary"
                 onClick={handleSubmitMaquina}
               >
-                {maquina ? 'Actualizar' : 'Agregar'}
+                {maquina.id ? 'Actualizar' : 'Agregar'}
               </button>
             </div>
           </div>

@@ -6,3 +6,15 @@ export const calibracionesMaquina = async (maquina) => {
 
   return res.data;
 };
+
+export const addCalibraciones = async (maquina) => {
+  const res = await axios.post(`${url}/calibraciones`, maquina);
+
+  return res.data;
+};
+
+export const upCalibraciones = async (id, maquina) => {
+  const res = await axios.put(`${url}/calibraciones/${id}`, maquina);
+
+  return res.data;
+};

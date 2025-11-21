@@ -14,6 +14,7 @@ export const addUser = async (user) => {
 
 export const allUsers = async () => {
   const resp = await axios.get(`${url}/user`);
+
   return resp.data;
 };
 

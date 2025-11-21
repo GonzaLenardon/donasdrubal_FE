@@ -17,7 +17,7 @@ const Maquinas = () => {
   const getAllUser = async () => {
     try {
       const resp = await allUsers();
-      setUserList(resp);
+      setUserList(resp.data);
     } catch (error) {
       console.error('Error al traer usuarios:', error);
     }
@@ -30,10 +30,10 @@ const Maquinas = () => {
 
       const res = await allMaquinas(user.user);
       console.log('dadadadada', res);
-      setMsg(res.mensaje);
+      setMsg(res.data.mensaje);
       setMaquinas(res.data);
     } catch (error) {
-      setMsg(error.message);
+      setMsg(error.data.message);
     } finally {
       await new Promise((resolve) => setTimeout(resolve, 3000));
       setLoading(false);

@@ -388,7 +388,7 @@ body {
 .acordeon-info {
   display: flex;
   gap: 20px;
-  font-size: 14px;
+  font-size: 1em;
 }
 
 /* CUERPO (SOLO SE VE AL ABRIR) */
@@ -403,6 +403,12 @@ body {
   grid-template-columns: repeat(3, 1fr); /* ajustá según tu gusto */
   gap: 12px;
   padding: 10px 0;
+}
+
+.dropdown .btn {
+  padding: 2px 8px;
+  font-size: 18px;
+  line-height: 1;
 }
 
 /* MINI CARDS DE CADA DATO */

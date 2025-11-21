@@ -22,9 +22,9 @@ const Users = () => {
   const getAllUser = async () => {
     try {
       const resp = await allUsers();
-      setUserList(resp);
+      setUserList(resp.data);
     } catch (error) {
-      console.error('Error al traer usuarios:', error);
+      console.error('Error al traer usuarios:', error.data);
     }
   };
 
@@ -255,6 +255,7 @@ const Users = () => {
             </option>
             <option value="supervisor">Supervisor</option>
             <option value="operador">Operador</option>
+            <option value="cliente">Cliente</option>
           </select>
         </div>
 

@@ -21,9 +21,9 @@ const UserDetalles = () => {
     try {
       console.log('paso x aca');
       const res = await allMaquinas(id_User);
-      setMaquinas(res);
+      setMaquinas(res.data);
     } catch (error) {
-      console.log(error.message);
+      console.log(error.data.message);
     }
   };
 
@@ -31,7 +31,7 @@ const UserDetalles = () => {
     try {
       console.log('paso x aca');
       const res = await getUser(id_User);
-      setUsuario(res);
+      setUsuario(res.data);
       console.log('usuario', res);
     } catch (error) {
       console.log(error.message);
@@ -57,7 +57,7 @@ const UserDetalles = () => {
             <button
               className="btn btn-primary"
               onClick={() => {
-                setMaquinaEdit({});
+                setMaquinaEdit({ user_id: usuario.id });
                 setModal(true);
               }}
             >
