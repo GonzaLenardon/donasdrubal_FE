@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Users from './components/Users.jsx';
+import Clientes from './components/Clientes.jsx';
 import Maquinas from './components/Maquinas.jsx';
 
 import Dashboard from './components/Dashboard.jsx';
@@ -25,9 +26,17 @@ function App() {
             element={<Calibraciones />}
           />
 
-          <Route path="user/:id_User/detalles" element={<UserDetalles />} />
+          
 
           <Route path="varios" element={<Varios />} />
+
+          <Route path="cliente" element={<Clientes />} />
+          <Route path="cliente/:id_cliente/detalles" element={<UserDetalles />} />          
+          {/* <Route path="cliente/:id_cliente/detalles/" element={<ClienteDetalle />} /> */}
+          <Route
+            path="cliente/:id_cliente/detalles/maquina/:id_maquina/calibraciones"
+            element={<Calibraciones />}
+          />          
 
           {/* Página no encontrada */}
           <Route path="*" element={<NotFound />} />
