@@ -16,6 +16,7 @@ const Dashboard = () => {
 
   const basicSelectores = [
     { title: 'Usuarios', path: '/user', icon: 'bi-person-fill' },
+    { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
     { title: 'Máquinas', path: '/maquinas', icon: 'bi-gear-fill' },
     { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
   ];
