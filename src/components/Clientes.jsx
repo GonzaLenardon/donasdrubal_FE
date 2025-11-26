@@ -66,25 +66,60 @@ const Clientes = () => {
   };
 
   const modalUpCliente = (item) => {
+    console.log('item para update', item);
     const {
       id,
-      rol,
-      nombre,
-      email,
+      categoria,
+      razon_social,
+      direccion_fiscal,
+      cuil_cuit,
+      iva_id,
       telefono,
-      datosImpositivos,
-      cuit,
-      domicilio,
+      direccion,
+      ciudad,
+      provincia,
+      pais,
+      estado,
+      modo_ingreso,
+      notas,
+      user,
+
     } = item;
+    console.log('user del cliente', {
+      id,
+      categoria,
+      razon_social,
+      direccion_fiscal,
+      cuil_cuit,
+      iva_id,
+      telefono,
+      direccion,
+      ciudad,
+      provincia,
+      pais,
+      estado,
+      modo_ingreso,
+      notas,
+      user_nombre: user?.nombre,
+      user_email: user?.email,
+    });  
     SetNewCliente({
       id,
-      rol,
-      nombre,
-      email,
+      categoria,
+      razon_social,
+      direccion_fiscal,
+      cuil_cuit,
+      iva_id,
       telefono,
-      datosImpositivos,
-      cuit,
-      domicilio,
+      direccion,
+      ciudad,
+      provincia,
+      pais,
+      estado,
+      modo_ingreso,
+      notas,
+      user_nombre: user?.nombre,
+      user_email: user?.email,
     });
     setIsUpdate(true);
     setModal(true);
@@ -92,13 +127,22 @@ const Clientes = () => {
 
   const modalNewCliente = () => {
     SetNewCliente({
-      nombre: '',
-      rol: '',
-      email: '',
+      user_nombre: '',
+      user_email: '',
+      user_password: '',
+      categoria: '',
+      razon_social: '',
+      direccion_fiscal: '',
+      cuil_cuit: '',
+      iva_id: '',
       telefono: '',
-      datosImpositivos: '',
-      cuit: '',
-      domicilio: '',
+      direccion: '',
+      ciudad: '',
+      provincia: '',
+      pais: '',
+      estado: '',
+      modo_ingreso: '',
+      notas: '',
     });
     setIsUpdate(false);
     setModal(true);
@@ -156,26 +200,22 @@ const Clientes = () => {
             <thead>
               <tr>
                 <th>Nombre</th>
-                <th>Rol</th>
-                <th>Cuit</th>
+                <th>Domicilio</th>
                 <th>email</th>
                 <th>Telefono</th>
-                <th>Domicilio</th>
-                <th>Datos Impositivos</th>
-                <th className="d-flex  justify-content-center">Actualizar</th>
+                <th>Estado</th>
+                <th className="d-flex  justify-content-center"></th>
               </tr>
             </thead>
             <tbody>
               {clienteList.map((cliente) => (
                 <tr key={cliente.id}>
                   <td>{cliente.razon_social}</td>
-                  <td>{cliente.iva_id}</td>
                   <td>{cliente.direccion}</td>
                   <td>{cliente.user.email}</td>
                   <td>{cliente.user.telefono}</td>
                   <td>{cliente.estado}</td>
                   <td>{cliente.categoria}</td>
-
                   <td>
                     <div className="d-flex gap-2 justify-content-center ">
                       <button
@@ -233,74 +273,66 @@ const Clientes = () => {
           </>
         }
       >
-        <div className="py-1 fw-bold">
+        {/* <div className="py-1 fw-bold">
           <label>Nombre</label>
           <input
             className="form-control rounded"
-            name="nombre"
+            name="user_nombre"
             type="text"
-            value={newCliente?.nombre || ''}
+            value={newCliente?.user_nombre || ''}
             onChange={handleCliente}
           />
         </div>
-
-        <div className="py-1 fw-bold">
-          <label>Rol</label>
-          <select
-            className="form-select w-50"
-            name="rol"
-            value={newCliente?.rol || ''}
-            onChange={handleCliente}
-          >
-            <option value="" disabled>
-              Tipo Empleado
-            </option>
-            <option value="supervisor">Supervisor</option>
-            <option value="operador">Operador</option>
-            <option value="cliente">Cliente</option>
-          </select>
-        </div>
-
-        <div className="py-1 fw-bold">
-          <label>Datos Impositivo</label>
-          <select
-            className="form-select w-50"
-            name="datosImpositivos"
-            value={newCliente?.datosImpositivos || ''}
-            onChange={handleCliente}
-          >
-            <option value="" disabled>
-              Tipo Impositivo
-            </option>
-            <option value="Responsable Inscripto">Responsable Inscripto</option>
-            <option value="Consumidor Final">Consumidor Final</option>
-            <option value="Exento">Exento</option>
-            <option value="Autonomo">Autonomo</option>
-          </select>
-        </div>
-
-        <div className="py-1 fw-bold">
-          <label>Cuit</label>
-          <input
-            className="form-control rounded"
-            name="cuit"
-            type="text"
-            value={newCliente?.cuit || ''}
-            onChange={handleCliente}
-          />
-        </div>
-
         <div className="py-1 fw-bold">
           <label>Email</label>
           <input
             className="form-control rounded"
-            name="email"
+            name="user_email"
             type="text"
-            value={newCliente?.email || ''}
+            value={newCliente?.user_email || ''}
+            onChange={handleCliente}
+          />
+        </div> */}
+        <div className="py-1 fw-bold">
+          <label>Razón Social</label>
+          <input
+            className="form-control rounded"
+            name="razon_social"
+            type="text"
+            value={newCliente?.razon_social || ''}
             onChange={handleCliente}
           />
         </div>
-
+        <div className="py-1 fw-bold">
+          <label>Domicilio Fiscal</label>
+          <input
+            className="form-control rounded"
+            name="direccion_fiscal"
+            type="text"
+            value={newCliente?.direccion_fiscal || ''}
+            onChange={handleCliente}
+          />
+        </div>
+        <div className="py-1 fw-bold">
+          <label>CUIL / CUIT</label>
+          <input
+            className="form-control rounded"
+            name="cuil_cuit"
+            type="text"
+            value={newCliente?.cuil_cuit || ''}
+            onChange={handleCliente}
+          />
+        </div>   
+        <div className="py-1 fw-bold">
+          <label>Condición IVA</label>
+          <input
+            className="form-control rounded"
+            name="iva_id"
+            type="text"
+            value={newCliente?.iva_id || ''}
+            onChange={handleCliente}
+          />
+        </div> 
         <div className="py-1 fw-bold">
           <label>Telefono</label>
           <input
@@ -309,19 +341,69 @@ const Clientes = () => {
             type="text"
             value={newCliente?.telefono || ''}
             onChange={handleCliente}
-          />
-        </div>
-
+          />          
+        </div>  
         <div className="py-1 fw-bold">
-          <label>Domicilio</label>
+          <label>Email</label>
           <input
             className="form-control rounded"
-            name="domicilio"
+            name="email"
             type="text"
-            value={newCliente?.domicilio || ''}
+            value={newCliente?.email || ''}
             onChange={handleCliente}
-          />
+          />          
         </div>
+        <div className="py-1 fw-bold">
+          <label>Ciudad</label>
+          <input
+            className="form-control rounded"
+            name="ciudad"
+            type="text"
+            value={newCliente?.ciudad || ''}
+            onChange={handleCliente}
+          />          
+        </div> 
+        <div className="py-1 fw-bold">
+          <label>Provincia</label>
+          <input
+            className="form-control rounded"
+            name="provincia"
+            type="text"
+            value={newCliente?.provincia || ''}
+            onChange={handleCliente}
+          />          
+        </div>   
+        <div className="py-1 fw-bold">
+          <label>Pais</label>
+          <input
+            className="form-control rounded"
+            name="pais"
+            type="text"
+            value={newCliente?.pais || ''}
+            onChange={handleCliente}
+          />          
+        </div>
+        <div className="py-1 fw-bold">
+          <label>Estado cliente</label>
+          <input
+            className="form-control rounded"
+            name="estado"
+            type="text"
+            value={newCliente?.esatdo || ''}
+            onChange={handleCliente}
+          />          
+        </div>   
+        <div className="py-1 fw-bold">
+          <label>Notas</label>
+          <input
+            className="form-control rounded"
+            name="notas"
+            type="text"
+            value={newCliente?.notas || ''}
+            onChange={handleCliente}
+          />          
+        </div>                                                     
+                  
       </Modal>
 
       <ToastContainer

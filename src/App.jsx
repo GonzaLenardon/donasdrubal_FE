@@ -5,6 +5,7 @@ import Maquinas from './components/Maquinas.jsx';
 
 import Dashboard from './components/Dashboard.jsx';
 import UserDetalles from './components/UserDetalles.jsx';
+import ClienteDetalles from './components/ClienteDetalle.jsx';
 import { Calibraciones } from './components/Calibraciones.jsx';
 import { Varios } from './components/Varios.jsx';
 
@@ -31,7 +32,7 @@ function App() {
           <Route path="varios" element={<Varios />} />
 
           <Route path="cliente" element={<Clientes />} />
-          <Route path="cliente/:id_cliente/detalles" element={<UserDetalles />} />          
+          <Route path="cliente/:id_cliente/detalles" element={<ClienteDetalles />} />          
           {/* <Route path="cliente/:id_cliente/detalles/" element={<ClienteDetalle />} /> */}
           <Route
             path="cliente/:id_cliente/detalles/maquina/:id_maquina/calibraciones"
