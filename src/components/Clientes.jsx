@@ -83,7 +83,6 @@ const Clientes = () => {
       modo_ingreso,
       notas,
       user,
-
     } = item;
     console.log('user del cliente', {
       id,
@@ -102,7 +101,7 @@ const Clientes = () => {
       notas,
       user_nombre: user?.nombre,
       user_email: user?.email,
-    });  
+    });
     SetNewCliente({
       id,
       categoria,
@@ -177,7 +176,9 @@ const Clientes = () => {
 
   const handleVer = async (cliente) => {
     /* navigate(`/cliente/${cliente.id}/detalles`, { state: { cliente } }); */
-    navigate(`/cliente/${cliente.id}/detalles`, { state: { cliente: cliente } });
+    navigate(`/cliente/${cliente.id}/detalles`, {
+      state: { cliente: cliente },
+    });
   };
 
   return (
@@ -322,7 +323,7 @@ const Clientes = () => {
             value={newCliente?.cuil_cuit || ''}
             onChange={handleCliente}
           />
-        </div>   
+        </div>
         <div className="py-1 fw-bold">
           <label>Condición IVA</label>
           <input
@@ -332,7 +333,7 @@ const Clientes = () => {
             value={newCliente?.iva_id || ''}
             onChange={handleCliente}
           />
-        </div> 
+        </div>
         <div className="py-1 fw-bold">
           <label>Telefono</label>
           <input
@@ -341,8 +342,8 @@ const Clientes = () => {
             type="text"
             value={newCliente?.telefono || ''}
             onChange={handleCliente}
-          />          
-        </div>  
+          />
+        </div>
         <div className="py-1 fw-bold">
           <label>Email</label>
           <input
@@ -351,7 +352,7 @@ const Clientes = () => {
             type="text"
             value={newCliente?.email || ''}
             onChange={handleCliente}
-          />          
+          />
         </div>
         <div className="py-1 fw-bold">
           <label>Ciudad</label>
@@ -361,8 +362,8 @@ const Clientes = () => {
             type="text"
             value={newCliente?.ciudad || ''}
             onChange={handleCliente}
-          />          
-        </div> 
+          />
+        </div>
         <div className="py-1 fw-bold">
           <label>Provincia</label>
           <input
@@ -371,8 +372,8 @@ const Clientes = () => {
             type="text"
             value={newCliente?.provincia || ''}
             onChange={handleCliente}
-          />          
-        </div>   
+          />
+        </div>
         <div className="py-1 fw-bold">
           <label>Pais</label>
           <input
@@ -381,7 +382,7 @@ const Clientes = () => {
             type="text"
             value={newCliente?.pais || ''}
             onChange={handleCliente}
-          />          
+          />
         </div>
         <div className="py-1 fw-bold">
           <label>Estado cliente</label>
@@ -391,8 +392,8 @@ const Clientes = () => {
             type="text"
             value={newCliente?.estado || ''}
             onChange={handleCliente}
-          />          
-        </div>   
+          />
+        </div>
         <div className="py-1 fw-bold">
           <label>Notas</label>
           <input
@@ -401,9 +402,8 @@ const Clientes = () => {
             type="text"
             value={newCliente?.notas || ''}
             onChange={handleCliente}
-          />          
-        </div>                                                     
-                  
+          />
+        </div>
       </Modal>
 
       <ToastContainer
