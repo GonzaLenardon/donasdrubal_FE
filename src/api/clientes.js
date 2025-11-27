@@ -1,8 +1,7 @@
-import axios from 'axios';
-const url = import.meta.env.VITE_APP_API_URL;
+import instance from './axios';
 
 export const addCliente = async (cliente) => {
-  const res = await axios.post(`${url}/cliente`, cliente, {
+  const res = await instance.post(`/cliente`, cliente, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -13,13 +12,13 @@ export const addCliente = async (cliente) => {
 };
 
 export const allCliente = async () => {
-  const resp = await axios.get(`${url}/cliente`);
+  const resp = await instance.get(`/cliente`);
 
   return resp.data;
 };
 
 export const upCliente = async (cliente) => {
-  const res = await axios.put(`${url}/cliente`, cliente, {
+  const res = await instance.put(`/cliente`, cliente, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -30,6 +29,6 @@ export const upCliente = async (cliente) => {
 };
 
 export const getCliente = async (id) => {
-  const resp = await axios.get(`${url}/cliente/${id}`);
+  const resp = await instance.get(`/cliente/${id}`);
   return resp.data;
 };
