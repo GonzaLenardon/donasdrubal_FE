@@ -389,7 +389,7 @@ const Clientes = () => {
             className="form-control rounded"
             name="estado"
             type="text"
-            value={newCliente?.esatdo || ''}
+            value={newCliente?.estado || ''}
             onChange={handleCliente}
           />          
         </div>   
