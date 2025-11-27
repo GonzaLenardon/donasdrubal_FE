@@ -8,12 +8,16 @@ import UserDetalles from './components/UserDetalles.jsx';
 import ClienteDetalles from './components/ClienteDetalle.jsx';
 import { Calibraciones } from './components/Calibraciones.jsx';
 import { Varios } from './components/Varios.jsx';
+import { Login } from './components/Login.jsx';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         {/* Layout principal */}
+
+        <Route path="/login" element={<Login />}></Route>
+
         <Route path="/" element={<Dashboard />}>
           {/* Ruta por defecto al entrar a "/" */}
           <Route index element={<Users />} />
@@ -27,17 +31,18 @@ function App() {
             element={<Calibraciones />}
           />
 
-          
-
           <Route path="varios" element={<Varios />} />
 
           <Route path="cliente" element={<Clientes />} />
-          <Route path="cliente/:id_cliente/detalles" element={<ClienteDetalles />} />          
+          <Route
+            path="cliente/:id_cliente/detalles"
+            element={<ClienteDetalles />}
+          />
           {/* <Route path="cliente/:id_cliente/detalles/" element={<ClienteDetalle />} /> */}
           <Route
             path="cliente/:id_cliente/detalles/maquina/:id_maquina/calibraciones"
             element={<Calibraciones />}
-          />          
+          />
 
           {/* Página no encontrada */}
           <Route path="*" element={<NotFound />} />

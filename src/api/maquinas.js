@@ -1,22 +1,21 @@
-import axios from 'axios';
-const url = import.meta.env.VITE_APP_API_URL;
+import instance from './axios'; // 👈 Importar la instancia configurada
 
 export const allMaquinas = async (user) => {
-  const res = await axios.get(`${url}/maquinas/${user}`);
+  const res = await instance.get(`/maquinas/${user}`);
   return res.data;
 };
 
 export const addMaquinas = async (maquina) => {
-  const res = await axios.post(`${url}/maquinas`, maquina);
+  const res = await instance.post(`/maquinas`, maquina);
   return res.data;
 };
 
 export const updateMaquina = async (maquina) => {
-  const res = await axios.put(`${url}/maquinas`, maquina);
+  const res = await instance.put(`/maquinas`, maquina);
   return res.data;
 };
 
 export const getMaquina = async (maquina) => {
-  const res = await axios.get(`${url}/maquina/${maquina}`);
+  const res = await instance.get(`/maquina/${maquina}`);
   return res.data;
 };
