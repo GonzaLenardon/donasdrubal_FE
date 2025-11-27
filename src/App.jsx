@@ -35,12 +35,12 @@ function App() {
 
           <Route path="cliente" element={<Clientes />} />
           <Route
-            path="cliente/:id_cliente/detalles"
+            path="cliente/:cliente_id/detalles"
             element={<ClienteDetalles />}
           />
           {/* <Route path="cliente/:id_cliente/detalles/" element={<ClienteDetalle />} /> */}
           <Route
-            path="cliente/:id_cliente/detalles/maquina/:id_maquina/calibraciones"
+            path="cliente/:cliente_id/detalles/maquina/:maquina_id/calibraciones"
             element={<Calibraciones />}
           />
 

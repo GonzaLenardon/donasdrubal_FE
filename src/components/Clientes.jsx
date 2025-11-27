@@ -199,13 +199,15 @@ const Clientes = () => {
         <div className="container-sm">
           <table className="table table-hover">
             <thead>
-              <tr>
+              <tr >
                 <th>Nombre</th>
                 <th>Domicilio</th>
                 <th>email</th>
                 <th>Telefono</th>
                 <th>Estado</th>
-                <th className="d-flex  justify-content-center"></th>
+                <th>Categoria</th>
+                <th></th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -233,6 +235,7 @@ const Clientes = () => {
                         className="btn btn-sm btn-warning btn-editver"
                         onClick={(e) => {
                           e.stopPropagation();
+                          console.log('ver cliente', cliente);  
                           handleVer(cliente);
                         }}
                       >

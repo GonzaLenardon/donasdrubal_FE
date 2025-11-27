@@ -6,7 +6,7 @@ import { getUser } from '../api/users.js';
 import { getCliente } from '../api/clientes.js';
 
 const ClienteDetalles = () => {
-  const {cliente_id } = useParams();
+  const {cliente_id} = useParams();
   const navigate = useNavigate();
   const [maquinas, setMaquinas] = useState([]);
   const [modal, setModal] = useState(false);
@@ -20,11 +20,11 @@ const ClienteDetalles = () => {
 
   const Maquinas = async () => {
     try {
-      console.log('paso x aca', cliente_id);
+      console.log('Detalle Cliente: id_cliente=>', cliente_id);
       const res = await allMaquinas(cliente_id);
       setMaquinas(res.data);
     } catch (error) {
-      console.log(error.data.message);
+      console.log(error);
     }
   };
 
