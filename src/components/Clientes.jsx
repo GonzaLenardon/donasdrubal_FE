@@ -69,18 +69,18 @@ const Clientes = () => {
     console.log('item para update', item);
     const {
       id,
-      categoria,
+      // categoria,
       razon_social,
       direccion_fiscal,
       cuil_cuit,
       iva_id,
       telefono,
-      direccion,
+      // direccion,
       ciudad,
       provincia,
       pais,
       estado,
-      modo_ingreso,
+      // modo_ingreso,
       notas,
       user,
     } = item;
@@ -104,18 +104,18 @@ const Clientes = () => {
     });
     SetNewCliente({
       id,
-      categoria,
+      // categoria,
       razon_social,
       direccion_fiscal,
       cuil_cuit,
       iva_id,
       telefono,
-      direccion,
+      // direccion,
       ciudad,
       provincia,
       pais,
       estado,
-      modo_ingreso,
+      // modo_ingreso,
       notas,
       user_nombre: user?.nombre,
       user_email: user?.email,
@@ -128,19 +128,19 @@ const Clientes = () => {
     SetNewCliente({
       user_nombre: '',
       user_email: '',
-      user_password: '',
-      categoria: '',
+      // user_password: '',
+      // categoria: '',
       razon_social: '',
       direccion_fiscal: '',
       cuil_cuit: '',
       iva_id: '',
       telefono: '',
-      direccion: '',
+      // direccion: '',
       ciudad: '',
       provincia: '',
       pais: '',
       estado: '',
-      modo_ingreso: '',
+      // modo_ingreso: '',
       notas: '',
     });
     setIsUpdate(false);
@@ -277,7 +277,7 @@ const Clientes = () => {
           </>
         }
       >
-        {/* <div className="py-1 fw-bold">
+        <div className="py-1 fw-bold">
           <label>Nombre</label>
           <input
             className="form-control rounded"
@@ -296,7 +296,7 @@ const Clientes = () => {
             value={newCliente?.user_email || ''}
             onChange={handleCliente}
           />
-        </div> */}
+        </div>
         <div className="py-1 fw-bold">
           <label>Razón Social</label>
           <input
