@@ -1,17 +1,23 @@
 import { Navigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+
+import instance from '../api/axios';
 
 const ProtectedRoute = ({ children }) => {
-  // Verificar si existe token en las cookies
-  const hasToken = document.cookie.includes('Token=');
+  const [auth, setAuth] = useState(null);
 
-  // Si no hay token, redirigir al login
-  if (!hasToken) {
-    console.log('❌ No hay token - Redirigiendo a /login');
-    return <Navigate to="/login" replace />;
-  }
+  useEffect(() => {
+    instance
+      .get('/auth/verify') // usa la instancia con cookies
+      .then(() => {
+        setAuth(true);
+        console.log('paso x ProtectedRoute');
+      })
+      .catch(() => setAuth(false));
+  }, []);
 
-  // Si hay token, mostrar el contenido
-  return children;
+  if (auth === null) return <h3>Cargando...</h3>;
+  return auth ? children : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;
