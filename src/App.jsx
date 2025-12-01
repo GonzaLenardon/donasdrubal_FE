@@ -9,44 +9,67 @@ import ClienteDetalles from './components/ClienteDetalle.jsx';
 import { Calibraciones } from './components/Calibraciones.jsx';
 import { Varios } from './components/Varios.jsx';
 import { Login } from './components/Login.jsx';
+import PublicRoute from './components/PublicRoute.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Layout principal */}
+        {/* ============================================
+            RUTAS PÚBLICAS (sin autenticación)
+            ============================================ */}
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
 
-        <Route path="/login" element={<Login />}></Route>
-
-        <Route path="/" element={<Dashboard />}>
-          {/* Ruta por defecto al entrar a "/" */}
+        {/* ============================================
+            RUTAS PROTEGIDAS (requieren autenticación)
+            ============================================ */}
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        >
+          {/* Ruta por defecto */}
           <Route index element={<Users />} />
 
           {/* Secciones */}
           <Route path="user" element={<Users />} />
           <Route path="maquinas" element={<Maquinas />} />
+          <Route path="varios" element={<Varios />} />
+          <Route path="cliente" element={<Clientes />} />
 
+          {/* Detalles */}
           <Route
-            path="cliente/:cliente_id/detalles/"
+            path="cliente/:cliente_id/detalles"
             element={<UserDetalles />}
           />
-
-          <Route path="varios" element={<Varios />} />
-
-          <Route path="cliente" element={<Clientes />} />
           <Route
             path="cliente/:id_cliente/detalles"
             element={<ClienteDetalles />}
           />
 
+          {/* Calibraciones */}
           <Route
             path="cliente/:cliente_id/detalles/maquinas/:maquina_id/calibraciones"
             element={<Calibraciones />}
           />
 
-          {/* Página no encontrada */}
+          {/* Página no encontrada (dentro del dashboard) */}
           <Route path="*" element={<NotFound />} />
         </Route>
+
+        {/* Página no encontrada */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

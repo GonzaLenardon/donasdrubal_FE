@@ -53,12 +53,12 @@ const Maquinas = () => {
   };
 
   return (
-    <div className=" bg-info py-4">
+    <div className="py-4">
       <div className="row justify-content-center align-items-center ">
         <div className="d-flex justify-content-center gap-5">
           <div className="col-12 col-md-5">
             <div className="form-floating">
-              <select
+              {/*  <select
                 className="form-select"
                 id="floatingSelectGrid"
                 name="user"
@@ -74,19 +74,19 @@ const Maquinas = () => {
                   </option>
                 ))}
               </select>
-              <label htmlFor="floatingSelectGrid">Seleccione un Cliente</label>
+              <label htmlFor="floatingSelectGrid">Seleccione un Cliente</label> */}
+              <h1>Maquinas</h1>
             </div>
           </div>
-          <button
+          {/*  <button
             type="button"
             className="btn btn btn-success"
             onClick={getMaquinas}
           >
             Buscar Maquinas
-          </button>
+          </button> */}
         </div>
       </div>
-      <h2>User {user.user}</h2>
     </div>
   );
 };
