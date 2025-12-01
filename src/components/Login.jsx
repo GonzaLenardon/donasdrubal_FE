@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import img from '../assets/imagen.png';
 import { login } from '../api/users';
+import { useNavigate } from 'react-router-dom';
 
 export const Login = () => {
   const [activeTab, setActiveTab] = useState('signin');
   const [user, setUser] = useState({ email: '', password: '' });
+  const navigate = useNavigate();
 
   const getlogin = async () => {
     try {
@@ -24,6 +26,7 @@ export const Login = () => {
 
       // Redirigir
       /*  navigate('/dashboard'); */
+      navigate('/', { replace: true }); // 👈 Redirigir
     } catch (error) {
       console.error('Error en login');
 

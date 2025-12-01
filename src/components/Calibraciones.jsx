@@ -4,13 +4,13 @@ import { calibracionesMaquina } from '../api/calibraciones';
 import { ModalCalibraciones } from './ModalCalibraciones';
 
 export const Calibraciones = () => {
-  const { id_maquina, id_user } = useParams();
+  const { maquina_id, cliente_id } = useParams();
   const [calibraciones, setCalibraciones] = useState();
   const [calibracion, setCalibracion] = useState();
   const [openIndex, setOpenIndex] = useState(null);
   const [modalCalibraciones, setModalCalibraciones] = useState(false);
 
-  console.log('id_maquina', id_maquina, id_user);
+  console.log('id_maquina', maquina_id, cliente_id);
 
   useEffect(() => {
     allcalibraciones();
@@ -18,7 +18,7 @@ export const Calibraciones = () => {
 
   const allcalibraciones = async () => {
     try {
-      const resp = await calibracionesMaquina(id_maquina);
+      const resp = await calibracionesMaquina(maquina_id, cliente_id);
       console.log('calibraciones', resp);
       setCalibraciones(resp.data);
     } catch (error) {
@@ -62,8 +62,10 @@ export const Calibraciones = () => {
       <div className="container-view">
         <div className="container-datos">
           <div className="datos-user">
-            <div className="user-name">{calibraciones?.cliente.nombre}</div>
-            <span>{calibraciones?.cliente.datosImpositivos}</span>
+            <div className="user-name">
+              {calibraciones?.cliente.razon_social}
+            </div>
+            <span>{calibraciones?.cliente.email}</span>
             <span>{calibraciones?.cliente.telefono}</span>
           </div>
 
@@ -82,7 +84,7 @@ export const Calibraciones = () => {
           <button
             type="button"
             className="btn btn-primary"
-            onClick={() => handleEditar({ maquina_id: id_maquina })}
+            onClick={() => handleEditar({ maquina_id: maquina_id })}
           >
             +
           </button>

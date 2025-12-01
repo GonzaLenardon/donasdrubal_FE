@@ -65,25 +65,13 @@ const Users = () => {
   };
 
   const modalUpUser = (item) => {
-    const {
-      id,
-      rol,
-      nombre,
-      email,
-      telefono,
-      datosImpositivos,
-      cuit,
-      domicilio,
-    } = item;
+    const { id, rol, nombre, email, telefono } = item;
     SetNewUser({
       id,
       rol,
       nombre,
       email,
       telefono,
-      datosImpositivos,
-      cuit,
-      domicilio,
     });
     setIsUpdate(true);
     setModal(true);
@@ -130,10 +118,9 @@ const Users = () => {
     return true; // ✅ Agregá esto para asegurar que retorne true si todo está OK
   };
 
-  const handleVer = async (user) => {
-    /* navigate(`/user/${user.id}/detalles`, { state: { user } }); */
+  /*   const handleVer = async (user) => {
     navigate(`/user/${user.id}/detalles`, { state: { user: user } });
-  };
+  }; */
 
   return (
     <>
@@ -156,11 +143,8 @@ const Users = () => {
               <tr>
                 <th>Nombre</th>
                 <th>Rol</th>
-                <th>Cuit</th>
                 <th>email</th>
                 <th>Telefono</th>
-                <th>Domicilio</th>
-                <th>Datos Impositivos</th>
                 <th className="d-flex  justify-content-center">Actualizar</th>
               </tr>
             </thead>
@@ -169,11 +153,8 @@ const Users = () => {
                 <tr key={user.id}>
                   <td>{user.nombre}</td>
                   <td>{user.rol}</td>
-                  <td>{user.cuit}</td>
                   <td>{user.email}</td>
                   <td>{user.telefono}</td>
-                  <td>{user.domicilio}</td>
-                  <td>{user.datosImpositivos}</td>
                   <td>
                     <div className="d-flex gap-2 justify-content-center ">
                       <button
@@ -186,7 +167,7 @@ const Users = () => {
                         Editar
                       </button>
 
-                      <button
+                      {/*    <button
                         className="btn btn-sm btn-warning btn-editver"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -194,7 +175,7 @@ const Users = () => {
                         }}
                       >
                         Ver
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>
@@ -251,15 +232,15 @@ const Users = () => {
             onChange={handleUser}
           >
             <option value="" disabled>
-              Tipo Empleado
+              Tipo Usuario
             </option>
+            <option value="admin">Administrador</option>
             <option value="supervisor">Supervisor</option>
-            <option value="operador">Operador</option>
             <option value="cliente">Cliente</option>
           </select>
         </div>
 
-        <div className="py-1 fw-bold">
+        {/* <div className="py-1 fw-bold">
           <label>Datos Impositivo</label>
           <select
             className="form-select w-50"
@@ -275,9 +256,9 @@ const Users = () => {
             <option value="Exento">Exento</option>
             <option value="Autonomo">Autonomo</option>
           </select>
-        </div>
+        </div> */}
 
-        <div className="py-1 fw-bold">
+        {/*   <div className="py-1 fw-bold">
           <label>Cuit</label>
           <input
             className="form-control rounded"
@@ -287,7 +268,7 @@ const Users = () => {
             onChange={handleUser}
           />
         </div>
-
+ */}
         <div className="py-1 fw-bold">
           <label>Email</label>
           <input
@@ -310,7 +291,7 @@ const Users = () => {
           />
         </div>
 
-        <div className="py-1 fw-bold">
+        {/*  <div className="py-1 fw-bold">
           <label>Domicilio</label>
           <input
             className="form-control rounded"
@@ -319,7 +300,7 @@ const Users = () => {
             value={newUser?.domicilio || ''}
             onChange={handleUser}
           />
-        </div>
+        </div> */}
       </Modal>
 
       <ToastContainer

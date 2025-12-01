@@ -1,7 +1,9 @@
 import instance from './axios';
 
-export const calibracionesMaquina = async (maquina) => {
-  const res = await instance.get(`/calibraciones/${maquina}`);
+export const calibracionesMaquina = async (maquina_id, cliente_id) => {
+  const res = await instance.get(
+    `/cliente/${cliente_id}/maquinas/${maquina_id}/calibraciones`
+  );
 
   return res.data;
 };

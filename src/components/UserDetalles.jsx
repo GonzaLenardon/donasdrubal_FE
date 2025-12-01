@@ -3,36 +3,40 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { allMaquinas } from '../api/maquinas';
 import { ModalMaquinas } from './ModalMaquinas.jsx';
 import { getUser } from '../api/users.js';
+import { getCliente } from '../api/clientes.js';
 
 const UserDetalles = () => {
-  const { id_User } = useParams();
+  const { cliente_id } = useParams();
   const navigate = useNavigate();
   const [maquinas, setMaquinas] = useState([]);
   const [modal, setModal] = useState(false);
   const [maquinaEdit, setMaquinaEdit] = useState({});
-  const [usuario, setUsuario] = useState();
+  const [cliente, setCliente] = useState();
+
+  console.log('UserDetalles', cliente_id);
 
   useEffect(() => {
     Maquinas();
-    user();
+    dataCliente();
   }, []);
 
   const Maquinas = async () => {
     try {
       console.log('paso x aca');
-      const res = await allMaquinas(id_User);
+      const res = await allMaquinas(cliente_id);
       setMaquinas(res.data);
+      console.log('todas las maquins', res.data);
     } catch (error) {
       console.log(error.data.message);
     }
   };
 
-  const user = async () => {
+  const dataCliente = async () => {
     try {
       console.log('paso x aca');
-      const res = await getUser(id_User);
-      setUsuario(res.data);
-      console.log('usuario', res);
+      const res = await getCliente(cliente_id);
+      setCliente(res.data);
+      console.log('cliente', res);
     } catch (error) {
       console.log(error.message);
     }
@@ -41,12 +45,12 @@ const UserDetalles = () => {
   return (
     <>
       <div className="container-view ">
-        {usuario && (
+        {cliente && (
           <div className="container-datos">
             <div className="datos-user">
-              <div className="user-name">{usuario.nombre}</div>
-              <span>{usuario.datosImpositivos}</span>
-              <span>{usuario.telefono}</span>
+              <div className="user-name">{cliente.razon_social}</div>
+              <span>{cliente.email}</span>
+              <span>{cliente.telefono}</span>
             </div>
           </div>
         )}
@@ -57,7 +61,7 @@ const UserDetalles = () => {
             <button
               className="btn btn-primary"
               onClick={() => {
-                setMaquinaEdit({ user_id: usuario.id });
+                setMaquinaEdit({ cliente_id: cliente_id });
                 setModal(true);
               }}
             >
@@ -97,7 +101,7 @@ const UserDetalles = () => {
                         className="btn btn-sm btn-warning btn-editver"
                         onClick={() =>
                           navigate(
-                            `/user/${id_User}/detalles/maquina/${maq.id}/calibraciones`
+                            `/cliente/${cliente_id}/detalles/maquinas/${maq.id}/calibraciones`
                           )
                         }
                       >
