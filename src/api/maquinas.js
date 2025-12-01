@@ -1,17 +1,30 @@
 import instance from './axios'; // 👈 Importar la instancia configurada
 
-export const allMaquinas = async (user) => {
-  const res = await instance.get(`/maquinas/${user}`);
+export const allMaquinas = async (cliente) => {
+  console.log('first,', cliente);
+  const res = await instance.get(`/cliente/${cliente}/maquinas`);
   return res.data;
 };
 
 export const addMaquinas = async (maquina) => {
-  const res = await instance.post(`/maquinas`, maquina);
+  console.log('first', maquina);
+
+  const { cliente_id, ...newMaquina } = maquina;
+
+  const res = await instance.post(
+    `/cliente/${cliente_id}/maquinas`,
+    newMaquina
+  );
   return res.data;
 };
 
 export const updateMaquina = async (maquina) => {
-  const res = await instance.put(`/maquinas`, maquina);
+  const { cliente_id, id, ...upMaquina } = maquina;
+
+  const res = await instance.put(
+    `/cliente/${cliente_id}/maquinas/${id}`,
+    upMaquina
+  );
   return res.data;
 };
 

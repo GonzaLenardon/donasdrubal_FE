@@ -17,14 +17,10 @@ export const allCliente = async () => {
   return resp.data;
 };
 
+// ✅ MEJOR PRÁCTICA
 export const upCliente = async (cliente) => {
-  const res = await instance.put(`/cliente`, cliente, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    timeout: 10000,
-  });
-
+  const { id, ...datosActualizar } = cliente;
+  const res = await instance.put(`/cliente/${id}`, datosActualizar);
   return res.data;
 };
 

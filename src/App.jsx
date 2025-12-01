@@ -25,10 +25,10 @@ function App() {
           {/* Secciones */}
           <Route path="user" element={<Users />} />
           <Route path="maquinas" element={<Maquinas />} />
-          <Route path="user/:id_User/detalles/" element={<UserDetalles />} />
+
           <Route
-            path="user/:id_user/detalles/maquina/:id_maquina/calibraciones"
-            element={<Calibraciones />}
+            path="cliente/:cliente_id/detalles/"
+            element={<UserDetalles />}
           />
 
           <Route path="varios" element={<Varios />} />
@@ -38,9 +38,9 @@ function App() {
             path="cliente/:id_cliente/detalles"
             element={<ClienteDetalles />}
           />
-          {/* <Route path="cliente/:id_cliente/detalles/" element={<ClienteDetalle />} /> */}
+
           <Route
-            path="cliente/:id_cliente/detalles/maquina/:id_maquina/calibraciones"
+            path="cliente/:cliente_id/detalles/maquinas/:maquina_id/calibraciones"
             element={<Calibraciones />}
           />
 

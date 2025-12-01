@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { addCliente, allCliente, upCliente } from '../api/clientes.js';
 import Modal from '../components/Modal.jsx'; // ✅ import del nuevo modal
 import Spinner from './Spinner.jsx';
@@ -65,70 +65,14 @@ const Clientes = () => {
     }
   };
 
-  const modalUpCliente = (item) => {
-    console.log('item para update', item);
-    const {
-      id,
-      categoria,
-      razon_social,
-      direccion_fiscal,
-      cuil_cuit,
-      iva_id,
-      telefono,
-      direccion,
-      ciudad,
-      provincia,
-      pais,
-      estado,
-      modo_ingreso,
-      notas,
-      user,
-    } = item;
-    console.log('user del cliente', {
-      id,
-      categoria,
-      razon_social,
-      direccion_fiscal,
-      cuil_cuit,
-      iva_id,
-      telefono,
-      direccion,
-      ciudad,
-      provincia,
-      pais,
-      estado,
-      modo_ingreso,
-      notas,
-      user_nombre: user?.nombre,
-      user_email: user?.email,
-    });
-    SetNewCliente({
-      id,
-      categoria,
-      razon_social,
-      direccion_fiscal,
-      cuil_cuit,
-      iva_id,
-      telefono,
-      direccion,
-      ciudad,
-      provincia,
-      pais,
-      estado,
-      modo_ingreso,
-      notas,
-      user_nombre: user?.nombre,
-      user_email: user?.email,
-    });
+  const modalUpCliente = (cliente) => {
+    SetNewCliente(cliente);
     setIsUpdate(true);
     setModal(true);
   };
 
   const modalNewCliente = () => {
     SetNewCliente({
-      user_nombre: '',
-      user_email: '',
-      user_password: '',
       categoria: '',
       razon_social: '',
       direccion_fiscal: '',
@@ -147,6 +91,10 @@ const Clientes = () => {
     setModal(true);
   };
 
+  useEffect(() => {
+    console.log('first', newCliente);
+  }, [newCliente]);
+
   const handleCliente = (e) => {
     const { name, value } = e.target;
     console.log(name, value);
@@ -158,20 +106,28 @@ const Clientes = () => {
     SetNewCliente({});
   };
 
+  const excluir = [
+    'categoria',
+    'direccion',
+    'modo_ingreso',
+    ' notas',
+    'user_email',
+    'user_nombre',
+    'user_password',
+    'notas',
+  ]; // por ejemplo
+
   const validarCampos = () => {
-    console.log('que valido', newCliente);
-    for (const campo of Object.values(newCliente)) {
-      if (
-        campo === undefined ||
-        campo === null ||
-        (typeof campo === 'string' && campo.trim() === '')
-      ) {
-        toast.error('Completar todos los campos');
-        return false;
+    for (const [key, value] of Object.entries(newCliente)) {
+      if (!excluir.includes(key)) {
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          console.log('key', key);
+          toast.error(`Completar el campo: ${key}`);
+          return false;
+        }
       }
     }
-
-    return true; // ✅ Agregá esto para asegurar que retorne true si todo está OK
+    return true;
   };
 
   const handleVer = async (cliente) => {
@@ -180,6 +136,10 @@ const Clientes = () => {
       state: { cliente: cliente },
     });
   };
+
+  useEffect(() => {
+    console.log('New Cliente', newCliente);
+  }, [newCliente]);
 
   return (
     <>
@@ -205,16 +165,16 @@ const Clientes = () => {
                 <th>email</th>
                 <th>Telefono</th>
                 <th>Estado</th>
-                <th className="d-flex  justify-content-center"></th>
+                <th className="d-flex  justify-content-center">Categoria</th>
               </tr>
             </thead>
             <tbody>
               {clienteList.map((cliente) => (
                 <tr key={cliente.id}>
                   <td>{cliente.razon_social}</td>
-                  <td>{cliente.direccion}</td>
-                  <td>{cliente.user.email}</td>
-                  <td>{cliente.user.telefono}</td>
+                  <td>{cliente.direccion_fiscal}</td>
+                  <td>{cliente.email}</td>
+                  <td>{cliente.telefono}</td>
                   <td>{cliente.estado}</td>
                   <td>{cliente.categoria}</td>
                   <td>
@@ -324,7 +284,8 @@ const Clientes = () => {
             onChange={handleCliente}
           />
         </div>
-        <div className="py-1 fw-bold">
+
+        {/*  <div className="py-1 fw-bold">
           <label>Condición IVA</label>
           <input
             className="form-control rounded"
@@ -333,7 +294,26 @@ const Clientes = () => {
             value={newCliente?.iva_id || ''}
             onChange={handleCliente}
           />
+        </div> */}
+
+        <div className="py-1 fw-bold">
+          <label>Condición IVA</label>
+          <select
+            className="form-select w-50"
+            name="iva_id"
+            value={newCliente?.iva_id || ''}
+            onChange={handleCliente}
+          >
+            <option value="" disabled>
+              Tipo Impositivo
+            </option>
+            <option value="1">Responsable Inscripto</option>
+            <option value="2">Consumidor Final</option>
+            <option value="3">Exento</option>
+            <option value="4">Autonomo</option>
+          </select>
         </div>
+
         <div className="py-1 fw-bold">
           <label>Telefono</label>
           <input
