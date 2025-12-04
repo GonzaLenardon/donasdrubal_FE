@@ -10,6 +10,7 @@ import { Varios } from './components/Varios.jsx';
 import { Login } from './components/Login.jsx';
 import PublicRoute from './components/PublicRoute.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import MaquinaTipo from './components/MaquinasTipos.jsx';
 import DashboardLayout from './components/DashboardLayout.jsx';
 import Dash from './components/Dash.jsx';
 
@@ -61,6 +62,13 @@ function App() {
             element={<Calibraciones />}
           />
 
+          {/* Tipo de Maquinas */}
+          <Route
+            path="maquinas_tipos"
+            element={<MaquinaTipo />}
+          />          
+
+          {/* Página no encontrada (dentro del dashboard) */}
           <Route path="*" element={<NotFound />} />
         </Route>
 
