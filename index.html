@@ -1,13 +1,40 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>donasdrubal</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#13ec5b",
+            "background-light": "#f6f8f6",
+            "background-dark": "#102216",
+            "text-light": "#0d1b12",
+            "text-dark": "#e8f5e9",
+            "card-light": "#ffffff",
+            "card-dark": "#1a3825",
+            "border-light": "#cfe7d7",
+            "border-dark": "#2a543d"
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          }
+        }
+      }
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>donasdrubal</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
 </html>
