@@ -18,12 +18,7 @@ export const allUsers = async () => {
 };
 
 export const upUser = async (user) => {
-  const res = await instance.put(`/user`, user, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    timeout: 10000,
-  });
+  const res = await instance.put(`/user`, user);
 
   return res.data;
 };
@@ -34,8 +29,6 @@ export const getUser = async (id) => {
 };
 
 export const login = async (data) => {
-  const resp = await instance.post(`/login`, data, {
-    withCredentials: true, // 👈 IMPORTANTE: permite enviar/recibir cookies
-  });
+  const resp = await instance.post(`/login`, data);
   return resp.data;
 };

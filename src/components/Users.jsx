@@ -19,6 +19,10 @@ const Users = () => {
     getAllUser();
   }, []);
 
+  useEffect(() => {
+    console.log('first', newUser);
+  }, [newUser]);
+
   const getAllUser = async () => {
     try {
       const resp = await allUsers();
@@ -83,9 +87,6 @@ const Users = () => {
       rol: '',
       email: '',
       telefono: '',
-      datosImpositivos: '',
-      cuit: '',
-      domicilio: '',
     });
     setIsUpdate(false);
     setModal(true);
