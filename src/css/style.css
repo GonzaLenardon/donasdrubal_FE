@@ -245,6 +245,120 @@ body {
   margin-bottom: 15px;
 }
 
+/* Contenedor general */
+.sidebar {
+  min-width: 240px;
+  background-color: #1e293b;
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: space-between;
+}
+
+/* Header */
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 25px;
+}
+
+.sidebar-logo {
+  font-size: 36px;
+  color: #4ade80; /* verde suave */
+}
+
+.sidebar h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+/* Usuario */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.sidebar-avatar {
+  width: 45px;
+  height: 45px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  border: 2px solid #334155;
+}
+
+.sidebar-username {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sidebar-role {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Menú */
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin-bottom: 12px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #e2e8f0;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: background 0.25s, color 0.25s;
+}
+
+.sidebar-link:hover {
+  background-color: #334155;
+  color: #4ade80;
+}
+
+.sidebar-icon {
+  font-size: 20px;
+}
+
+/* Parte inferior */
+.sidebar-bottom {
+  margin-top: 40px;
+}
+
+/* Botón */
+.sidebar-button {
+  width: 100%;
+  background: #4ade80;
+  color: #1e293b;
+  padding: 10px;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: opacity 0.25s;
+}
+
+.sidebar-button:hover {
+  opacity: 0.85;
+}
+
 .nav-link {
   color: #e2e8f0;
   text-decoration: none; /* ✅ sin subrayado */
@@ -268,24 +382,39 @@ body {
 }
 
 /* Breadcrumb */
-.breadcrumb {
-  margin-bottom: 20px;
+.breadcrumb-container {
+  color: #6b7280; /* gray-500 */
   font-size: 0.95rem;
-  color: #334155;
+  margin-bottom: 1rem;
 }
 
-.breadcrumb a {
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.breadcrumb-link {
+  color: #2563eb; /* blue-600 */
   text-decoration: none;
-  color: #2563eb;
+  font-weight: 600;
 }
 
-.breadcrumb a:hover {
+.breadcrumb-link:hover {
   text-decoration: underline;
 }
 
 .breadcrumb-current {
-  font-weight: 500;
-  color: #0f172a;
+  color: #111827; /* text darker */
+  font-weight: 700;
+}
+
+.breadcrumb-sep {
+  color: #9ca3af; /* gray-400 */
 }
 
 /* =============================
@@ -734,6 +863,162 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ================================
+    MODAL CIERRE DE SESION
+=================================== */
+/* MODAL LOGOUT - DISEÑO LIMPIO Y MINIMALISTA */
+
+.modal-overlay-logout {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.15s ease;
+}
+
+.modal-card-logout {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: slideUp 0.2s ease;
+  text-align: center;
+}
+
+.modal-icon-logout {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: #fee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+}
+
+.modal-title-logout {
+  font-size: 22px;
+  font-weight: 600;
+  color: #111;
+  margin: 0 0 8px 0;
+}
+
+.modal-text-logout {
+  font-size: 15px;
+  color: #666;
+  margin: 0 0 28px 0;
+}
+
+.modal-buttons-logout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.btn-logout-cancel,
+.btn-logout-confirm {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout-cancel {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.btn-logout-cancel:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+.btn-logout-confirm {
+  background: #dc2626;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-logout-confirm:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.btn-logout-cancel:disabled,
+.btn-logout-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner-logout {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .modal-card-logout {
+    padding: 24px;
+    max-width: 340px;
+  }
+
+  .modal-buttons-logout {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .modal-title-logout {
+    font-size: 20px;
+  }
+
+  .modal-text-logout {
+    font-size: 14px;
+  }
 }
 
 /* ============================================

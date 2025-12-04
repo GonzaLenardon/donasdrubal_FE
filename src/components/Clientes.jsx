@@ -166,6 +166,7 @@ const Clientes = () => {
                 <th>Telefono</th>
                 <th>Estado</th>
                 <th className="d-flex  justify-content-center">Categoria</th>
+                <th>Accion</th>
               </tr>
             </thead>
             <tbody>
