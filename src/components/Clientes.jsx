@@ -230,160 +230,160 @@ const Clientes = () => {
               className="btn btn-primary"
               onClick={isUpdate ? updateCliente : insertCliente}
             >
-              {isUpdate ? 'Actualizar ' : 'Aceptar '}
+              {isUpdate ? 'Actualizar' : 'Aceptar'}
             </button>
           </>
         }
       >
-        {/* <div className="py-1 fw-bold">
-          <label>Nombre</label>
-          <input
-            className="form-control rounded"
-            name="user_nombre"
-            type="text"
-            value={newCliente?.user_nombre || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>Email</label>
-          <input
-            className="form-control rounded"
-            name="user_email"
-            type="text"
-            value={newCliente?.user_email || ''}
-            onChange={handleCliente}
-          />
-        </div> */}
-        <div className="py-1 fw-bold">
-          <label>Razón Social</label>
-          <input
-            className="form-control rounded"
-            name="razon_social"
-            type="text"
-            value={newCliente?.razon_social || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>Domicilio Fiscal</label>
-          <input
-            className="form-control rounded"
-            name="direccion_fiscal"
-            type="text"
-            value={newCliente?.direccion_fiscal || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>CUIL / CUIT</label>
-          <input
-            className="form-control rounded"
-            name="cuil_cuit"
-            type="text"
-            value={newCliente?.cuil_cuit || ''}
-            onChange={handleCliente}
-          />
-        </div>
+        <div className="modal-cliente-grid">
+          {/* Fila 1 */}
+          <div className="form-group-modal">
+            <label>Razón Social</label>
+            <input
+              className="form-control rounded"
+              name="razon_social"
+              type="text"
+              value={newCliente?.razon_social || ''}
+              onChange={handleCliente}
+              placeholder="Ingrese razón social"
+            />
+          </div>
 
-        {/*  <div className="py-1 fw-bold">
-          <label>Condición IVA</label>
-          <input
-            className="form-control rounded"
-            name="iva_id"
-            type="text"
-            value={newCliente?.iva_id || ''}
-            onChange={handleCliente}
-          />
-        </div> */}
+          <div className="form-group-modal">
+            <label>Domicilio Fiscal</label>
+            <input
+              className="form-control rounded"
+              name="direccion_fiscal"
+              type="text"
+              value={newCliente?.direccion_fiscal || ''}
+              onChange={handleCliente}
+              placeholder="Calle, número, código postal"
+            />
+          </div>
 
-        <div className="py-1 fw-bold">
-          <label>Condición IVA</label>
-          <select
-            className="form-select w-50"
-            name="iva_id"
-            value={newCliente?.iva_id || ''}
-            onChange={handleCliente}
-          >
-            <option value="" disabled>
-              Tipo Impositivo
-            </option>
-            <option value="1">Responsable Inscripto</option>
-            <option value="2">Consumidor Final</option>
-            <option value="3">Exento</option>
-            <option value="4">Autonomo</option>
-          </select>
-        </div>
+          {/* Fila 2 */}
+          <div className="form-group-modal">
+            <label>CUIL / CUIT</label>
+            <input
+              className="form-control rounded"
+              name="cuil_cuit"
+              type="text"
+              value={newCliente?.cuil_cuit || ''}
+              onChange={handleCliente}
+              placeholder="XX-XXXXXXXX-X"
+            />
+          </div>
 
-        <div className="py-1 fw-bold">
-          <label>Telefono</label>
-          <input
-            className="form-control rounded"
-            name="telefono"
-            type="text"
-            value={newCliente?.telefono || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>Email</label>
-          <input
-            className="form-control rounded"
-            name="email"
-            type="text"
-            value={newCliente?.email || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>Ciudad</label>
-          <input
-            className="form-control rounded"
-            name="ciudad"
-            type="text"
-            value={newCliente?.ciudad || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>Provincia</label>
-          <input
-            className="form-control rounded"
-            name="provincia"
-            type="text"
-            value={newCliente?.provincia || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>Pais</label>
-          <input
-            className="form-control rounded"
-            name="pais"
-            type="text"
-            value={newCliente?.pais || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>Estado cliente</label>
-          <input
-            className="form-control rounded"
-            name="estado"
-            type="text"
-            value={newCliente?.estado || ''}
-            onChange={handleCliente}
-          />
-        </div>
-        <div className="py-1 fw-bold">
-          <label>Notas</label>
-          <input
-            className="form-control rounded"
-            name="notas"
-            type="text"
-            value={newCliente?.notas || ''}
-            onChange={handleCliente}
-          />
+          <div className="form-group-modal">
+            <label>Condición IVA</label>
+            <select
+              className="form-select"
+              name="iva_id"
+              value={newCliente?.iva_id || ''}
+              onChange={handleCliente}
+            >
+              <option value="" disabled>
+                Seleccione tipo impositivo
+              </option>
+              <option value="1">Responsable Inscripto</option>
+              <option value="2">Consumidor Final</option>
+              <option value="3">Exento</option>
+              <option value="4">Autónomo</option>
+            </select>
+          </div>
+
+          {/* Fila 3 */}
+          <div className="form-group-modal">
+            <label>Teléfono</label>
+            <input
+              className="form-control rounded"
+              name="telefono"
+              type="text"
+              value={newCliente?.telefono || ''}
+              onChange={handleCliente}
+              placeholder="+54 9 11 XXXX-XXXX"
+            />
+          </div>
+
+          <div className="form-group-modal">
+            <label>Email</label>
+            <input
+              className="form-control rounded"
+              name="email"
+              type="email"
+              value={newCliente?.email || ''}
+              onChange={handleCliente}
+              placeholder="ejemplo@email.com"
+            />
+          </div>
+
+          {/* Fila 4 */}
+          <div className="form-group-modal">
+            <label>Ciudad</label>
+            <input
+              className="form-control rounded"
+              name="ciudad"
+              type="text"
+              value={newCliente?.ciudad || ''}
+              onChange={handleCliente}
+              placeholder="Ej: Paraná"
+            />
+          </div>
+
+          <div className="form-group-modal">
+            <label>Provincia</label>
+            <input
+              className="form-control rounded"
+              name="provincia"
+              type="text"
+              value={newCliente?.provincia || ''}
+              onChange={handleCliente}
+              placeholder="Ej: Entre Ríos"
+            />
+          </div>
+
+          {/* Fila 5 */}
+          <div className="form-group-modal">
+            <label>País</label>
+            <input
+              className="form-control rounded"
+              name="pais"
+              type="text"
+              value={newCliente?.pais || ''}
+              onChange={handleCliente}
+              placeholder="Ej: Argentina"
+            />
+          </div>
+
+          <div className="form-group-modal">
+            <label>Estado Cliente</label>
+            <select
+              className="form-select"
+              name="estado"
+              value={newCliente?.estado || ''}
+              onChange={handleCliente}
+            >
+              <option value="" disabled>
+                Seleccione estado
+              </option>
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+              <option value="Pendiente">Pendiente</option>
+            </select>
+          </div>
+
+          {/* Fila 6 - Notas ocupa toda la fila */}
+          <div className="form-group-modal form-group-full">
+            <label>Notas</label>
+            <textarea
+              className="form-control rounded"
+              name="notas"
+              rows="3"
+              value={newCliente?.notas || ''}
+              onChange={handleCliente}
+              placeholder="Información adicional del cliente..."
+            />
+          </div>
         </div>
       </Modal>
 
