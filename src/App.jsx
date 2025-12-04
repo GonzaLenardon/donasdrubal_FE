@@ -11,6 +11,7 @@ import { Varios } from './components/Varios.jsx';
 import { Login } from './components/Login.jsx';
 import PublicRoute from './components/PublicRoute.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
+import MaquinaTipo from './components/MaquinasTipos.jsx';
 
 function App() {
   return (
@@ -63,6 +64,12 @@ function App() {
             path="cliente/:cliente_id/detalles/maquinas/:maquina_id/calibraciones"
             element={<Calibraciones />}
           />
+
+          {/* Tipo de Maquinas */}
+          <Route
+            path="maquinas_tipos"
+            element={<MaquinaTipo />}
+          />          
 
           {/* Página no encontrada (dentro del dashboard) */}
           <Route path="*" element={<NotFound />} />

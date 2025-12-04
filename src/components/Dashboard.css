@@ -1,0 +1,15 @@
+.dropdown-toggle {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.submenu {
+  padding-left: 20px;
+  margin-top: 5px;
+}
+
+.submenu li {
+  margin-top: 5px;
+}
