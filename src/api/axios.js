@@ -1,5 +1,5 @@
 import axios from 'axios';
-const url = import.meta.env.VITE_APP_API_URL || 'http://localhost:3001/api';
+const url = import.meta.env.VITE_API_URL || 'https://apis.donasdrubal.com.ar';
 
 const instance = axios.create({
   baseURL: url,

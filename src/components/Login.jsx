@@ -58,7 +58,7 @@ export const Login = () => {
             <h1 className="login-title">Bienvenidos a Don Asdruba</h1>
             <p className="login-description">
               Líderes en la Región en asesoramiento en pulverizaciones agrícolas
-              - Cooperando para una producción sustentable.
+              - Cooperando para una producción sustentable. - YO
             </p>
 
             <footer className="login-footer">
