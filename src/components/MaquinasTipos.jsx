@@ -1,5 +1,9 @@
 import React, { use, useEffect, useState } from 'react';
-import { addMaquinaTipo, allMaquinaTipo, updateMaquinaTipo } from '../api/maquinas_tipos.js';
+import {
+  addMaquinaTipo,
+  allMaquinaTipo,
+  updateMaquinaTipo,
+} from '../api/maquinas_tipos.js';
 import Modal from '../components/Modal.jsx'; // ✅ import del nuevo modal
 import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
@@ -76,7 +80,6 @@ const MaquinaTipo = () => {
       marca: '',
       modelo: '',
       fecha_fabricacion: '',
-      
     });
     setIsUpdate(false);
     setModal(true);
@@ -97,7 +100,7 @@ const MaquinaTipo = () => {
     SetNewMaquinaTipo({});
   };
 
-  const excluir = [ ]; // por ejemplo
+  const excluir = []; // por ejemplo
 
   const validarCampos = () => {
     for (const [key, value] of Object.entries(newMaquinaTipo)) {
@@ -167,7 +170,7 @@ const MaquinaTipo = () => {
                         Editar
                       </button> */}
 
-                      <button
+                      {/*  <button
                         className="btn btn-sm btn-warning btn-editver"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -175,7 +178,7 @@ const MaquinaTipo = () => {
                         }}
                       >
                         Ver
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>
@@ -212,7 +215,6 @@ const MaquinaTipo = () => {
           </>
         }
       >
-
         <div className="py-1 fw-bold">
           <label>Tipo</label>
           <select
@@ -228,7 +230,6 @@ const MaquinaTipo = () => {
             <option value="2">Suspendida</option>
             <option value="3">Remolque</option>
             <option value="4">Fija</option>
-
           </select>
         </div>
         <div className="py-1 fw-bold">
@@ -252,7 +253,6 @@ const MaquinaTipo = () => {
           />
         </div>
 
-
         <div className="py-1 fw-bold">
           <label>Fecha de Fabricación</label>
           <input
@@ -263,7 +263,6 @@ const MaquinaTipo = () => {
             onChange={handleCliente}
           />
         </div>
-
       </Modal>
 
       <ToastContainer
