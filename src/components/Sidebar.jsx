@@ -12,6 +12,7 @@ const Sidebar = () => {
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
     { title: 'Máquinas', path: '/maquinas', icon: 'bi-gear-fill' },
     { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
+    { title: 'Tipos Máquinas', path: '/maquinas_tipos', icon: 'bi-layers-fill' },
   ];
 
   const user = JSON.parse(localStorage.getItem('user'));

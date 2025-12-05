@@ -157,7 +157,7 @@ const MaquinaTipo = () => {
                   <td>{maquina_tipo.fecha_fabricacion}</td>
                   <td>
                     <div className="d-flex gap-2 justify-content-center ">
-                      <button
+                      {/* <button
                         className="btn btn-sm btn-primary btn-editver"
                         onClick={(e) => {
                           e.stopPropagation();
@@ -165,7 +165,7 @@ const MaquinaTipo = () => {
                         }}
                       >
                         Editar
-                      </button>
+                      </button> */}
 
                       <button
                         className="btn btn-sm btn-warning btn-editver"
