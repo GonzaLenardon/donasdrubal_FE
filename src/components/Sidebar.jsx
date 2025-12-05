@@ -12,7 +12,11 @@ const Sidebar = () => {
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
     { title: 'Máquinas', path: '/maquinas', icon: 'bi-gear-fill' },
     { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
-    { title: 'Tipos Máquinas', path: '/maquinas_tipos', icon: 'bi-layers-fill' },
+    {
+      title: 'Tipos Máquinas',
+      path: '/maquinas_tipos',
+      icon: 'bi-layers-fill',
+    },
   ];
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -80,11 +84,11 @@ const Sidebar = () => {
 
         {/* Footer */}
         <div className="sidebar-bottom">
-          <button className="sidebar-button">Nuevo Servicio</button>
+          {/* <button className="sidebar-button">Nuevo Servicio</button> */}
 
           <ul className="sidebar-menu">
             <li>
-              <button
+              {/* <button
                 className="sidebar-link"
                 onClick={() => console.log('config')}
               >
@@ -92,7 +96,7 @@ const Sidebar = () => {
                   settings
                 </span>
                 Configuración
-              </button>
+              </button> */}
             </li>
 
             <li>
