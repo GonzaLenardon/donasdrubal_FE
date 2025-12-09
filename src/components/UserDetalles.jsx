@@ -82,9 +82,9 @@ const UserDetalles = () => {
             <tbody>
               {maquinas.map((maq) => (
                 <tr key={maq.id}>
-                  <td>{maq.marca}</td>
-                  <td>{maq.modelo}</td>
-                  <td>{maq.tipo_maquina}</td>
+                  <td>{maq.tipo.marca}</td>
+                  <td>{maq.tipo.modelo}</td>
+                  <td>{maq.tipo.tipo}</td>
                   <td>{maq.responsable}</td>
                   <td>
                     <div className="d-flex gap-2 justify-content-center">
