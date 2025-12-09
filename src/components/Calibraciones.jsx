@@ -72,10 +72,10 @@ export const Calibraciones = () => {
           <div className="datos-user">
             <div className="user-name">Calibraciones</div>
             <span>
-              <strong>Marca :</strong> {calibraciones?.marca}
+              <strong>Marca :</strong> {calibraciones?.tipo.marca}
             </span>
             <span>
-              <strong>Modelo :</strong> {calibraciones?.modelo}
+              <strong>Modelo :</strong> {calibraciones?.tipo.modelo}
             </span>
           </div>
         </div>

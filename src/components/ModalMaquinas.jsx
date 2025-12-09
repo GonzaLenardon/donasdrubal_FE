@@ -67,58 +67,59 @@ export const ModalMaquinas = ({
             <h5>{maquina.id ? 'Editar Máquina' : 'Agregar Máquina'}</h5>
             <button className="btn-close" onClick={onClose}></button>
           </div>
-{/* Prueba sleect tipo maquina */}
-<div className="form-group mb-2 fw-bold">
-  <label>Tipo de máquina</label>
-  <select
-    className="form-control"
-    name="tipo_maquina"
-    value={maquina.tipo_maquina || ''}
-    onChange={handleChange}
-  >
-    <option value="">Seleccione...</option>
 
-    {tipos.map((t) => (
-      <option key={t.id} value={t.id}>
-        {t.marca} - {t.modelo}  - {t.tipo}
-      </option>
-    ))}
-  </select>
-</div>
-{/* fin prueba select */}
           <div className="modal-body">
+            {/* Prueba sleect tipo maquina */}
             <div className="form-group mb-2 fw-bold">
+              <label>Tipo de máquina</label>
+              <select
+                className="form-control"
+                name="tipo_maquina"
+                value={maquina.tipo_maquina || ''}
+                onChange={handleChange}
+              >
+                <option value="">Seleccione...</option>
+
+                {tipos.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.marca} - {t.modelo}  - {t.tipo}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* fin prueba select */}            
+            {/* <div className="form-group mb-2 fw-bold">
               <label>Tipo de máquina</label>
               <input
                 type="text"
                 className="form-control"
-                name="tipo_maquina2"
+                name="tipo_maquina"
                 value={maquina.tipo_maquina || ''}
                 onChange={handleChange}
               />
-            </div>
+            </div> */}
 
-            <div className="form-group mb-2 py-1 fw-bold">
+            {/* <div className="form-group mb-2 py-1 fw-bold" >
               <label>Marca</label>
               <input
                 type="text"
                 className="form-control"
                 name="marca"
-                value={maquina.marca || ''}
+                value={maquina?.marca || '-'}
                 onChange={handleChange}
               />
             </div>
 
-            <div className="form-group mb-2 py-1 fw-bold">
+            <div className="form-group mb-2 py-1 fw-bold" >
               <label>Modelo</label>
               <input
-                type="text"
+                type="hidden"
                 className="form-control"
                 name="modelo"
-                value={maquina.modelo || ''}
+                value={maquina?.modelo || '-'}
                 onChange={handleChange}
               />
-            </div>
+            </div> */}
 
             <div className="form-group mb-2 py-1 fw-bold">
               <label>Responsable</label>
@@ -126,7 +127,7 @@ export const ModalMaquinas = ({
                 type="text"
                 className="form-control"
                 name="responsable"
-                value={maquina.responsable || ''}
+                value={maquina?.responsable || ''}
                 onChange={handleChange}
               />
             </div>
