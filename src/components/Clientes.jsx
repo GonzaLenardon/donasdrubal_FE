@@ -5,9 +5,11 @@ import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
 // import { Button } from 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { useNavigate } from 'react-router-dom';
+import { allIngenieros } from '../api/users.js';
 
 const Clientes = () => {
   const [clienteList, setClienteList] = useState([]);
+  const [ingenieros, setIngenieros] = useState([]);
   const [modal, setModal] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [newCliente, SetNewCliente] = useState({});
@@ -16,7 +18,11 @@ const Clientes = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getAllCliente();
+    const all = async () => {
+      getAllCliente();
+      getAllIngenieros();
+    };
+    all();
   }, []);
 
   const getAllCliente = async () => {
@@ -29,6 +35,16 @@ const Clientes = () => {
     }
   };
 
+  const getAllIngenieros = async () => {
+    try {
+      const resp = await allIngenieros();
+      console.log('Ingeniero', resp.data);
+      setIngenieros(resp.data);
+    } catch (error) {
+      console.error('Error al traer Ingenieros:', error.data);
+    }
+  };
+
   const updateCliente = async () => {
     try {
       if (!validarCampos()) return;
@@ -36,9 +52,10 @@ const Clientes = () => {
       setLoading(true);
       setModal(false);
       const resp = await upCliente(newCliente);
-      setMsg(resp.message);
+
+      setMsg(resp.mensaje);
     } catch (error) {
-      setMsg(error.message);
+      setMsg(error.mensaje);
     } finally {
       getAllCliente();
       await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -54,9 +71,9 @@ const Clientes = () => {
       setLoading(true);
       setModal(false);
       const resp = await addCliente(newCliente);
-      setMsg(resp.message);
+      setMsg(resp.mensaje);
     } catch (error) {
-      setMsg(error.message);
+      setMsg(error.mensaje);
     } finally {
       getAllCliente();
       await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -85,6 +102,7 @@ const Clientes = () => {
       pais: '',
       estado: '',
       modo_ingreso: '',
+      ingeniero_id: '',
       notas: '',
     });
     setIsUpdate(false);
@@ -369,6 +387,24 @@ const Clientes = () => {
               <option value="Activo">Activo</option>
               <option value="Inactivo">Inactivo</option>
               <option value="Pendiente">Pendiente</option>
+            </select>
+          </div>
+
+          <div className="form-group-modal">
+            <label>Ingeniero asignado</label>
+            <select
+              className="form-select"
+              name="ingeniero_id"
+              value={newCliente?.ingeniero_id || ''}
+              onChange={handleCliente}
+            >
+              <option value="" disabled>
+                Ingeniero
+              </option>
+
+              {ingenieros.map((i) => (
+                <option value={i.id}>{i.nombre}</option>
+              ))}
             </select>
           </div>
 

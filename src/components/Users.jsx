@@ -3,8 +3,6 @@ import { addUser, allUsers, upUser } from '../api/users.js';
 import Modal from '../components/Modal.jsx'; // ✅ import del nuevo modal
 import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
-import { Button } from 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { useNavigate } from 'react-router-dom';
 
 const Users = () => {
   const [userList, setUserList] = useState([]);
@@ -13,7 +11,6 @@ const Users = () => {
   const [newUser, SetNewUser] = useState({});
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     getAllUser();
@@ -236,6 +233,7 @@ const Users = () => {
               Tipo Usuario
             </option>
             <option value="admin">Administrador</option>
+            <option value="ingeniero">Ingeniero</option>
             <option value="supervisor">Supervisor</option>
             <option value="cliente">Cliente</option>
           </select>

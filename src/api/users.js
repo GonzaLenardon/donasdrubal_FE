@@ -17,6 +17,12 @@ export const allUsers = async () => {
   return resp.data;
 };
 
+export const allIngenieros = async () => {
+  const resp = await instance.get(`/user/ingenieros`);
+
+  return resp.data;
+};
+
 export const upUser = async (user) => {
   const res = await instance.put(`/user`, user);
 
