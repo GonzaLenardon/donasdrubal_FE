@@ -1147,3 +1147,24 @@ modal-cliente-grid {
 .modal-body::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+.card_Calibraciones {
+  background: rgba(34, 87, 80, 0.85);
+  border-radius: 15px;
+  box-shadow: 2px 2px #17a2b8;
+  color: white;
+}
+
+.card_Calibraciones {
+  border-radius: 15px;
+  padding: 1.5rem;
+  background: rgba(34, 87, 80, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: white;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.card_Calibraciones:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}

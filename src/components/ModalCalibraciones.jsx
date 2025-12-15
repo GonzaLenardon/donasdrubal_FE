@@ -15,31 +15,73 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
         ...calibracion,
         fecha: calibracion.fecha ? calibracion.fecha.split('T')[0] : '',
       });
-
-      console.log('useEffect ', calibracion);
     }
   }, [calibracion]);
 
+  useEffect(() => {
+    console.log('valorForm', form);
+  }, [form]);
+
   if (!calibracion) return null;
 
-  const formateo = {
-    Observaciones: 'Observaciones',
-    estabilidadVerticalBotalon: 'Estabilidad Vertical Botalon',
-    estado_FiltroLinea: 'Estado Filtro Linea',
-    estado_agitador: 'Estado Agitador',
-    estado_antigoteo: 'Estado Antigoteo',
-    estado_bomba: 'Estado Bomba',
-    estado_filtroPrimario: 'Estado Filtro Primario',
-    estado_filtroSecundario: 'Estado Filtro Secundario',
-    estado_limpiezaTanque: 'Estado Limpieza Tanque',
-    estado_manguerayconexiones: 'Estado Manguera y Conexiones',
-    estado_maquina: 'Estado Maquina',
-    estado_pastillas: 'Estado Pastillas',
-    fecha: 'Fecha',
-    id: 'Id',
-    maquina_id: 'Maquina id',
-    responsable: 'Responsable',
-  };
+  /** 🔗 Mapa estado → observación */
+  const camposEstado = [
+    {
+      estado: 'estado_maquina',
+      obs: 'observaciones_estado_maquina',
+      label: 'Estado Máquina',
+    },
+    {
+      estado: 'estado_bomba',
+      obs: 'observaciones_estado_bomba',
+      label: 'Bomba',
+    },
+    {
+      estado: 'estado_agitador',
+      obs: 'observaciones_estado_agitador',
+      label: 'Agitador',
+    },
+    {
+      estado: 'estado_filtroPrimario',
+      obs: 'observarciones_estado_filtroPrimario',
+      label: 'Filtro Primario',
+    },
+    {
+      estado: 'estado_filtroSecundario',
+      obs: 'observaciones_filtroSecundario',
+      label: 'Filtro Secundario',
+    },
+    {
+      estado: 'estado_FiltroLinea',
+      obs: 'observaciones_estado_FiltroLinea',
+      label: 'Filtro Línea',
+    },
+    {
+      estado: 'estado_manguerayconexiones',
+      obs: 'observaciones_estado_manguerayconexiones',
+      label: 'Mangueras y Conexiones',
+    },
+    {
+      estado: 'estado_antigoteo',
+      obs: 'observaciones_estado_antigoteo',
+      label: 'Sistema Antigoteo',
+    },
+    {
+      estado: 'estado_limpiezaTanque',
+      obs: 'observaciones_estado_limpiezaTanque',
+      label: 'Limpieza Tanque',
+    },
+    {
+      estado: 'estabilidadVerticalBotalon',
+      obs: 'observaciones_estabilidadVerticalBotalon',
+      label: 'Estabilidad Botalón',
+    },
+    {
+      estado: 'estado_pastillas',
+      obs: 'observaciones_estado_pastillas',
+      label: 'Pastillas',
+    },
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,7 +103,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       setMsg(resp.message);
       onSaved();
     } catch (error) {
-      console.log(error.message);
+      console.error(error.message);
     } finally {
       await new Promise((res) => setTimeout(res, 2000));
       onClose();
@@ -72,19 +114,30 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
   return (
     <>
+      {/* OVERLAY */}
       <div className="modal-overlay">
-        <div className="custom-modal">
+        {/* MODAL ANCHO */}
+        <div
+          className="custom-modal"
+          style={{
+            maxWidth: '95vw',
+            width: '95vw',
+          }}
+        >
+          {/* HEADER */}
           <div className="modal-header">
-            <h5>{form?.id ? 'Editar Calibración' : 'Agregar Calibración'}</h5>
+            <h5 className="fw-bold">
+              {form?.id ? 'Editar Calibración' : 'Agregar Calibración'}
+            </h5>
             <button className="btn-close" onClick={onClose}></button>
           </div>
 
+          {/* BODY */}
           <div className="modal-body">
-            {/* --- Datos principales --- */}
-
-            <div className="row">
-              <div className="form-group mb-2 fw-bold col-md-7">
-                <label>Responsable</label>
+            {/* DATOS PRINCIPALES */}
+            <div className="row mb-4">
+              <div className="col-md-8">
+                <label className="fw-bold">Responsable</label>
                 <input
                   type="text"
                   className="form-control"
@@ -93,8 +146,9 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                   onChange={handleChange}
                 />
               </div>
-              <div className="form-group mb-2 fw-bold col-md-4">
-                <label>Fecha</label>
+
+              <div className="col-md-4">
+                <label className="fw-bold">Fecha</label>
                 <input
                   type="date"
                   className="form-control"
@@ -105,68 +159,58 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               </div>
             </div>
 
-            {/*     <div className="form-group mb-3 fw-bold">
-              <label>Máquina ID</label>
-              <input
-                type="number"
-                className="form-control"
-                name="maquina_id"
-                value={calibracion.maquina_id || ''}
-                onChange={handleChange}
-              />
-            </div> */}
-
-            {/* --- Estados en grilla --- */}
-            <h6 className="fw-bold mt-3 mb-2 bg-secondary d-flex justify-content-center fs-3 py-2 rounded mt-2">
-              Estados de la máquina
-            </h6>
+            {/* ESTADOS + OBSERVACIONES */}
+            <h4 className="fw-bold mb-3 border-bottom pb-2">
+              Estados y Observaciones
+            </h4>
 
             <div className="row">
-              {[
-                'estabilidadVerticalBotalon',
-                'estado_FiltroLinea',
-                'estado_agitador',
-                'estado_antigoteo',
-                'estado_bomba',
-                'estado_filtroPrimario',
-                'estado_filtroSecundario',
-                'estado_limpiezaTanque',
-                'estado_manguerayconexiones',
-                'estado_maquina',
-                'estado_pastillas',
-              ].map((campo) => (
-                <div className="col-md-4 mb-3" key={campo}>
-                  <label className="fw-bold">{formateo[campo] || campo}</label>
-                  <select
-                    className="form-control"
-                    name={campo}
-                    value={form[campo] || ''}
-                    onChange={handleChange}
-                  >
-                    <option value="">Seleccione...</option>
-                    {opcionesEstado.map((op) => (
-                      <option key={op} value={op}>
-                        {op}
-                      </option>
-                    ))}
-                  </select>
+              {camposEstado.map(({ estado, obs, label }) => (
+                <div className="col-xl-3 col-lg-4 col-md-6 mb-4" key={estado}>
+                  <div className="border rounded p-3 h-100 bg-light">
+                    <label className="fw-bold mb-1">{label}</label>
+
+                    <select
+                      className="form-control mb-2"
+                      name={estado}
+                      value={form[estado] || ''}
+                      onChange={handleChange}
+                    >
+                      <option value="">Seleccione estado</option>
+                      {opcionesEstado.map((op) => (
+                        <option key={op} value={op}>
+                          {op}
+                        </option>
+                      ))}
+                    </select>
+
+                    <textarea
+                      className="form-control"
+                      rows="2"
+                      placeholder="Observaciones..."
+                      name={obs}
+                      value={form[obs] || ''}
+                      onChange={handleChange}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
 
-            {/* --- Observaciones --- */}
-            <div className="form-group mb-3 fw-bold">
-              <label>Observaciones</label>
+            {/* OBSERVACIONES GENERALES */}
+            <div className="mt-4">
+              <label className="fw-bold">Observaciones Generales</label>
               <textarea
                 className="form-control"
-                rows="3"
+                rows="4"
                 name="Observaciones"
                 value={form.Observaciones || ''}
                 onChange={handleChange}
-              ></textarea>
+              />
             </div>
 
-            <div className="modal-footer">
+            {/* FOOTER */}
+            <div className="modal-footer mt-4">
               <button className="btn btn-secondary" onClick={onClose}>
                 Cancelar
               </button>
