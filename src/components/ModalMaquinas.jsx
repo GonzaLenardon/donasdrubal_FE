@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { addMaquinas, updateMaquina } from '../api/maquinas';
-import { allMaquinaTipo } from '../api/maquinas_tipos.js'; 
+import { allMaquinaTipo } from '../api/maquinas_tipos.js';
 import Spinner from '../components/Spinner.jsx';
-
-
 
 export const ModalMaquinas = ({
   onClose,
@@ -15,18 +13,16 @@ export const ModalMaquinas = ({
   const [msg, setMsg] = useState();
   const [tipos, setTipos] = useState([]);
 
-  if (!maquina) return null; // evita crasheos
-
-  console.log('maquina ', maquina);
-
   useEffect(() => {
-  const cargarTipos = async () => {
-    const resp = await allMaquinaTipo();
-     console.log('maquinas_tipos ', resp.data);
-    setTipos(resp.data); // depende del formato de tu API
-  };
-  cargarTipos();
-}, []);
+    const cargarTipos = async () => {
+      const resp = await allMaquinaTipo();
+      console.log('maquinas_tipos ', resp.data);
+      setTipos(resp.data); // depende del formato de tu API
+    };
+    cargarTipos();
+  }, []);
+
+  if (!maquina) return null; // evita crasheos
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,7 +54,6 @@ export const ModalMaquinas = ({
     }
   };
 
-  
   return (
     <>
       <div className="modal-overlay">
@@ -82,44 +77,11 @@ export const ModalMaquinas = ({
 
                 {tipos.map((t) => (
                   <option key={t.id} value={t.id}>
-                    {t.marca} - {t.modelo}  - {t.tipo}
+                    {t.marca} - {t.modelo} - {t.tipo}
                   </option>
                 ))}
               </select>
             </div>
-            {/* fin prueba select */}            
-            {/* <div className="form-group mb-2 fw-bold">
-              <label>Tipo de máquina</label>
-              <input
-                type="text"
-                className="form-control"
-                name="tipo_maquina"
-                value={maquina.tipo_maquina || ''}
-                onChange={handleChange}
-              />
-            </div> */}
-
-            {/* <div className="form-group mb-2 py-1 fw-bold" >
-              <label>Marca</label>
-              <input
-                type="text"
-                className="form-control"
-                name="marca"
-                value={maquina?.marca || '-'}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group mb-2 py-1 fw-bold" >
-              <label>Modelo</label>
-              <input
-                type="hidden"
-                className="form-control"
-                name="modelo"
-                value={maquina?.modelo || '-'}
-                onChange={handleChange}
-              />
-            </div> */}
 
             <div className="form-group mb-2 py-1 fw-bold">
               <label>Responsable</label>
