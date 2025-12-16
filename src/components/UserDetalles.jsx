@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { allMaquinas } from '../api/maquinas';
 import { ModalMaquinas } from './ModalMaquinas.jsx';
-import { getUser } from '../api/users.js';
 import { getCliente } from '../api/clientes.js';
+import { clientePozos } from '../api/pozos.js';
+import Pozos from './Pozos.jsx';
 
 const UserDetalles = () => {
   const { cliente_id } = useParams();
@@ -11,6 +12,7 @@ const UserDetalles = () => {
   const [maquinas, setMaquinas] = useState([]);
   const [modal, setModal] = useState(false);
   const [maquinaEdit, setMaquinaEdit] = useState({});
+  const [pozos, setPozos] = useState([]);
   const [cliente, setCliente] = useState();
 
   console.log('UserDetalles', cliente_id);
@@ -18,6 +20,7 @@ const UserDetalles = () => {
   useEffect(() => {
     Maquinas();
     dataCliente();
+    getPozos();
   }, []);
 
   const Maquinas = async () => {
@@ -26,6 +29,17 @@ const UserDetalles = () => {
       const res = await allMaquinas(cliente_id);
       setMaquinas(res.data);
       console.log('todas las maquins', res.data);
+    } catch (error) {
+      console.log(error.data.message);
+    }
+  };
+
+  const getPozos = async () => {
+    try {
+      console.log('paso x aca POZOS');
+      const res = await clientePozos(cliente_id);
+      setPozos(res.data);
+      console.log('todas los POZOS', res.data);
     } catch (error) {
       console.log(error.data.message);
     }
@@ -44,7 +58,7 @@ const UserDetalles = () => {
 
   return (
     <>
-      <div className="container-view ">
+      <div className="container-view">
         {cliente && (
           <div className="container-datos">
             <div className="datos-user">
@@ -127,6 +141,8 @@ const UserDetalles = () => {
           setMaquinaEdit={setMaquinaEdit}
         />
       )}
+
+      <Pozos pozos={pozos} />
     </>
   );
 };
