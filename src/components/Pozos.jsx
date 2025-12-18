@@ -1,13 +1,17 @@
 import { React, useEffect, useState } from 'react';
 import ModalPozos from './ModalPozos';
+import { clientePozos } from '../api/pozos';
+import { useNavigate } from 'react-router-dom';
 
-const Pozos = ({ pozos }) => {
+const Pozos = ({ cliente_id }) => {
   const [selectedPozo, setSelectedPozo] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [pozos, setPozos] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('Pozo Seleccionado', selectedPozo);
-  }, [selectedPozo]);
+    getPozos();
+  }, []);
 
   const getEstadoColor = (estado) => {
     const colors = {
@@ -16,6 +20,17 @@ const Pozos = ({ pozos }) => {
       Mantenimiento: { bg: '#f59e0b', border: '#d97706' },
     };
     return colors[estado] || { bg: '#6b7280', border: '#4b5563' };
+  };
+
+  const getPozos = async () => {
+    try {
+      console.log('paso x aca POZOS', cliente_id);
+      const res = await clientePozos(cliente_id);
+      setPozos(res.data);
+      console.log('todas los POZOS', res.data);
+    } catch (error) {
+      console.log(error.data.message);
+    }
   };
 
   return (
@@ -32,7 +47,14 @@ const Pozos = ({ pozos }) => {
                 {pozos.length} pozos registrados
               </p>
             </div>
-            <button className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo">
+            <button
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedPozo({ cliente_id });
+                setIsOpen(true);
+              }}
+            >
               <i className="bi bi-plus-lg"></i>
               Nuevo Pozo
             </button>
@@ -108,7 +130,9 @@ const Pozos = ({ pozos }) => {
                       className="btn btn-sm flex-fill pozo-btn-ver"
                       onClick={(e) => {
                         e.stopPropagation();
-                        console.log('Ver detalles:', pozo);
+                        navigate(
+                          `/cliente/${cliente_id}/pozos/${pozo.id}/muestras`
+                        );
                       }}
                     >
                       <i className="bi bi-eye me-1"></i>
@@ -138,6 +162,7 @@ const Pozos = ({ pozos }) => {
           pozo={selectedPozo}
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
+          onSaved={getPozos}
         />
       )}
     </>
