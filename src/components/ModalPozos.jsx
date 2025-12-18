@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { addPozos, upPozos } from '../api/pozos';
 
 const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
   const [formData, setFormData] = useState({
@@ -18,20 +19,16 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
     if (!isOpen) return;
 
     if (pozo) {
-      // Modo edición
-
-      setFormData({
-        nombre: pozo.nombre || '',
-        establecimiento: pozo.establecimiento || '',
-        latitud: pozo.latitud || '',
-        longitud: pozo.longitud || '',
-        cliente_id: pozo.cliente_id || '',
-      });
+      setFormData(pozo);
     } else {
       // Modo crear
       resetForm();
     }
   }, [pozo, isOpen]);
+
+  useEffect(() => {
+    console.log('Form Data', formData);
+  }, [formData]);
 
   const resetForm = () => {
     setFormData({
@@ -82,9 +79,9 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
       newErrors.longitud = 'Debe ser un número válido';
     }
 
-    if (!formData.cliente_id) {
+    /*    if (!formData.cliente_id) {
       newErrors.cliente_id = 'El cliente es requerido';
-    }
+    } */
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -108,12 +105,12 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
 
       console.log('Datos a enviar:', dataToSend);
 
-      // Aquí iría tu llamada al API
-      // const response = await crearPozo(dataToSend);
-      // o
-      // const response = await actualizarPozo(pozo.id, dataToSend);
+      let resp;
+      if (dataToSend.id) resp = await upPozos(dataToSend);
+      else resp = await addPozos(dataToSend);
 
-      // Simular llamada API
+      console.log('Response', resp);
+
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Notificar éxito
@@ -139,7 +136,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={handleClose}>
+    <div className="modal-overlay">
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="modal-header-pozos">
@@ -283,7 +280,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
           </div>
 
           {/* Cliente ID */}
-          <div className="form-group-pozos">
+          {/*    <div className="form-group-pozos">
             <label htmlFor="cliente_id" className="form-label-pozos">
               <i className="bi bi-person-fill me-2"></i>
               ID Cliente
@@ -306,7 +303,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
                 {errors.cliente_id}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Botones */}
           <div className="modal-footer-pozos">
@@ -337,7 +334,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
               ) : (
                 <>
                   <i className="bi bi-check-circle me-2"></i>
-                  {pozo ? 'Actualizar' : 'Crear Pozo'}
+                  {formData.id ? 'Actualizar' : 'Crear Pozo'}
                 </>
               )}
             </button>

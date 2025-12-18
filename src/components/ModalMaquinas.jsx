@@ -5,7 +5,7 @@ import Spinner from '../components/Spinner.jsx';
 
 export const ModalMaquinas = ({
   onClose,
-  maquina,
+  maquinaEdit,
   setMaquinaEdit,
   onSaved,
 }) => {
@@ -22,7 +22,7 @@ export const ModalMaquinas = ({
     cargarTipos();
   }, []);
 
-  if (!maquina) return null; // evita crasheos
+  if (!maquinaEdit) return null; // evita crasheos
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,10 +36,10 @@ export const ModalMaquinas = ({
       let resp;
 
       // si existe id → actualizar, si no → crear
-      if (maquina?.id) {
-        resp = await updateMaquina(maquina);
+      if (maquinaEdit?.id) {
+        resp = await updateMaquina(maquinaEdit);
       } else {
-        resp = await addMaquinas(maquina);
+        resp = await addMaquinas(maquinaEdit);
       }
 
       setMsg(resp.message);
@@ -59,7 +59,7 @@ export const ModalMaquinas = ({
       <div className="modal-overlay">
         <div className="custom-modal">
           <div className="modal-header">
-            <h5>{maquina.id ? 'Editar Máquina' : 'Agregar Máquina'}</h5>
+            <h5>{maquinaEdit.id ? 'Editar Máquina' : 'Agregar Máquina'}</h5>
             <button className="btn-close" onClick={onClose}></button>
           </div>
 
@@ -70,7 +70,7 @@ export const ModalMaquinas = ({
               <select
                 className="form-control"
                 name="tipo_maquina"
-                value={maquina.tipo_maquina || ''}
+                value={maquinaEdit.tipo_maquina || ''}
                 onChange={handleChange}
               >
                 <option value="">Seleccione...</option>
@@ -89,7 +89,7 @@ export const ModalMaquinas = ({
                 type="text"
                 className="form-control"
                 name="responsable"
-                value={maquina?.responsable || ''}
+                value={maquinaEdit?.responsable || ''}
                 onChange={handleChange}
               />
             </div>
@@ -107,7 +107,7 @@ export const ModalMaquinas = ({
                 className="btn btn-primary"
                 onClick={handleSubmitMaquina}
               >
-                {maquina.id ? 'Actualizar' : 'Agregar'}
+                {maquinaEdit.id ? 'Actualizar' : 'Agregar'}
               </button>
             </div>
           </div>

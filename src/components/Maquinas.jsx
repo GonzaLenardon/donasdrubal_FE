@@ -1,35 +1,28 @@
 import { React, useEffect, useState } from 'react';
 
 import { allMaquinas } from '../api/maquinas';
-import { allUsers } from '../api/users';
+import { ModalMaquinas } from './ModalMaquinas';
+import { useNavigate } from 'react-router-dom';
 
-const Maquinas = () => {
-  const [userList, setUserList] = useState();
-  const [user, setUser] = useState({});
-  const [maquinas, setMaquinas] = useState({});
+const Maquinas = ({ cliente_id }) => {
+  const [maquinas, setMaquinas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
+  const navigate = useNavigate();
+
+  const [modal, setModal] = useState(false);
+  const [maquinaEdit, setMaquinaEdit] = useState({});
 
   useEffect(() => {
-    getAllUser();
+    getMaquinas();
   }, []);
-
-  const getAllUser = async () => {
-    try {
-      const resp = await allUsers();
-      setUserList(resp.data);
-    } catch (error) {
-      console.error('Error al traer usuarios:', error);
-    }
-  };
 
   const getMaquinas = async () => {
     try {
       setLoading(true);
-      /*    setModal(false); */
 
-      const res = await allMaquinas(user.user);
-      console.log('dadadadada', res);
+      const res = await allMaquinas(cliente_id);
+      console.log('dadadadada', res.data);
       setMsg(res.data.mensaje);
       setMaquinas(res.data);
     } catch (error) {
@@ -41,52 +34,64 @@ const Maquinas = () => {
     }
   };
 
-  useEffect(() => {
-    console.log('ddddddddddddd', user);
-  }, [user]);
-
-  const handleUser = (e) => {
-    const { value, name } = e.target;
-    console.log('first', value, name);
-
-    setUser((prev) => ({ ...prev, [name]: value }));
-  };
-
   return (
     <div className="py-4">
-      <div className="row justify-content-center align-items-center ">
-        <div className="d-flex justify-content-center gap-5">
-          <div className="col-12 col-md-5">
-            <div className="form-floating">
-              {/*  <select
-                className="form-select"
-                id="floatingSelectGrid"
-                name="user"
-                value={user?.user || ''}
-                onChange={handleUser}
-              >
-                <option value="" disabled>
-                  Seleccione un Cliente
-                </option>
-                {userList?.map((u) => (
-                  <option value={u.id} key={u.id}>
-                    {u.nombre}
-                  </option>
-                ))}
-              </select>
-              <label htmlFor="floatingSelectGrid">Seleccione un Cliente</label> */}
-              <h1>Maquinas</h1>
-            </div>
-          </div>
-          {/*  <button
-            type="button"
-            className="btn btn btn-success"
-            onClick={getMaquinas}
-          >
-            Buscar Maquinas
-          </button> */}
-        </div>
-      </div>
+      <table className="table table-hover">
+        <thead>
+          <tr>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Tipo</th>
+            <th>Responsable</th>
+            <th className="d-flex justify-content-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {maquinas.map((maq) => (
+            <tr key={maq.id}>
+              <td>{maq.tipo.marca}</td>
+              <td>{maq.tipo.modelo}</td>
+              <td>{maq.tipo.tipo}</td>
+              <td>{maq.responsable}</td>
+              <td>
+                <div className="d-flex gap-2 justify-content-center">
+                  <button
+                    className="btn btn-sm btn-primary btn-editver"
+                    onClick={() => {
+                      setMaquinaEdit(maq);
+                      setModal(true);
+                    }}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="btn btn-sm btn-warning btn-editver"
+                    onClick={() =>
+                      navigate(
+                        `/cliente/${cliente_id}/detalles/maquinas/${maq.id}/calibraciones`
+                      )
+                    }
+                  >
+                    Ver
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {modal && (
+        <ModalMaquinas
+          onClose={() => {
+            setModal(false);
+            setMaquinaEdit(null);
+          }}
+          onSaved={() => Maquinas()} // 🔥 recarga lista
+          maquinaEdit={maquinaEdit}
+          setMaquinaEdit={setMaquinaEdit}
+        />
+      )}
     </div>
   );
 };

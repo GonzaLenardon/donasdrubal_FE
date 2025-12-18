@@ -13,6 +13,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import MaquinaTipo from './components/MaquinasTipos.jsx';
 import DashboardLayout from './components/DashboardLayout.jsx';
 import Dash from './components/Dash.jsx';
+import MuestrasPozos from './components/MuestrasPozos.jsx';
 
 function App() {
   return (
@@ -49,10 +50,6 @@ function App() {
           {/* Detalles */}
           <Route
             path="cliente/:cliente_id/detalles"
-            element={<UserDetalles />}
-          />
-          <Route
-            path="cliente/:id_cliente/detalles"
             element={<ClienteDetalles />}
           />
 
@@ -63,10 +60,12 @@ function App() {
           />
 
           {/* Tipo de Maquinas */}
+          <Route path="maquinas_tipos" element={<MaquinaTipo />} />
+
           <Route
-            path="maquinas_tipos"
-            element={<MaquinaTipo />}
-          />          
+            path="cliente/:cliente_id/pozos/:pozos_id/muestras"
+            element={<MuestrasPozos />}
+          />
 
           {/* Página no encontrada (dentro del dashboard) */}
           <Route path="*" element={<NotFound />} />
