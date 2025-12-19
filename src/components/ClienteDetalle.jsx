@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { ModalMaquinas } from './ModalMaquinas.jsx';
 import { getCliente } from '../api/clientes.js';
 import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
@@ -8,44 +7,64 @@ import Maquinas from './Maquinas.jsx';
 const ClienteDetalles = () => {
   const { cliente_id } = useParams();
 
-  const [cliente, setCliente] = useState();
-
-  console.log('UserDetalles', cliente_id);
+  const [cliente, setCliente] = useState(null);
+  const [activeTab, setActiveTab] = useState('pozos'); // 'pozos' | 'maquinas'
 
   useEffect(() => {
     dataCliente();
   }, []);
 
-  useEffect(() => {}, []);
-
   const dataCliente = async () => {
     try {
-      console.log('paso x aca');
       const res = await getCliente(cliente_id);
       setCliente(res.data);
-      console.log('cliente', res);
     } catch (error) {
       console.log(error.message);
     }
   };
 
+  if (!cliente) return null;
+
   return (
-    <>
-      <div className="container-view">
-        {cliente && (
-          <div className="container-datos">
-            <div className="datos-user">
-              <div className="user-name">{cliente.razon_social}</div>
-              <span>{cliente.email}</span>
-              <span>{cliente.telefono}</span>
-            </div>
-          </div>
-        )}
+    <div className="container mt-4">
+      {/* ================= DATOS CLIENTE ================= */}
+      <div className="card mb-4" style={{ backgroundColor: '#1e293b' }}>
+        <div className="card-body">
+          <h4 className="fw-bold mb-1 fs-2 text-white">
+            {cliente.razon_social}
+          </h4>
+          <p className="mb-0 text-info">{cliente.email}</p>
+          <p className="mb-0 text-info">{cliente.telefono}</p>
+        </div>
       </div>
 
-      <Maquinas cliente_id={cliente_id} />
-      <Pozos cliente_id={cliente_id} />
-    </>
+      {/* ================= TABS ================= */}
+      <div className="d-flex gap-2 mb-3">
+        <button
+          className={`btn ${
+            activeTab === 'pozos' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
+          onClick={() => setActiveTab('pozos')}
+        >
+          Pozos
+        </button>
+
+        <button
+          className={`btn ${
+            activeTab === 'maquinas' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
+          onClick={() => setActiveTab('maquinas')}
+        >
+          Máquinas
+        </button>
+      </div>
+
+      {/* ================= CONTENIDO ================= */}
+      <div>
+        {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}
+        {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
+      </div>
+    </div>
   );
 };
 

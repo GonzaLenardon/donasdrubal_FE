@@ -574,7 +574,7 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
               </div>
 
               {/* Dosis */}
-              <div className="col-md-4">
+              {/*  <div className="col-md-4">
                 <label
                   className="form-label fw-semibold text-white"
                   style={{ fontSize: '0.875rem' }}
@@ -595,7 +595,7 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   onChange={handleChange}
                   disabled={isSubmitting}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
 
