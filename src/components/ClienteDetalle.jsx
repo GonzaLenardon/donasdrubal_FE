@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { getCliente } from '../api/clientes.js';
 import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
+import JornadasCards from './JornadasCards.jsx';
+import JornadasTable from './JornadasTable.jsx';  
 
 const ClienteDetalles = () => {
   const { cliente_id } = useParams();
@@ -57,12 +59,21 @@ const ClienteDetalles = () => {
         >
           Máquinas
         </button>
+        <button
+          className={`btn ${
+            activeTab === 'jornadas' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
+          onClick={() => setActiveTab('jornadas')}
+        >
+          Jornadas
+        </button>        
       </div>
 
       {/* ================= CONTENIDO ================= */}
       <div>
         {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}
         {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
+        {activeTab === 'jornadas' && <JornadasTable cliente_id={cliente_id} />}
       </div>
     </div>
   );
