@@ -4,6 +4,8 @@ import { ModalMaquinas } from './ModalMaquinas.jsx';
 import { getCliente } from '../api/clientes.js';
 import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
+import JornadasCards from './JornadasCards.jsx';
+import JornadasTable from './JornadasTable.jsx';  
 
 const ClienteDetalles = () => {
   const { cliente_id } = useParams();
@@ -45,6 +47,8 @@ const ClienteDetalles = () => {
 
       <Maquinas cliente_id={cliente_id} />
       <Pozos cliente_id={cliente_id} />
+      {/* <JornadasCards cliente_id={cliente_id} /> */}
+      <JornadasTable cliente_id={cliente_id} />
     </>
   );
 };
