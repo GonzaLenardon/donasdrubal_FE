@@ -2,11 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { addJornadas, upJornadas } from '../api/jornadas';
 
 const emptyJornada = {
-  motivo: '',
   fecha_jornada: '',
+  motivo: '',
   estado: '',
   observaciones: '',
 };
+
+const ESTADOS_JORNADA = [
+  { value: 'Pendiente', label: 'Pendiente' },
+  { value: 'En Proceso', label: 'En Proceso' },
+  { value: 'Completada', label: 'Completada' },
+];
+
+const MOTIVOS_JORNADA = [
+  { value: 'Mezcals', label: 'Mezcals' },
+  { value: 'Capacitacion', label: 'Capacitación' },
+  { value: 'Otro', label: 'Otro' },
+];
 
 const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   const [formData, setFormData] = useState({ ...emptyJornada });
@@ -15,12 +27,14 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    console.log('hay jornadas ?', jornada);
-
     if (!isOpen) return;
-
     if (jornada) {
-      setFormData({ ...emptyJornada, ...jornada }); // crea objeto vacio ->completa con datos de jornada
+        // crea objeto vacio -> completa con datos de jornada
+        setFormData({
+          ...emptyJornada,  
+          ...jornada,
+          fecha_jornada: jornada.fecha_jornada?.split('T')[0] || '',
+      });
     } else {
       // Modo crear
       resetForm();
@@ -32,11 +46,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   }, [formData]);
 
   const resetForm = () => {
-    setFormData({
-      motivo: '',
-      fecha_jornada: '',
-      observaciones: '',
-    });
+    setFormData({ ...emptyJornada });
     setErrors({});
   };
 
@@ -58,30 +68,15 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.nombre.trim()) {
-      newErrors.nombre = 'El nombre es requerido';
+
+
+    if (!formData.fecha_jornada) {
+      newErrors.fecha_jornada = 'La fecha de jornada es requerida';
     }
 
-    if (!formData.establecimiento.trim()) {
-      newErrors.establecimiento = 'El establecimiento es requerido';
-    }
-
-    if (!formData.latitud) {
-      newErrors.latitud = 'La latitud es requerida';
-    } else if (isNaN(formData.latitud)) {
-      newErrors.latitud = 'Debe ser un número válido';
-    }
-
-    if (!formData.longitud) {
-      newErrors.longitud = 'La longitud es requerida';
-    } else if (isNaN(formData.longitud)) {
-      newErrors.longitud = 'Debe ser un número válido';
-    }
-
-    /*    if (!formData.cliente_id) {
-      newErrors.cliente_id = 'El cliente es requerido';
-    } */
-
+    // if (!formData.observaciones.trim()) {
+    //   newErrors.observaciones = 'Las observaciones son requeridas';
+    // }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -167,140 +162,106 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
             </div>
           )}
 
-          {/* Nombre */}
+          {/* Fecha Jornada */}
           <div className="form-group-pozos">
             <label htmlFor="nombre" className="form-label-pozos">
               <i className="bi bi-pencil-fill me-2"></i>
-              Nombre de la Jornada
+              Fecha de la jornada
             </label>
             <input
-              type="text"
-              id="nombre"
-              name="nombre"
-              className={`form-control-pozos ${
-                errors.nombre ? 'is-invalid' : ''
-              }`}
-              placeholder="Ej: Jornada mezclas de agua"
-              value={formData.nombre}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {errors.nombre && (
-              <div className="invalid-feedback-pozos">
-                <i className="bi bi-exclamation-circle me-1"></i>
-                {errors.nombre}
-              </div>
-            )}
+                type="date"
+                name="fecha_jornada"
+                className={`form-control ${
+                  errors.fecha_jornada ? 'is-invalid' : ''
+                }`}
+                style={{
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                }}
+                value={formData.fecha_jornada}
+                onChange={handleChange}
+                disabled={isSubmitting}
+              />
+              {errors.fecha_jornada && (
+                <div className="invalid-feedback">
+                  <i className="bi bi-exclamation-circle me-1"></i>
+                  {errors.fecha_jornada}
+                </div>
+              )}
           </div>
 
-          {/* Establecimiento */}
+          {/* Motivo */}
           <div className="form-group-pozos">
-            <label htmlFor="establecimiento" className="form-label-pozos">
+            <label htmlFor="motivo" className="form-label-pozos">
               <i className="bi bi-building me-2"></i>
-              Establecimiento
+              Motivo
+            </label>
+            <select
+              className="form-control form-control-jornadas"
+              name="motivo"
+              value={formData.motivo}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un motivo</option>
+              {MOTIVOS_JORNADA.map(motivo => (
+                <option key={motivo.value} value={motivo.value}>
+                  {motivo.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Estado */}
+          <div className="form-group-pozos">
+            <label htmlFor="estado" className="form-label-pozos">
+              <i className="bi bi-building me-2"></i>
+              Estado
+            </label>
+            <select
+              className="form-control form-control-jornadas"
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+            >
+              <option value="">Seleccione un estado</option>
+
+              {ESTADOS_JORNADA.map(estado => (
+                <option key={estado.value} value={estado.value}>
+                  {estado.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Observaciones */}
+          <div className="form-group-pozos">
+            <label htmlFor="observaciones" className="form-label-pozos">
+              <i className="bi bi-building me-2"></i>
+              Observaciones
             </label>
             <input
               type="text"
-              id="establecimiento"
-              name="establecimiento"
+              id="observaciones"
+              name="observaciones"
               className={`form-control-pozos ${
-                errors.establecimiento ? 'is-invalid' : ''
+                errors.observaciones ? 'is-invalid' : ''
               }`}
-              placeholder="Ej: Campo La Esperanza"
-              value={formData.establecimiento}
+              placeholder="Deje aqui algun comentario sobre la jornada..."
+              value={formData.observaciones}
               onChange={handleChange}
               disabled={isSubmitting}
             />
-            {errors.establecimiento && (
+            {errors.observaciones && (
               <div className="invalid-feedback-pozos">
                 <i className="bi bi-exclamation-circle me-1"></i>
-                {errors.establecimiento}
+                {errors.observaciones}
               </div>
             )}
           </div>
 
-          {/* Coordenadas */}
-          <div className="row g-3">
-            <div className="col-md-6">
-              <div className="form-group-pozos">
-                <label htmlFor="latitud" className="form-label-pozos">
-                  <i className="bi bi-geo-alt-fill me-2"></i>
-                  Latitud
-                </label>
-                <input
-                  type="text"
-                  id="latitud"
-                  name="latitud"
-                  className={`form-control-pozos ${
-                    errors.latitud ? 'is-invalid' : ''
-                  }`}
-                  placeholder="-31.4201"
-                  value={formData.latitud}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                />
-                {errors.latitud && (
-                  <div className="invalid-feedback-pozos">
-                    <i className="bi bi-exclamation-circle me-1"></i>
-                    {errors.latitud}
-                  </div>
-                )}
-              </div>
-            </div>
 
-            <div className="col-md-6">
-              <div className="form-group-pozos">
-                <label htmlFor="longitud" className="form-label-pozos">
-                  <i className="bi bi-geo-alt-fill me-2"></i>
-                  Longitud
-                </label>
-                <input
-                  type="text"
-                  id="longitud"
-                  name="longitud"
-                  className={`form-control-pozos ${
-                    errors.longitud ? 'is-invalid' : ''
-                  }`}
-                  placeholder="-64.1888"
-                  value={formData.longitud}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                />
-                {errors.longitud && (
-                  <div className="invalid-feedback-pozos">
-                    <i className="bi bi-exclamation-circle me-1"></i>
-                    {errors.longitud}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
 
-          {/* Cliente ID */}
-          {/*    <div className="form-group-pozos">
-            <label htmlFor="cliente_id" className="form-label-pozos">
-              <i className="bi bi-person-fill me-2"></i>
-              ID Cliente
-            </label>
-            <input
-              type="number"
-              id="cliente_id"
-              name="cliente_id"
-              className={`form-control-pozos ${
-                errors.cliente_id ? 'is-invalid' : ''
-              }`}
-              placeholder="1"
-              value={formData.cliente_id}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {errors.cliente_id && (
-              <div className="invalid-feedback-pozos">
-                <i className="bi bi-exclamation-circle me-1"></i>
-                {errors.cliente_id}
-              </div>
-            )}
-          </div> */}
 
           {/* Botones */}
           <div className="modal-footer-pozos">

@@ -21,8 +21,8 @@ export const upJornadas = async (jornada) => {
 export const addJornadas = async (jornada) => {
   const { cliente_id, ...newJornada } = jornada;
 
-  const res = await instance.post(`/cliente/${cliente_id}/jornadas`, {
+  const res = await instance.post(`/cliente/${cliente_id}/jornadas`, 
     newJornada,
-  });
+  );
   return res.data;
 };

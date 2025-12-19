@@ -1579,6 +1579,38 @@ modal-cliente-grid {
 }
 
 /* ===========================
+   FORM GROUPS JORNADAS SELECT
+   =========================== */
+  .form-control-jornadas {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+
+.form-control-jornadas option {
+  background-color: #283245;
+  color: #ffffff;
+}
+
+/* opción seleccionada */
+.form-control-jornadas option:checked {
+  background-color: #384491;
+  color: #ffffff;
+}
+
+/* placeholder */
+.form-control-jornadas option[value=""] {
+  color: #bab0c3;
+}
+
+
+/* ===========================
    MODAL FOOTER
    =========================== */
 

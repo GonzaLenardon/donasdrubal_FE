@@ -59,12 +59,21 @@ const ClienteDetalles = () => {
         >
           Máquinas
         </button>
+        <button
+          className={`btn ${
+            activeTab === 'jornadas' ? 'btn-primary' : 'btn-outline-primary'
+          }`}
+          onClick={() => setActiveTab('jornadas')}
+        >
+          Jornadas
+        </button>        
       </div>
 
       {/* ================= CONTENIDO ================= */}
       <div>
         {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}
         {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
+        {activeTab === 'jornadas' && <JornadasTable cliente_id={cliente_id} />}
       </div>
     </div>
   );
