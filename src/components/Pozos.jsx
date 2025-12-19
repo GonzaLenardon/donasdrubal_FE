@@ -38,6 +38,7 @@ const Pozos = ({ cliente_id }) => {
       <div className="pozos-wrapper">
         <div className="pozos-content">
           {/* HEADER */}
+
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h2 className="fw-bold text-white mb-1 pozos-title">

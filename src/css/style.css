@@ -44,7 +44,7 @@ body {
 =====================================*/
 
 .container-datos {
-  background-color: rgba(30, 41, 59, 0.7);
+  background-color: rgba(66, 83, 112, 0.7);
   padding: 1.2em;
   margin: 1em 0;
   border-radius: 14px;
@@ -1178,7 +1178,7 @@ modal-cliente-grid {
    =========================== */
 
 .pozos-wrapper {
-  min-height: 100vh;
+  /*  min-height: 100vh; */
   background: linear-gradient(135deg, #9b9eb1 0%, #c29be9 100%);
   padding: 2rem;
   border-radius: 15px;
