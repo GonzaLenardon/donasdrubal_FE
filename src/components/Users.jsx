@@ -3,9 +3,11 @@ import { addUser, allUsers, upUser } from '../api/users.js';
 import Modal from '../components/Modal.jsx'; // ✅ import del nuevo modal
 import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
+import { allRoles } from '../api/roles.js';
 
 const Users = () => {
   const [userList, setUserList] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [modal, setModal] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
   const [newUser, SetNewUser] = useState({});
@@ -13,17 +15,28 @@ const Users = () => {
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
-    getAllUser();
+    getUsers();
+    getRoles();
   }, []);
 
   useEffect(() => {
     console.log('first', newUser);
   }, [newUser]);
 
-  const getAllUser = async () => {
+  const getUsers = async () => {
     try {
       const resp = await allUsers();
       setUserList(resp.data);
+    } catch (error) {
+      console.error('Error al traer usuarios:', error.data);
+    }
+  };
+
+  const getRoles = async () => {
+    try {
+      const resp = await allRoles();
+      setRoles(resp.data);
+      console.log('Roliii', resp.data);
     } catch (error) {
       console.error('Error al traer usuarios:', error.data);
     }
@@ -40,7 +53,7 @@ const Users = () => {
     } catch (error) {
       setMsg(error.message);
     } finally {
-      getAllUser();
+      getUsers();
       await new Promise((resolve) => setTimeout(resolve, 3000));
       setLoading(false);
       setMsg('');
@@ -58,7 +71,7 @@ const Users = () => {
     } catch (error) {
       setMsg(error.message);
     } finally {
-      getAllUser();
+      getUsers();
       await new Promise((resolve) => setTimeout(resolve, 3000));
       setLoading(false);
       setMsg('');
@@ -66,10 +79,11 @@ const Users = () => {
   };
 
   const modalUpUser = (item) => {
-    const { id, rol, nombre, email, telefono } = item;
+    const { id, roles, nombre, email, telefono } = item;
+    console.log('first', item);
     SetNewUser({
       id,
-      rol,
+      role_id: parseInt(roles[0].id, 10),
       nombre,
       email,
       telefono,
@@ -81,7 +95,7 @@ const Users = () => {
   const modalNewUser = () => {
     SetNewUser({
       nombre: '',
-      rol: '',
+      role_id: '',
       email: '',
       telefono: '',
     });
@@ -150,7 +164,7 @@ const Users = () => {
               {userList.map((user) => (
                 <tr key={user.id}>
                   <td>{user.nombre}</td>
-                  <td>{user.rol}</td>
+                  <td>{user.roles[0].nombre}</td>
                   <td>{user.email}</td>
                   <td>{user.telefono}</td>
                   <td>
@@ -225,49 +239,22 @@ const Users = () => {
           <label>Rol</label>
           <select
             className="form-select w-50"
-            name="rol"
-            value={newUser?.rol || ''}
+            name="role_id"
+            value={newUser?.role_id || ''}
             onChange={handleUser}
           >
             <option value="" disabled>
               Tipo Usuario
             </option>
-            <option value="admin">Administrador</option>
-            <option value="ingeniero">Ingeniero</option>
-            <option value="supervisor">Supervisor</option>
-            <option value="cliente">Cliente</option>
+
+            {roles.map((rol) => (
+              <option key={rol.id} value={rol.id}>
+                {rol.nombre}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* <div className="py-1 fw-bold">
-          <label>Datos Impositivo</label>
-          <select
-            className="form-select w-50"
-            name="datosImpositivos"
-            value={newUser?.datosImpositivos || ''}
-            onChange={handleUser}
-          >
-            <option value="" disabled>
-              Tipo Impositivo
-            </option>
-            <option value="Responsable Inscripto">Responsable Inscripto</option>
-            <option value="Consumidor Final">Consumidor Final</option>
-            <option value="Exento">Exento</option>
-            <option value="Autonomo">Autonomo</option>
-          </select>
-        </div> */}
-
-        {/*   <div className="py-1 fw-bold">
-          <label>Cuit</label>
-          <input
-            className="form-control rounded"
-            name="cuit"
-            type="text"
-            value={newUser?.cuit || ''}
-            onChange={handleUser}
-          />
-        </div>
- */}
         <div className="py-1 fw-bold">
           <label>Email</label>
           <input
@@ -289,17 +276,6 @@ const Users = () => {
             onChange={handleUser}
           />
         </div>
-
-        {/*  <div className="py-1 fw-bold">
-          <label>Domicilio</label>
-          <input
-            className="form-control rounded"
-            name="domicilio"
-            type="text"
-            value={newUser?.domicilio || ''}
-            onChange={handleUser}
-          />
-        </div> */}
       </Modal>
 
       <ToastContainer
