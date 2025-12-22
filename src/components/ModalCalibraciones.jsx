@@ -2,16 +2,51 @@ import { useState, useEffect } from 'react';
 import Spinner from '../components/Spinner.jsx';
 import { addCalibraciones, upCalibraciones } from '../api/calibraciones.js';
 
-const opcionesEstado = ['Malo', 'Regular', 'Bueno', 'Muy bueno'];
+const opcionesEstado = ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'No aplica'];
+const emptyCalibracion = {
+      fecha:'',
+      responsable:'', 
+      estado_maquina:'',
+      observaciones_estado_maquina:'',
+      estado_bomba:'',
+      observaciones_estado_bomba:'',
+      estado_agitador:'',
+      observaciones_estado_agitador:'', 
+      estado_filtroPrimario:'',
+      observarciones_estado_filtroPrimario:'',
+      estado_filtroSecundario:'',
+      observaciones_filtroSecundario:'', 
+      estado_FiltroLinea:'',
+      observaciones_estado_FiltroLinea:'',
+      estado_manguerayconexiones:'',
+      observaciones_estado_manguerayconexiones:'',
+      estado_antigoteo:'',
+      observaciones_estado_antigoteo:'',
+      estado_limpiezaTanque:'',
+      observaciones_estado_limpiezaTanque:'',
+      estabilidadVerticalBotalon:'',  
+      observaciones_estabilidadVerticalBotalon:'',
+      estado_pastillas:'',
+      observaciones_estado_pastillas:'',
+      presion_unimap:'',
+      presion_computadora:'',
+      presion_manometro:'',
+      observaciones_acronex:'',
+      Observaciones:'',
+
+    }
+
+
 
 export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState({...emptyCalibracion});
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
     if (calibracion) {
       setForm({
+        ...emptyCalibracion,
         ...calibracion,
         fecha: calibracion.fecha ? calibracion.fecha.split('T')[0] : '',
       });
@@ -196,6 +231,54 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                 </div>
               ))}
             </div>
+            {/* PRESIONES  */}
+            <div className="row">
+              <div className="col-md-4 mb-3">
+                <label className="form-label">Presión Unimap (bares)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  name="presion_unimap"
+                  value={form.presion_unimap  || ''}
+                  onChange={handleChange}                  
+                />
+              </div>
+
+              <div className="col-md-4 mb-3">
+                <label className="form-label">Presión Computadora (bares)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  name="presion_computadora"
+                  value={form.presion_computadora}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="col-md-4 mb-3">
+                <label className="form-label">Presión Manómetro (bares)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  name="presion_manometro"
+                  value={form.presion_manometro}
+                  onChange={handleChange}
+                  
+                />
+              </div>
+            </div>
+            {/* OBSERVACIONES ACRONEX */}
+            <div className="mt-4">
+              <label className="fw-bold">Observaciones ACRONEX</label>
+              <textarea
+                className="form-control"
+                rows="4"
+                name="observaciones_acronex"
+                value={form.observaciones_acronex || ''}
+                onChange={handleChange}
+              />
+            </div>            
+
 
             {/* OBSERVACIONES GENERALES */}
             <div className="mt-4">
