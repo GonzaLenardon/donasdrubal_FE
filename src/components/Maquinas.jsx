@@ -125,34 +125,64 @@ const Maquinas = ({ cliente_id }) => {
                   }}
                 >
                   <th
-                    className="text-white fw-semibold py-3 px-4"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
-                    <i className="bi bi-tag me-2"></i>Marca
+                    <i className="bi bi-award me-2"></i>Marca
                   </th>
                   <th
-                    className="text-white fw-semibold py-3 px-3"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
-                    <i className="bi bi-box me-2"></i>Modelo
+                    <i className="bi bi-box-seam me-2"></i>Modelo
                   </th>
                   <th
-                    className="text-white fw-semibold py-3 px-3"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
-                    <i className="bi bi-gear-fill me-2"></i>Tipo
+                    <i className="bi bi-tag-fill me-2"></i>Tipo
                   </th>
                   <th
-                    className="text-white fw-semibold py-3 px-3"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
-                    <i className="bi bi-person-fill me-2"></i>Responsable
+                    <i className="bi bi-arrows-expand me-2"></i>Ancho
                   </th>
                   <th
-                    className="text-white fw-semibold py-3 px-4 text-center"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
-                    Acciones
+                    <i className="bi bi-droplet-half me-2"></i>Tanque
+                  </th>
+                  <th
+                    className="text-white fw-semibold py-2 px-3"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    <i className="bi bi-hash me-2"></i>Picos
+                  </th>
+                  <th
+                    className="text-white fw-semibold py-2 px-3"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    <i className="bi bi-rulers me-2"></i>Dist. Picos
+                  </th>
+                  <th
+                    className="text-white fw-semibold py-2 px-3"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    <i className="bi bi-scissors me-2"></i>Corte
+                  </th>
+                  <th
+                    className="text-white fw-semibold py-2 px-3"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    <i className="bi bi-person-fill me-2"></i>Operario
+                  </th>
+                  <th
+                    className="text-white fw-semibold py-2 px-3 text-center"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    <i className="bi bi-gear me-2"></i>Acciones
                   </th>
                 </tr>
               </thead>
@@ -173,47 +203,97 @@ const Maquinas = ({ cliente_id }) => {
                     }}
                   >
                     {/* Marca */}
-                    <td className="py-3 px-4">
+                    <td className="py-2 px-3">
                       <span
                         className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {maq.tipo.marca}
                       </span>
                     </td>
 
                     {/* Modelo */}
-                    <td className="py-3 px-3">
+                    <td className="py-2 px-3">
                       <span
                         className="text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {maq.tipo.modelo}
                       </span>
                     </td>
 
                     {/* Tipo */}
-                    <td className="py-3 px-3">
+                    <td className="py-2 px-3">
                       <span
-                        className="badge bg-info text-dark px-3 py-2"
-                        style={{ fontSize: '0.8rem' }}
+                        className="badge bg-info text-dark px-2 py-1"
+                        style={{ fontSize: '0.75rem' }}
                       >
                         {maq.tipo.tipo}
                       </span>
                     </td>
 
+                    {/* Ancho Trabajo */}
+                    <td className="py-2 px-3">
+                      <span
+                        className="badge bg-success text-white px-2 py-1"
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        {maq.ancho_trabajo}
+                      </span>
+                    </td>
+
+                    {/* Capacidad Tanque */}
+                    <td className="py-2 px-3">
+                      <span
+                        className="badge bg-primary text-white px-2 py-1"
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        {maq.capacidad_tanque}
+                      </span>
+                    </td>
+
+                    {/* Número Picos */}
+                    <td className="py-2 px-3">
+                      <span
+                        className="badge bg-warning text-dark px-2 py-1"
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        {maq.numero_picos}
+                      </span>
+                    </td>
+
+                    {/* Distancia entre Picos */}
+                    <td className="py-2 px-3">
+                      <span
+                        className="badge bg-secondary text-white px-2 py-1"
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        {maq.distancia_entrePicos}
+                      </span>
+                    </td>
+
+                    {/* Sistema Corte */}
+                    <td className="py-2 px-3">
+                      <span
+                        className="badge bg-danger text-white px-2 py-1"
+                        style={{ fontSize: '0.75rem' }}
+                      >
+                        {maq.sistema_corte}
+                      </span>
+                    </td>
+
                     {/* Responsable */}
-                    <td className="py-3 px-3">
+                    <td className="py-2 px-3">
                       <span
                         className="text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {maq.responsable || '-'}
                       </span>
                     </td>
 
                     {/* Acciones */}
-                    <td className="py-3 px-4">
+                    <td className="py-2 px-3">
                       <div className="d-flex gap-2 justify-content-center">
                         <button
                           className="btn btn-sm"
@@ -221,12 +301,11 @@ const Maquinas = ({ cliente_id }) => {
                             background: 'rgba(102, 126, 234, 0.2)',
                             color: '#93c5fd',
                             border: '1px solid rgba(102, 126, 234, 0.3)',
-                            padding: '0.4rem 1rem',
+                            padding: '0.3rem 0.8rem',
                           }}
                           onClick={() => handleEditarMaquina(maq)}
                         >
-                          <i className="bi bi-pencil me-1"></i>
-                          Editar
+                          <i className="bi bi-pencil"></i>
                         </button>
                         <button
                           className="btn btn-sm"
@@ -234,7 +313,7 @@ const Maquinas = ({ cliente_id }) => {
                             background: 'rgba(245, 158, 11, 0.2)',
                             color: '#fbbf24',
                             border: '1px solid rgba(245, 158, 11, 0.3)',
-                            padding: '0.4rem 1rem',
+                            padding: '0.3rem 0.8rem',
                           }}
                           onClick={() =>
                             navigate(
@@ -242,8 +321,7 @@ const Maquinas = ({ cliente_id }) => {
                             )
                           }
                         >
-                          <i className="bi bi-eye me-1"></i>
-                          Ver
+                          <i className="bi bi-eye"></i>
                         </button>
                       </div>
                     </td>

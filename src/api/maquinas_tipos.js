@@ -9,20 +9,13 @@ export const allMaquinaTipo = async () => {
 export const addMaquinaTipo = async (maquina_tipo) => {
   console.log('addMaquinaTipo:', maquina_tipo);
 
-  const res = await instance.post(
-    `/maquina_tipo`,
-    maquina_tipo
-  );
+  const res = await instance.post(`/maquina_tipo`, maquina_tipo);
   return res.data;
 };
 
 export const updateMaquinaTipo = async (maquina_tipo) => {
-  const {maquina_tipo_id, ...upMaquinaTipo } = maquina_tipo;
-
-  const res = await instance.put(
-    `/maquina_tipo/${maquina_tipo_id}`,
-    upMaquinaTipo
-  );
+  const { id, ...upMaquinaTipo } = maquina_tipo;
+  const res = await instance.put(`/maquina_tipo/${id}`, upMaquinaTipo);
   return res.data;
 };
 

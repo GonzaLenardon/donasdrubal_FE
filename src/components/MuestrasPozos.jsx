@@ -167,22 +167,62 @@ const MuestrasPozos = () => {
                   <tr
                     style={{
                       background:
-                        'linear-gradient(135deg,rgba(102,126,234,0.35),rgba(118,75,162,0.35))',
-                      borderBottom: '2px solid rgba(102,126,234,0.4)',
+                        'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
+                      borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
                     }}
                   >
-                    <th className="py-3 px-4">Fecha</th>
-                    <th className="text-center">pH</th>
-                    <th className="text-center">Dureza</th>
-                    <th className="text-center">Alcalinidad</th>
-                    <th className="text-center">Salinidad</th>
-                    <th className="text-center">F. Iónica</th>
-                    <th>Dosis</th>
-                    <th className="text-center">Acciones</th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-calendar-event me-2"></i>Fecha
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-droplet me-2"></i>pH
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-shield-check me-2"></i>Dureza
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-graph-up me-2"></i>Alcalinidad
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-water me-2"></i>Salinidad
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-lightning-charge me-2"></i>F. Iónica
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-prescription2 me-2"></i>Dosis
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-gear me-2"></i>Acciones
+                    </th>
                   </tr>
                 </thead>
 
-                <tbody style={{ background: 'transparent' }}>
+                <tbody>
                   {muestrasFiltradas.map((m) => {
                     const ph = getValorColor(m.ph, 6.5, 8.5);
                     const du = getValorColor(m.dureza, 0, 500);
@@ -193,26 +233,44 @@ const MuestrasPozos = () => {
                       <tr
                         key={m.id}
                         style={{
-                          borderBottom: '1px solid rgba(255,255,255,0.08)',
+                          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                          transition: 'background 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            'rgba(102, 126, 234, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
                         }}
                       >
-                        <td className="px-4 py-3">
-                          <strong>{formatFecha(m.fecha_muestra)}</strong>
+                        {/* Fecha */}
+                        <td className="py-2 px-3">
+                          <span
+                            className="fw-semibold text-white"
+                            style={{ fontSize: '0.85rem' }}
+                          >
+                            {formatFecha(m.fecha_muestra)}
+                          </span>
                         </td>
 
+                        {/* pH, Dureza, Alcalinidad, Salinidad */}
                         {[
                           { v: m.ph, c: ph },
                           { v: m.dureza, c: du },
                           { v: m.alcalinidad, c: al },
                           { v: m.salinidad, c: sa },
                         ].map((x, i) => (
-                          <td key={i} className="text-center">
+                          <td key={i} className="text-center py-2 px-3">
                             <span
-                              className="px-3 py-2 rounded d-inline-flex gap-2"
+                              className="rounded px-2 py-1"
                               style={{
                                 background: x.c.bg,
                                 color: x.c.color,
                                 fontWeight: 600,
+                                fontSize: '0.75rem',
+                                display: 'inline-block',
+                                lineHeight: 1.2,
                               }}
                             >
                               {getValorIcon(x.v, 0, 9999)} {x.v ?? '-'}
@@ -220,22 +278,39 @@ const MuestrasPozos = () => {
                           </td>
                         ))}
 
-                        <td className="text-center">
-                          {m.fuerza_ionica ?? '-'}
+                        {/* Fuerza Iónica */}
+                        <td className="text-center py-2 px-3">
+                          <span
+                            className="text-white"
+                            style={{ fontSize: '0.85rem' }}
+                          >
+                            {m.fuerza_ionica ?? '-'}
+                          </span>
                         </td>
-                        <td>{m.dosis || '-'}</td>
 
-                        <td className="text-center">
+                        {/* Dosis */}
+                        <td className="py-2 px-3">
+                          <span
+                            className="text-white"
+                            style={{ fontSize: '0.85rem' }}
+                          >
+                            {m.dosis || '-'}
+                          </span>
+                        </td>
+
+                        {/* Acciones */}
+                        <td className="text-center py-2 px-3">
                           <button
                             className="btn btn-sm"
                             style={{
-                              background: 'rgba(102,126,234,0.25)',
+                              background: 'rgba(102, 126, 234, 0.2)',
                               color: '#93c5fd',
-                              border: '1px solid rgba(102,126,234,0.35)',
+                              border: '1px solid rgba(102, 126, 234, 0.3)',
+                              padding: '0.3rem 0.8rem',
                             }}
                             onClick={() => handleEditarMuestra(m)}
                           >
-                            <i className="bi bi-pencil me-1"></i>Editar
+                            <i className="bi bi-pencil"></i>
                           </button>
                         </td>
                       </tr>

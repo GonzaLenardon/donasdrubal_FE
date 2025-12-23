@@ -10,8 +10,8 @@ export const addMaquinas = async (maquina) => {
   console.log('first', maquina);
 
   const { cliente_id, ...newMaquina } = maquina;
-  newMaquina.marca ='-';
-  newMaquina.modelo ='-';
+  /*  newMaquina.marca ='-';
+  newMaquina.modelo ='-'; */
   const res = await instance.post(
     `/cliente/${cliente_id}/maquinas`,
     newMaquina

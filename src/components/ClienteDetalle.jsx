@@ -4,7 +4,7 @@ import { getCliente } from '../api/clientes.js';
 import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
 import JornadasCards from './JornadasCards.jsx';
-import JornadasTable from './JornadasTable.jsx';  
+import JornadasTable from './JornadasTable.jsx';
 
 const ClienteDetalles = () => {
   const { cliente_id } = useParams();
@@ -28,7 +28,7 @@ const ClienteDetalles = () => {
   if (!cliente) return null;
 
   return (
-    <div className="container mt-4">
+    <div className="container-fluid mt-4">
       {/* ================= DATOS CLIENTE ================= */}
       <div className="card mb-4" style={{ backgroundColor: '#1e293b' }}>
         <div className="card-body">
@@ -66,7 +66,7 @@ const ClienteDetalles = () => {
           onClick={() => setActiveTab('jornadas')}
         >
           Jornadas
-        </button>        
+        </button>
       </div>
 
       {/* ================= CONTENIDO ================= */}

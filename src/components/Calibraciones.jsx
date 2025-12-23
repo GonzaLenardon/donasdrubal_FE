@@ -81,7 +81,6 @@ export const Calibraciones = () => {
   };
 
   const handleEditar = (cal) => {
-    console.log('clclclclclla', cal);
     setCalibracion(cal);
     setModalCalibraciones(true);
   };
