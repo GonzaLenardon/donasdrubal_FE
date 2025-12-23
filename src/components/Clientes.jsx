@@ -174,6 +174,7 @@ const Clientes = () => {
               {clienteList.length} Clientes registradas
             </p>
           </div>
+
           <button
             className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
             onClick={modalNewCliente}
@@ -285,7 +286,7 @@ const Clientes = () => {
                       e.currentTarget.style.background = 'transparent';
                     }}
                   >
-                    <td className="py-3 px-4">
+                    <td className="py-1 px-4">
                       <span
                         className="fw-semibold text-white"
                         style={{ fontSize: '0.9rem' }}
@@ -294,7 +295,7 @@ const Clientes = () => {
                       </span>
                     </td>
 
-                    <td className="py-3 px-4">
+                    <td className="py-1 px-4">
                       <span
                         className="fw-semibold text-white"
                         style={{ fontSize: '0.9rem' }}
@@ -303,7 +304,7 @@ const Clientes = () => {
                       </span>
                     </td>
 
-                    <td className="py-3 px-4">
+                    <td className="py-1 px-4">
                       <span
                         className="fw-semibold text-white"
                         style={{ fontSize: '0.9rem' }}
@@ -312,7 +313,7 @@ const Clientes = () => {
                       </span>
                     </td>
 
-                    <td className="py-3 px-4">
+                    <td className="py-1 px-4">
                       <span
                         className="fw-semibold text-white"
                         style={{ fontSize: '0.9rem' }}
@@ -321,7 +322,7 @@ const Clientes = () => {
                       </span>
                     </td>
 
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-1 px-4 text-center">
                       <span
                         className="fw-semibold text-white"
                         style={{ fontSize: '0.9rem' }}
@@ -330,7 +331,7 @@ const Clientes = () => {
                       </span>
                     </td>
 
-                    <td className="py-3 px-4 text-center">
+                    <td className="py-1 px-4 text-center">
                       <span
                         className="fw-semibold text-white"
                         style={{ fontSize: '0.9rem' }}
@@ -339,7 +340,7 @@ const Clientes = () => {
                       </span>
                     </td>
 
-                    <td className="py-3 px-4">
+                    <td className="py-1 px-1">
                       <div className="d-flex gap-2 justify-content-center">
                         <button
                           className="btn btn-sm"
@@ -355,7 +356,6 @@ const Clientes = () => {
                           }}
                         >
                           <i className="bi bi-pencil me-1"></i>
-                          Editar
                         </button>
 
                         <button
@@ -371,9 +371,7 @@ const Clientes = () => {
                             handleVer(cliente);
                           }}
                         >
-                          {' '}
                           <i className="bi bi-eye me-1"></i>
-                          Ver
                         </button>
                       </div>
                     </td>

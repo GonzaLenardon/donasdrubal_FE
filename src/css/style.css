@@ -1459,7 +1459,7 @@ modal-cliente-grid {
    =========================== */
 
 .modal-header-pozos {
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
@@ -1529,7 +1529,7 @@ modal-cliente-grid {
    =========================== */
 
 .form-group-pozos {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .form-label-pozos {
@@ -1581,7 +1581,7 @@ modal-cliente-grid {
 /* ===========================
    FORM GROUPS JORNADAS SELECT
    =========================== */
-  .form-control-jornadas {
+.form-control-jornadas {
   width: 100%;
   padding: 0.75rem 1rem;
   background: rgba(0, 0, 0, 0.2);
@@ -1591,7 +1591,6 @@ modal-cliente-grid {
   font-size: 0.95rem;
   transition: all 0.3s ease;
 }
-
 
 .form-control-jornadas option {
   background-color: #283245;
@@ -1605,10 +1604,9 @@ modal-cliente-grid {
 }
 
 /* placeholder */
-.form-control-jornadas option[value=""] {
+.form-control-jornadas option[value=''] {
   color: #bab0c3;
 }
-
 
 /* ===========================
    MODAL FOOTER
@@ -1617,7 +1615,7 @@ modal-cliente-grid {
 .modal-footer-pozos {
   display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
   padding-top: 1.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }

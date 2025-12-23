@@ -71,8 +71,8 @@ const DashboardLayout = () => {
     <div className="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark">
       <Sidebar />
 
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
-        <div className="max-w-7xl mx-auto">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen ">
+        <div className="container-fluid">
           {/* Breadcrumb */}
           <nav
             aria-label="breadcrumb"

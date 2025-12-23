@@ -279,32 +279,6 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
             </div>
           </div>
 
-          {/* Cliente ID */}
-          {/*    <div className="form-group-pozos">
-            <label htmlFor="cliente_id" className="form-label-pozos">
-              <i className="bi bi-person-fill me-2"></i>
-              ID Cliente
-            </label>
-            <input
-              type="number"
-              id="cliente_id"
-              name="cliente_id"
-              className={`form-control-pozos ${
-                errors.cliente_id ? 'is-invalid' : ''
-              }`}
-              placeholder="1"
-              value={formData.cliente_id}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-            {errors.cliente_id && (
-              <div className="invalid-feedback-pozos">
-                <i className="bi bi-exclamation-circle me-1"></i>
-                {errors.cliente_id}
-              </div>
-            )}
-          </div> */}
-
           {/* Botones */}
           <div className="modal-footer-pozos">
             <button
