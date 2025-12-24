@@ -216,62 +216,53 @@ export const Calibraciones = () => {
                     // onClick={() => toggle(i)}
                   >
                     {/* Header de la Card */}
-                    <div className="d-flex justify-content-between align-items-start mb-3">
-                      <div style={{ flex: 1 }}>
-                        <h5 className="fw-bold text-white mb-1 pozo-nombre">
-                          Calibración #{i + 1}
-                        </h5>
-                        <span
-                          className="badge pozo-estado-badge"
-                          style={{
-                            backgroundColor: getEstadoColor(cal.estado_maquina).bg,
-                            border: `2px solid ${getEstadoColor(cal.estado_maquina).border}`,
-                            color: getEstadoColor(cal.estado_maquina).color
-                          }}
-                        >
-                          {cal.estado_maquina}
-                        </span>
-                      </div>
-                      {/* <div className="pozo-id-badge">
-                        {isOpen ? (
-                          <i className="bi bi-chevron-up text-white"></i>
-                        ) : (
-                          <i className="bi bi-chevron-down text-white"></i>
-                        )}
-                      </div> */}
-                    </div>
+                    <div className="d-flex flex-column flex-md-row justify-content-between align-items-start mb-3 gap-3">
+  {/* Calibración y Estado */}
+  <div style={{ flex: 1 }}>
+    <h5 className="fw-bold text-white mb-1 pozo-nombre">
+      Calibración #{i + 1}
+    </h5>
+    <span
+      className="badge pozo-estado-badge"
+      style={{
+        backgroundColor: getEstadoColor(cal.estado_maquina).bg,
+        border: `2px solid ${getEstadoColor(cal.estado_maquina).border}`,
+        color: getEstadoColor(cal.estado_maquina).color
+      }}
+    >
+      {cal.estado_maquina}
+    </span>
+  </div>
 
-                    {/* Divider */}
-                    <hr className="pozo-divider" />
+  {/* Fecha */}
+  <div className="d-flex align-items-start gap-2" style={{ flex: 1 }}>
+    <i className="bi bi-calendar-event pozo-icon"></i>
+    <div style={{ flex: 1 }}>
+      <p className="mb-0 text-white-50 pozo-label">
+        Fecha
+      </p>
+      <p className="mb-0 text-white fw-semibold pozo-value">
+        {fechaFormateada}
+      </p>
+    </div>
+  </div>
 
-                    {/* Información de la Calibración */}
-                    <div className="d-flex flex-column gap-2">
-                      {/* Fecha */}
-                      <div className="d-flex align-items-start gap-2">
-                        <i className="bi bi-calendar-event pozo-icon"></i>
-                        <div style={{ flex: 1 }}>
-                          <p className="mb-0 text-white-50 pozo-label">
-                            Fecha
-                          </p>
-                          <p className="mb-0 text-white fw-semibold pozo-value">
-                            {fechaFormateada}
-                          </p>
-                        </div>
-                      </div>
+  {/* Responsable */}
+  <div className="d-flex align-items-start gap-2" style={{ flex: 1 }}>
+    <i className="bi bi-person-fill pozo-icon"></i>
+    <div style={{ flex: 1 }}>
+      <p className="mb-0 text-white-50 pozo-label">
+        Responsable
+      </p>
+      <p className="mb-0 text-white pozo-coords">
+        {cal.responsable}
+      </p>
+    </div>
+  </div>
+</div>
 
-                      {/* Responsable */}
-                      <div className="d-flex align-items-start gap-2">
-                        <i className="bi bi-person-fill pozo-icon"></i>
-                        <div style={{ flex: 1 }}>
-                          <p className="mb-0 text-white-50 pozo-label">
-                            Responsable
-                          </p>
-                          <p className="mb-0 text-white pozo-coords">
-                            {cal.responsable}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+{/* Divider */}
+<hr className="pozo-divider" />
 
                     {/* Footer con Acciones */}
                     <div className="d-flex gap-2 mt-3 pt-3 pozo-actions">
