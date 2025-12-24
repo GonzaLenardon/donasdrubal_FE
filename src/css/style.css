@@ -492,6 +492,18 @@ body {
 }
 
 /* =========== ACORDION  ================== */
+.card_calibracion_acordeon {
+  background: linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%);
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  /* cursor: ; */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.5s ease-out;
+}
 .acordeon-item {
   background: #f9fafb; /* casi blanco */
   border: 1px solid #e5e7eb;
@@ -1318,7 +1330,7 @@ modal-cliente-grid {
 
 .pozo-btn-ver {
   background-color: rgba(59, 130, 246, 0.2);
-  color: #93c5fd;
+  color: #a0cafa;
   border: 1px solid rgba(59, 130, 246, 0.3);
   font-size: 0.75rem;
   padding: 0.4rem;

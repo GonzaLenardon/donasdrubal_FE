@@ -150,160 +150,232 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
   return (
     <>
       {/* OVERLAY */}
-      <div className="modal-overlay">
-        {/* MODAL ANCHO */}
-        <div
-          className="custom-modal"
-          style={{
-            maxWidth: '95vw',
-            width: '95vw',
-          }}
-        >
-          {/* HEADER */}
-          <div className="modal-header">
-            <h5 className="fw-bold">
-              {form?.id ? 'Editar Calibración' : 'Agregar Calibración'}
-            </h5>
-            <button className="btn-close" onClick={onClose}></button>
+<div className="modal-overlay">
+  {/* MODAL ANCHO */}
+  <div
+    className="modal-container"
+    style={{
+      maxWidth: '95vw',
+      width: '95vw',
+    }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    {/* HEADER */}
+    <div className="modal-header-pozos">
+      <div className="d-flex align-items-center gap-3">
+        <div className="modal-icon-container">
+          <i className="bi bi-gear-wide-connected"></i>
+        </div>
+        <div>
+          <h3 className="modal-title-pozos mb-1">
+            {form?.id ? 'Editar Calibración' : 'Agregar Calibración'}
+          </h3>
+          <p className="modal-subtitle-pozos mb-0">
+            {form?.id
+              ? 'Modifica la información de la calibración'
+              : 'Completa los datos de la nueva calibración'}
+          </p>
+        </div>
+      </div>
+      <button className="modal-close-btn" onClick={onClose}>
+        <i className="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    {/* BODY */}
+    <div className="modal-body-pozos">
+      {/* DATOS PRINCIPALES */}
+      <div className="row g-3 mb-4">
+        <div className="col-md-8">
+          <div className="form-group-pozos">
+            <label htmlFor="responsable" className="form-label-pozos">
+              <i className="bi bi-person-fill me-2"></i>
+              Responsable
+            </label>
+            <input
+              type="text"
+              id="responsable"
+              className="form-control-pozos"
+              name="responsable"
+              placeholder="Ej: Juan Pérez"
+              value={form.responsable || ''}
+              onChange={handleChange}
+            />
           </div>
+        </div>
 
-          {/* BODY */}
-          <div className="modal-body">
-            {/* DATOS PRINCIPALES */}
-            <div className="row mb-4">
-              <div className="col-md-8">
-                <label className="fw-bold">Responsable</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="responsable"
-                  value={form.responsable || ''}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-4">
-                <label className="fw-bold">Fecha</label>
-                <input
-                  type="date"
-                  className="form-control"
-                  name="fecha"
-                  value={form.fecha || ''}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            {/* ESTADOS + OBSERVACIONES */}
-            <h4 className="fw-bold mb-3 border-bottom pb-2">
-              Estados y Observaciones
-            </h4>
-
-            <div className="row">
-              {camposEstado.map(({ estado, obs, label }) => (
-                <div className="col-xl-3 col-lg-4 col-md-6 mb-4" key={estado}>
-                  <div className="border rounded p-3 h-100 bg-light">
-                    <label className="fw-bold mb-1">{label}</label>
-
-                    <select
-                      className="form-control mb-2"
-                      name={estado}
-                      value={form[estado] || ''}
-                      onChange={handleChange}
-                    >
-                      <option value="">Seleccione estado</option>
-                      {opcionesEstado.map((op) => (
-                        <option key={op} value={op}>
-                          {op}
-                        </option>
-                      ))}
-                    </select>
-
-                    <textarea
-                      className="form-control"
-                      rows="2"
-                      placeholder="Observaciones..."
-                      name={obs}
-                      value={form[obs] || ''}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            {/* PRESIONES  */}
-            <div className="row">
-              <div className="col-md-4 mb-3">
-                <label className="form-label">Presión Unimap (bares)</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  name="presion_unimap"
-                  value={form.presion_unimap  || ''}
-                  onChange={handleChange}                  
-                />
-              </div>
-
-              <div className="col-md-4 mb-3">
-                <label className="form-label">Presión Computadora (bares)</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  name="presion_computadora"
-                  value={form.presion_computadora}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="col-md-4 mb-3">
-                <label className="form-label">Presión Manómetro (bares)</label>
-                <input
-                  type="number"
-                  className="form-control"
-                  name="presion_manometro"
-                  value={form.presion_manometro}
-                  onChange={handleChange}
-                  
-                />
-              </div>
-            </div>
-            {/* OBSERVACIONES ACRONEX */}
-            <div className="mt-4">
-              <label className="fw-bold">Observaciones ACRONEX</label>
-              <textarea
-                className="form-control"
-                rows="4"
-                name="observaciones_acronex"
-                value={form.observaciones_acronex || ''}
-                onChange={handleChange}
-              />
-            </div>            
-
-
-            {/* OBSERVACIONES GENERALES */}
-            <div className="mt-4">
-              <label className="fw-bold">Observaciones Generales</label>
-              <textarea
-                className="form-control"
-                rows="4"
-                name="Observaciones"
-                value={form.Observaciones || ''}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* FOOTER */}
-            <div className="modal-footer mt-4">
-              <button className="btn btn-secondary" onClick={onClose}>
-                Cancelar
-              </button>
-              <button className="btn btn-primary" onClick={handleSubmit}>
-                {form?.id ? 'Actualizar' : 'Agregar'}
-              </button>
-            </div>
+        <div className="col-md-4">
+          <div className="form-group-pozos">
+            <label htmlFor="fecha" className="form-label-pozos">
+              <i className="bi bi-calendar-fill me-2"></i>
+              Fecha
+            </label>
+            <input
+              type="date"
+              id="fecha"
+              className="form-control-pozos"
+              name="fecha"
+              value={form.fecha || ''}
+              onChange={handleChange}
+            />
           </div>
         </div>
       </div>
+
+      {/* ESTADOS + OBSERVACIONES */}
+      <h4 className="fw-bold mb-3 border-bottom pb-2">
+        Estados y Observaciones
+      </h4>
+
+      <div className="row g-3">
+        {camposEstado.map(({ estado, obs, label }) => (
+          <div className="col-xl-3 col-lg-4 col-md-6 mb-4" key={estado}>
+            <div className="border rounded p-3 h-100 bg-dark-pozos">
+              <label className="form-label-pozos mb-2">
+                <i className="bi bi-clipboard-check me-2"></i>
+                {label}
+              </label>
+
+              <select
+                className="form-control-pozos mb-2"
+                name={estado}
+                value={form[estado] || ''}
+                onChange={handleChange}
+              >
+                <option value="">Seleccione estado</option>
+                {opcionesEstado.map((op) => (
+                  <option key={op} value={op}>
+                    {op}
+                  </option>
+                ))}
+              </select>
+
+              <textarea
+                className="form-control-pozos"
+                rows="2"
+                placeholder="Observaciones..."
+                name={obs}
+                value={form[obs] || ''}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* PRESIONES  */}
+      <div className="row g-3">
+        <div className="col-md-4">
+          <div className="form-group-pozos">
+            <label htmlFor="presion_unimap" className="form-label-pozos">
+              <i className="bi bi-speedometer2 me-2"></i>
+              Presión Unimap (bares)
+            </label>
+            <input
+              type="number"
+              id="presion_unimap"
+              className="form-control-pozos"
+              name="presion_unimap"
+              placeholder="Ej: 3.5"
+              value={form.presion_unimap || ''}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div className="form-group-pozos">
+            <label htmlFor="presion_computadora" className="form-label-pozos">
+              <i className="bi bi-speedometer2 me-2"></i>
+              Presión Computadora (bares)
+            </label>
+            <input
+              type="number"
+              id="presion_computadora"
+              className="form-control-pozos"
+              name="presion_computadora"
+              placeholder="Ej: 3.5"
+              value={form.presion_computadora || ''}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+
+        <div className="col-md-4">
+          <div className="form-group-pozos">
+            <label htmlFor="presion_manometro" className="form-label-pozos">
+              <i className="bi bi-speedometer2 me-2"></i>
+              Presión Manómetro (bares)
+            </label>
+            <input
+              type="number"
+              id="presion_manometro"
+              className="form-control-pozos"
+              name="presion_manometro"
+              placeholder="Ej: 3.5"
+              value={form.presion_manometro || ''}
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* OBSERVACIONES ACRONEX */}
+      <div className="form-group-pozos mt-4">
+        <label htmlFor="observaciones_acronex" className="form-label-pozos">
+          <i className="bi bi-chat-left-text-fill me-2"></i>
+          Observaciones ACRONEX
+        </label>
+        <textarea
+          id="observaciones_acronex"
+          className="form-control-pozos"
+          rows="4"
+          placeholder="Ingrese observaciones de ACRONEX..."
+          name="observaciones_acronex"
+          value={form.observaciones_acronex || ''}
+          onChange={handleChange}
+        />
+      </div>
+
+      {/* OBSERVACIONES GENERALES */}
+      <div className="form-group-pozos mt-4">
+        <label htmlFor="Observaciones" className="form-label-pozos">
+          <i className="bi bi-chat-left-text-fill me-2"></i>
+          Observaciones Generales
+        </label>
+        <textarea
+          id="Observaciones"
+          className="form-control-pozos"
+          rows="4"
+          placeholder="Ingrese observaciones generales..."
+          name="Observaciones"
+          value={form.Observaciones || ''}
+          onChange={handleChange}
+        />
+      </div>
+
+      {/* FOOTER */}
+      <div className="modal-footer-pozos mt-4">
+        <button
+          type="button"
+          className="btn-cancelar-pozos"
+          onClick={onClose}
+        >
+          <i className="bi bi-x-circle me-2"></i>
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="btn-guardar-pozos"
+          onClick={handleSubmit}
+        >
+          <i className="bi bi-check-circle me-2"></i>
+          {form?.id ? 'Actualizar' : 'Agregar'}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
       <Spinner msg={msg} loading={loading} />
     </>

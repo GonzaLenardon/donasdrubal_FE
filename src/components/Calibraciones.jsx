@@ -67,15 +67,33 @@ export const Calibraciones = () => {
     estado_pastillas: 'observaciones_estado_pastillas',
   };
 
-  const getEstadoBadge = (estado) => {
-    const badges = {
-      Bueno: 'bg-green-500 text-green-800 border-secondary-200',
-      Regular: 'bg-yellow-300 text-yellow-800 ',
-      Malo: 'bg-red-500 text-black  ',
-    };
-    return badges[estado] || 'bg-gray-100 text-gray-800 border-gray-200';
+  const getEstadoColor = (estado) => {
+  const colores = {
+    'Muy bueno': {
+      bg: '#059669',      // Verde más oscuro
+      border: '#10b981',
+      color: '#ffffff'    // Texto blanco
+    },
+    'Bueno': {
+      bg: '#16a34a',      // Verde medio
+      border: '#22c55e',
+      color: '#ffffff'
+    },
+    'Regular': {
+      bg: '#f59e0b',      // Naranja/Amarillo más oscuro
+      border: '#fbbf24',
+      color: '#000000'    // Texto negro para mejor contraste
+    },
+    'Malo': {
+      bg: '#dc2626',      // Rojo más oscuro
+      border: '#ef4444',
+      color: '#ffffff'
+    }
   };
-
+  
+  return colores[estado] || { bg: '#6b7280', border: '#9ca3af', color: '#ffffff' };
+};
+  
   const toggle = (i) => {
     setOpenIndex(openIndex === i ? null : i);
   };
@@ -152,6 +170,7 @@ export const Calibraciones = () => {
           </div>
 
           {/* HEADER DE CALIBRACIONES Y BOTÓN */}
+          <div className="pozos-wrapper">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
@@ -165,7 +184,7 @@ export const Calibraciones = () => {
             <button
               type="button"
               onClick={() => handleEditar({ maquina_id: maquina_id })}
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
             >
               <Plus className="w-5 h-5" />
               Nueva Calibración
@@ -173,7 +192,7 @@ export const Calibraciones = () => {
           </div>
 
           {/* LISTA DE CALIBRACIONES */}
-          <div className="space-y-4">
+          <div className="calibraciones-container">
             {calibraciones?.calibraciones?.map((cal, i) => {
               const fechaFormateada = new Date(cal.fecha).toLocaleDateString(
                 'es-AR',
@@ -188,108 +207,144 @@ export const Calibraciones = () => {
               return (
                 <div
                   key={i}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
+                  className="card_calibracion_acordeon"
+                  style={{ marginBottom: '1rem' }}
                 >
                   {/* HEADER DEL ACORDEÓN */}
                   <div
-                    className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
-                    onClick={() => toggle(i)}
+                    // style={{ cursor: 'pointer' }}
+                    // onClick={() => toggle(i)}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div
-                          className={`p-3 rounded-lg ${getEstadoBadge(
-                            cal.estado_maquina
-                          )}`}
-                        >
-                          <FileText className="w-5 h-5" />
-                        </div>
-
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              Calibración #{i + 1}
-                            </h3>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoBadge(
-                                cal.estado_maquina
-                              )}`}
-                            >
-                              {cal.estado_maquina}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-6 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
-                              <span>{fechaFormateada}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <User className="w-4 h-4" />
-                              <span>{cal.responsable}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditar(cal);
+                    {/* Header de la Card */}
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div style={{ flex: 1 }}>
+                        <h5 className="fw-bold text-white mb-1 pozo-nombre">
+                          Calibración #{i + 1}
+                        </h5>
+                        <span
+                          className="badge pozo-estado-badge"
+                          style={{
+                            backgroundColor: getEstadoColor(cal.estado_maquina).bg,
+                            border: `2px solid ${getEstadoColor(cal.estado_maquina).border}`,
+                            color: getEstadoColor(cal.estado_maquina).color
                           }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         >
-                          <MoreVertical className="w-5 h-5 text-gray-600" />
-                        </button>
-
-                        {isOpen ? (
-                          <ChevronUp className="w-5 h-5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-gray-400" />
-                        )}
+                          {cal.estado_maquina}
+                        </span>
                       </div>
+                      {/* <div className="pozo-id-badge">
+                        {isOpen ? (
+                          <i className="bi bi-chevron-up text-white"></i>
+                        ) : (
+                          <i className="bi bi-chevron-down text-white"></i>
+                        )}
+                      </div> */}
+                    </div>
+
+                    {/* Divider */}
+                    <hr className="pozo-divider" />
+
+                    {/* Información de la Calibración */}
+                    <div className="d-flex flex-column gap-2">
+                      {/* Fecha */}
+                      <div className="d-flex align-items-start gap-2">
+                        <i className="bi bi-calendar-event pozo-icon"></i>
+                        <div style={{ flex: 1 }}>
+                          <p className="mb-0 text-white-50 pozo-label">
+                            Fecha
+                          </p>
+                          <p className="mb-0 text-white fw-semibold pozo-value">
+                            {fechaFormateada}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Responsable */}
+                      <div className="d-flex align-items-start gap-2">
+                        <i className="bi bi-person-fill pozo-icon"></i>
+                        <div style={{ flex: 1 }}>
+                          <p className="mb-0 text-white-50 pozo-label">
+                            Responsable
+                          </p>
+                          <p className="mb-0 text-white pozo-coords">
+                            {cal.responsable}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer con Acciones */}
+                    <div className="d-flex gap-2 mt-3 pt-3 pozo-actions">
+                      <button
+                        className="btn btn-sm flex-fill pozo-btn-ver"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggle(i);
+                        }}
+                      >
+                        <i className={`bi ${isOpen ? 'bi-eye-slash' : 'bi-eye'} me-1`}></i>
+                        {isOpen ? 'Ocultar' : 'Ver Detalles'}
+                      </button>
+                      <button
+                        className="btn btn-sm flex-fill pozo-btn-editar"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditar(cal);
+                        }}
+                      >
+                        <i className="bi bi-pencil me-1"></i>
+                        Editar
+                      </button>
                     </div>
                   </div>
 
                   {/* CUERPO EXPANDIBLE */}
                   {isOpen && (
-                    <div className="border-t border-gray-200 bg-gray-50">
-                      <div className="p-6">
-                        {/* Observación General */}
-                        {cal.Observaciones && (
-                          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <p className="text-sm font-medium text-blue-900 mb-1">
-                              Observaciones Generales
-                            </p>
-                            <p className="text-sm text-blue-800">
-                              {cal.Observaciones}
-                            </p>
-                          </div>
-                        )}
+                    <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                      {/* Observación General */}
+                      {cal.Observaciones && (
+                        <div className="mb-3 p-3" style={{
+                          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                          border: '1px solid rgba(59, 130, 246, 0.3)',
+                          borderRadius: '8px'
+                        }}>
+                          <p className="mb-1 fw-semibold" style={{ color: '#93c5fd', fontSize: '0.875rem' }}>
+                            Observaciones Generales
+                          </p>
+                          <p className="mb-0" style={{ color: '#bfdbfe', fontSize: '0.875rem' }}>
+                            {cal.Observaciones}
+                          </p>
+                        </div>
+                      )}
 
-                        {/* Grid de Estados */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                          {Object.keys(formateo).map((key) => {
-                            const observacionKey = observacionesMap[key];
-                            const observacion = cal[observacionKey];
-
-                            return (
-                              <div
-                                key={key}
-                                className="p-3 rounded-lg border border-gray-200"
-                                style={{
-                                  background: 'rgba(34, 87, 80, 0.85)',
-                                }}
-                              >
-                                <div className="flex items-center justify-between mb-2">
-                                  <p className="text-sm font-bold text-white">
+                      {/* Grid de Estados */}
+                      <div className="row g-3">
+                        {Object.keys(formateo).map((key) => {
+                          const observacionKey = observacionesMap[key];
+                          const observacion = cal[observacionKey];
+                          if(!cal[key] || formateo[key] === 'Estado General') return null;
+                          return (
+                            <div key={key} className="col-12 col-md-6 col-lg-3">
+                              <div className="p-3 d-flex flex-column" style={{
+                                background: 'rgba(34, 87, 80, 0.85)',
+                                borderRadius: '8px',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                height: '100%',
+                                minHeight: '60px'
+                              }}>
+                                <div className="d-flex justify-content-between align-items-center mb-1">
+                                  <p className="mb-0 fw-bold text-white" style={{ fontSize: '0.875rem' }}>
                                     {formateo[key]}
                                   </p>
                                   <span
-                                    className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getEstadoBadge(
-                                      cal[key]
-                                    )}`}
+                                    className="badge"
+                                    style={{
+                                      backgroundColor: getEstadoColor (cal[key]).bg,
+                                      border: `1px solid ${getEstadoColor(cal[key]).border}`,
+                                      color: getEstadoColor(cal[key]).color,
+                                      fontSize: '0.75rem',
+                                      padding: '0.25rem 0.5rem'
+                                    }}
                                   >
                                     {cal[key]}
                                   </span>
@@ -297,28 +352,31 @@ export const Calibraciones = () => {
 
                                 {observacion && (
                                   <p
-                                    className="mt-2 pl-3 border border-l border-gray-300 "
+                                    className="mt-2 mb-0 ps-2 flex-grow-1"
                                     style={{
-                                      borderRadius: '15px',
-                                      minHeight: '60%',
-                                      padding: '5px',
+                                      borderLeft: '2px solid rgba(255,255,255,0.3)',
+                                      borderRadius: '4px',
+                                      padding: '0.5rem',
                                       color: 'white',
-                                      opacity: '0.7 ',
+                                      opacity: '0.7',
+                                      fontSize: '0.813rem',
+                                      overflow: 'auto'
                                     }}
                                   >
                                     {observacion}
                                   </p>
                                 )}
                               </div>
-                            );
-                          })}
-                        </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
                 </div>
               );
             })}
+          </div>
           </div>
         </div>
       </div>
