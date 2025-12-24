@@ -35,16 +35,22 @@ const Pozos = ({ cliente_id }) => {
 
   return (
     <>
-      <div className="pozos-wrapper">
-        <div className="pozos-content">
+      <div
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '2rem',
+      }}
+      >
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           {/* HEADER */}
 
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h2 className="fw-bold text-white mb-1 pozos-title">
+              <h2 className="fw-bold text-white mb-1">
                 Gestión de Pozos
               </h2>
-              <p className="text-white-50 mb-0 pozos-subtitle">
+              <p className="text-white-50 mb-0">
                 {pozos.length} pozos registrados
               </p>
             </div>
