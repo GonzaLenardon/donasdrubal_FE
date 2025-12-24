@@ -67,13 +67,31 @@ export const Calibraciones = () => {
     estado_pastillas: 'observaciones_estado_pastillas',
   };
 
-  const getEstadoBadge = (estado) => {
-    const badges = {
-      Bueno: 'bg-green-500 text-green-800 border-secondary-200',
-      Regular: 'bg-yellow-300 text-yellow-800 ',
-      Malo: 'bg-red-500 text-black  ',
+  const getEstadoColor = (estado) => {
+    const colores = {
+      'Muy bueno': {
+        bg: '#059669',      // Verde más oscuro
+        border: '#10b981',
+        color: '#ffffff'    // Texto blanco
+      },
+      'Bueno': {
+        bg: '#16a34a',      // Verde medio
+        border: '#22c55e',
+        color: '#ffffff'
+      },
+      'Regular': {
+        bg: '#f59e0b',      // Naranja/Amarillo más oscuro
+        border: '#fbbf24',
+        color: '#000000'    // Texto negro para mejor contraste
+      },
+      'Malo': {
+        bg: '#dc2626',      // Rojo más oscuro
+        border: '#ef4444',
+        color: '#ffffff'
+      }
     };
-    return badges[estado] || 'bg-gray-100 text-gray-800 border-gray-200';
+
+    return colores[estado] || { bg: '#6b7280', border: '#9ca3af', color: '#ffffff' };
   };
 
   const toggle = (i) => {
@@ -93,7 +111,7 @@ export const Calibraciones = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Card Cliente */}
             {/*      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"> */}
-            <div className="card_Calibraciones">
+            <div className="card_calibracion">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-blue-50 rounded-lg">
                   <Building2 className="w-6 h-6 text-blue-600" />
@@ -121,7 +139,7 @@ export const Calibraciones = () => {
             </div>
 
             {/* Card Máquina */}
-            <div className="card_Calibraciones">
+            <div className="card_calibracion">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-purple-50 rounded-lg">
                   <Wrench className="w-6 h-6 text-purple-600" />
@@ -151,174 +169,214 @@ export const Calibraciones = () => {
             </div>
           </div>
 
-          {/* HEADER DE CALIBRACIONES Y BOTÓN */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Calibraciones
-              </h1>
-              <p className="text-sm text-gray-500 mt-1">
-                {calibraciones?.calibraciones?.length || 0} registros
-                encontrados
-              </p>
+          {/* CALIBRACIONES */}
+          <div className="calibracion-wrapper">
+            {/* HEADER Y BOTÓN NUEVA CALIBRACION */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Calibraciones
+                </h1>
+                <p className="text-sm text-gray-700 mt-1">
+                  {calibraciones?.calibraciones?.length || 0} registros
+                  encontrados
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleEditar({ maquina_id: maquina_id })}
+                className="btn text-white d-flex align-items-center gap-2 shadow-lg calibracion-btn-nuevo"
+              >
+                <Plus className="w-5 h-5" />
+                Nueva Calibración
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => handleEditar({ maquina_id: maquina_id })}
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              <Plus className="w-5 h-5" />
-              Nueva Calibración
-            </button>
-          </div>
 
-          {/* LISTA DE CALIBRACIONES */}
-          <div className="space-y-4">
-            {calibraciones?.calibraciones?.map((cal, i) => {
-              const fechaFormateada = new Date(cal.fecha).toLocaleDateString(
-                'es-AR',
-                {
-                  day: '2-digit',
-                  month: 'long',
-                  year: 'numeric',
-                }
-              );
-              const isOpen = openIndex === i;
+            {/* LISTA DE CALIBRACIONES */}
+            <div className="calibracion-container">
+              {calibraciones?.calibraciones?.map((cal, i) => {
+                const fechaFormateada = new Date(cal.fecha).toLocaleDateString(
+                  'es-AR',
+                  {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                  }
+                );
+                const isOpen = openIndex === i;
 
-              return (
-                <div
-                  key={i}
-                  className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all"
-                >
-                  {/* HEADER DEL ACORDEÓN */}
+                return (
                   <div
-                    className="p-6 cursor-pointer hover:bg-gray-50 transition-colors"
-                    onClick={() => toggle(i)}
+                    key={i}
+                    className="card_calibracion_acordeon"
+                    style={{ marginBottom: '1rem' }}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div
-                          className={`p-3 rounded-lg ${getEstadoBadge(
-                            cal.estado_maquina
-                          )}`}
-                        >
-                          <FileText className="w-5 h-5" />
+                    {/* HEADER DEL ACORDEÓN */}
+                    <div className="card_calibracion_header">
+                      {/* Header de la Card */}
+
+                      <div className="row mb-3">
+                        {/* Columna Izquierda - Calibración (más pequeña) */}
+                        <div className="col-12 col-md-3">
+                          <h5 className="fw-bold text-white mb-1 calibracion-nombre">
+                            Calibración #{i + 1}
+                          </h5>
+                          <span
+                            className="badge calibracion-estado-badge"
+                            style={{
+                              backgroundColor: getEstadoColor(cal.estado_maquina).bg,
+                              border: `2px solid ${getEstadoColor(cal.estado_maquina).border}`,
+                              color: getEstadoColor(cal.estado_maquina).color
+                            }}
+                          >
+                            {cal.estado_maquina}
+                          </span>
                         </div>
 
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                              Calibración #{i + 1}
-                            </h3>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-medium border ${getEstadoBadge(
-                                cal.estado_maquina
-                              )}`}
-                            >
-                              {cal.estado_maquina}
-                            </span>
+                        {/* Columna Centro - Fecha y Responsable */}
+                        <div className="col-12 col-md-3 d-flex flex-column gap-2">
+                          {/* Fecha */}
+                          <div className="d-flex align-items-start gap-2">
+                            <i className="bi bi-calendar-event calibracion-icon"></i>
+                            <div style={{ flex: 1 }}>
+                              <p className="mb-0 text-white-50 calibracion-label">
+                                Fecha
+                              </p>
+                              <p className="mb-0 text-white fw-semibold calibracion-value">
+                                {fechaFormateada}
+                              </p>
+                            </div>
                           </div>
 
-                          <div className="flex items-center gap-6 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Calendar className="w-4 h-4" />
-                              <span>{fechaFormateada}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <User className="w-4 h-4" />
-                              <span>{cal.responsable}</span>
+                          {/* Responsable */}
+                          <div className="d-flex align-items-start gap-2">
+                            <i className="bi bi-person-fill calibracion-icon"></i>
+                            <div style={{ flex: 1 }}>
+                              <p className="mb-0 text-white-50 calibracion-label">
+                                Responsable
+                              </p>
+                              <p className="mb-0 text-white calibracion-responsable">
+                                {cal.responsable}
+                              </p>
                             </div>
                           </div>
                         </div>
+
+                        {/* Columna Derecha - Observaciones Generales (más grande) */}
+                        {cal.Observaciones && (
+                          <div className="col-12 col-md-6">
+                            <div className="p-3 h-100" style={{
+                              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '8px'
+                            }}>
+                              <p className="mb-1 fw-semibold" style={{ color: '#93c5fd', fontSize: '0.875rem' }}>
+                                Observaciones Generales
+                              </p>
+                              <p className="mb-0" style={{ color: '#bfdbfe', fontSize: '0.875rem' }}>
+                                {cal.Observaciones}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      {/* Divider */}
+                      <hr className="calibracion-divider" />
+
+                      {/* Footer con Acciones */}
+                      <div className="d-flex gap-2 mt-3 pt-3 calibracion-actions">
                         <button
+                          className="btn btn-sm flex-fill calibracion-btn-ver"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggle(i);
+                          }}
+                        >
+                          <i className={`bi ${isOpen ? 'bi-eye-slash' : 'bi-eye'} me-1`}></i>
+                          {isOpen ? 'Ocultar' : 'Ver Detalles'}
+                        </button>
+                        <button
+                          className="btn btn-sm flex-fill calibracion-btn-editar"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEditar(cal);
                           }}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         >
-                          <MoreVertical className="w-5 h-5 text-gray-600" />
+                          <i className="bi bi-pencil me-1"></i>
+                          Editar
                         </button>
-
-                        {isOpen ? (
-                          <ChevronUp className="w-5 h-5 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-gray-400" />
-                        )}
                       </div>
                     </div>
-                  </div>
 
-                  {/* CUERPO EXPANDIBLE */}
-                  {isOpen && (
-                    <div className="border-t border-gray-200 bg-gray-50">
-                      <div className="p-6">
-                        {/* Observación General */}
-                        {cal.Observaciones && (
-                          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                            <p className="text-sm font-medium text-blue-900 mb-1">
-                              Observaciones Generales
-                            </p>
-                            <p className="text-sm text-blue-800">
-                              {cal.Observaciones}
-                            </p>
-                          </div>
-                        )}
-
+                    {/* CUERPO EXPANDIBLE */}
+                    {isOpen && (
+                      <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                         {/* Grid de Estados */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="row g-3">
                           {Object.keys(formateo).map((key) => {
                             const observacionKey = observacionesMap[key];
                             const observacion = cal[observacionKey];
-
+                            if (!cal[key] || formateo[key] === 'Estado General') return null;
                             return (
-                              <div
-                                key={key}
-                                className="p-3 rounded-lg border border-gray-200"
-                                style={{
+                              <div key={key} className="col-12 col-md-6 col-lg-3">
+                                <div className="p-3 d-flex flex-column" style={{
                                   background: 'rgba(34, 87, 80, 0.85)',
-                                }}
-                              >
-                                <div className="flex items-center justify-between mb-2">
-                                  <p className="text-sm font-bold text-white">
-                                    {formateo[key]}
-                                  </p>
-                                  <span
-                                    className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getEstadoBadge(
-                                      cal[key]
-                                    )}`}
-                                  >
-                                    {cal[key]}
-                                  </span>
+                                  borderRadius: '8px',
+                                  border: '1px solid rgba(255,255,255,0.1)',
+                                  height: '100%',
+                                  minHeight: '60px'
+                                }}>
+                                  {/* ESTADO PARAMETRO RELEVADO */}
+                                  <div className="d-flex flex-column align-items-start mb-3">
+                                    <p className="mb-2 fw-bold text-white" style={{ fontSize: '0.875rem' }}>
+                                      {formateo[key]}
+                                    </p>
+                                    <span
+                                      className="badge"
+                                      style={{
+                                        backgroundColor: getEstadoColor(cal[key]).bg,
+                                        border: `1px solid ${getEstadoColor(cal[key]).border}`,
+                                        color: getEstadoColor(cal[key]).color,
+                                        fontSize: '0.75rem',
+                                        padding: '0.25rem 0.5rem',
+                                        minWidth: '80px',           // Ancho mínimo fijo
+                                        textAlign: 'center',        // Centrar el texto
+                                        display: 'inline-block',    // Para que respete el minWidth
+                                        fontWeight: '600'           // Texto semi-bold para mejor legibilidad
+                                      }}
+                                    >
+                                      {cal[key]}
+                                    </span>
+                                  </div>
+                                  {/* OBSERVACION PARAMETRO RELEVADO */}
+                                  {observacion && (
+                                    <p
+                                      className="mt-2 mb-0 ps-2 flex-grow-1"
+                                      style={{
+                                        borderLeft: '2px solid rgba(255,255,255,0.3)',
+                                        borderRadius: '4px',
+                                        padding: '0.5rem',
+                                        color: 'white',
+                                        opacity: '0.7',
+                                        fontSize: '0.813rem',
+                                        overflow: 'auto'
+                                      }}
+                                    >
+                                      {observacion}
+                                    </p>
+                                  )}
                                 </div>
-
-                                {observacion && (
-                                  <p
-                                    className="mt-2 pl-3 border border-l border-gray-300 "
-                                    style={{
-                                      borderRadius: '15px',
-                                      minHeight: '60%',
-                                      padding: '5px',
-                                      color: 'white',
-                                      opacity: '0.7 ',
-                                    }}
-                                  >
-                                    {observacion}
-                                  </p>
-                                )}
                               </div>
                             );
                           })}
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

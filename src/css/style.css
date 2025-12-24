@@ -491,7 +491,20 @@ body {
   width: 50px;
 }
 
+
 /* =========== ACORDION  ================== */
+.card_calibracion_acordeon {
+  background: linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%);
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  /* cursor: ; */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.5s ease-out;
+}
 .acordeon-item {
   background: #f9fafb; /* casi blanco */
   border: 1px solid #e5e7eb;
@@ -1148,14 +1161,14 @@ modal-cliente-grid {
   background: #94a3b8;
 }
 
-.card_Calibraciones {
+/* .card_Calibraciones {
   background: rgba(34, 87, 80, 0.85);
   border-radius: 15px;
   box-shadow: 2px 2px #17a2b8;
   color: white;
-}
+} */
 
-.card_Calibraciones {
+.card_calibracion {
   border-radius: 15px;
   padding: 1.5rem;
   background: rgba(34, 87, 80, 0.85);
@@ -1164,41 +1177,41 @@ modal-cliente-grid {
   transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-.card_Calibraciones:hover {
+.card_calibracion:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
 
 /* ================================
-            POZOS 
+            POZOS /
   ================================ */
 
 /* ===========================
-   POZOS - ESTILOS GENERALES
+   POZOS / CALIBRACION - ESTILOS GENERALES
    =========================== */
 
-.pozos-wrapper {
+.pozos-wrapper .calibracion-wrapper {
   /*  min-height: 100vh; */
   background: linear-gradient(135deg, #9b9eb1 0%, #c29be9 100%);
   padding: 2rem;
   border-radius: 15px;
 }
 
-.pozos-content {
+.pozos-content, .calibracion-content {
   max-width: 1400px;
   margin: 0 auto;
 }
 
 /* Header */
-.pozos-title {
+.pozos-title, .calibracion-title {
   font-size: 2rem;
 }
 
-.pozos-subtitle {
+.pozos-subtitle, .calibracion-subtitle {
   font-size: 0.875rem;
 }
 
-.pozos-btn-nuevo {
+.pozos-btn-nuevo, .calibracion-btn-nuevo {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: 2px solid rgba(255, 255, 255, 0.3);
   padding: 0.75rem 1.5rem;
@@ -1217,10 +1230,10 @@ modal-cliente-grid {
 }
 
 /* ===========================
-   CARD DE POZO
+   CARD DE POZO / CALIBRACION
    =========================== */
 
-.card_pozos {
+.card_pozos, .card_calibracion {
   background: linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%);
   border-radius: 15px;
   padding: 1.5rem;
@@ -1233,7 +1246,7 @@ modal-cliente-grid {
   animation: fadeInUp 0.5s ease-out;
 }
 
-.card_pozos::before {
+.card_pozos::before, .card_calibracion::before {
   content: '';
   position: absolute;
   top: 0;
@@ -1245,13 +1258,13 @@ modal-cliente-grid {
   transition: opacity 0.3s ease;
 }
 
-.card_pozos:hover {
+.card_pozos:hover, .card_calibracion:hover {
   transform: translateY(-6px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   border-color: rgba(102, 126, 234, 0.5);
 }
 
-.card_pozos:hover::before {
+.card_pozos:hover::before, .card_calibracion:hover::before {
   opacity: 1;
 }
 
@@ -1259,17 +1272,17 @@ modal-cliente-grid {
    ELEMENTOS DE LA CARD
    =========================== */
 
-.pozo-nombre {
+.pozo-nombre, .calibracion-nombre {
   font-size: 1.1rem;
 }
 
-.pozo-estado-badge {
+.pozo-estado-badge, .calibracion-estado-badge {
   font-size: 0.7rem;
   padding: 0.35rem 0.75rem;
   border-radius: 20px;
 }
 
-.pozo-id-badge {
+.pozo-id-badge, .calibracion-id-badge {
   width: 40px;
   height: 40px;
   background-color: rgba(59, 130, 246, 0.2);
@@ -1280,30 +1293,30 @@ modal-cliente-grid {
   justify-content: center;
 }
 
-.pozo-id-text {
+.pozo-id-text, .calibracion-id-text {
   color: #93c5fd;
 }
 
-.pozo-divider {
+.pozo-divider, .calibracion-divider{
   border-color: rgba(255, 255, 255, 0.1);
   margin: 1rem 0;
 }
 
-.pozo-icon {
+.pozo-icon, .calibracion-icon {
   color: #93c5fd;
   font-size: 1rem;
   margin-top: 2px;
 }
 
-.pozo-label {
+.pozo-label, .calibracion-label {
   font-size: 0.75rem;
 }
 
-.pozo-value {
+.pozo-value, .calibracion-value {
   font-size: 0.875rem;
 }
 
-.pozo-coords {
+.pozo-coords, .calibracion-responsable {
   font-size: 0.8rem;
   font-family: monospace;
 }
@@ -1312,26 +1325,26 @@ modal-cliente-grid {
    ACCIONES
    =========================== */
 
-.pozo-actions {
+.pozo-actions, .calibracion-actions {
   border-top: 1px solid rgba(247, 235, 235, 0.1);
 }
 
-.pozo-btn-ver {
+.pozo-btn-ver, .calibracion-btn-ver {
   background-color: rgba(59, 130, 246, 0.2);
-  color: #93c5fd;
+  color: #a0cafa;
   border: 1px solid rgba(59, 130, 246, 0.3);
   font-size: 0.75rem;
   padding: 0.4rem;
   transition: all 0.2s ease;
 }
 
-.pozo-btn-ver:hover {
+.pozo-btn-ver:hover, .calibracion-btn-ver:hover {
   transform: scale(1.05);
   filter: brightness(1.2);
   background-color: rgba(59, 130, 246, 0.3);
 }
 
-.pozo-btn-editar {
+.pozo-btn-editar, .calibracion-btn-editar {
   background-color: rgba(168, 85, 247, 0.2);
   color: #d8b4fe;
   border: 1px solid rgba(168, 85, 247, 0.3);
@@ -1340,7 +1353,7 @@ modal-cliente-grid {
   transition: all 0.2s ease;
 }
 
-.pozo-btn-editar:hover {
+.pozo-btn-editar:hover, .calibracion-btn-editar:hover {
   transform: scale(1.05);
   filter: brightness(1.2);
   background-color: rgba(168, 85, 247, 0.3);
@@ -1386,15 +1399,15 @@ modal-cliente-grid {
     grid-template-columns: 1fr;
   }
 
-  .card_pozos {
+  .card_pozos, .card_calibracion {
     padding: 1rem;
   }
 
-  .pozos-title {
+  .pozos-title, .calibracion-title {
     font-size: 1.5rem;
   }
 
-  .pozos-wrapper {
+  .pozos-wrapper, .calibracion-wrapper {
     padding: 1rem;
   }
 }
