@@ -1,19 +1,18 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { addCliente, allCliente, upCliente } from '../api/clientes.js';
-import Modal from '../components/Modal.jsx'; // ✅ import del nuevo modal
 import Spinner from './Spinner.jsx';
-import { ToastContainer, Slide, toast } from 'react-toastify';
-// import { Button } from 'bootstrap/dist/js/bootstrap.bundle.min.js';
+/* import { ToastContainer, Slide, toast } from 'react-toastify'; */
 import { useNavigate } from 'react-router-dom';
 import { allIngenieros } from '../api/users.js';
 
 const Clientes = () => {
   const [clienteList, setClienteList] = useState([]);
   const [ingenieros, setIngenieros] = useState([]);
+  const [errors, setErrors] = useState({});
   const [modal, setModal] = useState(false);
-  const [isUpdate, setIsUpdate] = useState(false);
   const [newCliente, SetNewCliente] = useState({});
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
   const navigate = useNavigate();
 
@@ -45,111 +44,126 @@ const Clientes = () => {
     }
   };
 
-  const updateCliente = async () => {
-    try {
-      if (!validarCampos()) return;
+  const validateForm = () => {
+    const newErrors = {};
 
-      setLoading(true);
-      setModal(false);
-      const resp = await upCliente(newCliente);
-
-      setMsg(resp.mensaje);
-    } catch (error) {
-      setMsg(error.mensaje);
-    } finally {
-      getAllCliente();
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      setLoading(false);
-      setMsg('');
+    // Campos requeridos
+    if (!newCliente.razon_social?.trim()) {
+      newErrors.razon_social = 'La razón social es requerida';
     }
+
+    if (!newCliente.direccion_fiscal?.trim()) {
+      newErrors.direccion_fiscal = 'El domicilio fiscal es requerido';
+    }
+
+    if (!newCliente.cuil_cuit?.trim()) {
+      newErrors.cuil_cuit = 'El CUIL/CUIT es requerido';
+    } else if (!/^\d{2}-\d{8}-\d{1}$/.test(newCliente.cuil_cuit)) {
+      newErrors.cuil_cuit = 'Formato inválido (XX-XXXXXXXX-X)';
+    }
+
+    if (!newCliente.iva_id) {
+      newErrors.iva_id = 'Debe seleccionar una condición de IVA';
+    }
+
+    if (!newCliente.telefono?.trim()) {
+      newErrors.telefono = 'El teléfono es requerido';
+    }
+
+    if (!newCliente.email?.trim()) {
+      newErrors.email = 'El email es requerido';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newCliente.email)) {
+      newErrors.email = 'Email inválido';
+    }
+
+    if (!newCliente.ciudad?.trim()) {
+      newErrors.ciudad = 'La ciudad es requerida';
+    }
+
+    if (!newCliente.provincia?.trim()) {
+      newErrors.provincia = 'La provincia es requerida';
+    }
+
+    if (!newCliente.pais?.trim()) {
+      newErrors.pais = 'El país es requerido';
+    }
+
+    if (!newCliente.estado) {
+      newErrors.estado = 'Debe seleccionar un estado';
+    }
+
+    if (!newCliente.ingeniero_id) {
+      newErrors.ingeniero_id = 'Debe asignar un ingeniero';
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      toast.error(
+        'Por favor completa todos los campos requeridos correctamente'
+      );
+      return false;
+    }
+
+    return true;
   };
 
-  const insertCliente = async () => {
-    try {
-      if (!validarCampos()) return;
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
 
+    try {
+      setIsSubmitting(true);
       setLoading(true);
-      setModal(false);
-      const resp = await addCliente(newCliente);
+
+      let resp;
+      if (newCliente?.id) {
+        resp = await upCliente(newCliente);
+      } else {
+        resp = await addCliente(newCliente);
+      }
+
       setMsg(resp.mensaje);
+      getAllCliente();
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      modalClose();
     } catch (error) {
       setMsg(error.mensaje);
+      setErrors({ submit: error.mensaje });
     } finally {
-      getAllCliente();
-      await new Promise((resolve) => setTimeout(resolve, 3000));
       setLoading(false);
+      setIsSubmitting(false);
       setMsg('');
     }
   };
 
   const modalUpCliente = (cliente) => {
+    console.log('cliente a editar', cliente);
     SetNewCliente(cliente);
-    setIsUpdate(true);
+    setErrors({});
     setModal(true);
   };
-
-  const modalNewCliente = () => {
-    SetNewCliente({
-      categoria: '',
-      razon_social: '',
-      direccion_fiscal: '',
-      cuil_cuit: '',
-      iva_id: '',
-      telefono: '',
-      direccion: '',
-      ciudad: '',
-      provincia: '',
-      pais: '',
-      estado: '',
-      modo_ingreso: '',
-      ingeniero_id: '',
-      notas: '',
-    });
-    setIsUpdate(false);
-    setModal(true);
-  };
-
-  useEffect(() => {
-    console.log('first', newCliente);
-  }, [newCliente]);
 
   const handleCliente = (e) => {
     const { name, value } = e.target;
     console.log(name, value);
     SetNewCliente((prev) => ({ ...prev, [name]: value }));
+
+    // Limpiar error del campo cuando el usuario escribe
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
   };
 
   const modalClose = () => {
     setModal(false);
     SetNewCliente({});
-  };
-
-  const excluir = [
-    'categoria',
-    'direccion',
-    'modo_ingreso',
-    ' notas',
-    'user_email',
-    'user_nombre',
-    'user_password',
-    'notas',
-  ]; // por ejemplo
-
-  const validarCampos = () => {
-    for (const [key, value] of Object.entries(newCliente)) {
-      if (!excluir.includes(key)) {
-        if (!value || (typeof value === 'string' && value.trim() === '')) {
-          console.log('key', key);
-          toast.error(`Completar el campo: ${key}`);
-          return false;
-        }
-      }
-    }
-    return true;
+    setErrors({});
   };
 
   const handleVer = async (cliente) => {
-    /* navigate(`/cliente/${cliente.id}/detalles`, { state: { cliente } }); */
     navigate(`/cliente/${cliente.id}/detalles`, {
       state: { cliente: cliente },
     });
@@ -171,13 +185,17 @@ const Clientes = () => {
               Clientes
             </h2>
             <p className="text-white-50 mb-0" style={{ fontSize: '0.875rem' }}>
-              {clienteList.length} Clientes registradas
+              {clienteList.length} Clientes registrados
             </p>
           </div>
 
           <button
             className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
-            onClick={modalNewCliente}
+            onClick={() => {
+              SetNewCliente({});
+              setErrors({});
+              setModal(true);
+            }}
           >
             <i className="bi bi-plus-lg"></i>
             Nuevo Cliente
@@ -213,55 +231,49 @@ const Clientes = () => {
                   }}
                 >
                   <th
-                    className="text-white fw-semibold py-3 px-4"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
                     <i className="bi bi-person-badge me-2"></i>
                     Nombre
                   </th>
-
                   <th
-                    className="text-white fw-semibold py-3 px-4"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
                     <i className="bi bi-geo-alt me-2"></i>
                     Domicilio
                   </th>
-
                   <th
-                    className="text-white fw-semibold py-3 px-4"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
                     <i className="bi bi-envelope-at me-2"></i>
                     Email
                   </th>
-
                   <th
-                    className="text-white fw-semibold py-3 px-4"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
                     <i className="bi bi-telephone me-2"></i>
                     Teléfono
                   </th>
-
                   <th
-                    className="text-white fw-semibold py-3 px-4"
+                    className="text-white fw-semibold py-2 px-3"
                     style={{ fontSize: '0.875rem' }}
                   >
                     <i className="bi bi-toggle-on me-2"></i>
                     Estado
                   </th>
-
                   <th
-                    className="text-white fw-semibold py-3 px-4 text-center"
+                    className="text-white fw-semibold py-2 px-3 text-center"
                     style={{ fontSize: '0.875rem' }}
                   >
                     <i className="bi bi-tags me-2"></i>
                     Categoría
                   </th>
-
                   <th
-                    className="text-white fw-semibold py-3 px-4 text-center"
+                    className="text-white fw-semibold py-2 px-3 text-center"
                     style={{ fontSize: '0.875rem' }}
                   >
                     <i className="bi bi-gear me-2"></i>
@@ -286,61 +298,55 @@ const Clientes = () => {
                       e.currentTarget.style.background = 'transparent';
                     }}
                   >
-                    <td className="py-1 px-4">
+                    <td className="py-2 px-3">
                       <span
                         className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {cliente.razon_social}
                       </span>
                     </td>
-
-                    <td className="py-1 px-4">
+                    <td className="py-2 px-3">
                       <span
                         className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {cliente.direccion_fiscal}
                       </span>
                     </td>
-
-                    <td className="py-1 px-4">
+                    <td className="py-2 px-3">
                       <span
                         className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {cliente.email}
                       </span>
                     </td>
-
-                    <td className="py-1 px-4">
+                    <td className="py-2 px-3">
                       <span
                         className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {cliente.telefono}
                       </span>
                     </td>
-
-                    <td className="py-1 px-4 text-center">
+                    <td className="py-2 px-3 text-center">
                       <span
                         className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {cliente.estado}
                       </span>
                     </td>
-
-                    <td className="py-1 px-4 text-center">
+                    <td className="py-2 px-3 text-center">
                       <span
                         className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {cliente.categoria}
                       </span>
                     </td>
-
-                    <td className="py-1 px-1">
+                    <td className="py-2 px-3">
                       <div className="d-flex gap-2 justify-content-center">
                         <button
                           className="btn btn-sm"
@@ -348,30 +354,29 @@ const Clientes = () => {
                             background: 'rgba(102, 126, 234, 0.2)',
                             color: '#93c5fd',
                             border: '1px solid rgba(102, 126, 234, 0.3)',
-                            padding: '0.4rem 1rem',
+                            padding: '0.3rem 0.8rem',
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
                             modalUpCliente(cliente);
                           }}
                         >
-                          <i className="bi bi-pencil me-1"></i>
+                          <i className="bi bi-pencil"></i>
                         </button>
-
                         <button
                           className="btn btn-sm"
                           style={{
                             background: 'rgba(245, 158, 11, 0.2)',
                             color: '#fbbf24',
                             border: '1px solid rgba(245, 158, 11, 0.3)',
-                            padding: '0.4rem 1rem',
+                            padding: '0.3rem 0.8rem',
                           }}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleVer(cliente);
                           }}
                         >
-                          <i className="bi bi-eye me-1"></i>
+                          <i className="bi bi-eye"></i>
                         </button>
                       </div>
                     </td>
@@ -383,216 +388,449 @@ const Clientes = () => {
         </div>
 
         <Spinner loading={loading} msg={msg} />
+      </div>
 
-        {/* 🔹 Usamos el nuevo modal */}
-
-        <Modal
-          show={modal}
-          title={isUpdate ? 'Actualizar Cliente' : 'Nuevo Cliente'}
-          onClose={modalClose}
-          footer={
-            <>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={modalClose}
-              >
-                Cancelar
+      {/* Modal con diseño optimizado y ancho aumentado */}
+      {modal && (
+        <div className="modal-overlay">
+          <div
+            className="modal-container"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '1200px', width: '95%', height: '100%' }}
+          >
+            {/* Header */}
+            <div className="modal-header-pozos">
+              <div className="d-flex align-items-center gap-3">
+                <div className="modal-icon-container">
+                  <i className="bi bi-person-circle"></i>
+                </div>
+                <div>
+                  <h3 className="modal-title-pozos mb-1">
+                    {newCliente?.id ? 'Editar Cliente' : 'Nuevo Cliente'}
+                  </h3>
+                  <p className="modal-subtitle-pozos mb-0">
+                    {newCliente?.id
+                      ? 'Modifica la información del cliente'
+                      : 'Completa los datos del nuevo cliente'}
+                  </p>
+                </div>
+              </div>
+              <button className="modal-close-btn" onClick={modalClose}>
+                <i className="bi bi-x-lg"></i>
               </button>
-              <button
-                type="submit"
-                className="btn btn-primary"
-                onClick={isUpdate ? updateCliente : insertCliente}
-              >
-                {isUpdate ? 'Actualizar' : 'Aceptar'}
-              </button>
-            </>
-          }
-        >
-          <div className="modal-cliente-grid">
-            {/* Fila 1 */}
-            <div className="form-group-modal">
-              <label>Razón Social</label>
-              <input
-                className="form-control rounded"
-                name="razon_social"
-                type="text"
-                value={newCliente?.razon_social || ''}
-                onChange={handleCliente}
-                placeholder="Ingrese razón social"
-              />
             </div>
 
-            <div className="form-group-modal">
-              <label>Domicilio Fiscal</label>
-              <input
-                className="form-control rounded"
-                name="direccion_fiscal"
-                type="text"
-                value={newCliente?.direccion_fiscal || ''}
-                onChange={handleCliente}
-                placeholder="Calle, número, código postal"
-              />
-            </div>
+            {/* Body */}
+            <div className="modal-body-pozos" style={{ maxHeight: '70vh' }}>
+              {errors.submit && (
+                <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
+                  <i className="bi bi-exclamation-triangle-fill"></i>
+                  {errors.submit}
+                </div>
+              )}
 
-            {/* Fila 2 */}
-            <div className="form-group-modal">
-              <label>CUIL / CUIT</label>
-              <input
-                className="form-control rounded"
-                name="cuil_cuit"
-                type="text"
-                value={newCliente?.cuil_cuit || ''}
-                onChange={handleCliente}
-                placeholder="XX-XXXXXXXX-X"
-              />
-            </div>
+              {/* Fila 1: Razón Social, Domicilio Fiscal, Dirección */}
+              <div className="row g-3">
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="razon_social" className="form-label-pozos">
+                      <i className="bi bi-building me-2"></i>Razón Social
+                    </label>
+                    <input
+                      type="text"
+                      id="razon_social"
+                      name="razon_social"
+                      className={`form-control-pozos ${
+                        errors.razon_social ? 'is-invalid' : ''
+                      }`}
+                      placeholder="Ingrese razón social"
+                      value={newCliente?.razon_social || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.razon_social && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.razon_social}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            <div className="form-group-modal">
-              <label>Condición IVA</label>
-              <select
-                className="form-select"
-                name="iva_id"
-                value={newCliente?.iva_id || ''}
-                onChange={handleCliente}
-              >
-                <option value="" disabled>
-                  Seleccione tipo impositivo
-                </option>
-                <option value="1">Responsable Inscripto</option>
-                <option value="2">Consumidor Final</option>
-                <option value="3">Exento</option>
-                <option value="4">Autónomo</option>
-              </select>
-            </div>
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label
+                      htmlFor="direccion_fiscal"
+                      className="form-label-pozos"
+                    >
+                      <i className="bi bi-geo-alt-fill me-2"></i>Domicilio
+                      Fiscal
+                    </label>
+                    <input
+                      type="text"
+                      id="direccion_fiscal"
+                      name="direccion_fiscal"
+                      className={`form-control-pozos ${
+                        errors.direccion_fiscal ? 'is-invalid' : ''
+                      }`}
+                      placeholder="Calle, número, código postal"
+                      value={newCliente?.direccion_fiscal || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.direccion_fiscal && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.direccion_fiscal}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            {/* Fila 3 */}
-            <div className="form-group-modal">
-              <label>Teléfono</label>
-              <input
-                className="form-control rounded"
-                name="telefono"
-                type="text"
-                value={newCliente?.telefono || ''}
-                onChange={handleCliente}
-                placeholder="+54 9 11 XXXX-XXXX"
-              />
-            </div>
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="direccion" className="form-label-pozos">
+                      <i className="bi bi-signpost me-2"></i>Dirección
+                    </label>
+                    <input
+                      type="text"
+                      id="direccion"
+                      name="direccion"
+                      className="form-control-pozos"
+                      placeholder="Dirección adicional"
+                      value={newCliente?.direccion || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+              </div>
 
-            <div className="form-group-modal">
-              <label>Email</label>
-              <input
-                className="form-control rounded"
-                name="email"
-                type="email"
-                value={newCliente?.email || ''}
-                onChange={handleCliente}
-                placeholder="ejemplo@email.com"
-              />
-            </div>
+              {/* Fila 2: Ciudad, Provincia, País */}
+              <div className="row g-3">
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="ciudad" className="form-label-pozos">
+                      <i className="bi bi-building-fill-add me-2"></i>Ciudad
+                    </label>
+                    <input
+                      type="text"
+                      id="ciudad"
+                      name="ciudad"
+                      className={`form-control-pozos ${
+                        errors.ciudad ? 'is-invalid' : ''
+                      }`}
+                      placeholder="Ej: Paraná"
+                      value={newCliente?.ciudad || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.ciudad && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.ciudad}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            {/* Fila 4 */}
-            <div className="form-group-modal">
-              <label>Ciudad</label>
-              <input
-                className="form-control rounded"
-                name="ciudad"
-                type="text"
-                value={newCliente?.ciudad || ''}
-                onChange={handleCliente}
-                placeholder="Ej: Paraná"
-              />
-            </div>
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="provincia" className="form-label-pozos">
+                      <i className="bi bi-map me-2"></i>Provincia
+                    </label>
+                    <input
+                      type="text"
+                      id="provincia"
+                      name="provincia"
+                      className={`form-control-pozos ${
+                        errors.provincia ? 'is-invalid' : ''
+                      }`}
+                      placeholder="Ej: Entre Ríos"
+                      value={newCliente?.provincia || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.provincia && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.provincia}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            <div className="form-group-modal">
-              <label>Provincia</label>
-              <input
-                className="form-control rounded"
-                name="provincia"
-                type="text"
-                value={newCliente?.provincia || ''}
-                onChange={handleCliente}
-                placeholder="Ej: Entre Ríos"
-              />
-            </div>
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="pais" className="form-label-pozos">
+                      <i className="bi bi-globe me-2"></i>País
+                    </label>
+                    <input
+                      type="text"
+                      id="pais"
+                      name="pais"
+                      className={`form-control-pozos ${
+                        errors.pais ? 'is-invalid' : ''
+                      }`}
+                      placeholder="Ej: Argentina"
+                      value={newCliente?.pais || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.pais && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.pais}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-            {/* Fila 5 */}
-            <div className="form-group-modal">
-              <label>País</label>
-              <input
-                className="form-control rounded"
-                name="pais"
-                type="text"
-                value={newCliente?.pais || ''}
-                onChange={handleCliente}
-                placeholder="Ej: Argentina"
-              />
-            </div>
+              {/* Fila 3: CUIL/CUIT, Condición IVA */}
+              <div className="row g-3">
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="cuil_cuit" className="form-label-pozos">
+                      <i className="bi bi-card-text me-2"></i>CUIL / CUIT
+                    </label>
+                    <input
+                      type="text"
+                      id="cuil_cuit"
+                      name="cuil_cuit"
+                      className={`form-control-pozos ${
+                        errors.cuil_cuit ? 'is-invalid' : ''
+                      }`}
+                      placeholder="XX-XXXXXXXX-X"
+                      value={newCliente?.cuil_cuit || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.cuil_cuit && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.cuil_cuit}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            <div className="form-group-modal">
-              <label>Estado Cliente</label>
-              <select
-                className="form-select"
-                name="estado"
-                value={newCliente?.estado || ''}
-                onChange={handleCliente}
-              >
-                <option value="" disabled>
-                  Seleccione estado
-                </option>
-                <option value="Activo">Activo</option>
-                <option value="Inactivo">Inactivo</option>
-                <option value="Pendiente">Pendiente</option>
-              </select>
-            </div>
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="iva_id" className="form-label-pozos">
+                      <i className="bi bi-receipt me-2"></i>Condición IVA
+                    </label>
+                    <select
+                      id="iva_id"
+                      name="iva_id"
+                      className={`form-control-pozos ${
+                        errors.iva_id ? 'is-invalid' : ''
+                      }`}
+                      value={newCliente?.iva_id || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    >
+                      <option value="">Seleccione...</option>
+                      <option value="1">Responsable Inscripto</option>
+                      <option value="2">Monotributo</option>
+                      <option value="3">Exento</option>
+                    </select>
+                    {errors.iva_id && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.iva_id}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            <div className="form-group-modal">
-              <label>Ingeniero asignado</label>
-              <select
-                className="form-select"
-                name="ingeniero_id"
-                value={newCliente?.ingeniero_id || ''}
-                onChange={handleCliente}
-              >
-                <option value="" disabled>
-                  Ingeniero
-                </option>
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="telefono" className="form-label-pozos">
+                      <i className="bi bi-telephone-fill me-2"></i>Teléfono
+                    </label>
+                    <input
+                      type="text"
+                      id="telefono"
+                      name="telefono"
+                      className={`form-control-pozos ${
+                        errors.telefono ? 'is-invalid' : ''
+                      }`}
+                      placeholder="+54 9 11 XXXX-XXXX"
+                      value={newCliente?.telefono || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.telefono && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.telefono}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-                {ingenieros.map((i) => (
-                  <option value={i.id}>{i.nombre}</option>
-                ))}
-              </select>
-            </div>
+              {/* Fila 4: Teléfono, Email */}
+              <div className="row g-3">
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="email" className="form-label-pozos">
+                      <i className="bi bi-envelope-fill me-2"></i>Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      className={`form-control-pozos ${
+                        errors.email ? 'is-invalid' : ''
+                      }`}
+                      placeholder="ejemplo@email.com"
+                      value={newCliente?.email || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.email && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.email}
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-            {/* Fila 6 - Notas ocupa toda la fila */}
-            <div className="form-group-modal form-group-full">
-              <label>Notas</label>
-              <textarea
-                className="form-control rounded"
-                name="notas"
-                rows="3"
-                value={newCliente?.notas || ''}
-                onChange={handleCliente}
-                placeholder="Información adicional del cliente..."
-              />
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="estado" className="form-label-pozos">
+                      <i className="bi bi-toggle-on me-2"></i>Estado
+                    </label>
+                    <select
+                      id="estado"
+                      name="estado"
+                      className={`form-control-pozos ${
+                        errors.estado ? 'is-invalid' : ''
+                      }`}
+                      value={newCliente?.estado || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    >
+                      <option value="">Seleccione...</option>
+                      <option value="Activo">Activo</option>
+                      <option value="Inactivo">Inactivo</option>
+                    </select>
+                    {errors.estado && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.estado}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-md-4">
+                  <div className="form-group-pozos">
+                    <label htmlFor="ingeniero_id" className="form-label-pozos">
+                      <i className="bi bi-person-badge-fill me-2"></i>Ingeniero
+                      Asignado
+                    </label>
+                    <select
+                      id="ingeniero_id"
+                      name="ingeniero_id"
+                      className={`form-control-pozos ${
+                        errors.ingeniero_id ? 'is-invalid' : ''
+                      }`}
+                      value={newCliente?.ingeniero_id || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    >
+                      <option value="">Seleccione...</option>
+                      {ingenieros.map((i) => (
+                        <option key={i.id} value={i.id}>
+                          {i.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.ingeniero_id && (
+                      <div className="invalid-feedback-pozos">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.ingeniero_id}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Fila 5: Notas */}
+              <div className="form-group-pozos">
+                <label htmlFor="notas" className="form-label-pozos">
+                  <i className="bi bi-journal-text me-2"></i>Notas
+                </label>
+                <textarea
+                  id="notas"
+                  name="notas"
+                  className="form-control-pozos"
+                  rows="2"
+                  placeholder="Información adicional del cliente..."
+                  value={newCliente?.notas || ''}
+                  onChange={handleCliente}
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {/* Botones */}
+              <div className="modal-footer-pozos">
+                <button
+                  type="button"
+                  className="btn-cancelar-pozos"
+                  onClick={modalClose}
+                  disabled={isSubmitting}
+                >
+                  <i className="bi bi-x-circle me-2"></i>
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn-guardar-pozos"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle me-2"></i>
+                      {newCliente?.id ? 'Actualizar' : 'Crear Cliente'}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </Modal>
+        </div>
+      )}
 
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-          transition={Slide}
-        />
-      </div>
+      <Spinner loading={loading} msg={msg} />
+
+      {/*   <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        transition={Slide}
+      /> */}
     </>
   );
 };
