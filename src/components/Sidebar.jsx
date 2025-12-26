@@ -6,17 +6,19 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [openConfig, setOpenConfig] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const basicSelectores = [
-    { title: 'Usuarios', path: '/user', icon: 'bi-person-fill' },
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
-    { title: 'Máquinas', path: '/maquinas', icon: 'bi-gear-fill' },
-    { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
-    {
-      title: 'Tipos Máquinas',
-      path: '/maquinas_tipos',
-      icon: 'bi-layers-fill',
-    },
+    { title: 'Configuración', icon: 'bi-gear-fill', children: [
+      { title: 'Usuarios', path: '/user', icon: 'bi-person-fill'},
+      { title: 'Tipos Máquinas', path: '/maquinas_tipos',icon: 'bi-layers-fill'},
+    ],
+  },
+    // { title: 'Máquinas', path: '/maquinas', icon: 'bi-gear-fill' },
+    // { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
+    
   ];
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -49,7 +51,7 @@ const Sidebar = () => {
         <div className="sidebar-header">
           <Link to="/" className="sidebar-link">
             <span className="material-symbols-outlined sidebar-logo">
-              Don Asdrubal
+              Don Asdrúbal
             </span>
           </Link>
           <h2>AgroServicios</h2>
@@ -71,16 +73,49 @@ const Sidebar = () => {
         </div>
 
         {/* Menú */}
-        <ul className="sidebar-menu">
-          {basicSelectores.map((item, index) => (
-            <li key={index}>
-              <Link to={item.path} className="sidebar-link">
-                <i className={`bi ${item.icon} sidebar-icon`} />
-                {item.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
+<ul className="sidebar-menu">
+  {basicSelectores.map((item, index) => (
+    <li key={index}>
+      {/* Ítem con submenú */}
+      {item.children ? (
+        <>
+          <button
+            className="sidebar-link sidebar-link-parent"
+            onClick={() => setOpenConfig(!openConfig)}
+          >
+            <i className={`bi ${item.icon} sidebar-icon`} />
+            {item.title}
+            <i
+              className={`bi bi-chevron-${
+                openConfig ? 'down' : 'right'
+              } sidebar-arrow`}
+            />
+          </button>
+
+          {openConfig && (
+            <ul className="sidebar-submenu">
+              {item.children.map((child, i) => (
+                <li key={i}>
+                  <Link to={child.path} className="sidebar-link sidebar-sublink">
+                    <i className={`bi ${child.icon} sidebar-icon`} />
+                    {child.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      ) : (
+        /* Ítem normal */
+        <Link to={item.path} className="sidebar-link">
+          <i className={`bi ${item.icon} sidebar-icon`} />
+          {item.title}
+        </Link>
+      )}
+    </li>
+  ))}
+</ul>
+
 
         {/* Footer */}
         <div className="sidebar-bottom">
@@ -102,9 +137,8 @@ const Sidebar = () => {
             <li>
               <button className="sidebar-link" onClick={handleLogoutClick}>
                 <span className="material-symbols-outlined sidebar-icon">
-                  logout
-                </span>
-                Cerrar Sesión
+                  Cerrar Sesión
+                </span>                
               </button>
             </li>
           </ul>
