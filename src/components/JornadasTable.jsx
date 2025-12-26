@@ -73,19 +73,18 @@ const JornadasTable = () => {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        /*  minHeight: '100vh', */
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         padding: '2rem',
+        borderRadius: '15px',
       }}
     >
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h2 className="fw-bold text-white mb-1">Gestión de Jornadasa</h2>
-            <p className="text-white-50 mb-0">
-              {jornadas.length} Jornadas
-            </p>
+            <h2 className="fw-bold text-white mb-1">Gestión de Jornadas</h2>
+            <p className="text-white-50 mb-0">{jornadas.length} Jornadas</p>
           </div>
 
           <button
@@ -191,8 +190,8 @@ const JornadasTable = () => {
                           <strong>{formatFecha(m.fecha_jornada)}</strong>
                         </td>
                         <td className="text-center">{m.motivo || '-'}</td>
-                        <td className="text-center">{m.estado || '-'}</td>                        
-                        <td className="text-left">{m.observaciones || '-'}</td>                        
+                        <td className="text-center">{m.estado || '-'}</td>
+                        <td className="text-left">{m.observaciones || '-'}</td>
                         <td className="text-center">
                           <button
                             className="btn btn-sm"
@@ -226,4 +225,4 @@ const JornadasTable = () => {
   );
 };
 
-export default JornadasTable ;
+export default JornadasTable;

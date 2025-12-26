@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { addCliente, allCliente, upCliente } from '../api/clientes.js';
 import Spinner from './Spinner.jsx';
-/* import { ToastContainer, Slide, toast } from 'react-toastify'; */
+
 import { useNavigate } from 'react-router-dom';
 import { allIngenieros } from '../api/users.js';
 
@@ -99,9 +99,6 @@ const Clientes = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      toast.error(
-        'Por favor completa todos los campos requeridos correctamente'
-      );
       return false;
     }
 
@@ -163,10 +160,22 @@ const Clientes = () => {
     setErrors({});
   };
 
-  const handleVer = async (cliente) => {
+  /*   const handleVer = async (cliente) => {
     navigate(`/cliente/${cliente.id}/detalles`, {
       state: { cliente: cliente },
     });
+  }; */
+
+  const handleVer = (cliente) => {
+    localStorage.setItem(
+      'Cliente',
+      JSON.stringify({
+        id: cliente.id,
+        nombre: cliente.razon_social,
+      })
+    );
+
+    navigate(`/cliente/${cliente.id}/detalles`);
   };
 
   useEffect(() => {
@@ -179,7 +188,7 @@ const Clientes = () => {
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2
-              className="fw-bold text-white mb-1"
+              className="fw-bold text-success mb-1"
               style={{ fontSize: '2rem' }}
             >
               Clientes
@@ -817,20 +826,6 @@ const Clientes = () => {
       )}
 
       <Spinner loading={loading} msg={msg} />
-
-      {/*   <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        transition={Slide}
-      /> */}
     </>
   );
 };

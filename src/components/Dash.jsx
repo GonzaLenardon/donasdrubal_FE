@@ -15,8 +15,6 @@ const Dash = () => {
       </div>
       {/*  <StatsRow /> <ChartsRow /> <ServicesRow /> */}
 
-      <div></div>
-
       <StatsRow></StatsRow>
       <ChartsRow></ChartsRow>
       <ServicesRow></ServicesRow>

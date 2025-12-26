@@ -140,7 +140,7 @@ const MaquinaTipo = () => {
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2
-              className="fw-bold text-white mb-1"
+              className="fw-bold text-success mb-1"
               style={{ fontSize: '2rem' }}
             >
               Tipos Maquinas

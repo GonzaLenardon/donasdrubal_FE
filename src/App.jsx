@@ -60,10 +60,10 @@ function App() {
           />
 
           {/* Tipo de Maquinas */}
-          <Route path="maquinas_tipos" element={<MaquinaTipo />} />
+          <Route path="maquinasTipos" element={<MaquinaTipo />} />
 
           <Route
-            path="cliente/:cliente_id/pozos/:pozos_id/muestras"
+            path="cliente/:cliente_id/detalles/pozos/:pozos_id/muestras"
             element={<MuestrasPozos />}
           />
 

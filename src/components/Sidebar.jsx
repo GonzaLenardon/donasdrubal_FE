@@ -14,7 +14,7 @@ const Sidebar = () => {
     { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
     {
       title: 'Tipos Máquinas',
-      path: '/maquinas_tipos',
+      path: '/maquinasTipos',
       icon: 'bi-layers-fill',
     },
   ];
@@ -35,6 +35,8 @@ const Sidebar = () => {
 
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('Cliente');
+
     navigate('/login');
   };
 

@@ -44,9 +44,10 @@ const Maquinas = ({ cliente_id }) => {
   return (
     <div
       style={{
-        minHeight: '100vh',
+        /*  minHeight: '100vh', */
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         padding: '2rem',
+        borderRadius: '15px',
       }}
     >
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
@@ -339,21 +340,19 @@ const Maquinas = ({ cliente_id }) => {
         </div>
       </div>
 
-      {/* MODAL */ }
-      {
-        modal && (
-          <ModalMaquinas
-            onClose={() => {
-              setModal(false);
-              setMaquinaEdit(null);
-            }}
-            onSaved={() => getMaquinas()}
-            maquinaEdit={maquinaEdit}
-            setMaquinaEdit={setMaquinaEdit}
-          />
-        )
-      }
-    </div >
+      {/* MODAL */}
+      {modal && (
+        <ModalMaquinas
+          onClose={() => {
+            setModal(false);
+            setMaquinaEdit(null);
+          }}
+          onSaved={() => getMaquinas()}
+          maquinaEdit={maquinaEdit}
+          setMaquinaEdit={setMaquinaEdit}
+        />
+      )}
+    </div>
   );
 };
 
