@@ -2,12 +2,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { logout } from '../api/users';
 
-const Sidebar = () => {
+const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [openConfig, setOpenConfig] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  // const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const basicSelectores = [
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
@@ -46,7 +46,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <aside className="sidebar">
+      <aside className={`sidebar ${isMobileOpen ? 'sidebar-mobile-open' : ''}`}>
         {/* Header */}
         <div className="sidebar-header">
           <Link to="/" className="sidebar-link">

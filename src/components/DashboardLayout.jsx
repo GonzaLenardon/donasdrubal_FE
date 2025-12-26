@@ -1,5 +1,5 @@
 // DashboardLayout.jsx
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
@@ -14,6 +14,11 @@ const breadcrumbNames = {
   // agregá más mappings si hace falta
 };
 
+// const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+// const openSidebar = () => setIsMobileOpen(true);
+// const closeSidebar = () => setIsMobileOpen(false);
+
 // helper: detecta si segment es un id (número) o UUID (hex con guiones)
 const isIdSegment = (seg) => {
   if (!seg) return false;
@@ -26,6 +31,12 @@ const isIdSegment = (seg) => {
 
 const DashboardLayout = () => {
   const location = useLocation();
+
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+
+  const openSidebar = () => setIsMobileOpen(true);
+  const closeSidebar = () => setIsMobileOpen(false);
 
   // construimos breadcrumbItems: [{ name: 'user', label: 'Usuarios', to:'/user' }, ...]
   const breadcrumbItems = useMemo(() => {
@@ -68,8 +79,20 @@ const DashboardLayout = () => {
   }, [location.pathname]);
 
   return (
+    
     <div className="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark">
-      <Sidebar />
+<button className="hamburger-btn" onClick={openSidebar}>
+  <span />
+  <span />
+  <span />
+</button>
+{isMobileOpen && (
+  <div className="sidebar-overlay" onClick={closeSidebar} />
+)}
+<Sidebar
+  isMobileOpen={isMobileOpen}
+  closeSidebar={closeSidebar}
+/>
 
       <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen ">
         <div className="container-fluid">

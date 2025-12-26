@@ -1770,3 +1770,57 @@ modal-cliente-grid {
     width: 100%;
   }
 }
+/* Botón hamburguesa */
+.hamburger-btn {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1200;
+  width: 40px;
+  height: 40px;
+  background: #1e293b;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #e2e8f0;
+  margin: 4px auto;
+}
+
+/* Overlay */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  z-index: 999;
+}
+
+/* Mobile behaviour */
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar-mobile-open {
+    transform: translateX(0);
+  }
+}
+
+
+
