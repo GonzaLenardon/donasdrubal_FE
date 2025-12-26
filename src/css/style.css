@@ -305,6 +305,11 @@ body {
 }
 
 /* Menú */
+/* .sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+} */
 
 .sidebar-submenu {
   padding-left: 18px;
@@ -337,12 +342,6 @@ body {
   font-size: 0.75rem;
   opacity: 0.7;
 }
-
-/* .sidebar-menu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-} */
 
 .sidebar li {
   margin-bottom: 12px;
@@ -380,7 +379,6 @@ body {
   color: #4ade80;
 }
 
-
 .sidebar-link:hover {
   background-color: #334155;
   color: #4ade80;
@@ -398,7 +396,6 @@ body {
 .sidebar li > .sidebar-submenu {
   margin-bottom: 8px;
 }
-
 /* Botón */
 .sidebar-button {
   width: 100%;
@@ -548,7 +545,6 @@ body {
 .btn-editver {
   width: 50px;
 }
-
 
 /* =========== ACORDION  ================== */
 .card_calibracion_acordeon {
@@ -1255,21 +1251,25 @@ modal-cliente-grid {
   border-radius: 15px;
 }
 
-.pozos-content, .calibracion-content {
+.pozos-content,
+.calibracion-content {
   max-width: 1400px;
   margin: 0 auto;
 }
 
 /* Header */
-.pozos-title, .calibracion-title {
+.pozos-title,
+.calibracion-title {
   font-size: 2rem;
 }
 
-.pozos-subtitle, .calibracion-subtitle {
+.pozos-subtitle,
+.calibracion-subtitle {
   font-size: 0.875rem;
 }
 
-.pozos-btn-nuevo, .calibracion-btn-nuevo {
+.pozos-btn-nuevo,
+.calibracion-btn-nuevo {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: 2px solid rgba(255, 255, 255, 0.3);
   padding: 0.75rem 1.5rem;
@@ -1291,7 +1291,8 @@ modal-cliente-grid {
    CARD DE POZO / CALIBRACION
    =========================== */
 
-.card_pozos, .card_calibracion {
+.card_pozos,
+.card_calibracion {
   background: linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%);
   border-radius: 15px;
   padding: 1.5rem;
@@ -1304,7 +1305,8 @@ modal-cliente-grid {
   animation: fadeInUp 0.5s ease-out;
 }
 
-.card_pozos::before, .card_calibracion::before {
+.card_pozos::before,
+.card_calibracion::before {
   content: '';
   position: absolute;
   top: 0;
@@ -1316,13 +1318,15 @@ modal-cliente-grid {
   transition: opacity 0.3s ease;
 }
 
-.card_pozos:hover, .card_calibracion:hover {
+.card_pozos:hover,
+.card_calibracion:hover {
   transform: translateY(-6px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   border-color: rgba(102, 126, 234, 0.5);
 }
 
-.card_pozos:hover::before, .card_calibracion:hover::before {
+.card_pozos:hover::before,
+.card_calibracion:hover::before {
   opacity: 1;
 }
 
@@ -1330,17 +1334,20 @@ modal-cliente-grid {
    ELEMENTOS DE LA CARD
    =========================== */
 
-.pozo-nombre, .calibracion-nombre {
+.pozo-nombre,
+.calibracion-nombre {
   font-size: 1.1rem;
 }
 
-.pozo-estado-badge, .calibracion-estado-badge {
+.pozo-estado-badge,
+.calibracion-estado-badge {
   font-size: 0.7rem;
   padding: 0.35rem 0.75rem;
   border-radius: 20px;
 }
 
-.pozo-id-badge, .calibracion-id-badge {
+.pozo-id-badge,
+.calibracion-id-badge {
   width: 40px;
   height: 40px;
   background-color: rgba(59, 130, 246, 0.2);
@@ -1351,30 +1358,36 @@ modal-cliente-grid {
   justify-content: center;
 }
 
-.pozo-id-text, .calibracion-id-text {
+.pozo-id-text,
+.calibracion-id-text {
   color: #93c5fd;
 }
 
-.pozo-divider, .calibracion-divider{
+.pozo-divider,
+.calibracion-divider {
   border-color: rgba(255, 255, 255, 0.1);
   margin: 1rem 0;
 }
 
-.pozo-icon, .calibracion-icon {
+.pozo-icon,
+.calibracion-icon {
   color: #93c5fd;
   font-size: 1rem;
   margin-top: 2px;
 }
 
-.pozo-label, .calibracion-label {
+.pozo-label,
+.calibracion-label {
   font-size: 0.75rem;
 }
 
-.pozo-value, .calibracion-value {
+.pozo-value,
+.calibracion-value {
   font-size: 0.875rem;
 }
 
-.pozo-coords, .calibracion-responsable {
+.pozo-coords,
+.calibracion-responsable {
   font-size: 0.8rem;
   font-family: monospace;
 }
@@ -1383,11 +1396,13 @@ modal-cliente-grid {
    ACCIONES
    =========================== */
 
-.pozo-actions, .calibracion-actions {
+.pozo-actions,
+.calibracion-actions {
   border-top: 1px solid rgba(247, 235, 235, 0.1);
 }
 
-.pozo-btn-ver, .calibracion-btn-ver {
+.pozo-btn-ver,
+.calibracion-btn-ver {
   background-color: rgba(59, 130, 246, 0.2);
   color: #a0cafa;
   border: 1px solid rgba(59, 130, 246, 0.3);
@@ -1396,13 +1411,15 @@ modal-cliente-grid {
   transition: all 0.2s ease;
 }
 
-.pozo-btn-ver:hover, .calibracion-btn-ver:hover {
+.pozo-btn-ver:hover,
+.calibracion-btn-ver:hover {
   transform: scale(1.05);
   filter: brightness(1.2);
   background-color: rgba(59, 130, 246, 0.3);
 }
 
-.pozo-btn-editar, .calibracion-btn-editar {
+.pozo-btn-editar,
+.calibracion-btn-editar {
   background-color: rgba(168, 85, 247, 0.2);
   color: #d8b4fe;
   border: 1px solid rgba(168, 85, 247, 0.3);
@@ -1411,7 +1428,8 @@ modal-cliente-grid {
   transition: all 0.2s ease;
 }
 
-.pozo-btn-editar:hover, .calibracion-btn-editar:hover {
+.pozo-btn-editar:hover,
+.calibracion-btn-editar:hover {
   transform: scale(1.05);
   filter: brightness(1.2);
   background-color: rgba(168, 85, 247, 0.3);
@@ -1457,15 +1475,18 @@ modal-cliente-grid {
     grid-template-columns: 1fr;
   }
 
-  .card_pozos, .card_calibracion {
+  .card_pozos,
+  .card_calibracion {
     padding: 1rem;
   }
 
-  .pozos-title, .calibracion-title {
+  .pozos-title,
+  .calibracion-title {
     font-size: 1.5rem;
   }
 
-  .pozos-wrapper, .calibracion-wrapper {
+  .pozos-wrapper,
+  .calibracion-wrapper {
     padding: 1rem;
   }
 }
@@ -1770,6 +1791,51 @@ modal-cliente-grid {
     width: 100%;
   }
 }
+
+/* ===========================
+   Breadcrumb custom
+=========================== */
+
+.app-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.crumb-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.crumb {
+  font-weight: 500;
+  color: #e5e7eb; /* texto claro */
+}
+
+.crumb.link {
+  color: #60a5fa; /* azul link */
+  color: #1131d4;
+  text-decoration: none;
+}
+
+.crumb.link:hover {
+  text-decoration: underline;
+}
+
+.crumb.current {
+  color: #9ca3af; /* gris */
+}
+
+.separator {
+  margin: 0 0.5rem;
+  color: #6b7280;
+}
+
+
 /* Botón hamburguesa */
 .hamburger-btn {
   display: none;
@@ -1821,6 +1887,3 @@ modal-cliente-grid {
     transform: translateX(0);
   }
 }
-
-
-

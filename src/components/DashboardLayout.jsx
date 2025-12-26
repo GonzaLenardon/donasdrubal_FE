@@ -1,8 +1,10 @@
-// DashboardLayout.jsx
 import React, { useMemo, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
+/* ============================
+   Labels del breadcrumb
+============================ */
 const breadcrumbNames = {
   user: 'Usuarios',
   maquinas: 'Máquinas',
@@ -10,76 +12,102 @@ const breadcrumbNames = {
   detalles: 'Detalles',
   cliente: 'Clientes',
   clientes: 'Clientes',
+  pozos: 'Pozos',
+  jornadas: 'Jornadas',
   reportes: 'Reportes',
-  // agregá más mappings si hace falta
 };
 
-// const [isMobileOpen, setIsMobileOpen] = useState(false);
+/* ============================
+   Segmentos NO navegables
+============================ */
+const NON_CLICKABLE_SEGMENTS = ['maquinas', 'pozos', 'jornadas'];
 
-// const openSidebar = () => setIsMobileOpen(true);
-// const closeSidebar = () => setIsMobileOpen(false);
+/* ============================
+   Detecta IDs numéricos
+============================ */
+const isIdSegment = (seg) => /^\d+$/.test(seg);
 
-// helper: detecta si segment es un id (número) o UUID (hex con guiones)
-const isIdSegment = (seg) => {
-  if (!seg) return false;
-  // números puros: 123, 4567
-  if (/^\d+$/.test(seg)) return true;
-  // uuid v4-like: 550e8400-e29b-41d4-a716-446655440000
-  if (/^[0-9a-fA-F]{8}-[0-9a-fA-F-]{27,}$/.test(seg)) return true;
-  return false;
+/* ============================
+   Lee cliente activo (SAFE)
+============================ */
+const getClienteActivo = () => {
+  try {
+    const raw = localStorage.getItem('Cliente');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 };
 
 const DashboardLayout = () => {
   const location = useLocation();
+  const cliente = getClienteActivo();
 
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  
+    const openSidebar = () => setIsMobileOpen(true);
+    const closeSidebar = () => setIsMobileOpen(false);
 
-
-  const openSidebar = () => setIsMobileOpen(true);
-  const closeSidebar = () => setIsMobileOpen(false);
-
-  // construimos breadcrumbItems: [{ name: 'user', label: 'Usuarios', to:'/user' }, ...]
+  /* ============================
+     Construcción del breadcrumb
+  ============================ */
   const breadcrumbItems = useMemo(() => {
-    // split & filtrar vacíos
-    const parts = location.pathname
-      .split('/')
-      .filter((p) => p && p.trim() !== '');
-
+    const parts = location.pathname.split('/').filter(Boolean);
     const items = [];
+    items.push({
+      label: 'Dashboard',
+      to: '/',
+      clickable: true,
+    });
+
+    let lastValidTo = '/';
+
     for (let i = 0; i < parts.length; i++) {
       const seg = parts[i];
 
-      // saltar ids/uuids
+      /* ===== CASO: /cliente/:id ===== */
+      if (seg === 'cliente' && parts[i + 1] && isIdSegment(parts[i + 1])) {
+        // Clientes
+        items.push({
+          label: 'Clientes',
+          to: '/cliente',
+          clickable: true,
+        });
+
+        // Nombre del cliente (visual)
+        if (cliente?.nombre) {
+          items.push({
+            label: cliente.nombre,
+            to: `/cliente/${parts[i + 1]}/detalles`,
+            clickable: false,
+          });
+        }
+
+        lastValidTo = `/cliente/${parts[i + 1]}/detalles`;
+        continue;
+      }
+
+      /* ===== Saltar IDs ===== */
       if (isIdSegment(seg)) continue;
 
-      // si el siguiente segment es un id y el siguiente siguiente es 'detalles',
-      // queremos tratar 'detalles' como el crumb final (ej: /cliente/23/detalles -> Clientes > Detalles)
-      if (parts[i + 1] && isIdSegment(parts[i + 1]) && parts[i + 2]) {
-        // en este caso saltamos el segmento actual si es el 'cliente' (lo mantendremos cuando llegue 'detalles')
-        // pero generalmente queremos mantener el segmento actual (ej: /cliente) así que no saltamos aquí.
-        // en resumen: solo saltamos ids en general; el label lo decidimos por el propio seg.
-      }
-
-      // label por mapping o el mismo segmento (decodificado)
       const label = breadcrumbNames[seg] || decodeURIComponent(seg);
+      const to = '/' + parts.slice(0, i + 1).join('/');
+      const clickable = !NON_CLICKABLE_SEGMENTS.includes(seg);
 
-      // ruta a construir (ej: /cliente, /cliente/23/detalles => para 'detalles' path será /cliente/23/detalles)
-      // construimos la ruta hasta THIS segment (incluyendo id segments anteriores)
-      const pathPartsUpToThis = [];
-      // recorrer original parts array hasta index i, pero incluir ids que estén entre medias
-      for (let j = 0; j <= i; j++) {
-        pathPartsUpToThis.push(parts[j]);
-      }
-      const to = '/' + pathPartsUpToThis.join('/');
+      items.push({
+        label,
+        to: clickable ? to : lastValidTo,
+        clickable,
+      });
 
-      items.push({ name: seg, label, to });
+      if (clickable) lastValidTo = to;
     }
 
     return items;
-  }, [location.pathname]);
+  }, [location.pathname, cliente]);
 
   return (
-    
     <div className="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark">
 <button className="hamburger-btn" onClick={openSidebar}>
   <span />
@@ -94,39 +122,37 @@ const DashboardLayout = () => {
   closeSidebar={closeSidebar}
 />
 
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen ">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="container-fluid">
-          {/* Breadcrumb */}
-          <nav
-            aria-label="breadcrumb"
-            className="breadcrumb-container"
-            style={{ marginBottom: 16 }}
-          >
+          {/* ============================
+              Breadcrumb
+          ============================ */}
+          <nav className="app-breadcrumb">
             {breadcrumbItems.length === 0 ? (
-              <span className="breadcrumb-current">Dashboard</span>
+              <span className="crumb current">Dashboard</span>
             ) : (
-              <ol className="breadcrumb-list">
-                {breadcrumbItems.map((item, idx) => {
-                  const isLast = idx === breadcrumbItems.length - 1;
-                  return (
-                    <li key={item.to} className="breadcrumb-item">
-                      {!isLast ? (
-                        <>
-                          <Link to={item.to} className="breadcrumb-link">
-                            {item.label}
-                          </Link>
-                          <span className="breadcrumb-sep"> &gt; </span>
-                        </>
-                      ) : (
-                        <span className="breadcrumb-current">{item.label}</span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ol>
+              breadcrumbItems.map((item, idx) => {
+                const isLast = idx === breadcrumbItems.length - 1;
+
+                return (
+                  <span key={idx} className="crumb-wrapper">
+                    {item.clickable && !isLast ? (
+                      <Link to={item.to} className="crumb link">
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span className="crumb current">{item.label}</span>
+                    )}
+                    {!isLast && <span className="separator">{'>'}</span>}
+                  </span>
+                );
+              })
             )}
           </nav>
 
+          {/* ============================
+              Contenido
+          ============================ */}
           <Outlet />
         </div>
       </main>

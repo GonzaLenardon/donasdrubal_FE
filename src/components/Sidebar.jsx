@@ -6,16 +6,15 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [openConfig, setOpenConfig] = useState(false);
-  // const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [openConfig, setOpenConfig] = useState(false);
 
   const basicSelectores = [
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
     { title: 'Configuración', icon: 'bi-gear-fill', children: [
-      { title: 'Usuarios', path: '/user', icon: 'bi-person-fill'},
-      { title: 'Tipos Máquinas', path: '/maquinas_tipos',icon: 'bi-layers-fill'},
-    ],
-  },
+        { title: 'Usuarios', path: '/user', icon: 'bi-person-fill'},
+        { title: 'Tipos Máquinas', path: '/maquinasTipos',icon: 'bi-layers-fill'},
+      ],
+    },
     // { title: 'Máquinas', path: '/maquinas', icon: 'bi-gear-fill' },
     // { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
     
@@ -37,6 +36,8 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
 
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('Cliente');
+
     navigate('/login');
   };
 
@@ -116,7 +117,6 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   ))}
 </ul>
 
-
         {/* Footer */}
         <div className="sidebar-bottom">
           {/* <button className="sidebar-button">Nuevo Servicio</button> */}
@@ -137,8 +137,9 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
             <li>
               <button className="sidebar-link" onClick={handleLogoutClick}>
                 <span className="material-symbols-outlined sidebar-icon">
-                  Cerrar Sesión
-                </span>                
+                  logout
+                </span>
+                Cerrar Sesión
               </button>
             </li>
           </ul>
