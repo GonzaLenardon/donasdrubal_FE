@@ -36,20 +36,19 @@ const Pozos = ({ cliente_id }) => {
   return (
     <>
       <div
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '2rem',
-      }}
+        style={{
+          /*  minHeight: '100vh', */
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          padding: '2rem',
+          borderRadius: '15px',
+        }}
       >
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           {/* HEADER */}
 
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h2 className="fw-bold text-white mb-1">
-                Gestión de Pozos
-              </h2>
+              <h2 className="fw-bold text-white mb-1">Gestión de Pozos</h2>
               <p className="text-white-50 mb-0">
                 {pozos.length} pozos registrados
               </p>
@@ -138,7 +137,7 @@ const Pozos = ({ cliente_id }) => {
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(
-                          `/cliente/${cliente_id}/pozos/${pozo.id}/muestras`
+                          `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`
                         );
                       }}
                     >
