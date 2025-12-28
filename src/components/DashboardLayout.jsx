@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
@@ -42,6 +42,8 @@ const getClienteActivo = () => {
 const DashboardLayout = () => {
   const location = useLocation();
   const cliente = getClienteActivo();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
 
   /* ============================
      Construcción del breadcrumb
@@ -103,7 +105,30 @@ const DashboardLayout = () => {
 
   return (
     <div className="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark">
-      <Sidebar />
+      {/* Botón hamburguesa */}
+      <div className="topbar-mobile">
+        <button
+          className="hamburger-btn"
+          onClick={() => setIsMobileOpen(true)}
+        >
+            <span />
+            <span />
+            <span />
+        </button>
+      </div>
+
+      {/* Overlay */}
+      {isMobileOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+      {/* Sidebar */}
+      <Sidebar
+        isMobileOpen={isMobileOpen}
+        closeSidebar={() => setIsMobileOpen(false)}
+      />
 
       <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="container-fluid">
