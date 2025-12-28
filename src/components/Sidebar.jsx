@@ -6,7 +6,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-    const [openConfig, setOpenConfig] = useState(false);
+  const [openConfig, setOpenConfig] = useState(false);
 
   const basicSelectores = [
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
@@ -50,7 +50,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       <aside className={`sidebar ${isMobileOpen ? 'sidebar-mobile-open' : ''}`}>
         {/* Header */}
         <div className="sidebar-header">
-          <Link to="/" className="sidebar-link">
+          <Link to="/" className="sidebar-link" onClick={closeSidebar}>
             <span className="material-symbols-outlined sidebar-logo">
               Don Asdrúbal
             </span>
@@ -97,7 +97,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
             <ul className="sidebar-submenu">
               {item.children.map((child, i) => (
                 <li key={i}>
-                  <Link to={child.path} className="sidebar-link sidebar-sublink">
+                  <Link to={child.path} className="sidebar-link sidebar-sublink" onClick={closeSidebar}>
                     <i className={`bi ${child.icon} sidebar-icon`} />
                     {child.title}
                   </Link>
@@ -108,7 +108,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
         </>
       ) : (
         /* Ítem normal */
-        <Link to={item.path} className="sidebar-link">
+        <Link to={item.path} className="sidebar-link" onClick={closeSidebar}>
           <i className={`bi ${item.icon} sidebar-icon`} />
           {item.title}
         </Link>
