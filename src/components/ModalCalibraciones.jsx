@@ -165,7 +165,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
   // Función para subir archivos al servidor
   const uploadFiles = async () => {
-    const archivosParaSubir = [];
+  const archivosParaSubir = []
 
     // Recopilar todos los archivos que necesitan ser subidos
     camposEstado.forEach(({ campo }) => {
@@ -191,9 +191,12 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
         formData.append('campo', item.campo);
 
         // Ajusta esta URL a tu endpoint de subida de archivos
-        const response = await fetch('/api/calibraciones/upload', {
-          method: 'POST',
-          body: formData,
+        const response = await fetch(
+          'http://localhost:3000/calibraciones/upload', 
+          {
+            method: 'POST',
+            credentials: 'include',
+            body: formData,
         });
 
         if (!response.ok) {
