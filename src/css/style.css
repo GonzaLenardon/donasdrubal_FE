@@ -229,7 +229,7 @@ body {
   width: 285px;
   height: 100vh;
   background: #1e293b;
-  position: fixed;
+  /* position: fixed; */
   top: 0;
   left: 0;
   transition: transform 0.3s ease;
