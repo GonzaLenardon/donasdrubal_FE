@@ -184,221 +184,227 @@ const Clientes = () => {
 
   return (
     <>
-      <div className="pozos-wrapper">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h2
-              className="fw-bold text-success mb-1"
-              style={{ fontSize: '2rem' }}
-            >
-              Clientes
-            </h2>
-            <p className="text-white-50 mb-0" style={{ fontSize: '0.875rem' }}>
-              {clienteList.length} Clientes registrados
-            </p>
-          </div>
+      <div
+        style={{
+          /*  minHeight: '100vh', */
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          padding: '2rem',
+          borderRadius: '15px',
+        }}      
+      >
+        <div  style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          {/* HEADER */}
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h2 className="fw-bold text-white mb-1">              
+                Clientes
+              </h2>
+              <p className="text-white-50 mb-0">
+                {clienteList.length} Clientes registrados
+              </p>
+            </div>
 
-          <button
-            className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
-            onClick={() => {
-              SetNewCliente({});
-              setErrors({});
-              setModal(true);
-            }}
-          >
-            <i className="bi bi-plus-lg"></i>
-            Nuevo Cliente
-          </button>
-        </div>
-
-        <div
-          className="rounded shadow-lg"
-          style={{
-            background: 'linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ overflowX: 'auto' }}>
-            <table
-              className="table table-hover mb-0"
-              style={{
-                '--bs-table-bg': 'transparent',
-                '--bs-table-accent-bg': 'transparent',
-                '--bs-table-striped-bg': 'transparent',
-                '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
-                '--bs-table-color': '#ffffff',
-                '--bs-table-border-color': 'rgba(255,255,255,0.15)',
+            <button
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
+              onClick={() => {
+                SetNewCliente({});
+                setErrors({});
+                setModal(true);
               }}
             >
-              <thead>
-                <tr
-                  style={{
-                    background:
-                      'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
-                    borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
-                  }}
-                >
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-person-badge me-2"></i>
-                    Nombre
-                  </th>
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-geo-alt me-2"></i>
-                    Domicilio
-                  </th>
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-envelope-at me-2"></i>
-                    Email
-                  </th>
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-telephone me-2"></i>
-                    Teléfono
-                  </th>
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-toggle-on me-2"></i>
-                    Estado
-                  </th>
-                  <th
-                    className="text-white fw-semibold py-2 px-3 text-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-tags me-2"></i>
-                    Categoría
-                  </th>
-                  <th
-                    className="text-white fw-semibold py-2 px-3 text-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-gear me-2"></i>
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {clienteList.map((cliente) => (
-                  <tr
-                    key={cliente.id}
-                    style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                      transition: 'background 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        'rgba(102, 126, 234, 0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <td className="py-2 px-3">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {cliente.razon_social}
-                      </span>
-                    </td>
-                    <td className="py-2 px-3">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {cliente.direccion_fiscal}
-                      </span>
-                    </td>
-                    <td className="py-2 px-3">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {cliente.email}
-                      </span>
-                    </td>
-                    <td className="py-2 px-3">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {cliente.telefono}
-                      </span>
-                    </td>
-                    <td className="py-2 px-3 text-center">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {cliente.estado}
-                      </span>
-                    </td>
-                    <td className="py-2 px-3 text-center">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {cliente.categoria}
-                      </span>
-                    </td>
-                    <td className="py-2 px-3">
-                      <div className="d-flex gap-2 justify-content-center">
-                        <button
-                          className="btn btn-sm"
-                          style={{
-                            background: 'rgba(102, 126, 234, 0.2)',
-                            color: '#93c5fd',
-                            border: '1px solid rgba(102, 126, 234, 0.3)',
-                            padding: '0.3rem 0.8rem',
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            modalUpCliente(cliente);
-                          }}
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                        <button
-                          className="btn btn-sm"
-                          style={{
-                            background: 'rgba(245, 158, 11, 0.2)',
-                            color: '#fbbf24',
-                            border: '1px solid rgba(245, 158, 11, 0.3)',
-                            padding: '0.3rem 0.8rem',
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleVer(cliente);
-                          }}
-                        >
-                          <i className="bi bi-eye"></i>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              <i className="bi bi-plus-lg"></i>
+              Nuevo Cliente
+            </button>
           </div>
+
+          <div
+            className="rounded shadow-lg"
+            style={{
+              background: 'linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ overflowX: 'auto' }}>
+              <table
+                className="table table-hover mb-0"
+                style={{
+                  '--bs-table-bg': 'transparent',
+                  '--bs-table-accent-bg': 'transparent',
+                  '--bs-table-striped-bg': 'transparent',
+                  '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
+                  '--bs-table-color': '#ffffff',
+                  '--bs-table-border-color': 'rgba(255,255,255,0.15)',
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      background:
+                        'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
+                      borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
+                    }}
+                  >
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-person-badge me-2"></i>
+                      Nombre
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-geo-alt me-2"></i>
+                      Domicilio
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-envelope-at me-2"></i>
+                      Email
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-telephone me-2"></i>
+                      Teléfono
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-toggle-on me-2"></i>
+                      Estado
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-tags me-2"></i>
+                      Categoría
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-gear me-2"></i>
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {clienteList.map((cliente) => (
+                    <tr
+                      key={cliente.id}
+                      style={{
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                        transition: 'background 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          'rgba(102, 126, 234, 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <td className="py-2 px-3">
+                        <span
+                          className="fw-semibold text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {cliente.razon_social}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3">
+                        <span
+                          className="fw-semibold text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {cliente.direccion_fiscal}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3">
+                        <span
+                          className="fw-semibold text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {cliente.email}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3">
+                        <span
+                          className="fw-semibold text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {cliente.telefono}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 text-center">
+                        <span
+                          className="fw-semibold text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {cliente.estado}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3 text-center">
+                        <span
+                          className="fw-semibold text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {cliente.categoria}
+                        </span>
+                      </td>
+                      <td className="py-2 px-3">
+                        <div className="d-flex gap-2 justify-content-center">
+                          <button
+                            className="btn btn-sm"
+                            style={{
+                              background: 'rgba(102, 126, 234, 0.2)',
+                              color: '#93c5fd',
+                              border: '1px solid rgba(102, 126, 234, 0.3)',
+                              padding: '0.3rem 0.8rem',
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              modalUpCliente(cliente);
+                            }}
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm"
+                            style={{
+                              background: 'rgba(245, 158, 11, 0.2)',
+                              color: '#fbbf24',
+                              border: '1px solid rgba(245, 158, 11, 0.3)',
+                              padding: '0.3rem 0.8rem',
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleVer(cliente);
+                            }}
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <Spinner loading={loading} msg={msg} />
         </div>
-
-        <Spinner loading={loading} msg={msg} />
-      </div>
-
+      </div>            
       {/* Modal con diseño optimizado y ancho aumentado */}
       {modal && (
         <div className="modal-overlay">
