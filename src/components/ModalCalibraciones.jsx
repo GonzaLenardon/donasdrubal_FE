@@ -33,51 +33,39 @@ const emptyCalibracion = {
   Observaciones: '',
 };
 
+// Función auxiliar para parsear estados con doble escape
+const parseEstadoField = (estadoString) => {
+  if (!estadoString) {
+    return { estado: '', observacion: '', nombreArchivo: '' };
+  }
+
+  try {
+    // Intentar parsear una vez
+    let parsed = JSON.parse(estadoString);
+
+    // Si es string, intentar parsear de nuevo (doble escape)
+    if (typeof parsed === 'string') {
+      parsed = JSON.parse(parsed);
+    }
+
+    return {
+      estado: parsed.estado || '',
+      observacion: parsed.observacion || '',
+      nombreArchivo: parsed.nombreArchivo || parsed.nombre_archivo || '',
+      path: parsed.path || '',
+    };
+  } catch (error) {
+    console.error('Error parseando estado:', error);
+    return { estado: '', observacion: '', nombreArchivo: '' };
+  }
+};
+
 export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
   const [form, setForm] = useState({ ...emptyCalibracion });
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    if (calibracion) {
-      // Parsear campos JSON si vienen como string
-      const parsedCalibracion = { ...calibracion };
-
-      camposEstado.forEach(({ campo }) => {
-        if (typeof calibracion[campo] === 'string') {
-          try {
-            parsedCalibracion[campo] = JSON.parse(calibracion[campo]);
-          } catch (e) {
-            parsedCalibracion[campo] = {
-              estado: '',
-              observacion: '',
-              nombreArchivo: '',
-            };
-          }
-        } else if (!calibracion[campo]) {
-          parsedCalibracion[campo] = {
-            estado: '',
-            observacion: '',
-            nombreArchivo: '',
-          };
-        }
-      });
-
-      setForm({
-        ...emptyCalibracion,
-        ...parsedCalibracion,
-        fecha: calibracion.fecha ? calibracion.fecha.split('T')[0] : '',
-      });
-    }
-  }, [calibracion]);
-
-  useEffect(() => {
-    console.log('valorForm', form);
-  }, [form]);
-
-  if (!calibracion) return null;
 
   const camposEstado = [
     { campo: 'estado_maquina', label: 'Estado Máquina', icon: 'bi-gear-fill' },
@@ -116,6 +104,45 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
     },
     { campo: 'estado_pastillas', label: 'Pastillas', icon: 'bi-circle-fill' },
   ];
+
+  useEffect(() => {
+    if (calibracion) {
+      // Si es edición, parsear campos JSON
+      if (calibracion.id) {
+        const parsedCalibracion = { ...calibracion };
+
+        // Parsear cada campo de estado
+        camposEstado.forEach(({ campo }) => {
+          if (typeof calibracion[campo] === 'string') {
+            parsedCalibracion[campo] = parseEstadoField(calibracion[campo]);
+          } else if (!calibracion[campo]) {
+            parsedCalibracion[campo] = {
+              estado: '',
+              observacion: '',
+              nombreArchivo: '',
+            };
+          }
+        });
+
+        setForm({
+          ...parsedCalibracion,
+          fecha: calibracion.fecha ? calibracion.fecha.split('T')[0] : '',
+        });
+      } else {
+        // Si es nuevo registro, solo setear maquina_id
+        setForm({
+          ...emptyCalibracion,
+          maquina_id: calibracion.maquina_id,
+        });
+      }
+    }
+  }, [calibracion]);
+
+  useEffect(() => {
+    console.log('Form actualizado:', form);
+  }, [form]);
+
+  if (!calibracion) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -165,7 +192,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
   // Función para subir archivos al servidor
   const uploadFiles = async () => {
-  const archivosParaSubir = []
+    const archivosParaSubir = [];
 
     // Recopilar todos los archivos que necesitan ser subidos
     camposEstado.forEach(({ campo }) => {
@@ -190,14 +217,14 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
         formData.append('nombreArchivo', item.nombreArchivo);
         formData.append('campo', item.campo);
 
-        // Ajusta esta URL a tu endpoint de subida de archivos
         const response = await fetch(
-          'http://localhost:3000/calibraciones/upload', 
+          'http://localhost:3000/calibraciones/upload',
           {
             method: 'POST',
             credentials: 'include',
             body: formData,
-        });
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`Error al subir archivo de ${item.campo}`);
@@ -242,6 +269,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
     try {
       setIsSubmitting(true);
       setLoading(true);
+      setMsg('Procesando...');
 
       // Primero subir los archivos
       await uploadFiles();
@@ -252,39 +280,49 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       camposEstado.forEach(({ campo }) => {
         if (typeof formToSend[campo] === 'object') {
           // Remover el campo 'archivo' antes de stringify (ya se subió)
-          const { archivo, ...jsonData } = formToSend[campo];
+          const { archivo, path, ...jsonData } = formToSend[campo];
           formToSend[campo] = JSON.stringify(jsonData);
         }
       });
 
       let resp;
       if (form.id) {
+        setMsg('Actualizando calibración...');
         const { id, ...formSinId } = formToSend;
         resp = await upCalibraciones(id, formSinId);
       } else {
+        setMsg('Creando calibración...');
         resp = await addCalibraciones(formToSend);
       }
 
-      setMsg(resp.message);
+      setMsg(resp.message || 'Calibración guardada exitosamente');
+
+      // Esperar un momento para que el usuario vea el mensaje
+      await new Promise((res) => setTimeout(res, 1500));
+
+      // Recargar las calibraciones
       onSaved();
 
-      await new Promise((res) => setTimeout(res, 2000));
+      // Cerrar el modal
       onClose();
     } catch (error) {
-      console.error(error.message);
+      console.error('Error al guardar:', error);
       setErrors({ submit: error.message || 'Error al guardar la calibración' });
-      setMsg(error.message || 'Error al guardar la calibración');
+      setMsg('Error al guardar');
+
+      // Limpiar el mensaje de error después de 3 segundos
+      setTimeout(() => {
+        setMsg('');
+      }, 3000);
     } finally {
       setLoading(false);
       setIsSubmitting(false);
-      await new Promise((res) => setTimeout(res, 2000));
-      setMsg('');
     }
   };
 
   return (
     <>
-      <div className="modal-overlay" >
+      <div className="modal-overlay">
         <div
           className="modal-container"
           style={{ maxWidth: '95vw', width: '95vw' }}
