@@ -211,14 +211,16 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
     try {
       // Subir cada archivo
+      const url = import.meta.env.VITE_API_URL;
       for (const item of archivosParaSubir) {
         const formData = new FormData();
-        formData.append('file', item.archivo);
-        formData.append('nombreArchivo', item.nombreArchivo);
         formData.append('campo', item.campo);
+        formData.append('nombreArchivo', item.nombreArchivo);
+        formData.append('file', item.archivo);
 
         const response = await fetch(
-          'http://localhost:3000/calibraciones/upload',
+          
+          `${import.meta.env.VITE_API_URL}/calibraciones/upload`, // ruta para subir archivo -> se guarda en uploads/calibraciones
           {
             method: 'POST',
             credentials: 'include',

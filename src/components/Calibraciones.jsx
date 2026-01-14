@@ -41,13 +41,21 @@ export const Calibraciones = () => {
   const parseEstado = (estadoString) => {
     if (!estadoString)
       return { estado: '', observacion: '', nombreArchivo: '', path: '' };
-
+    let parsed = estadoString;
     try {
       // Algunos campos tienen doble escape, intentar parsear dos veces
-      let parsed = JSON.parse(estadoString);
+      // let parsed = JSON.parse(estadoString);
       if (typeof parsed === 'string') {
         parsed = JSON.parse(parsed);
       }
+      // if (typeof parsed === 'object') {
+      //     return {
+      //       estado: parsed.estado || '',
+      //       observacion: parsed.observacion || '',
+      //       nombreArchivo: parsed.nombreArchivo || parsed.nombre_archivo || '',
+      //       path: parsed.path || '',
+      //     };
+      // }      
       return {
         estado: parsed.estado || '',
         observacion: parsed.observacion || '',
@@ -436,7 +444,7 @@ export const Calibraciones = () => {
                                   {estadoData.nombreArchivo && (
                                     <div className="mt-2">
                                       <a
-                                        href={`/uploads/${estadoData.nombreArchivo}`}
+                                        href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${estadoData.nombreArchivo}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="btn btn-sm btn-outline-light w-100"
