@@ -68,14 +68,14 @@ export const Login = () => {
               <div className="login-image-container">
                 <img src={img} alt="Wellness" className="login-image" />
               </div>
-              <h1 className="login-title">Bienvenidos a Don Asdruba</h1>
+              <h1 className="login-title">Bienvenidos a Don Asdrúbal</h1>
               <p className="login-description">
                 Líderes en la Región en asesoramiento en pulverizaciones
-                agrícolas - Cooperando para una producción sustentable. - YO
+                agrícolas - Cooperando para una producción sustentable.
               </p>
 
               <footer className="login-footer">
-                <p className="login-footer-text">© 2025 Derechos Reservados.</p>
+                <p className="login-footer-text">© 2026 Derechos Reservados.</p>
               </footer>
             </div>
 

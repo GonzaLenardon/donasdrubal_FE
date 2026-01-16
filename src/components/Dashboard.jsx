@@ -25,7 +25,7 @@ const Dashboard = () => {
     <div className="dashboard-container">
       {/* Sidebar */}
       <aside className="sidebar">
-        <h2>Don Asdrubal</h2>
+        <h2>Don Asdrúbal</h2>
         <ul>
           {basicSelectores.map((selector, i) => (
             <li key={i}>
