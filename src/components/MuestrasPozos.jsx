@@ -172,7 +172,7 @@ const MuestrasPozos = () => {
                   Muestras de Agua
                 </h2>
                 <p className="text-white-50 mb-0">
-                  {muestras.length} muestras registradas
+                  {muestras?.length || 0} muestras registradas
                 </p>
               </div>
 

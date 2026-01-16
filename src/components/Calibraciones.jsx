@@ -191,361 +191,370 @@ export const Calibraciones = () => {
           </div>
 
           {/* CALIBRACIONES */}
-          <div className="calibracion-wrapper">
-            {/* HEADER Y BOTÓN NUEVA CALIBRACION */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Calibraciones
-                </h1>
-                <p className="text-sm text-gray-700 mt-1">
-                  {calibraciones?.calibraciones?.length || 0} registros
-                  encontrados
-                </p>
+          <div 
+              style={{
+              /*  minHeight: '100vh', */
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              padding: '2rem',
+              borderRadius: '15px',
+            }}
+          >
+            <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+              {/* HEADER Y BOTÓN NUEVA CALIBRACION */}
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="fw-bold text-white mb-1">
+                    Calibraciones
+                  </h2>
+                  <p className="text-white-50 mb-0">
+                    {calibraciones?.calibraciones?.length || 0} calibraciones encontrados
+                  </p>
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={() => handleEditar({ maquina_id: maquina_id })}
+                  className="btn text-white d-flex align-items-center gap-2 shadow-lg calibracion-btn-nuevo"
+                >
+                  <Plus className="w-5 h-5" />
+                  Nueva Calibración
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => handleEditar({ maquina_id: maquina_id })}
-                className="btn text-white d-flex align-items-center gap-2 shadow-lg calibracion-btn-nuevo"
-              >
-                <Plus className="w-5 h-5" />
-                Nueva Calibración
-              </button>
-            </div>
 
-            {/* LISTA DE CALIBRACIONES */}
-            <div className="calibracion-container">
-              {calibraciones?.calibraciones?.map((cal, i) => {
-                const fechaFormateada = new Date(cal.fecha).toLocaleDateString(
-                  'es-AR',
-                  {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                  }
-                );
-                const isOpen = openIndex === i;
+              {/* LISTA DE CALIBRACIONES */}
+              <div className="calibracion-container">
+                {calibraciones?.calibraciones?.map((cal, i) => {
+                  const fechaFormateada = new Date(cal.fecha).toLocaleDateString(
+                    'es-AR',
+                    {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                    }
+                  );
+                  const isOpen = openIndex === i;
 
-                // Parsear el estado general de la máquina
-                const estadoMaquinaData = parseEstado(cal.estado_maquina);
+                  // Parsear el estado general de la máquina
+                  const estadoMaquinaData = parseEstado(cal.estado_maquina);
 
-                return (
-                  <div
-                    key={i}
-                    className="card_calibracion_acordeon"
-                    style={{ marginBottom: '1rem' }}
-                  >
-                    {/* HEADER DEL ACORDEÓN */}
-                    <div className="card_calibracion_header">
-                      <div className="row mb-3">
-                        {/* Columna Izquierda - Calibración */}
-                        <div className="col-12 col-md-3">
-                          <h5 className="fw-bold text-white mb-1 calibracion-nombre">
-                            Calibración #{i + 1}
-                          </h5>
-                          <span
-                            className="badge calibracion-estado-badge"
-                            style={{
-                              backgroundColor: getEstadoColor(
-                                estadoMaquinaData.estado
-                              ).bg,
-                              border: `2px solid ${
-                                getEstadoColor(estadoMaquinaData.estado).border
-                              }`,
-                              color: getEstadoColor(estadoMaquinaData.estado)
-                                .color,
-                            }}
-                          >
-                            {estadoMaquinaData.estado}
-                          </span>
-                        </div>
-
-                        {/* Columna Centro - Fecha y Responsable */}
-                        <div className="col-12 col-md-3 d-flex flex-column gap-2">
-                          {/* Fecha */}
-                          <div className="d-flex align-items-start gap-2">
-                            <i className="bi bi-calendar-event calibracion-icon"></i>
-                            <div style={{ flex: 1 }}>
-                              <p className="mb-0 text-white-50 calibracion-label">
-                                Fecha
-                              </p>
-                              <p className="mb-0 text-white fw-semibold calibracion-value">
-                                {fechaFormateada}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Responsable */}
-                          <div className="d-flex align-items-start gap-2">
-                            <i className="bi bi-person-fill calibracion-icon"></i>
-                            <div style={{ flex: 1 }}>
-                              <p className="mb-0 text-white-50 calibracion-label">
-                                Responsable
-                              </p>
-                              <p className="mb-0 text-white calibracion-responsable">
-                                {cal.responsable}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Columna Derecha - Observaciones Generales */}
-                        {cal.Observaciones && (
-                          <div className="col-12 col-md-6">
-                            <div
-                              className="p-3 h-100"
+                  return (
+                    <div
+                      key={i}
+                      className="card_calibracion_acordeon"
+                      style={{ marginBottom: '1rem' }}
+                    >
+                      {/* HEADER DEL ACORDEÓN */}
+                      <div className="card_calibracion_header">
+                        <div className="row mb-3">
+                          {/* Columna Izquierda - Calibración */}
+                          <div className="col-12 col-md-3">
+                            <h5 className="fw-bold text-white mb-1 calibracion-nombre">
+                              Calibración #{i + 1}
+                            </h5>
+                            <span
+                              className="badge calibracion-estado-badge"
                               style={{
-                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                                border: '1px solid rgba(59, 130, 246, 0.3)',
-                                borderRadius: '8px',
+                                backgroundColor: getEstadoColor(
+                                  estadoMaquinaData.estado
+                                ).bg,
+                                border: `2px solid ${
+                                  getEstadoColor(estadoMaquinaData.estado).border
+                                }`,
+                                color: getEstadoColor(estadoMaquinaData.estado)
+                                  .color,
                               }}
                             >
-                              <p
-                                className="mb-1 fw-semibold"
-                                style={{
-                                  color: '#93c5fd',
-                                  fontSize: '0.875rem',
-                                }}
-                              >
-                                Observaciones Generales
-                              </p>
-                              <p
-                                className="mb-0"
-                                style={{
-                                  color: '#bfdbfe',
-                                  fontSize: '0.875rem',
-                                }}
-                              >
-                                {cal.Observaciones}
-                              </p>
+                              {estadoMaquinaData.estado}
+                            </span>
+                          </div>
+
+                          {/* Columna Centro - Fecha y Responsable */}
+                          <div className="col-12 col-md-3 d-flex flex-column gap-2">
+                            {/* Fecha */}
+                            <div className="d-flex align-items-start gap-2">
+                              <i className="bi bi-calendar-event calibracion-icon"></i>
+                              <div style={{ flex: 1 }}>
+                                <p className="mb-0 text-white-50 calibracion-label">
+                                  Fecha
+                                </p>
+                                <p className="mb-0 text-white fw-semibold calibracion-value">
+                                  {fechaFormateada}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Responsable */}
+                            <div className="d-flex align-items-start gap-2">
+                              <i className="bi bi-person-fill calibracion-icon"></i>
+                              <div style={{ flex: 1 }}>
+                                <p className="mb-0 text-white-50 calibracion-label">
+                                  Responsable
+                                </p>
+                                <p className="mb-0 text-white calibracion-responsable">
+                                  {cal.responsable}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                        )}
-                      </div>
 
-                      {/* Divider */}
-                      <hr className="calibracion-divider" />
-
-                      {/* Footer con Acciones */}
-                      <div className="d-flex gap-2 mt-3 pt-3 calibracion-actions">
-                        <button
-                          className="btn btn-sm flex-fill calibracion-btn-ver"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggle(i);
-                          }}
-                        >
-                          <i
-                            className={`bi ${
-                              isOpen ? 'bi-eye-slash' : 'bi-eye'
-                            } me-1`}
-                          ></i>
-                          {isOpen ? 'Ocultar' : 'Ver Detalles'}
-                        </button>
-                        <button
-                          className="btn btn-sm flex-fill calibracion-btn-editar"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditar(cal);
-                          }}
-                        >
-                          <i className="bi bi-pencil me-1"></i>
-                          Editar
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* CUERPO EXPANDIBLE */}
-                    {isOpen && (
-                      <div
-                        style={{
-                          marginTop: '1rem',
-                          paddingTop: '1rem',
-                          borderTop: '1px solid rgba(255,255,255,0.1)',
-                        }}
-                      >
-                        {/* Grid de Estados */}
-                        <div className="row g-3">
-                          {Object.keys(formateo).map((key) => {
-                            if (formateo[key] === 'Estado General') return null;
-
-                            const estadoData = parseEstado(cal[key]);
-
-                            // No mostrar si no hay estado o es vacío
-                            if (!estadoData.estado) return null;
-
-                            return (
+                          {/* Columna Derecha - Observaciones Generales */}
+                          {cal.Observaciones && (
+                            <div className="col-12 col-md-6">
                               <div
-                                key={key}
-                                className="col-12 col-md-6 col-lg-3"
+                                className="p-3 h-100"
+                                style={{
+                                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                  border: '1px solid rgba(59, 130, 246, 0.3)',
+                                  borderRadius: '8px',
+                                }}
                               >
-                                <div
-                                  className="p-3 d-flex flex-column"
+                                <p
+                                  className="mb-1 fw-semibold"
                                   style={{
-                                    background: 'rgba(34, 87, 80, 0.85)',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255,255,255,0.1)',
-                                    height: '100%',
-                                    minHeight: '60px',
+                                    color: '#93c5fd',
+                                    fontSize: '0.875rem',
                                   }}
                                 >
-                                  {/* ESTADO PARAMETRO RELEVADO */}
-                                  <div className="d-flex flex-column align-items-start mb-3">
-                                    <p
-                                      className="mb-2 fw-bold text-white"
-                                      style={{ fontSize: '0.875rem' }}
-                                    >
-                                      {formateo[key]}
-                                    </p>
-                                    <span
-                                      className="badge"
-                                      style={{
-                                        backgroundColor: getEstadoColor(
-                                          estadoData.estado
-                                        ).bg,
-                                        border: `1px solid ${
-                                          getEstadoColor(estadoData.estado)
-                                            .border
-                                        }`,
-                                        color: getEstadoColor(estadoData.estado)
-                                          .color,
-                                        fontSize: '0.75rem',
-                                        padding: '0.25rem 0.5rem',
-                                        minWidth: '80px',
-                                        textAlign: 'center',
-                                        display: 'inline-block',
-                                        fontWeight: '600',
-                                      }}
-                                    >
-                                      {estadoData.estado}
-                                    </span>
-                                  </div>
-
-                                  {/* OBSERVACION PARAMETRO RELEVADO */}
-                                  {estadoData.observacion && (
-                                    <p
-                                      className="mt-2 mb-0 ps-2 flex-grow-1"
-                                      style={{
-                                        borderLeft:
-                                          '2px solid rgba(255,255,255,0.3)',
-                                        borderRadius: '4px',
-                                        padding: '0.5rem',
-                                        color: 'white',
-                                        opacity: '0.7',
-                                        fontSize: '0.813rem',
-                                        overflow: 'auto',
-                                      }}
-                                    >
-                                      {estadoData.observacion}
-                                    </p>
-                                  )}
-
-                                  {/* IMAGEN SI EXISTE */}
-                                  {estadoData.nombreArchivo && (
-                                    <div className="mt-2">
-                                      <a
-                                        href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${estadoData.nombreArchivo}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="btn btn-sm btn-outline-light w-100"
-                                        style={{ fontSize: '0.75rem' }}
-                                      >
-                                        <i className="bi bi-image me-1"></i>
-                                        Ver Imagen
-                                      </a>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {/* Información adicional (presiones y observaciones ACRONEX) */}
-                        {(cal.presion_unimap ||
-                          cal.presion_computadora ||
-                          cal.presion_manometro ||
-                          cal.observaciones_acronex) && (
-                          <div className="row g-3 mt-3">
-                            <div className="col-12">
-                              <div
-                                className="p-3"
-                                style={{
-                                  background: 'rgba(99, 102, 241, 0.1)',
-                                  borderRadius: '8px',
-                                  border: '1px solid rgba(99, 102, 241, 0.3)',
-                                }}
-                              >
-                                <h6 className="fw-bold text-white mb-3">
-                                  <i className="bi bi-speedometer2 me-2"></i>
-                                  Información de Presiones
-                                </h6>
-                                <div className="row g-3">
-                                  {cal.presion_unimap && (
-                                    <div className="col-md-4">
-                                      <p
-                                        className="mb-1 text-white-50"
-                                        style={{ fontSize: '0.875rem' }}
-                                      >
-                                        Presión Unimap
-                                      </p>
-                                      <p className="mb-0 text-white fw-bold">
-                                        {cal.presion_unimap} bar
-                                      </p>
-                                    </div>
-                                  )}
-                                  {cal.presion_computadora && (
-                                    <div className="col-md-4">
-                                      <p
-                                        className="mb-1 text-white-50"
-                                        style={{ fontSize: '0.875rem' }}
-                                      >
-                                        Presión Computadora
-                                      </p>
-                                      <p className="mb-0 text-white fw-bold">
-                                        {cal.presion_computadora} bar
-                                      </p>
-                                    </div>
-                                  )}
-                                  {cal.presion_manometro && (
-                                    <div className="col-md-4">
-                                      <p
-                                        className="mb-1 text-white-50"
-                                        style={{ fontSize: '0.875rem' }}
-                                      >
-                                        Presión Manómetro
-                                      </p>
-                                      <p className="mb-0 text-white fw-bold">
-                                        {cal.presion_manometro} bar
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                                {cal.observaciones_acronex && (
-                                  <div className="mt-3">
-                                    <p
-                                      className="mb-1 text-white-50"
-                                      style={{ fontSize: '0.875rem' }}
-                                    >
-                                      Observaciones ACRONEX
-                                    </p>
-                                    <p
-                                      className="mb-0 text-white"
-                                      style={{ fontSize: '0.875rem' }}
-                                    >
-                                      {cal.observaciones_acronex}
-                                    </p>
-                                  </div>
-                                )}
+                                  Observaciones Generales
+                                </p>
+                                <p
+                                  className="mb-0"
+                                  style={{
+                                    color: '#bfdbfe',
+                                    fontSize: '0.875rem',
+                                  }}
+                                >
+                                  {cal.Observaciones}
+                                </p>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
+
+                        {/* Divider */}
+                        <hr className="calibracion-divider" />
+
+                        {/* Footer con Acciones */}
+                        <div className="d-flex gap-2 mt-3 pt-3 calibracion-actions">
+                          <button
+                            className="btn btn-sm flex-fill calibracion-btn-ver"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggle(i);
+                            }}
+                          >
+                            <i
+                              className={`bi ${
+                                isOpen ? 'bi-eye-slash' : 'bi-eye'
+                              } me-1`}
+                            ></i>
+                            {isOpen ? 'Ocultar' : 'Ver Detalles'}
+                          </button>
+                          <button
+                            className="btn btn-sm flex-fill calibracion-btn-editar"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditar(cal);
+                            }}
+                          >
+                            <i className="bi bi-pencil me-1"></i>
+                            Editar
+                          </button>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+
+                      {/* CUERPO EXPANDIBLE */}
+                      {isOpen && (
+                        <div
+                          style={{
+                            marginTop: '1rem',
+                            paddingTop: '1rem',
+                            borderTop: '1px solid rgba(255,255,255,0.1)',
+                          }}
+                        >
+                          {/* Grid de Estados */}
+                          <div className="row g-3">
+                            {Object.keys(formateo).map((key) => {
+                              if (formateo[key] === 'Estado General') return null;
+
+                              const estadoData = parseEstado(cal[key]);
+
+                              // No mostrar si no hay estado o es vacío
+                              if (!estadoData.estado) return null;
+
+                              return (
+                                <div
+                                  key={key}
+                                  className="col-12 col-md-6 col-lg-3"
+                                >
+                                  <div
+                                    className="p-3 d-flex flex-column"
+                                    style={{
+                                      background: 'rgba(34, 87, 80, 0.85)',
+                                      borderRadius: '8px',
+                                      border: '1px solid rgba(255,255,255,0.1)',
+                                      height: '100%',
+                                      minHeight: '60px',
+                                    }}
+                                  >
+                                    {/* ESTADO PARAMETRO RELEVADO */}
+                                    <div className="d-flex flex-column align-items-start mb-3">
+                                      <p
+                                        className="mb-2 fw-bold text-white"
+                                        style={{ fontSize: '0.875rem' }}
+                                      >
+                                        {formateo[key]}
+                                      </p>
+                                      <span
+                                        className="badge"
+                                        style={{
+                                          backgroundColor: getEstadoColor(
+                                            estadoData.estado
+                                          ).bg,
+                                          border: `1px solid ${
+                                            getEstadoColor(estadoData.estado)
+                                              .border
+                                          }`,
+                                          color: getEstadoColor(estadoData.estado)
+                                            .color,
+                                          fontSize: '0.75rem',
+                                          padding: '0.25rem 0.5rem',
+                                          minWidth: '80px',
+                                          textAlign: 'center',
+                                          display: 'inline-block',
+                                          fontWeight: '600',
+                                        }}
+                                      >
+                                        {estadoData.estado}
+                                      </span>
+                                    </div>
+
+                                    {/* OBSERVACION PARAMETRO RELEVADO */}
+                                    {estadoData.observacion && (
+                                      <p
+                                        className="mt-2 mb-0 ps-2 flex-grow-1"
+                                        style={{
+                                          borderLeft:
+                                            '2px solid rgba(255,255,255,0.3)',
+                                          borderRadius: '4px',
+                                          padding: '0.5rem',
+                                          color: 'white',
+                                          opacity: '0.7',
+                                          fontSize: '0.813rem',
+                                          overflow: 'auto',
+                                        }}
+                                      >
+                                        {estadoData.observacion}
+                                      </p>
+                                    )}
+
+                                    {/* IMAGEN SI EXISTE */}
+                                    {estadoData.nombreArchivo && (
+                                      <div className="mt-2">
+                                        <a
+                                          href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${estadoData.nombreArchivo}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="btn btn-sm btn-outline-light w-100"
+                                          style={{ fontSize: '0.75rem' }}
+                                        >
+                                          <i className="bi bi-image me-1"></i>
+                                          Ver Imagen
+                                        </a>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+
+                          {/* Información adicional (presiones y observaciones ACRONEX) */}
+                          {(cal.presion_unimap ||
+                            cal.presion_computadora ||
+                            cal.presion_manometro ||
+                            cal.observaciones_acronex) && (
+                            <div className="row g-3 mt-3">
+                              <div className="col-12">
+                                <div
+                                  className="p-3"
+                                  style={{
+                                    background: 'rgba(99, 102, 241, 0.1)',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(99, 102, 241, 0.3)',
+                                  }}
+                                >
+                                  <h6 className="fw-bold text-white mb-3">
+                                    <i className="bi bi-speedometer2 me-2"></i>
+                                    Información de Presiones
+                                  </h6>
+                                  <div className="row g-3">
+                                    {cal.presion_unimap && (
+                                      <div className="col-md-4">
+                                        <p
+                                          className="mb-1 text-white-50"
+                                          style={{ fontSize: '0.875rem' }}
+                                        >
+                                          Presión Unimap
+                                        </p>
+                                        <p className="mb-0 text-white fw-bold">
+                                          {cal.presion_unimap} bar
+                                        </p>
+                                      </div>
+                                    )}
+                                    {cal.presion_computadora && (
+                                      <div className="col-md-4">
+                                        <p
+                                          className="mb-1 text-white-50"
+                                          style={{ fontSize: '0.875rem' }}
+                                        >
+                                          Presión Computadora
+                                        </p>
+                                        <p className="mb-0 text-white fw-bold">
+                                          {cal.presion_computadora} bar
+                                        </p>
+                                      </div>
+                                    )}
+                                    {cal.presion_manometro && (
+                                      <div className="col-md-4">
+                                        <p
+                                          className="mb-1 text-white-50"
+                                          style={{ fontSize: '0.875rem' }}
+                                        >
+                                          Presión Manómetro
+                                        </p>
+                                        <p className="mb-0 text-white fw-bold">
+                                          {cal.presion_manometro} bar
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                  {cal.observaciones_acronex && (
+                                    <div className="mt-3">
+                                      <p
+                                        className="mb-1 text-white-50"
+                                        style={{ fontSize: '0.875rem' }}
+                                      >
+                                        Observaciones ACRONEX
+                                      </p>
+                                      <p
+                                        className="mb-0 text-white"
+                                        style={{ fontSize: '0.875rem' }}
+                                      >
+                                        {cal.observaciones_acronex}
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>

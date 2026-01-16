@@ -136,9 +136,6 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
 
             <li>
               <button className="sidebar-link" onClick={handleLogoutClick}>
-                <span className="material-symbols-outlined sidebar-icon">
-                  logout
-                </span>
                 Cerrar Sesión
               </button>
             </li>
