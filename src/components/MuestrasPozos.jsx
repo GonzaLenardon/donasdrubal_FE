@@ -86,10 +86,8 @@ const MuestrasPozos = () => {
   /* ================= RENDER ================= */
 
   return (
-
-
     <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-7xl mx-auto">
+      <div className="mx-auto">
         {/* HEADER REDISEÑADO */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Card Cliente */}
@@ -99,21 +97,22 @@ const MuestrasPozos = () => {
                 <Building2 className="w-6 h-6 text-blue-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-bold text-white mb-3">
+                <h2 className="fs-4 font-bold text-white mb-3">
                   Información del Cliente
                 </h2>
                 <div className="space-y-1">
                   <div className="d-flex gap-5">
-                    <p className="text-md w-25">Razón Social</p>
-                    <p className="text-base font-xl  font-bold">
-
+                    <p className="text-md fs-6 fw-bold text-white ">
+                      Razón Social
+                    </p>
+                    <p className="text-md fs-6 text-white">
                       {cliente?.razon_social || 'sin razón social'}
                     </p>
                   </div>
                   <div className="d-flex gap-5">
-                    <p className="text-md w-25">Teléfono</p>
-                    <p className="text-base font-lx  font-bold">
+                    <p className="text-md fs-6 fw-bold text-white ">Teléfono</p>
 
+                    <p className="text-md fs-6 text-white">
                       {cliente?.telefono || 'sin telefono'}
                     </p>
                   </div>
@@ -129,20 +128,20 @@ const MuestrasPozos = () => {
                 <Wrench className="w-6 h-6 text-purple-600" />
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-semibold mb-3">
+                <h2 className="fs-4 font-bold text-white mb-3">
                   Información del Pozo
                 </h2>
                 <div className="space-y-1">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-md">Nombre</p>
-                      <p className="text-base font-xl font-bold ">
+                      <p className="text-md fs-6 fw-bold text-white ">Nombre</p>
+                      <p className="text-md fs-6 text-white">
                         {pozo?.nombre || 'Sin nombre'}
                       </p>
                     </div>
                     <div>
-                      <p className="text-md">Modelo</p>
-                      <p className="text-base font-xl font-bold ">
+                      <p className="text-md fs-6 fw-bold text-white ">Modelo</p>
+                      <p className="text-md fs-6 text-white">
                         {pozo?.establecimiento || 'Sin establecimiento'}
                       </p>
                     </div>
@@ -153,9 +152,6 @@ const MuestrasPozos = () => {
           </div>
         </div>
 
-
-
-
         <div
           style={{
             /*  minHeight: '100vh', */
@@ -164,13 +160,11 @@ const MuestrasPozos = () => {
             borderRadius: '15px',
           }}
         >
-          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <div style={{ margin: '0 auto' }}>
             {/* HEADER */}
             <div className="d-flex justify-content-between align-items-center mb-4">
               <div>
-                <h2 className="fw-bold text-white mb-1">
-                  Muestras de Agua
-                </h2>
+                <h2 className="fw-bold text-white mb-1">Muestras de Agua</h2>
                 <p className="text-white-50 mb-0">
                   {muestras?.length || 0} muestras registradas
                 </p>
@@ -292,7 +286,8 @@ const MuestrasPozos = () => {
                           className="text-white fw-semibold py-2 px-3 text-center"
                           style={{ fontSize: '0.875rem' }}
                         >
-                          <i className="bi bi-lightning-charge me-2"></i>F. Iónica
+                          <i className="bi bi-lightning-charge me-2"></i>F.
+                          Iónica
                         </th>
                         <th
                           className="text-white fw-semibold py-2 px-3"
@@ -320,7 +315,8 @@ const MuestrasPozos = () => {
                           <tr
                             key={m.id}
                             style={{
-                              borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                              borderBottom:
+                                '1px solid rgba(255, 255, 255, 0.05)',
                               transition: 'background 0.2s ease',
                             }}
                             onMouseEnter={(e) => {

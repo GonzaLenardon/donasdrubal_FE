@@ -172,7 +172,7 @@ const Clientes = () => {
       JSON.stringify({
         id: cliente.id,
         nombre: cliente.razon_social,
-      })
+      }),
     );
 
     navigate(`/cliente/${cliente.id}/detalles`);
@@ -190,15 +190,13 @@ const Clientes = () => {
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           padding: '2rem',
           borderRadius: '15px',
-        }}      
+        }}
       >
-        <div  style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h2 className="fw-bold text-white mb-1">              
-                Clientes
-              </h2>
+              <h2 className="fw-bold text-white mb-1">Clientes</h2>
               <p className="text-white-50 mb-0">
                 {clienteList.length} Clientes registrados
               </p>
@@ -404,7 +402,7 @@ const Clientes = () => {
 
           <Spinner loading={loading} msg={msg} />
         </div>
-      </div>            
+      </div>
       {/* Modal con diseño optimizado y ancho aumentado */}
       {modal && (
         <div className="modal-overlay">

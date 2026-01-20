@@ -12,6 +12,7 @@ import {
   Plus,
   MoreVertical,
   FileText,
+  Lightbulb,
 } from 'lucide-react';
 
 export const Calibraciones = () => {
@@ -37,34 +38,38 @@ export const Calibraciones = () => {
     }
   };
 
-  // Función para parsear los campos JSON stringificados
   const parseEstado = (estadoString) => {
     if (!estadoString)
-      return { estado: '', observacion: '', nombreArchivo: '', path: '' };
+      return {
+        estado: '',
+        observacion: '',
+        nombreArchivo: '',
+        path: '',
+        recomendaciones: [],
+      };
     let parsed = estadoString;
     try {
-      // Algunos campos tienen doble escape, intentar parsear dos veces
-      // let parsed = JSON.parse(estadoString);
       if (typeof parsed === 'string') {
         parsed = JSON.parse(parsed);
       }
-      // if (typeof parsed === 'object') {
-      //     return {
-      //       estado: parsed.estado || '',
-      //       observacion: parsed.observacion || '',
-      //       nombreArchivo: parsed.nombreArchivo || parsed.nombre_archivo || '',
-      //       path: parsed.path || '',
-      //     };
-      // }      
       return {
         estado: parsed.estado || '',
         observacion: parsed.observacion || '',
         nombreArchivo: parsed.nombreArchivo || parsed.nombre_archivo || '',
         path: parsed.path || '',
+        recomendaciones: Array.isArray(parsed.recomendaciones)
+          ? parsed.recomendaciones
+          : [],
       };
     } catch (error) {
       console.error('Error parseando estado:', error, estadoString);
-      return { estado: '', observacion: '', nombreArchivo: '', path: '' };
+      return {
+        estado: '',
+        observacion: '',
+        nombreArchivo: '',
+        path: '',
+        recomendaciones: [],
+      };
     }
   };
 
@@ -128,7 +133,7 @@ export const Calibraciones = () => {
   return (
     <>
       <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
+        <div className="mx-auto">
           {/* HEADER REDISEÑADO */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Card Cliente */}
@@ -138,19 +143,23 @@ export const Calibraciones = () => {
                   <Building2 className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-lg font-bold text-white mb-3">
+                  <h2 className="fs-4 font-bold text-white mb-3">
                     Información del Cliente
                   </h2>
                   <div className="space-y-1">
                     <div className="d-flex gap-5">
-                      <p className="text-md w-25">Razón Social</p>
-                      <p className="text-base font-xl font-bold">
+                      <p className="text-md fs-6 fw-bold text-white ">
+                        Razón Social
+                      </p>
+                      <p className="text-md fs-6 text-white">
                         {calibraciones?.cliente?.razon_social}
                       </p>
                     </div>
                     <div className="d-flex gap-5">
-                      <p className="text-md w-25">Teléfono</p>
-                      <p className="text-base font-lx font-bold">
+                      <p className="text-md fs-6 fw-bold text-white ">
+                        Teléfono
+                      </p>
+                      <p className="text-md fs-6 text-white">
                         {calibraciones?.cliente?.telefono}
                       </p>
                     </div>
@@ -166,20 +175,24 @@ export const Calibraciones = () => {
                   <Wrench className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-lg font-semibold mb-3">
+                  <h2 className="fs-4 font-bold text-white mb-3">
                     Información de la Máquina
                   </h2>
                   <div className="space-y-1">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-md">Marca</p>
-                        <p className="text-base font-xl font-bold">
+                        <p className="text-md fs-6 fw-bold text-white ">
+                          Marca
+                        </p>
+                        <p className="text-md fs-6 text-white">
                           {calibraciones?.tipo?.marca}
                         </p>
                       </div>
                       <div>
-                        <p className="text-md">Modelo</p>
-                        <p className="text-base font-xl font-bold">
+                        <p className="text-md fs-6 fw-bold text-white ">
+                          Modelo
+                        </p>
+                        <p className="text-md fs-6 text-white">
                           {calibraciones?.tipo?.modelo}
                         </p>
                       </div>
@@ -191,26 +204,24 @@ export const Calibraciones = () => {
           </div>
 
           {/* CALIBRACIONES */}
-          <div 
-              style={{
-              /*  minHeight: '100vh', */
+          <div
+            style={{
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               padding: '2rem',
               borderRadius: '15px',
             }}
           >
-            <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{ margin: '0 auto' }}>
               {/* HEADER Y BOTÓN NUEVA CALIBRACION */}
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="fw-bold text-white mb-1">
-                    Calibraciones
-                  </h2>
+                  <h2 className="fw-bold text-white mb-1">Calibraciones</h2>
                   <p className="text-white-50 mb-0">
-                    {calibraciones?.calibraciones?.length || 0} calibraciones encontrados
+                    {calibraciones?.calibraciones?.length || 0} calibraciones
+                    encontrados
                   </p>
                 </div>
-                
+
                 <button
                   type="button"
                   onClick={() => handleEditar({ maquina_id: maquina_id })}
@@ -224,17 +235,15 @@ export const Calibraciones = () => {
               {/* LISTA DE CALIBRACIONES */}
               <div className="calibracion-container">
                 {calibraciones?.calibraciones?.map((cal, i) => {
-                  const fechaFormateada = new Date(cal.fecha).toLocaleDateString(
-                    'es-AR',
-                    {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                    }
-                  );
+                  const fechaFormateada = new Date(
+                    cal.fecha,
+                  ).toLocaleDateString('es-AR', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                  });
                   const isOpen = openIndex === i;
 
-                  // Parsear el estado general de la máquina
                   const estadoMaquinaData = parseEstado(cal.estado_maquina);
 
                   return (
@@ -255,10 +264,11 @@ export const Calibraciones = () => {
                               className="badge calibracion-estado-badge"
                               style={{
                                 backgroundColor: getEstadoColor(
-                                  estadoMaquinaData.estado
+                                  estadoMaquinaData.estado,
                                 ).bg,
                                 border: `2px solid ${
-                                  getEstadoColor(estadoMaquinaData.estado).border
+                                  getEstadoColor(estadoMaquinaData.estado)
+                                    .border
                                 }`,
                                 color: getEstadoColor(estadoMaquinaData.estado)
                                   .color,
@@ -375,33 +385,34 @@ export const Calibraciones = () => {
                           {/* Grid de Estados */}
                           <div className="row g-3">
                             {Object.keys(formateo).map((key) => {
-                              if (formateo[key] === 'Estado General') return null;
+                              if (formateo[key] === 'Estado General')
+                                return null;
 
                               const estadoData = parseEstado(cal[key]);
 
-                              // No mostrar si no hay estado o es vacío
                               if (!estadoData.estado) return null;
 
                               return (
                                 <div
                                   key={key}
-                                  className="col-12 col-md-6 col-lg-3"
+                                  className="col-12 col-md-6 col-lg-4"
                                 >
                                   <div
                                     className="p-3 d-flex flex-column"
                                     style={{
                                       background: 'rgba(34, 87, 80, 0.85)',
-                                      borderRadius: '8px',
+                                      borderRadius: '10px',
                                       border: '1px solid rgba(255,255,255,0.1)',
                                       height: '100%',
-                                      minHeight: '60px',
+                                      minHeight: '120px',
+                                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                                     }}
                                   >
-                                    {/* ESTADO PARAMETRO RELEVADO */}
-                                    <div className="d-flex flex-column align-items-start mb-3">
+                                    {/* HEADER CON TÍTULO Y ESTADO */}
+                                    <div className="d-flex justify-content-between align-items-start mb-3">
                                       <p
-                                        className="mb-2 fw-bold text-white"
-                                        style={{ fontSize: '0.875rem' }}
+                                        className="mb-0 fw-bold text-white"
+                                        style={{ fontSize: '0.9rem' }}
                                       >
                                         {formateo[key]}
                                       </p>
@@ -409,19 +420,17 @@ export const Calibraciones = () => {
                                         className="badge"
                                         style={{
                                           backgroundColor: getEstadoColor(
-                                            estadoData.estado
+                                            estadoData.estado,
                                           ).bg,
                                           border: `1px solid ${
                                             getEstadoColor(estadoData.estado)
                                               .border
                                           }`,
-                                          color: getEstadoColor(estadoData.estado)
-                                            .color,
-                                          fontSize: '0.75rem',
+                                          color: getEstadoColor(
+                                            estadoData.estado,
+                                          ).color,
+                                          fontSize: '0.7rem',
                                           padding: '0.25rem 0.5rem',
-                                          minWidth: '80px',
-                                          textAlign: 'center',
-                                          display: 'inline-block',
                                           fontWeight: '600',
                                         }}
                                       >
@@ -429,34 +438,112 @@ export const Calibraciones = () => {
                                       </span>
                                     </div>
 
-                                    {/* OBSERVACION PARAMETRO RELEVADO */}
+                                    {/* OBSERVACIÓN */}
                                     {estadoData.observacion && (
-                                      <p
-                                        className="mt-2 mb-0 ps-2 flex-grow-1"
+                                      <div
+                                        className="mb-2"
                                         style={{
                                           borderLeft:
-                                            '2px solid rgba(255,255,255,0.3)',
-                                          borderRadius: '4px',
-                                          padding: '0.5rem',
-                                          color: 'white',
-                                          opacity: '0.7',
-                                          fontSize: '0.813rem',
-                                          overflow: 'auto',
+                                            '3px solid rgba(255,255,255,0.3)',
+                                          paddingLeft: '0.75rem',
                                         }}
                                       >
-                                        {estadoData.observacion}
-                                      </p>
+                                        <p
+                                          className="mb-1 text-white-50"
+                                          style={{ fontSize: '0.7rem' }}
+                                        >
+                                          Observación:
+                                        </p>
+                                        <p
+                                          className="mb-0 text-white"
+                                          style={{
+                                            fontSize: '0.8rem',
+                                            lineHeight: '1.4',
+                                          }}
+                                        >
+                                          {estadoData.observacion}
+                                        </p>
+                                      </div>
                                     )}
+
+                                    {/* RECOMENDACIONES */}
+                                    {estadoData.recomendaciones &&
+                                      estadoData.recomendaciones.length > 0 && (
+                                        <div
+                                          className="mb-2"
+                                          style={{
+                                            background:
+                                              'rgba(13, 202, 240, 0.1)',
+                                            border:
+                                              '1px solid rgba(13, 202, 240, 0.3)',
+                                            borderRadius: '6px',
+                                            padding: '0.5rem',
+                                          }}
+                                        >
+                                          <div className="d-flex align-items-center gap-1 mb-2">
+                                            <Lightbulb
+                                              size={14}
+                                              className="text-info"
+                                            />
+                                            <p
+                                              className="mb-0 text-info fw-semibold"
+                                              style={{ fontSize: '0.7rem' }}
+                                            >
+                                              Recomendaciones (
+                                              {
+                                                estadoData.recomendaciones
+                                                  .length
+                                              }
+                                              )
+                                            </p>
+                                          </div>
+                                          <div className="d-flex flex-column gap-1">
+                                            {estadoData.recomendaciones.map(
+                                              (rec, idx) => (
+                                                <div
+                                                  key={rec.id || idx}
+                                                  className="d-flex align-items-start gap-2"
+                                                  style={{
+                                                    background:
+                                                      'rgba(255,255,255,0.05)',
+                                                    padding: '0.4rem',
+                                                    borderRadius: '4px',
+                                                  }}
+                                                >
+                                                  <i
+                                                    className="bi bi-check-circle-fill"
+                                                    style={{
+                                                      color: '#0dcaf0',
+                                                      fontSize: '0.7rem',
+                                                      marginTop: '2px',
+                                                    }}
+                                                  ></i>
+                                                  <p
+                                                    className="mb-0 text-white"
+                                                    style={{
+                                                      fontSize: '0.75rem',
+                                                      lineHeight: '1.3',
+                                                      flex: 1,
+                                                    }}
+                                                  >
+                                                    {rec.texto}
+                                                  </p>
+                                                </div>
+                                              ),
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
 
                                     {/* IMAGEN SI EXISTE */}
                                     {estadoData.nombreArchivo && (
-                                      <div className="mt-2">
+                                      <div className="mt-auto">
                                         <a
                                           href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${estadoData.nombreArchivo}`}
                                           target="_blank"
                                           rel="noopener noreferrer"
                                           className="btn btn-sm btn-outline-light w-100"
-                                          style={{ fontSize: '0.75rem' }}
+                                          style={{ fontSize: '0.7rem' }}
                                         >
                                           <i className="bi bi-image me-1"></i>
                                           Ver Imagen
@@ -480,8 +567,9 @@ export const Calibraciones = () => {
                                   className="p-3"
                                   style={{
                                     background: 'rgba(99, 102, 241, 0.1)',
-                                    borderRadius: '8px',
+                                    borderRadius: '10px',
                                     border: '1px solid rgba(99, 102, 241, 0.3)',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                                   }}
                                 >
                                   <h6 className="fw-bold text-white mb-3">
