@@ -43,7 +43,7 @@ const Pozos = ({ cliente_id }) => {
           borderRadius: '15px',
         }}
       >
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
 
           <div className="d-flex justify-content-between align-items-center mb-4">
@@ -137,7 +137,7 @@ const Pozos = ({ cliente_id }) => {
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(
-                          `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`
+                          `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`,
                         );
                       }}
                     >

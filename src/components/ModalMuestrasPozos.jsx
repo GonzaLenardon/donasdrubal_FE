@@ -13,6 +13,8 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
     fecha_analisis: '',
   });
 
+  console.log('muestars', muestra);
+
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -236,7 +238,7 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                 className="fw-bold text-white mb-1"
                 style={{ fontSize: '1.5rem' }}
               >
-                {muestra ? 'Editar Muestra' : 'Nueva Muestra'}
+                {muestra?.id ? 'Editar Muestra' : 'Nueva Muestra'}
               </h3>
               <p
                 className="mb-0"
@@ -640,7 +642,7 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
               ) : (
                 <>
                   <i className="bi bi-check-circle me-2"></i>
-                  {muestra ? 'Actualizar' : 'Guardar Muestra'}
+                  {muestra?.id ? 'Actualizar' : 'Guardar Muestra'}
                 </>
               )}
             </button>

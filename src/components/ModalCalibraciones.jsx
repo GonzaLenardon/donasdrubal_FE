@@ -7,25 +7,72 @@ const opcionesEstado = ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'No aplica'];
 const emptyCalibracion = {
   fecha: '',
   responsable: '',
-  estado_maquina: { estado: '', observacion: '', nombreArchivo: '' },
-  estado_bomba: { estado: '', observacion: '', nombreArchivo: '' },
-  estado_agitador: { estado: '', observacion: '', nombreArchivo: '' },
-  estado_filtroPrimario: { estado: '', observacion: '', nombreArchivo: '' },
-  estado_filtroSecundario: { estado: '', observacion: '', nombreArchivo: '' },
-  estado_FiltroLinea: { estado: '', observacion: '', nombreArchivo: '' },
+  estado_maquina: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
+  estado_bomba: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
+  estado_agitador: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
+  estado_filtroPrimario: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
+  estado_filtroSecundario: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
+  estado_FiltroLinea: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
   estado_manguerayconexiones: {
     estado: '',
     observacion: '',
     nombreArchivo: '',
+    recomendaciones: [],
   },
-  estado_antigoteo: { estado: '', observacion: '', nombreArchivo: '' },
-  estado_limpiezaTanque: { estado: '', observacion: '', nombreArchivo: '' },
+  estado_antigoteo: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
+  estado_limpiezaTanque: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
   estabilidadVerticalBotalon: {
     estado: '',
     observacion: '',
     nombreArchivo: '',
+    recomendaciones: [],
   },
-  estado_pastillas: { estado: '', observacion: '', nombreArchivo: '' },
+  estado_pastillas: {
+    estado: '',
+    observacion: '',
+    nombreArchivo: '',
+    recomendaciones: [],
+  },
   presion_unimap: '',
   presion_computadora: '',
   presion_manometro: '',
@@ -36,11 +83,15 @@ const emptyCalibracion = {
 // Función auxiliar para parsear estados con doble escape
 const parseEstadoField = (estadoString) => {
   if (!estadoString) {
-    return { estado: '', observacion: '', nombreArchivo: '' };
+    return {
+      estado: '',
+      observacion: '',
+      nombreArchivo: '',
+      recomendaciones: [],
+    };
   }
 
   try {
-    // Intentar parsear una vez
     let parsed = JSON.parse(estadoString);
 
     // Si es string, intentar parsear de nuevo (doble escape)
@@ -52,12 +103,154 @@ const parseEstadoField = (estadoString) => {
       estado: parsed.estado || '',
       observacion: parsed.observacion || '',
       nombreArchivo: parsed.nombreArchivo || parsed.nombre_archivo || '',
+      recomendaciones: Array.isArray(parsed.recomendaciones)
+        ? parsed.recomendaciones
+        : [],
       path: parsed.path || '',
     };
   } catch (error) {
     console.error('Error parseando estado:', error);
-    return { estado: '', observacion: '', nombreArchivo: '' };
+    return {
+      estado: '',
+      observacion: '',
+      nombreArchivo: '',
+      recomendaciones: [],
+    };
   }
+};
+
+// Componente para gestionar recomendaciones
+const RecomendacionesManager = ({
+  recomendaciones = [],
+  onChange,
+  disabled,
+}) => {
+  const [nuevaRecomendacion, setNuevaRecomendacion] = useState('');
+
+  const agregarRecomendacion = () => {
+    if (nuevaRecomendacion.trim()) {
+      const nuevaRec = {
+        id: Date.now(),
+        texto: nuevaRecomendacion.trim(),
+        fecha: new Date().toISOString(),
+      };
+      onChange([...recomendaciones, nuevaRec]);
+      setNuevaRecomendacion('');
+    }
+  };
+
+  const eliminarRecomendacion = (id) => {
+    onChange(recomendaciones.filter((rec) => rec.id !== id));
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      agregarRecomendacion();
+    }
+  };
+
+  return (
+    <div className="recomendaciones-container">
+      {/* Lista de recomendaciones */}
+      {recomendaciones.length > 0 && (
+        <div className="mb-2">
+          {recomendaciones.map((rec) => (
+            <div
+              key={rec.id}
+              className="d-flex align-items-start gap-2 mb-2 p-2 rounded"
+              style={{
+                background: 'rgba(13, 202, 240, 0.1)',
+                border: '1px solid rgba(13, 202, 240, 0.2)',
+              }}
+            >
+              <i
+                className="bi bi-check-circle-fill text-info mt-1"
+                style={{ fontSize: '0.8rem' }}
+              ></i>
+              <small
+                className="flex-grow-1 text-white"
+                style={{ fontSize: '0.75rem' }}
+              >
+                {rec.texto}
+              </small>
+              <button
+                type="button"
+                className="btn btn-sm btn-link text-danger p-0"
+                onClick={() => eliminarRecomendacion(rec.id)}
+                disabled={disabled}
+                style={{ fontSize: '0.8rem' }}
+              >
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Input para nueva recomendación */}
+      <div className="input-group input-group-sm">
+        <input
+          type="text"
+          className="form-control form-control-sm"
+          placeholder="Escribir recomendación... (Enter para agregar)"
+          value={nuevaRecomendacion}
+          onChange={(e) => setNuevaRecomendacion(e.target.value)}
+          onKeyPress={handleKeyPress}
+          disabled={disabled}
+          style={{
+            fontSize: '0.75rem',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            color: '#fff',
+          }}
+        />
+        <button
+          type="button"
+          className="btn btn-outline-info btn-sm"
+          onClick={agregarRecomendacion}
+          disabled={disabled || !nuevaRecomendacion.trim()}
+          style={{ fontSize: '0.75rem' }}
+        >
+          <i className="bi bi-plus-lg"></i>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Componente de navegación por páginas
+const PaginationNav = ({ currentPage, totalPages, onPageChange, errors }) => {
+  const pages = [
+    { number: 1, title: 'Datos Básicos', icon: 'bi-info-circle' },
+    { number: 2, title: 'Estados y Componentes', icon: 'bi-clipboard-check' },
+    { number: 3, title: 'Presiones y Observaciones', icon: 'bi-speedometer2' },
+  ];
+
+  return (
+    <div className="d-flex justify-content-center gap-2 mb-4 flex-wrap">
+      {pages.map((page) => {
+        const hasErrors = errors[`page${page.number}`];
+        return (
+          <button
+            key={page.number}
+            type="button"
+            className={`btn ${currentPage === page.number ? 'btn-primary' : 'btn-outline-secondary'} btn-sm position-relative`}
+            onClick={() => onPageChange(page.number)}
+            style={{ minWidth: '150px' }}
+          >
+            <i className={`${page.icon} me-2`}></i>
+            {page.title}
+            {hasErrors && (
+              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                !
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
 };
 
 export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
@@ -66,6 +259,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
 
   const camposEstado = [
     { campo: 'estado_maquina', label: 'Estado Máquina', icon: 'bi-gear-fill' },
@@ -107,7 +301,6 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
   useEffect(() => {
     if (calibracion) {
-      // Si es edición, parsear campos JSON
       if (calibracion.id) {
         const parsedCalibracion = { ...calibracion };
 
@@ -120,6 +313,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               estado: '',
               observacion: '',
               nombreArchivo: '',
+              recomendaciones: [],
             };
           }
         });
@@ -129,7 +323,6 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
           fecha: calibracion.fecha ? calibracion.fecha.split('T')[0] : '',
         });
       } else {
-        // Si es nuevo registro, solo setear maquina_id
         setForm({
           ...emptyCalibracion,
           maquina_id: calibracion.maquina_id,
@@ -139,7 +332,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
   }, [calibracion]);
 
   useEffect(() => {
-    console.log('Form actualizado:', form);
+    console.log('Formulario', form);
   }, [form]);
 
   if (!calibracion) return null;
@@ -147,6 +340,14 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
+    // Limpiar error del campo cuando el usuario empieza a escribir
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
   };
 
   // Manejo de cambios para campos JSON
@@ -160,10 +361,20 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
     }));
   };
 
+  // Manejo de recomendaciones
+  const handleRecomendacionesChange = (campo, recomendaciones) => {
+    setForm((prev) => ({
+      ...prev,
+      [campo]: {
+        ...prev[campo],
+        recomendaciones,
+      },
+    }));
+  };
+
   // Manejo de archivos
   const handleFileChange = (campo, file) => {
     if (file) {
-      // Generar nombre único para el archivo
       const timestamp = Date.now();
       const nombreUnico = `${campo}_${timestamp}_${file.name}`;
 
@@ -172,7 +383,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
         [campo]: {
           ...prev[campo],
           nombreArchivo: nombreUnico,
-          archivo: file, // Guardar el archivo para subirlo después
+          archivo: file,
         },
       }));
     }
@@ -194,7 +405,6 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
   const uploadFiles = async () => {
     const archivosParaSubir = [];
 
-    // Recopilar todos los archivos que necesitan ser subidos
     camposEstado.forEach(({ campo }) => {
       if (form[campo]?.archivo) {
         archivosParaSubir.push({
@@ -206,12 +416,10 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
     });
 
     if (archivosParaSubir.length === 0) {
-      return true; // No hay archivos para subir
+      return true;
     }
 
     try {
-      // Subir cada archivo
-      const url = import.meta.env.VITE_API_URL;
       for (const item of archivosParaSubir) {
         const formData = new FormData();
         formData.append('campo', item.campo);
@@ -219,13 +427,12 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
         formData.append('file', item.archivo);
 
         const response = await fetch(
-          
-          `${import.meta.env.VITE_API_URL}/calibraciones/upload`, // ruta para subir archivo -> se guarda en uploads/calibraciones
+          `${import.meta.env.VITE_API_URL}/calibraciones/upload`,
           {
             method: 'POST',
             credentials: 'include',
             body: formData,
-          }
+          },
         );
 
         if (!response.ok) {
@@ -243,28 +450,55 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
     }
   };
 
-  const validarCampos = () => {
+  const validarCamposPorPagina = (pageNumber) => {
     const newErrors = {};
 
-    if (!form.responsable?.trim()) {
-      newErrors.responsable = 'El responsable es requerido';
+    if (pageNumber === 1) {
+      if (!form.responsable?.trim()) {
+        newErrors.responsable = 'El responsable es requerido';
+      }
+      if (!form.fecha) {
+        newErrors.fecha = 'La fecha es requerida';
+      }
+      if (Object.keys(newErrors).length > 0) {
+        newErrors.page1 = true;
+      }
     }
 
+    return newErrors;
+  };
+
+  const validarTodoElFormulario = () => {
+    const newErrors = {};
+
+    // Validar página 1
+    if (!form.responsable?.trim()) {
+      newErrors.responsable = 'El responsable es requerido';
+      newErrors.page1 = true;
+    }
     if (!form.fecha) {
       newErrors.fecha = 'La fecha es requerida';
+      newErrors.page1 = true;
     }
 
     setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-    if (Object.keys(newErrors).length > 0) {
-      return false;
+  const handlePageChange = (pageNumber) => {
+    // Validar página actual antes de cambiar
+    const erroresActuales = validarCamposPorPagina(currentPage);
+    if (Object.keys(erroresActuales).length > 0) {
+      setErrors(erroresActuales);
+      return;
     }
-
-    return true;
+    setCurrentPage(pageNumber);
+    setErrors({});
   };
 
   const handleSubmit = async () => {
-    if (!validarCampos()) {
+    if (!validarTodoElFormulario()) {
+      setCurrentPage(1); // Ir a la primera página si hay errores
       return;
     }
 
@@ -273,15 +507,12 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       setLoading(true);
       setMsg('Procesando...');
 
-      // Primero subir los archivos
       await uploadFiles();
 
-      // Convertir objetos JSON a strings para enviar al backend
       const formToSend = { ...form };
 
       camposEstado.forEach(({ campo }) => {
         if (typeof formToSend[campo] === 'object') {
-          // Remover el campo 'archivo' antes de stringify (ya se subió)
           const { archivo, path, ...jsonData } = formToSend[campo];
           formToSend[campo] = JSON.stringify(jsonData);
         }
@@ -299,20 +530,15 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
       setMsg(resp.message || 'Calibración guardada exitosamente');
 
-      // Esperar un momento para que el usuario vea el mensaje
       await new Promise((res) => setTimeout(res, 1500));
 
-      // Recargar las calibraciones
       onSaved();
-
-      // Cerrar el modal
       onClose();
     } catch (error) {
       console.error('Error al guardar:', error);
       setErrors({ submit: error.message || 'Error al guardar la calibración' });
       setMsg('Error al guardar');
 
-      // Limpiar el mensaje de error después de 3 segundos
       setTimeout(() => {
         setMsg('');
       }, 3000);
@@ -322,62 +548,28 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
     }
   };
 
-  return (
-    <>
-      <div className="modal-overlay">
-        <div
-          className="modal-container"
-          style={{ maxWidth: '95vw', width: '95vw' }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* HEADER */}
-          <div className="modal-header-pozos">
-            <div className="d-flex align-items-center gap-3">
-              <div className="modal-icon-container">
-                <i className="bi bi-gear-wide-connected"></i>
-              </div>
-              <div>
-                <h3 className="modal-title-pozos mb-1">
-                  {form?.id ? 'Editar Calibración' : 'Nueva Calibración'}
-                </h3>
-                <p className="modal-subtitle-pozos mb-0">
-                  {form?.id
-                    ? 'Modifica la información de la calibración'
-                    : 'Completa los datos de la nueva calibración'}
-                </p>
-              </div>
-            </div>
-            <button className="modal-close-btn" onClick={onClose}>
-              <i className="bi bi-x-lg"></i>
-            </button>
-          </div>
+  // Renderizar contenido de cada página
+  const renderPageContent = () => {
+    switch (currentPage) {
+      case 1:
+        return (
+          <div className="fade-in">
+            <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
+              <i className="bi bi-info-circle me-2"></i>
+              Información General
+            </h4>
 
-          {/* BODY */}
-          <div
-            className="modal-body-pozos"
-            style={{ maxHeight: '75vh', overflowY: 'auto' }}
-          >
-            {errors.submit && (
-              <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
-                <i className="bi bi-exclamation-triangle-fill"></i>
-                {errors.submit}
-              </div>
-            )}
-
-            {/* DATOS PRINCIPALES */}
-            <div className="row g-3 mb-4">
+            <div className="row g-4">
               <div className="col-md-8">
                 <div className="form-group-pozos">
                   <label htmlFor="responsable" className="form-label-pozos">
                     <i className="bi bi-person-fill me-2"></i>
-                    Responsable
+                    Responsable <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
                     id="responsable"
-                    className={`form-control-pozos ${
-                      errors.responsable ? 'is-invalid' : ''
-                    }`}
+                    className={`form-control-pozos ${errors.responsable ? 'is-invalid' : ''}`}
                     name="responsable"
                     placeholder="Ej: Juan Pérez"
                     value={form.responsable || ''}
@@ -397,14 +589,12 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                 <div className="form-group-pozos">
                   <label htmlFor="fecha" className="form-label-pozos">
                     <i className="bi bi-calendar-fill me-2"></i>
-                    Fecha
+                    Fecha <span className="text-danger">*</span>
                   </label>
                   <input
                     type="date"
                     id="fecha"
-                    className={`form-control-pozos ${
-                      errors.fecha ? 'is-invalid' : ''
-                    }`}
+                    className={`form-control-pozos ${errors.fecha ? 'is-invalid' : ''}`}
                     name="fecha"
                     value={form.fecha || ''}
                     onChange={handleChange}
@@ -420,15 +610,30 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               </div>
             </div>
 
-            {/* ESTADOS + OBSERVACIONES + ARCHIVOS */}
-            <h4 className="fw-bold mb-3 border-bottom pb-2 text-white">
+            <div
+              className="alert alert-info mt-4 d-flex align-items-start gap-2"
+              role="alert"
+            >
+              <i className="bi bi-info-circle-fill mt-1"></i>
+              <div>
+                <strong>Información:</strong> Complete los datos básicos para
+                continuar con los estados de los componentes.
+              </div>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="fade-in">
+            <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
               <i className="bi bi-clipboard-check me-2"></i>
-              Estados y Observaciones
+              Estados y Componentes
             </h4>
 
             <div className="row g-3">
               {camposEstado.map(({ campo, label, icon }) => (
-                <div className="col-xl-3 col-lg-4 col-md-6 mb-3" key={campo}>
+                <div className="col-xl-4 col-lg-6 col-md-6 mb-3" key={campo}>
                   <div
                     className="border rounded p-3 h-100"
                     style={{
@@ -436,102 +641,153 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                       borderColor: 'rgba(255, 255, 255, 0.1)',
                     }}
                   >
-                    <label className="form-label-pozos mb-2">
-                      <i className={`${icon} me-2`}></i>
-                      {label}
-                    </label>
+                    <div className="d-flex align-items-center mb-3">
+                      <i className={`${icon} me-2 text-info`}></i>
+                      <h6 className="mb-0 text-white fw-bold">{label}</h6>
+                    </div>
 
                     {/* Estado */}
-                    <select
-                      className="form-control-pozos mb-2"
-                      value={form[campo]?.estado || ''}
-                      onChange={(e) =>
-                        handleEstadoChange(campo, 'estado', e.target.value)
-                      }
-                      disabled={isSubmitting}
-                      style={{ fontSize: '0.85rem' }}
-                    >
-                      <option value="">Seleccione estado</option>
-                      {opcionesEstado.map((op) => (
-                        <option key={op} value={op}>
-                          {op}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="mb-2">
+                      <label
+                        className="form-label-pozos"
+                        style={{ fontSize: '0.8rem' }}
+                      >
+                        Estado
+                      </label>
+                      <select
+                        className="form-control-pozos"
+                        value={form[campo]?.estado || ''}
+                        onChange={(e) =>
+                          handleEstadoChange(campo, 'estado', e.target.value)
+                        }
+                        disabled={isSubmitting}
+                        style={{ fontSize: '0.85rem' }}
+                      >
+                        <option value="">Seleccione estado</option>
+                        {opcionesEstado.map((op) => (
+                          <option key={op} value={op}>
+                            {op}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
                     {/* Observación */}
-                    <textarea
-                      className="form-control-pozos mb-2"
-                      rows="2"
-                      placeholder="Observaciones..."
-                      value={form[campo]?.observacion || ''}
-                      onChange={(e) =>
-                        handleEstadoChange(campo, 'observacion', e.target.value)
-                      }
-                      disabled={isSubmitting}
-                      style={{ fontSize: '0.8rem' }}
-                    />
+                    <div className="mb-2">
+                      <label
+                        className="form-label-pozos"
+                        style={{ fontSize: '0.8rem' }}
+                      >
+                        Observación
+                      </label>
+                      <textarea
+                        className="form-control-pozos"
+                        rows="2"
+                        placeholder="Observaciones..."
+                        value={form[campo]?.observacion || ''}
+                        onChange={(e) =>
+                          handleEstadoChange(
+                            campo,
+                            'observacion',
+                            e.target.value,
+                          )
+                        }
+                        disabled={isSubmitting}
+                        style={{ fontSize: '0.8rem' }}
+                      />
+                    </div>
+
+                    {/* Recomendaciones */}
+                    <div className="mb-2">
+                      <label
+                        className="form-label-pozos"
+                        style={{ fontSize: '0.8rem' }}
+                      >
+                        Recomendaciones
+                      </label>
+                      <RecomendacionesManager
+                        recomendaciones={form[campo]?.recomendaciones || []}
+                        onChange={(recs) =>
+                          handleRecomendacionesChange(campo, recs)
+                        }
+                        disabled={isSubmitting}
+                      />
+                    </div>
 
                     {/* Archivo */}
-                    <div className="d-flex align-items-center gap-2">
-                      {!form[campo]?.nombreArchivo ? (
-                        <label
-                          className="btn btn-sm btn-outline-light flex-grow-1"
-                          style={{
-                            fontSize: '0.75rem',
-                            padding: '0.25rem 0.5rem',
-                            cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                          }}
-                        >
-                          <i className="bi bi-paperclip me-1"></i>
-                          Adjuntar
-                          <input
-                            type="file"
-                            className="d-none"
-                            onChange={(e) =>
-                              handleFileChange(campo, e.target.files[0])
-                            }
-                            disabled={isSubmitting}
-                            accept="image/*,.pdf"
-                          />
-                        </label>
-                      ) : (
-                        <>
-                          <span
-                            className="badge bg-success flex-grow-1 text-truncate"
-                            style={{ fontSize: '0.7rem', maxWidth: '120px' }}
-                            title={form[campo]?.nombreArchivo}
-                          >
-                            <i className="bi bi-check-circle me-1"></i>
-                            Archivo
-                          </span>
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-danger"
+                    <div className="mt-3">
+                      <label
+                        className="form-label-pozos"
+                        style={{ fontSize: '0.8rem' }}
+                      >
+                        Archivo adjunto
+                      </label>
+                      <div className="d-flex align-items-center gap-2">
+                        {!form[campo]?.nombreArchivo ? (
+                          <label
+                            className="btn btn-sm btn-outline-light flex-grow-1"
                             style={{
-                              fontSize: '0.7rem',
-                              padding: '0.2rem 0.4rem',
+                              fontSize: '0.75rem',
+                              padding: '0.25rem 0.5rem',
+                              cursor: isSubmitting ? 'not-allowed' : 'pointer',
                             }}
-                            onClick={() => handleRemoveFile(campo)}
-                            disabled={isSubmitting}
-                            title="Eliminar archivo"
                           >
-                            <i className="bi bi-trash"></i>
-                          </button>
-                        </>
-                      )}
+                            <i className="bi bi-paperclip me-1"></i>
+                            Adjuntar archivo
+                            <input
+                              type="file"
+                              className="d-none"
+                              onChange={(e) =>
+                                handleFileChange(campo, e.target.files[0])
+                              }
+                              disabled={isSubmitting}
+                              accept="image/*,.pdf"
+                            />
+                          </label>
+                        ) : (
+                          <>
+                            <span
+                              className="badge bg-success flex-grow-1 text-truncate"
+                              style={{ fontSize: '0.7rem', maxWidth: '150px' }}
+                              title={form[campo]?.nombreArchivo}
+                            >
+                              <i className="bi bi-check-circle me-1"></i>
+                              Archivo adjunto
+                            </span>
+                            <button
+                              type="button"
+                              className="btn btn-sm btn-danger"
+                              style={{
+                                fontSize: '0.7rem',
+                                padding: '0.2rem 0.4rem',
+                              }}
+                              onClick={() => handleRemoveFile(campo)}
+                              disabled={isSubmitting}
+                              title="Eliminar archivo"
+                            >
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+          </div>
+        );
 
+      case 3:
+        return (
+          <div className="fade-in">
             {/* PRESIONES */}
-            <h4 className="fw-bold mb-3 border-bottom pb-2 text-white mt-4">
+            <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
               <i className="bi bi-speedometer2 me-2"></i>
               Presiones
             </h4>
-            <div className="row g-3">
+
+            <div className="row g-4 mb-5">
               <div className="col-md-4">
                 <div className="form-group-pozos">
                   <label htmlFor="presion_unimap" className="form-label-pozos">
@@ -600,87 +856,202 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
             </div>
 
             {/* OBSERVACIONES */}
-            <h4 className="fw-bold mb-3 border-bottom pb-2 text-white mt-4">
+            <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
               <i className="bi bi-chat-left-text me-2"></i>
               Observaciones Adicionales
             </h4>
 
-            <div className="form-group-pozos mb-3">
-              <label
-                htmlFor="observaciones_acronex"
-                className="form-label-pozos"
-              >
-                <i className="bi bi-journal-text me-2"></i>
-                Observaciones ACRONEX
-              </label>
-              <textarea
-                id="observaciones_acronex"
-                className="form-control-pozos"
-                rows="3"
-                placeholder="Ingrese observaciones de ACRONEX..."
-                name="observaciones_acronex"
-                value={form.observaciones_acronex || ''}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
-            </div>
+            <div className="row g-4">
+              <div className="col-md-6">
+                <div className="form-group-pozos">
+                  <label
+                    htmlFor="observaciones_acronex"
+                    className="form-label-pozos"
+                  >
+                    <i className="bi bi-journal-text me-2"></i>
+                    Observaciones ACRONEX
+                  </label>
+                  <textarea
+                    id="observaciones_acronex"
+                    className="form-control-pozos"
+                    rows="4"
+                    placeholder="Ingrese observaciones de ACRONEX..."
+                    name="observaciones_acronex"
+                    value={form.observaciones_acronex || ''}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
 
-            <div className="form-group-pozos">
-              <label htmlFor="Observaciones" className="form-label-pozos">
-                <i className="bi bi-journal-text me-2"></i>
-                Observaciones Generales
-              </label>
-              <textarea
-                id="Observaciones"
-                className="form-control-pozos"
-                rows="3"
-                placeholder="Ingrese observaciones generales..."
-                name="Observaciones"
-                value={form.Observaciones || ''}
-                onChange={handleChange}
-                disabled={isSubmitting}
-              />
+              <div className="col-md-6">
+                <div className="form-group-pozos">
+                  <label htmlFor="Observaciones" className="form-label-pozos">
+                    <i className="bi bi-journal-text me-2"></i>
+                    Observaciones Generales
+                  </label>
+                  <textarea
+                    id="Observaciones"
+                    className="form-control-pozos"
+                    rows="4"
+                    placeholder="Ingrese observaciones generales..."
+                    name="Observaciones"
+                    value={form.Observaciones || ''}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </div>
             </div>
+          </div>
+        );
 
-            {/* FOOTER */}
-            <div className="modal-footer-pozos mt-4">
-              <button
-                type="button"
-                className="btn-cancelar-pozos"
-                onClick={onClose}
-                disabled={isSubmitting}
-              >
-                <i className="bi bi-x-circle me-2"></i>
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="btn-guardar-pozos"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-check-circle me-2"></i>
-                    {form?.id ? 'Actualizar' : 'Crear Calibración'}
-                  </>
-                )}
-              </button>
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <>
+      <div className="modal-overlay">
+        <div
+          className="modal-container"
+          style={{ maxWidth: '95vw', width: '95vw' }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* HEADER */}
+          <div className="modal-header-pozos">
+            <div className="d-flex align-items-center gap-3">
+              <div className="modal-icon-container">
+                <i className="bi bi-gear-wide-connected"></i>
+              </div>
+              <div>
+                <h3 className="modal-title-pozos mb-1">
+                  {form?.id ? 'Editar Calibración' : 'Nueva Calibración'}
+                </h3>
+                <p className="modal-subtitle-pozos mb-0">
+                  {form?.id
+                    ? 'Modifica la información de la calibración'
+                    : 'Completa los datos de la nueva calibración'}
+                </p>
+              </div>
+            </div>
+            <button className="modal-close-btn" onClick={onClose}>
+              <i className="bi bi-x-lg"></i>
+            </button>
+          </div>
+
+          {/* BODY */}
+          <div
+            className="modal-body-pozos"
+            style={{ maxHeight: '70vh', overflowY: 'auto' }}
+          >
+            {errors.submit && (
+              <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
+                <i className="bi bi-exclamation-triangle-fill"></i>
+                {errors.submit}
+              </div>
+            )}
+
+            {/* Navegación por páginas */}
+            <PaginationNav
+              currentPage={currentPage}
+              totalPages={3}
+              onPageChange={handlePageChange}
+              errors={errors}
+            />
+
+            {/* Contenido de la página actual */}
+            {renderPageContent()}
+          </div>
+
+          {/* FOOTER */}
+          <div className="modal-footer-pozos">
+            <button
+              type="button"
+              className="btn-cancelar-pozos"
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              <i className="bi bi-x-circle me-2"></i>
+              Cancelar
+            </button>
+
+            <div className="d-flex gap-2">
+              {currentPage > 1 && (
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={isSubmitting}
+                >
+                  <i className="bi bi-chevron-left me-2"></i>
+                  Anterior
+                </button>
+              )}
+
+              {currentPage < 3 ? (
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={isSubmitting}
+                >
+                  Siguiente
+                  <i className="bi bi-chevron-right ms-2"></i>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-guardar-pozos"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle me-2"></i>
+                      {form?.id ? 'Actualizar' : 'Crear Calibración'}
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
 
       <Spinner msg={msg} loading={loading} />
+
+      {/* Estilos adicionales para animaciones */}
+      <style jsx>{`
+        .fade-in {
+          animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .recomendaciones-container {
+          font-size: 0.85rem;
+        }
+      `}</style>
     </>
   );
 };

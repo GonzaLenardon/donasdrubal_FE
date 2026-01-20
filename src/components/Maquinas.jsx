@@ -50,7 +50,7 @@ const Maquinas = ({ cliente_id }) => {
         borderRadius: '15px',
       }}
     >
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+      <div style={{ margin: '0 auto' }}>
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
@@ -323,7 +323,7 @@ const Maquinas = ({ cliente_id }) => {
                             }}
                             onClick={() =>
                               navigate(
-                                `/cliente/${cliente_id}/detalles/maquinas/${maq.id}/calibraciones`
+                                `/cliente/${cliente_id}/detalles/maquinas/${maq.id}/calibraciones`,
                               )
                             }
                           >
