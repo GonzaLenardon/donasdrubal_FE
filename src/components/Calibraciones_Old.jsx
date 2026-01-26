@@ -1,3 +1,5 @@
+/* versión vieja de view CALIBRACIONES
+ */
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { calibracionesMaquina } from '../api/calibraciones';
@@ -98,8 +100,6 @@ export const Calibraciones = () => {
     estado_limpiezaTanque: 'Limpieza de Tanque',
     estabilidadVerticalBotalon: 'Estabilidad Vertical Botalón',
     estado_pastillas: 'Pastillas',
-    mixer: 'Mixer',
-    secciones: 'Secciones',
   };
 
   const getEstadoColor = (estado) => {
@@ -134,21 +134,6 @@ export const Calibraciones = () => {
     return (
       colores[estado] || { bg: '#6b7280', border: '#9ca3af', color: '#ffffff' }
     );
-  };
-
-  const parseSecciones = (seccionesString) => {
-    if (!seccionesString) return {};
-
-    try {
-      let parsed = JSON.parse(seccionesString);
-      if (typeof parsed === 'string') {
-        parsed = JSON.parse(parsed);
-      }
-      return parsed || {};
-    } catch (error) {
-      console.error('Error parseando secciones:', error);
-      return {};
-    }
   };
 
   const toggle = (i) => {
@@ -934,177 +919,6 @@ export const Calibraciones = () => {
                               </tbody>
                             </table>
                           </div>
-
-                          {cal.secciones &&
-                            Object.keys(parseSecciones(cal.secciones)).length >
-                              0 && (
-                              <div className="mt-4">
-                                <div
-                                  className="p-3"
-                                  style={{
-                                    background: 'rgba(139, 92, 246, 0.1)',
-                                    borderRadius: '10px',
-                                    border: '1px solid rgba(139, 92, 246, 0.3)',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                                  }}
-                                >
-                                  <h6 className="fw-bold text-white mb-3">
-                                    <i className="bi bi-list-ol me-2"></i>
-                                    Secciones y Presiones por Zona
-                                  </h6>
-
-                                  <div
-                                    className="table-responsive"
-                                    style={{
-                                      background: 'rgba(255, 255, 255, 0.05)',
-                                      borderRadius: '8px',
-                                      overflow: 'hidden',
-                                    }}
-                                  >
-                                    <table className="table table-dark table-sm table-hover mb-0">
-                                      <thead
-                                        style={{
-                                          background: 'rgba(139, 92, 246, 0.2)',
-                                        }}
-                                      >
-                                        <tr>
-                                          <th
-                                            style={{
-                                              width: '40%',
-                                              padding: '0.75rem 1rem',
-                                              fontSize: '0.85rem',
-                                              fontWeight: '700',
-                                            }}
-                                          >
-                                            <i className="bi bi-hash me-2"></i>
-                                            Sección
-                                          </th>
-                                          <th
-                                            style={{
-                                              width: '60%',
-                                              padding: '0.75rem 1rem',
-                                              fontSize: '0.85rem',
-                                              fontWeight: '700',
-                                            }}
-                                          >
-                                            <i className="bi bi-speedometer me-2"></i>
-                                            Presión (bares)
-                                          </th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {Object.entries(
-                                          parseSecciones(cal.secciones),
-                                        )
-                                          .map(([seccion, presion]) => ({
-                                            seccion: parseInt(seccion),
-                                            presion: presion,
-                                          }))
-                                          .sort((a, b) => a.seccion - b.seccion)
-                                          .map(({ seccion, presion }) => (
-                                            <tr
-                                              key={seccion}
-                                              style={{
-                                                borderBottom:
-                                                  '1px solid rgba(255, 255, 255, 0.05)',
-                                              }}
-                                            >
-                                              <td
-                                                style={{
-                                                  padding: '0.75rem 1rem',
-                                                  verticalAlign: 'middle',
-                                                }}
-                                              >
-                                                <span
-                                                  className="badge bg-primary me-2"
-                                                  style={{
-                                                    fontSize: '0.75rem',
-                                                    padding: '0.4rem 0.6rem',
-                                                  }}
-                                                >
-                                                  {seccion}
-                                                </span>
-                                                <span
-                                                  className="text-white fw-semibold"
-                                                  style={{
-                                                    fontSize: '0.85rem',
-                                                  }}
-                                                >
-                                                  Sección {seccion}
-                                                </span>
-                                              </td>
-                                              <td
-                                                style={{
-                                                  padding: '0.75rem 1rem',
-                                                  verticalAlign: 'middle',
-                                                }}
-                                              >
-                                                <span
-                                                  className="badge"
-                                                  style={{
-                                                    backgroundColor:
-                                                      'rgba(139, 92, 246, 0.3)',
-                                                    border:
-                                                      '1px solid rgba(139, 92, 246, 0.5)',
-                                                    color: '#fff',
-                                                    fontSize: '0.8rem',
-                                                    padding: '0.4rem 0.8rem',
-                                                    fontWeight: '600',
-                                                  }}
-                                                >
-                                                  <i className="bi bi-speedometer2 me-1"></i>
-                                                  {presion} bares
-                                                </span>
-                                              </td>
-                                            </tr>
-                                          ))}
-                                      </tbody>
-                                      <tfoot
-                                        style={{
-                                          background:
-                                            'rgba(139, 92, 246, 0.15)',
-                                        }}
-                                      >
-                                        <tr>
-                                          <td
-                                            colSpan="2"
-                                            className="text-end fw-bold"
-                                            style={{
-                                              padding: '0.75rem 1rem',
-                                              fontSize: '0.8rem',
-                                              color: '#c4b5fd',
-                                            }}
-                                          >
-                                            <i className="bi bi-list-check me-2"></i>
-                                            Total de secciones:{' '}
-                                            {
-                                              Object.keys(
-                                                parseSecciones(cal.secciones),
-                                              ).length
-                                            }
-                                            {' | '}
-                                            Promedio:{' '}
-                                            {(
-                                              Object.values(
-                                                parseSecciones(cal.secciones),
-                                              ).reduce(
-                                                (acc, val) =>
-                                                  acc + parseFloat(val),
-                                                0,
-                                              ) /
-                                              Object.keys(
-                                                parseSecciones(cal.secciones),
-                                              ).length
-                                            ).toFixed(2)}{' '}
-                                            bares
-                                          </td>
-                                        </tr>
-                                      </tfoot>
-                                    </table>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
 
                           {/* Información adicional (presiones y observaciones ACRONEX) */}
                           {(cal.presion_unimap ||
