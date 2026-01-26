@@ -2,7 +2,7 @@ import instance from './axios';
 
 export const calibracionesMaquina = async (maquina_id, cliente_id) => {
   const res = await instance.get(
-    `/cliente/${cliente_id}/maquinas/${maquina_id}/calibraciones`
+    `/cliente/${cliente_id}/maquinas/${maquina_id}/calibraciones`,
   );
 
   return res.data;
@@ -15,6 +15,7 @@ export const addCalibraciones = async (maquina) => {
 };
 
 export const upCalibraciones = async (id, maquina) => {
+  console.log('que envio', maquina);
   const res = await instance.put(`/calibraciones/${id}`, maquina);
 
   return res.data;
