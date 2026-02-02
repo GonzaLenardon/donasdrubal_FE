@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { addCliente, allCliente, upCliente } from '../api/clientes.js';
 import Spinner from './Spinner.jsx';
-
 import { useNavigate } from 'react-router-dom';
 import { allIngenieros } from '../api/users.js';
+import { allTipoClientes } from '../api/tipoClientes.js';
 
 const Clientes = () => {
   const [clienteList, setClienteList] = useState([]);
   const [ingenieros, setIngenieros] = useState([]);
+  const [tipoClientes, setTipoClientes] = useState([]);
+  const [ingenierosSeleccionados, setIngenierosSeleccionados] = useState([]);
+  const [ingenieroPlrincipal, setIngenieroPlrincipal] = useState(null);
   const [errors, setErrors] = useState({});
   const [modal, setModal] = useState(false);
+  const [modalValidacion, setModalValidacion] = useState(false); // ✅ NUEVO
   const [newCliente, SetNewCliente] = useState({});
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,6 +24,7 @@ const Clientes = () => {
     const all = async () => {
       getAllCliente();
       getAllIngenieros();
+      getAllTipoClientes();
     };
     all();
   }, []);
@@ -44,10 +49,19 @@ const Clientes = () => {
     }
   };
 
+  const getAllTipoClientes = async () => {
+    try {
+      const resp = await allTipoClientes();
+      console.log('Ingeniero', resp.data);
+      setTipoClientes(resp.data);
+    } catch (error) {
+      console.error('Error al traer Tipo Clientes:', error.data);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
-    // Campos requeridos
     if (!newCliente.razon_social?.trim()) {
       newErrors.razon_social = 'La razón social es requerida';
     }
@@ -92,21 +106,22 @@ const Clientes = () => {
       newErrors.estado = 'Debe seleccionar un estado';
     }
 
-    if (!newCliente.ingeniero_id) {
-      newErrors.ingeniero_id = 'Debe asignar un ingeniero';
+    if (ingenierosSeleccionados.length === 0) {
+      newErrors.ingenieros = 'Debe asignar al menos un ingeniero';
+    }
+
+    if (ingenierosSeleccionados.length > 1 && !ingenieroPlrincipal) {
+      newErrors.ingeniero_principal = 'Debe seleccionar un ingeniero principal';
     }
 
     setErrors(newErrors);
 
-    if (Object.keys(newErrors).length > 0) {
-      return false;
-    }
-
-    return true;
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!validateForm()) {
+      setModalValidacion(true); // ✅ Mostrar modal de validación
       return;
     }
 
@@ -114,11 +129,26 @@ const Clientes = () => {
       setIsSubmitting(true);
       setLoading(true);
 
+      const dataToSend = {
+        ...newCliente,
+        ingenieros: ingenierosSeleccionados.map((userId) => ({
+          user_id: parseInt(userId),
+          es_principal:
+            ingenierosSeleccionados.length === 1
+              ? true
+              : parseInt(userId) === parseInt(ingenieroPlrincipal),
+        })),
+      };
+
+      delete dataToSend.ingeniero_id;
+
+      console.log('📤 Datos a enviar:', dataToSend);
+
       let resp;
       if (newCliente?.id) {
-        resp = await upCliente(newCliente);
+        resp = await upCliente(dataToSend);
       } else {
-        resp = await addCliente(newCliente);
+        resp = await addCliente(dataToSend);
       }
 
       setMsg(resp.mensaje);
@@ -139,6 +169,22 @@ const Clientes = () => {
   const modalUpCliente = (cliente) => {
     console.log('cliente a editar', cliente);
     SetNewCliente(cliente);
+
+    if (cliente.ingenieros?.length > 0) {
+      const ingenierosIds = cliente.ingenieros.map((ing) =>
+        ing.user_id.toString(),
+      );
+      setIngenierosSeleccionados(ingenierosIds);
+
+      const principal = cliente.ingenieros.find((ing) => ing.es_principal);
+      if (principal) {
+        setIngenieroPlrincipal(principal.user_id.toString());
+      }
+    } else {
+      setIngenierosSeleccionados([]);
+      setIngenieroPlrincipal(null);
+    }
+
     setErrors({});
     setModal(true);
   };
@@ -148,23 +194,64 @@ const Clientes = () => {
     console.log(name, value);
     SetNewCliente((prev) => ({ ...prev, [name]: value }));
 
-    // Limpiar error del campo cuando el usuario escribe
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  useEffect(() => {
+    console.log('Nuevo Cliente', newCliente);
+  }, [newCliente]);
+
+  // ✅ Manejar checkbox de ingeniero
+  const handleIngenierosCheckbox = (ingenieroId) => {
+    const idStr = ingenieroId.toString();
+
+    if (ingenierosSeleccionados.includes(idStr)) {
+      // Deseleccionar
+      const nuevosSeleccionados = ingenierosSeleccionados.filter(
+        (id) => id !== idStr,
+      );
+      setIngenierosSeleccionados(nuevosSeleccionados);
+
+      // Si era el principal, limpiar
+      if (ingenieroPlrincipal === idStr) {
+        setIngenieroPlrincipal(
+          nuevosSeleccionados.length === 1 ? nuevosSeleccionados[0] : null,
+        );
+      }
+    } else {
+      // Seleccionar
+      const nuevosSeleccionados = [...ingenierosSeleccionados, idStr];
+      setIngenierosSeleccionados(nuevosSeleccionados);
+
+      // Si es el primero, hacerlo principal automáticamente
+      if (nuevosSeleccionados.length === 1) {
+        setIngenieroPlrincipal(idStr);
+      }
+    }
+
+    if (errors.ingenieros) {
+      setErrors((prev) => ({ ...prev, ingenieros: '' }));
+    }
+  };
+
+  // ✅ Manejar radio de ingeniero principal
+  const handleIngenioPrincipalRadio = (ingenieroId) => {
+    setIngenieroPlrincipal(ingenieroId.toString());
+
+    if (errors.ingeniero_principal) {
+      setErrors((prev) => ({ ...prev, ingeniero_principal: '' }));
     }
   };
 
   const modalClose = () => {
     setModal(false);
     SetNewCliente({});
+    setIngenierosSeleccionados([]);
+    setIngenieroPlrincipal(null);
     setErrors({});
   };
-
-  /*   const handleVer = async (cliente) => {
-    navigate(`/cliente/${cliente.id}/detalles`, {
-      state: { cliente: cliente },
-    });
-  }; */
 
   const handleVer = (cliente) => {
     localStorage.setItem(
@@ -178,15 +265,13 @@ const Clientes = () => {
     navigate(`/cliente/${cliente.id}/detalles`);
   };
 
-  useEffect(() => {
-    console.log('New Cliente', newCliente);
-  }, [newCliente]);
+  // ✅ Contar errores para el modal
+  const cantidadErrores = Object.keys(errors).length;
 
   return (
     <>
       <div
         style={{
-          /*  minHeight: '100vh', */
           background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           padding: '2rem',
           borderRadius: '15px',
@@ -206,6 +291,8 @@ const Clientes = () => {
               className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
               onClick={() => {
                 SetNewCliente({});
+                setIngenierosSeleccionados([]);
+                setIngenieroPlrincipal(null);
                 setErrors({});
                 setModal(true);
               }}
@@ -215,6 +302,7 @@ const Clientes = () => {
             </button>
           </div>
 
+          {/* TABLA */}
           <div
             className="rounded shadow-lg"
             style={{
@@ -247,50 +335,43 @@ const Clientes = () => {
                       className="text-white fw-semibold py-2 px-3"
                       style={{ fontSize: '0.875rem' }}
                     >
-                      <i className="bi bi-person-badge me-2"></i>
-                      Nombre
+                      <i className="bi bi-person-badge me-2"></i>Nombre
                     </th>
                     <th
                       className="text-white fw-semibold py-2 px-3"
                       style={{ fontSize: '0.875rem' }}
                     >
-                      <i className="bi bi-geo-alt me-2"></i>
-                      Domicilio
+                      <i className="bi bi-geo-alt me-2"></i>Domicilio
                     </th>
                     <th
                       className="text-white fw-semibold py-2 px-3"
                       style={{ fontSize: '0.875rem' }}
                     >
-                      <i className="bi bi-envelope-at me-2"></i>
-                      Email
+                      <i className="bi bi-envelope-at me-2"></i>Email
                     </th>
                     <th
                       className="text-white fw-semibold py-2 px-3"
                       style={{ fontSize: '0.875rem' }}
                     >
-                      <i className="bi bi-telephone me-2"></i>
-                      Teléfono
+                      <i className="bi bi-telephone me-2"></i>Teléfono
                     </th>
                     <th
                       className="text-white fw-semibold py-2 px-3"
                       style={{ fontSize: '0.875rem' }}
                     >
-                      <i className="bi bi-toggle-on me-2"></i>
-                      Estado
+                      <i className="bi bi-people me-2"></i>Ingenieros
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-toggle-on me-2"></i>Estado
                     </th>
                     <th
                       className="text-white fw-semibold py-2 px-3 text-center"
                       style={{ fontSize: '0.875rem' }}
                     >
-                      <i className="bi bi-tags me-2"></i>
-                      Categoría
-                    </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3 text-center"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-gear me-2"></i>
-                      Acciones
+                      <i className="bi bi-gear me-2"></i>Acciones
                     </th>
                   </tr>
                 </thead>
@@ -302,13 +383,6 @@ const Clientes = () => {
                       style={{
                         borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                         transition: 'background 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          'rgba(102, 126, 234, 0.1)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
                       }}
                     >
                       <td className="py-2 px-3">
@@ -343,20 +417,46 @@ const Clientes = () => {
                           {cliente.telefono}
                         </span>
                       </td>
-                      <td className="py-2 px-3 text-center">
-                        <span
-                          className="fw-semibold text-white"
-                          style={{ fontSize: '0.85rem' }}
-                        >
-                          {cliente.estado}
-                        </span>
+                      <td className="py-2 px-3">
+                        {cliente.ingenieros && cliente.ingenieros.length > 0 ? (
+                          <div className="d-flex flex-column gap-1">
+                            {cliente.ingenieros.map((ing) => (
+                              <span
+                                key={ing.user_id}
+                                className="badge"
+                                style={{
+                                  background: ing.es_principal
+                                    ? 'rgba(34, 197, 94, 0.2)'
+                                    : 'rgba(102, 126, 234, 0.2)',
+                                  color: ing.es_principal
+                                    ? '#4ade80'
+                                    : '#93c5fd',
+                                  border: `1px solid ${ing.es_principal ? 'rgba(34, 197, 94, 0.3)' : 'rgba(102, 126, 234, 0.3)'}`,
+                                  fontSize: '0.75rem',
+                                }}
+                              >
+                                {ing.es_principal && (
+                                  <i className="bi bi-star-fill me-1"></i>
+                                )}
+                                {ing.nombre}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span
+                            className="text-white-50"
+                            style={{ fontSize: '0.75rem' }}
+                          >
+                            Sin asignar
+                          </span>
+                        )}
                       </td>
                       <td className="py-2 px-3 text-center">
                         <span
                           className="fw-semibold text-white"
                           style={{ fontSize: '0.85rem' }}
                         >
-                          {cliente.categoria}
+                          {cliente.estado}
                         </span>
                       </td>
                       <td className="py-2 px-3">
@@ -399,17 +499,23 @@ const Clientes = () => {
               </table>
             </div>
           </div>
-
-          <Spinner loading={loading} msg={msg} />
         </div>
       </div>
-      {/* Modal con diseño optimizado y ancho aumentado */}
+
+      {/* ============================================================ */}
+      {/* MODAL PRINCIPAL - FORMULARIO */}
+      {/* ============================================================ */}
       {modal && (
         <div className="modal-overlay">
           <div
             className="modal-container"
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '1200px', width: '95%', height: '100%' }}
+            style={{
+              maxWidth: '1200px',
+              width: '95%',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }}
           >
             {/* Header */}
             <div className="modal-header-pozos">
@@ -447,15 +553,13 @@ const Clientes = () => {
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="razon_social" className="form-label-pozos">
-                      <i className="bi bi-building me-2"></i>Razón Social
+                      <i className="bi bi-building me-2"></i>Razón Social *
                     </label>
                     <input
                       type="text"
                       id="razon_social"
                       name="razon_social"
-                      className={`form-control-pozos ${
-                        errors.razon_social ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.razon_social ? 'is-invalid' : ''}`}
                       placeholder="Ingrese razón social"
                       value={newCliente?.razon_social || ''}
                       onChange={handleCliente}
@@ -477,15 +581,13 @@ const Clientes = () => {
                       className="form-label-pozos"
                     >
                       <i className="bi bi-geo-alt-fill me-2"></i>Domicilio
-                      Fiscal
+                      Fiscal *
                     </label>
                     <input
                       type="text"
                       id="direccion_fiscal"
                       name="direccion_fiscal"
-                      className={`form-control-pozos ${
-                        errors.direccion_fiscal ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.direccion_fiscal ? 'is-invalid' : ''}`}
                       placeholder="Calle, número, código postal"
                       value={newCliente?.direccion_fiscal || ''}
                       onChange={handleCliente}
@@ -524,15 +626,13 @@ const Clientes = () => {
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="ciudad" className="form-label-pozos">
-                      <i className="bi bi-building-fill-add me-2"></i>Ciudad
+                      <i className="bi bi-building-fill-add me-2"></i>Ciudad *
                     </label>
                     <input
                       type="text"
                       id="ciudad"
                       name="ciudad"
-                      className={`form-control-pozos ${
-                        errors.ciudad ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.ciudad ? 'is-invalid' : ''}`}
                       placeholder="Ej: Paraná"
                       value={newCliente?.ciudad || ''}
                       onChange={handleCliente}
@@ -550,15 +650,13 @@ const Clientes = () => {
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="provincia" className="form-label-pozos">
-                      <i className="bi bi-map me-2"></i>Provincia
+                      <i className="bi bi-map me-2"></i>Provincia *
                     </label>
                     <input
                       type="text"
                       id="provincia"
                       name="provincia"
-                      className={`form-control-pozos ${
-                        errors.provincia ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.provincia ? 'is-invalid' : ''}`}
                       placeholder="Ej: Entre Ríos"
                       value={newCliente?.provincia || ''}
                       onChange={handleCliente}
@@ -576,15 +674,13 @@ const Clientes = () => {
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="pais" className="form-label-pozos">
-                      <i className="bi bi-globe me-2"></i>País
+                      <i className="bi bi-globe me-2"></i>País *
                     </label>
                     <input
                       type="text"
                       id="pais"
                       name="pais"
-                      className={`form-control-pozos ${
-                        errors.pais ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.pais ? 'is-invalid' : ''}`}
                       placeholder="Ej: Argentina"
                       value={newCliente?.pais || ''}
                       onChange={handleCliente}
@@ -600,20 +696,18 @@ const Clientes = () => {
                 </div>
               </div>
 
-              {/* Fila 3: CUIL/CUIT, Condición IVA */}
+              {/* Fila 3: CUIL/CUIT, Condición IVA, Teléfono */}
               <div className="row g-3">
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="cuil_cuit" className="form-label-pozos">
-                      <i className="bi bi-card-text me-2"></i>CUIL / CUIT
+                      <i className="bi bi-card-text me-2"></i>CUIL / CUIT *
                     </label>
                     <input
                       type="text"
                       id="cuil_cuit"
                       name="cuil_cuit"
-                      className={`form-control-pozos ${
-                        errors.cuil_cuit ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.cuil_cuit ? 'is-invalid' : ''}`}
                       placeholder="XX-XXXXXXXX-X"
                       value={newCliente?.cuil_cuit || ''}
                       onChange={handleCliente}
@@ -631,14 +725,12 @@ const Clientes = () => {
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="iva_id" className="form-label-pozos">
-                      <i className="bi bi-receipt me-2"></i>Condición IVA
+                      <i className="bi bi-receipt me-2"></i>Condición IVA *
                     </label>
                     <select
                       id="iva_id"
                       name="iva_id"
-                      className={`form-control-pozos ${
-                        errors.iva_id ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.iva_id ? 'is-invalid' : ''}`}
                       value={newCliente?.iva_id || ''}
                       onChange={handleCliente}
                       disabled={isSubmitting}
@@ -660,15 +752,13 @@ const Clientes = () => {
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="telefono" className="form-label-pozos">
-                      <i className="bi bi-telephone-fill me-2"></i>Teléfono
+                      <i className="bi bi-telephone-fill me-2"></i>Teléfono *
                     </label>
                     <input
                       type="text"
                       id="telefono"
                       name="telefono"
-                      className={`form-control-pozos ${
-                        errors.telefono ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.telefono ? 'is-invalid' : ''}`}
                       placeholder="+54 9 11 XXXX-XXXX"
                       value={newCliente?.telefono || ''}
                       onChange={handleCliente}
@@ -684,20 +774,18 @@ const Clientes = () => {
                 </div>
               </div>
 
-              {/* Fila 4: Teléfono, Email */}
+              {/* Fila 4: Email, Estado */}
               <div className="row g-3">
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="email" className="form-label-pozos">
-                      <i className="bi bi-envelope-fill me-2"></i>Email
+                      <i className="bi bi-envelope-fill me-2"></i>Email *
                     </label>
                     <input
                       type="email"
                       id="email"
                       name="email"
-                      className={`form-control-pozos ${
-                        errors.email ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.email ? 'is-invalid' : ''}`}
                       placeholder="ejemplo@email.com"
                       value={newCliente?.email || ''}
                       onChange={handleCliente}
@@ -715,14 +803,12 @@ const Clientes = () => {
                 <div className="col-md-4">
                   <div className="form-group-pozos">
                     <label htmlFor="estado" className="form-label-pozos">
-                      <i className="bi bi-toggle-on me-2"></i>Estado
+                      <i className="bi bi-toggle-on me-2"></i>Estado *
                     </label>
                     <select
                       id="estado"
                       name="estado"
-                      className={`form-control-pozos ${
-                        errors.estado ? 'is-invalid' : ''
-                      }`}
+                      className={`form-control-pozos ${errors.estado ? 'is-invalid' : ''}`}
                       value={newCliente?.estado || ''}
                       onChange={handleCliente}
                       disabled={isSubmitting}
@@ -739,39 +825,215 @@ const Clientes = () => {
                     )}
                   </div>
                 </div>
-
                 <div className="col-md-4">
                   <div className="form-group-pozos">
-                    <label htmlFor="ingeniero_id" className="form-label-pozos">
-                      <i className="bi bi-person-badge-fill me-2"></i>Ingeniero
-                      Asignado
+                    <label htmlFor="estado" className="form-label-pozos">
+                      <i className="bi bi-toggle-on me-2"></i>Tipo Cliente
                     </label>
                     <select
-                      id="ingeniero_id"
-                      name="ingeniero_id"
-                      className={`form-control-pozos ${
-                        errors.ingeniero_id ? 'is-invalid' : ''
-                      }`}
-                      value={newCliente?.ingeniero_id || ''}
+                      id="tipo_cliente_id"
+                      name="tipo_cliente_id"
+                      className={`form-control-pozos ${errors.tipoClientes ? 'is-invalid' : ''}`}
+                      value={newCliente?.tipo_cliente_id || ''}
                       onChange={handleCliente}
                       disabled={isSubmitting}
                     >
-                      <option value="">Seleccione...</option>
-                      {ingenieros.map((i) => (
-                        <option key={i.id} value={i.id}>
-                          {i.nombre}
-                        </option>
-                      ))}
+                      <option value="" disabled>
+                        Seleccione un tipo Cliente
+                      </option>
+                      {tipoClientes.map((tipo) => {
+                        return (
+                          <option value={tipo.id}>{tipo.tipoClientes}</option>
+                        );
+                      })}
                     </select>
-                    {errors.ingeniero_id && (
+                    {errors.tipo_cliente_id && (
                       <div className="invalid-feedback-pozos">
                         <i className="bi bi-exclamation-circle me-1"></i>
-                        {errors.ingeniero_id}
+                        {errors.tipo_cliente_id}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
+
+              {/* ============================================================ */}
+              {/* SECCIÓN INGENIEROS CON CHECKBOXES */}
+              {/* ============================================================ */}
+              <div className="row g-3">
+                <div className="col-12">
+                  <div className="form-group-pozos">
+                    <label className="form-label-pozos">
+                      <i className="bi bi-people-fill me-2"></i>
+                      Ingeniero(s) Asignado(s) *
+                    </label>
+
+                    <div
+                      className={`p-3 rounded ${errors.ingenieros ? 'border border-danger' : ''}`}
+                      style={{
+                        background: 'rgba(102, 126, 234, 0.05)',
+                        border: '1px solid rgba(102, 126, 234, 0.2)',
+                        maxHeight: '250px',
+                        overflowY: 'auto',
+                      }}
+                    >
+                      {ingenieros.map((ing) => {
+                        const isSelected = ingenierosSeleccionados.includes(
+                          ing.id.toString(),
+                        );
+                        const isPrincipal =
+                          ingenieroPlrincipal === ing.id.toString();
+
+                        return (
+                          <div
+                            key={ing.id}
+                            className="d-flex align-items-center justify-content-between p-2 mb-2 rounded"
+                            style={{
+                              background: isSelected
+                                ? 'rgba(102, 126, 234, 0.15)'
+                                : 'transparent',
+                              border: `1px solid ${isSelected ? 'rgba(102, 126, 234, 0.4)' : 'rgba(255, 255, 255, 0.1)'}`,
+                              transition: 'all 0.2s ease',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() => handleIngenierosCheckbox(ing.id)}
+                          >
+                            {/* Checkbox + Nombre */}
+                            <div className="d-flex align-items-center gap-2">
+                              <input
+                                type="checkbox"
+                                id={`ing-${ing.id}`}
+                                checked={isSelected}
+                                onChange={() => {}}
+                                style={{
+                                  width: '18px',
+                                  height: '18px',
+                                  cursor: 'pointer',
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <label
+                                htmlFor={`ing-${ing.id}`}
+                                style={{
+                                  cursor: 'pointer',
+                                  marginBottom: 0,
+                                  fontWeight: isSelected ? 600 : 400,
+                                }}
+                              >
+                                {ing.nombre}
+                              </label>
+                              {isPrincipal && (
+                                <span
+                                  className="badge"
+                                  style={{
+                                    background: 'rgba(34, 197, 94, 0.2)',
+                                    color: '#22c55e',
+                                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                                    fontSize: '0.7rem',
+                                  }}
+                                >
+                                  <i className="bi bi-star-fill me-1"></i>
+                                  Principal
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Radio para Principal (solo si está seleccionado y hay más de 1) */}
+                            {isSelected &&
+                              ingenierosSeleccionados.length > 1 && (
+                                <div
+                                  className="d-flex align-items-center gap-2"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <small className="text-muted">
+                                    ¿Principal?
+                                  </small>
+                                  <input
+                                    type="radio"
+                                    name="ingeniero_principal"
+                                    checked={isPrincipal}
+                                    onChange={() =>
+                                      handleIngenioPrincipalRadio(ing.id)
+                                    }
+                                    style={{
+                                      width: '16px',
+                                      height: '16px',
+                                      cursor: 'pointer',
+                                    }}
+                                  />
+                                </div>
+                              )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    <small className="text-muted mt-2 d-block">
+                      <i className="bi bi-info-circle me-1"></i>
+                      Selecciona uno o más ingenieros. Si seleccionas varios,
+                      marca cuál es el principal.
+                    </small>
+
+                    {errors.ingenieros && (
+                      <div className="invalid-feedback-pozos d-block">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.ingenieros}
+                      </div>
+                    )}
+
+                    {errors.ingeniero_principal && (
+                      <div className="invalid-feedback-pozos d-block">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.ingeniero_principal}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ✅ Vista previa de ingenieros seleccionados */}
+              {ingenierosSeleccionados.length > 0 && (
+                <div className="alert alert-success d-flex align-items-start gap-2 mb-3">
+                  <i className="bi bi-check-circle-fill fs-5 mt-1"></i>
+                  <div className="flex-grow-1">
+                    <strong className="d-block mb-2">
+                      {ingenierosSeleccionados.length} Ingeniero
+                      {ingenierosSeleccionados.length > 1 ? 's' : ''}{' '}
+                      Seleccionado
+                      {ingenierosSeleccionados.length > 1 ? 's' : ''}:
+                    </strong>
+                    <div className="d-flex flex-wrap gap-2">
+                      {ingenierosSeleccionados.map((ingId) => {
+                        const ing = ingenieros.find(
+                          (i) => i.id.toString() === ingId,
+                        );
+                        const esPrincipal = ingId === ingenieroPlrincipal;
+                        return ing ? (
+                          <span
+                            key={ing.id}
+                            className="badge d-flex align-items-center gap-1"
+                            style={{
+                              background: esPrincipal
+                                ? 'rgba(34, 197, 94, 0.2)'
+                                : 'rgba(59, 130, 246, 0.2)',
+                              color: esPrincipal ? '#22c55e' : '#3b82f6',
+                              border: `1px solid ${esPrincipal ? 'rgba(34, 197, 94, 0.3)' : 'rgba(59, 130, 246, 0.3)'}`,
+                              padding: '0.5rem 0.75rem',
+                              fontSize: '0.875rem',
+                            }}
+                          >
+                            {esPrincipal && <i className="bi bi-star-fill"></i>}
+                            {ing.nombre}
+                            {esPrincipal && (
+                              <small className="ms-1">(Principal)</small>
+                            )}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Fila 5: Notas */}
               <div className="form-group-pozos">
@@ -829,7 +1091,118 @@ const Clientes = () => {
         </div>
       )}
 
+      {/* ============================================================ */}
+      {/* MODAL DE VALIDACIÓN */}
+      {/* ============================================================ */}
+      {modalValidacion && (
+        <div className="modal-overlay" style={{ zIndex: 10000 }}>
+          <div
+            className="modal-container"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: '500px',
+              width: '90%',
+              animation: 'shake 0.5s',
+            }}
+          >
+            {/* Header */}
+            <div
+              className="modal-header-pozos"
+              style={{
+                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+              }}
+            >
+              <div className="d-flex align-items-center gap-3">
+                <div
+                  className="modal-icon-container"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.2)',
+                  }}
+                >
+                  <i className="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                  <h3 className="modal-title-pozos mb-1">Campos Incompletos</h3>
+                  <p className="modal-subtitle-pozos mb-0">
+                    Por favor, completa todos los campos requeridos
+                  </p>
+                </div>
+              </div>
+              <button
+                className="modal-close-btn"
+                onClick={() => setModalValidacion(false)}
+              >
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="modal-body-pozos">
+              <div className="alert alert-danger mb-3">
+                <div className="d-flex align-items-center gap-2 mb-3">
+                  <i className="bi bi-exclamation-circle-fill fs-4"></i>
+                  <div>
+                    <strong>
+                      Se encontraron {cantidadErrores} error
+                      {cantidadErrores > 1 ? 'es' : ''}:
+                    </strong>
+                  </div>
+                </div>
+
+                <ul className="mb-0 ps-4">
+                  {Object.entries(errors).map(([field, error]) => (
+                    <li key={field} className="mb-1">
+                      <strong>
+                        {field === 'razon_social' && 'Razón Social'}
+                        {field === 'direccion_fiscal' && 'Domicilio Fiscal'}
+                        {field === 'cuil_cuit' && 'CUIL/CUIT'}
+                        {field === 'iva_id' && 'Condición IVA'}
+                        {field === 'telefono' && 'Teléfono'}
+                        {field === 'email' && 'Email'}
+                        {field === 'ciudad' && 'Ciudad'}
+                        {field === 'provincia' && 'Provincia'}
+                        {field === 'pais' && 'País'}
+                        {field === 'estado' && 'Estado'}
+                        {field === 'ingenieros' && 'Ingenieros'}
+                        {field === 'ingeniero_principal' &&
+                          'Ingeniero Principal'}
+                      </strong>
+                      : {error}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="text-center">
+                <button
+                  className="btn-guardar-pozos"
+                  onClick={() => setModalValidacion(false)}
+                  style={{
+                    background:
+                      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  }}
+                >
+                  <i className="bi bi-arrow-left-circle me-2"></i>
+                  Volver al Formulario
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Spinner loading={loading} msg={msg} />
+
+      {/* ============================================================ */}
+      {/* ESTILOS PARA LA ANIMACIÓN */}
+      {/* ============================================================ */}
+      <style>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+          20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+      `}</style>
     </>
   );
 };
