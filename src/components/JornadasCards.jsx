@@ -48,7 +48,7 @@ const Jornadas = ({ cliente_id }) => {
               </p>
             </div>
             <button
-              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedJornada({ cliente_id });

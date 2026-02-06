@@ -60,7 +60,7 @@ const Maquinas = ({ cliente_id }) => {
             </p>
           </div>
           <button
-            className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
+            className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
             onClick={() => {
               setMaquinaEdit({ cliente_id: cliente_id });
               setModal(true);

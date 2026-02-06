@@ -1,6 +1,16 @@
 /* ============================================
    ESTILOS GLOBALES Y RESET
    ============================================ */
+:root {
+  --green-main: #4ade80;
+  --green-dark: #166534;
+  --green-soft: rgba(74, 222, 128, 0.2);
+  --green-border: rgba(74, 222, 128, 0.35);
+
+  --green-secondary: #22c55e;
+  --green-secondary-soft: rgba(34, 197, 94, 0.2);
+}
+
 
 #root {
   font-size: 1em;
@@ -137,6 +147,18 @@ body {
   flex-grow: 1;
   padding: 30px;
 }
+/* ============================================
+   BOTONES
+   ============================================ */
+
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+  #5a7f2c 0%,
+  #3f6b1a 100%
+  ) !important;
+}
+
 
 /* ============================================
    SIDEBAR
@@ -708,7 +730,7 @@ body {
    ============================================ */
 
 .modal-container {
-  background: linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%);
+  background: linear-gradient(145deg,   #5a7f2c 0%,  #3f6b1a 100% 100%);
   border-radius: 20px;
   max-width: 600px;
   width: 90%;
@@ -727,15 +749,15 @@ body {
   align-items: flex-start;
   background: linear-gradient(
     135deg,
-    rgba(102, 126, 234, 0.1) 0%,
-    rgba(118, 75, 162, 0.1) 100%
+    #5a7f2c 0%,
+    #3f6b1a 100%
   );
 }
 
 .modal-icon-container {
   width: 50px;
   height: 50px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg,   #5a7f2c 0%,  #3f6b1a 100% 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -843,14 +865,14 @@ body {
 }
 
 .btn-guardar-pozos {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5a7f2c 0%, #3f6b1a 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(90, 127, 44, 0.3);
 }
 
 .btn-guardar-pozos:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 16px rgba(90, 127, 44, 0.4);
 }
 
 .btn-cancelar-pozos:disabled,
@@ -997,9 +1019,9 @@ body {
 }
 
 .page-nav-btn.active {
-  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-  border-color: #0d6efd;
-  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.3);
+  background: linear-gradient(135deg, #5a7f2c 0%, #3f6b1a 100%);
+  border-color: #5a7f2c;
+  box-shadow: 0 4px 10px rgba(90, 127, 44, 0.3);
   transform: translateY(-2px);
 }
 
@@ -1278,7 +1300,11 @@ body {
 
 .pozos-wrapper,
 .calibracion-wrapper {
-  background: linear-gradient(135deg, #9b9eb1 0%, #c29be9 100%);
+  background: linear-gradient(
+    135deg,
+    #5a7f2c 0%,
+    #3f6b1a 100%
+  );
   padding: 2rem;
   border-radius: 15px;
 }
@@ -1299,14 +1325,7 @@ body {
   font-size: 0.875rem;
 }
 
-.pozos-btn-nuevo,
-.calibracion-btn-nuevo {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 600;
-}
+
 
 /* Grid de Pozos */
 .pozos-container {
@@ -1319,7 +1338,12 @@ body {
 .card_pozos,
 .card_calibracion,
 .card_calibracion_acordeon {
-  background: linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%);
+  background: linear-gradient(
+    145deg,
+    #5a7f2c 0%,
+    #3f6b1a 100%
+  );
+  border: 1px solid var(--green-border-soft);
   border-radius: 15px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -1340,7 +1364,7 @@ body {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, #5a7f2c 0%, #3f6b1a 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -1350,7 +1374,7 @@ body {
 .card_calibracion_acordeon:hover {
   transform: translateY(-6px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  border-color: rgba(102, 126, 234, 0.5);
+  border-color: var(--green-main);
 }
 
 .card_pozos:hover::before,
@@ -1365,7 +1389,65 @@ body {
   font-size: 1.1rem;
 }
 
-.pozo-estado-badge,
+/* ==========================
+   STATUS BADGES (GLOBAL)
+   ========================== */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  padding: 0.35rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  border: 2px solid transparent;
+  background-clip: padding-box;
+
+  transition: all 0.2s ease;
+}
+
+
+.pozo-estado-badge {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border: 2px solid transparent;
+}
+
+/* Estados */
+.estado-activo {
+  background-color: rgba(34, 197, 94, 0.25);
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.estado-inactivo {
+  background-color: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.estado-mantenimiento {
+  background-color: rgba(245, 158, 11, 0.25);
+  color: #f59e0b;
+  border-color: #f59e0b;
+}
+
+.estado-desconocido {
+  background-color: rgba(107, 114, 128, 0.25);
+  color: #9ca3af;
+  border-color: #6b7280;
+}
+
 .calibracion-estado-badge {
   font-size: 0.7rem;
   padding: 0.35rem 0.75rem;
@@ -1426,26 +1508,28 @@ body {
 
 .pozo-btn-ver,
 .calibracion-btn-ver {
-  background-color: rgba(59, 130, 246, 0.2);
-  color: #a0cafa;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background-color: var(--green-soft);
+  color: var(--green-main);
+  border: 1px solid var(--green-border);
   font-size: 0.75rem;
   padding: 0.4rem;
   transition: all 0.2s ease;
 }
 
 .pozo-btn-ver:hover,
-.calibracion-btn-ver:hover {
-  transform: scale(1.05);
-  filter: brightness(1.2);
-  background-color: rgba(59, 130, 246, 0.3);
-}
+.pozo-btn-editar:hover,
+.calibracion-btn-ver:hover,
+.pozo-btn-editar:hover {
+  filter: brightness(1.15);
 
+  background-color: rgba(34, 197, 94, 0.35);
+}
+.btn-editar,
 .pozo-btn-editar,
 .calibracion-btn-editar {
-  background-color: rgba(168, 85, 247, 0.2);
-  color: #d8b4fe;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background-color: var(--green-secondary-soft);
+  color: var(--green-secondary);
+  border: 1px solid rgba(34, 197, 94, 0.35);
   font-size: 0.75rem;
   padding: 0.4rem;
   transition: all 0.2s ease;
@@ -1455,7 +1539,17 @@ body {
 .calibracion-btn-editar:hover {
   transform: scale(1.05);
   filter: brightness(1.2);
-  background-color: rgba(168, 85, 247, 0.3);
+  background-color: rgba(34, 197, 94, 0.35);
+}
+
+.pozo-btn-nuevo,
+.calibracion-btn-nuevo {
+  background-color: var(--green-secondary-soft);
+  color: var(--green-secondary);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
 }
 
 /* ============================================
