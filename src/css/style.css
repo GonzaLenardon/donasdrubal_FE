@@ -1389,28 +1389,7 @@ body {
   font-size: 1.1rem;
 }
 
-/* ==========================
-   STATUS BADGES (GLOBAL)
-   ========================== */
 
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-
-  padding: 0.35rem 0.6rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  border-radius: 999px;
-
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-
-  border: 2px solid transparent;
-  background-clip: padding-box;
-
-  transition: all 0.2s ease;
-}
 
 
 .pozo-estado-badge {
@@ -1962,14 +1941,70 @@ body {
   font-weight: 600;
 }
 
-.badge-status {
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
+/* ==========================
+   GLOBAL STATUS BADGES
+   ========================== */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 0.35rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  /* 🔑 CLAVE PARA CONTRASTE */
+  color: #ffffff;
+
+  border: 1px solid transparent;
+
+  transition: all 0.2s ease;
 }
 
-.badge-status-bueno {
+
+/* ACTIVO */
+.status-active {
+  background-color: #16a34a;
+  border-color: #22c55e;
+}
+
+
+/* COMPLETADO / OK */
+.status-success {
+  background-color: #059669;
+  border-color: #10b981;
+}
+
+/* PENDIENTE / ALERTA */
+.status-pending {
+  background-color: #d97706;
+  border-color: #f59e0b;
+}
+
+/* INACTIVO */
+.status-inactive {
+  background-color: rgba(107, 114, 128, 0.25);
+  border-color: #6b7280;
+}
+
+/* ERROR */
+.status-error {
+  background-color: #dc2626;
+  border-color: #ef4444;
+}
+
+/* DESCONOCIDO */
+.status-unknown {
+  background-color: #6b7280;
+  border-color: #9ca3af;
+}
+
+
+/* .badge-status-bueno {
   background: #198754;
 }
 
@@ -1980,7 +2015,7 @@ body {
 
 .badge-status-malo {
   background: #dc3545;
-}
+} */
 
 /* ============================================
    ACCESIBILIDAD
