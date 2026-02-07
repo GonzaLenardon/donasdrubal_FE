@@ -42,14 +42,8 @@ const Maquinas = ({ cliente_id }) => {
   };
 
   return (
-    <div
-      style={{
-        /*  minHeight: '100vh', */
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '2rem',
-        borderRadius: '15px',
-      }}
-    >
+    <div className="maquinas-wrapper">
+
       <div style={{ margin: '0 auto' }}>
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -60,7 +54,7 @@ const Maquinas = ({ cliente_id }) => {
             </p>
           </div>
           <button
-            className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
+            className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
             onClick={() => {
               setMaquinaEdit({ cliente_id: cliente_id });
               setModal(true);
@@ -79,14 +73,7 @@ const Maquinas = ({ cliente_id }) => {
         )}
 
         {/* TABLA */}
-        <div
-          className="rounded shadow-lg"
-          style={{
-            background: 'linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            overflow: 'hidden',
-          }}
-        >
+        <div className="maquinas-table-wrapper rounded shadow-lg" >
           {loading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-white" role="status">
@@ -199,11 +186,7 @@ const Maquinas = ({ cliente_id }) => {
                       style={{
                         borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                         transition: 'background 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          'rgba(102, 126, 234, 0.1)';
-                      }}
+                      }}                      
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = 'transparent';
                       }}
@@ -302,25 +285,13 @@ const Maquinas = ({ cliente_id }) => {
                       <td className="py-2 px-3">
                         <div className="d-flex gap-2 justify-content-center">
                           <button
-                            className="btn btn-sm"
-                            style={{
-                              background: 'rgba(102, 126, 234, 0.2)',
-                              color: '#93c5fd',
-                              border: '1px solid rgba(102, 126, 234, 0.3)',
-                              padding: '0.3rem 0.8rem',
-                            }}
+                            className="btn btn-sm maquina-btn-editar"                            
                             onClick={() => handleEditarMaquina(maq)}
                           >
                             <i className="bi bi-pencil"></i>
                           </button>
                           <button
-                            className="btn btn-sm"
-                            style={{
-                              background: 'rgba(245, 158, 11, 0.2)',
-                              color: '#fbbf24',
-                              border: '1px solid rgba(245, 158, 11, 0.3)',
-                              padding: '0.3rem 0.8rem',
-                            }}
+                            className="btn btn-sm maquina-btn-ver"
                             onClick={() =>
                               navigate(
                                 `/cliente/${cliente_id}/detalles/maquinas/${maq.id}/calibraciones`,

@@ -49,13 +49,30 @@ const MuestrasPozos = () => {
   const formatFecha = (fecha) =>
     fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-';
 
-  const getValorColor = (valor, min, max) => {
-    if (valor === null || valor === undefined)
-      return { color: '#9ca3af', bg: 'rgba(156,163,175,0.15)' };
-    if (valor < min || valor > max)
-      return { color: '#ef4444', bg: 'rgba(239,68,68,0.2)' };
-    return { color: '#22c55e', bg: 'rgba(34,197,94,0.2)' };
+const getValorColor = (valor, min, max) => {
+  // Sin dato
+  if (valor === null || valor === undefined) {
+    return {
+      color: '#9ca3af',                 // gris claro legible
+      bg: 'rgba(156,163,175,0.12)',     // fondo neutro suave
+    };
+  }
+
+  // Fuera de rango (alerta)
+  if (valor < min || valor > max) {
+    return {
+      color: '#fecaca',                 // rojo claro (menos agresivo)
+      bg: 'rgba(220,38,38,0.25)',       // rojo profundo translúcido
+    };
+  }
+
+  // OK / dentro de rango
+  return {
+    color: '#d1fae5',                   // verde muy claro (excelente contraste)
+    bg: 'rgba(16,185,129,0.25)',        // verde esmeralda acorde a la paleta
   };
+};
+
 
   const getValorIcon = (valor, min, max) => {
     if (valor === null || valor === undefined) return '•';
@@ -152,14 +169,7 @@ const MuestrasPozos = () => {
           </div>
         </div>
 
-        <div
-          style={{
-            /*  minHeight: '100vh', */
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            padding: '2rem',
-            borderRadius: '15px',
-          }}
-        >
+        <div className="muestras-pozos-wrapper">
           <div style={{ margin: '0 auto' }}>
             {/* HEADER */}
             <div className="d-flex justify-content-between align-items-center mb-4">
@@ -171,12 +181,8 @@ const MuestrasPozos = () => {
               </div>
 
               <button
-                className="btn text-white"
-                style={{
-                  background: 'rgba(102,126,234,0.35)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  padding: '0.6rem 1.2rem',
-                }}
+                className="btn text-white d-flex align-items-center gap-2 shadow-lg muestra-pozo-btn-nuevo"
+
                 onClick={(e) => {
                   e.stopPropagation();
                   setMuestraEdit({ pozo_id: pozos_id });
@@ -219,39 +225,16 @@ const MuestrasPozos = () => {
             </div>
 
             {/* TABLA */}
-            <div
-              className="rounded shadow"
-              style={{
-                background: 'linear-gradient(145deg,#4a5d7c 0%,#3d4d69 100%)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                padding: '0.75rem',
-              }}
-            >
+            <div className="table-system rounded shadow-lg">
               {loading ? (
                 <div className="text-center text-white py-5">
                   <div className="spinner-border" />
                 </div>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
-                  <table
-                    className="table table-hover mb-0"
-                    style={{
-                      '--bs-table-bg': 'transparent',
-                      '--bs-table-accent-bg': 'transparent',
-                      '--bs-table-striped-bg': 'transparent',
-                      '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
-                      '--bs-table-color': '#ffffff',
-                      '--bs-table-border-color': 'rgba(255,255,255,0.15)',
-                    }}
-                  >
+                  <table className="table table-hover mb-0">
                     <thead>
-                      <tr
-                        style={{
-                          background:
-                            'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
-                          borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
-                        }}
-                      >
+                      <tr>      
                         <th
                           className="text-white fw-semibold py-2 px-3"
                           style={{ fontSize: '0.875rem' }}
@@ -313,19 +296,8 @@ const MuestrasPozos = () => {
 
                         return (
                           <tr
-                            key={m.id}
-                            style={{
-                              borderBottom:
-                                '1px solid rgba(255, 255, 255, 0.05)',
-                              transition: 'background 0.2s ease',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background =
-                                'rgba(102, 126, 234, 0.1)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = 'transparent';
-                            }}
+                            key={m.id}                          
+
                           >
                             {/* Fecha */}
                             <td className="py-2 px-3">
@@ -384,13 +356,8 @@ const MuestrasPozos = () => {
                             {/* Acciones */}
                             <td className="text-center py-2 px-3">
                               <button
-                                className="btn btn-sm"
-                                style={{
-                                  background: 'rgba(102, 126, 234, 0.2)',
-                                  color: '#93c5fd',
-                                  border: '1px solid rgba(102, 126, 234, 0.3)',
-                                  padding: '0.3rem 0.8rem',
-                                }}
+                                className="btn btn-sm maquina-btn-editar"
+                                
                                 onClick={() => handleEditarMuestra(m)}
                               >
                                 <i className="bi bi-pencil"></i>

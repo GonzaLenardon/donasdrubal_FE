@@ -28,10 +28,7 @@ const Pozos = ({ cliente_id }) => {
 
   return (
     <>
-      <div
-        className="pozos-wrapper"
-
-      >
+      <div  className="pozos-wrapper" >
         <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
 

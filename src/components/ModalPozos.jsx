@@ -22,7 +22,14 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
     if (!isOpen) return;
 
     if (pozo) {
-      setFormData(pozo);
+       setFormData({
+        id: pozo.id,
+        nombre: pozo.nombre ?? '',
+        establecimiento: pozo.establecimiento ?? '',
+        latitud: pozo.latitud ?? '',
+        longitud: pozo.longitud ?? '',
+        cliente_id: pozo.cliente_id ?? '',
+      });
     } else {
       // Modo crear
       resetForm();
@@ -82,15 +89,16 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
       newErrors.longitud = 'Debe ser un número válido';
     }
 
-    /*    if (!formData.cliente_id) {
-      newErrors.cliente_id = 'El cliente es requerido';
-    } */
+    // if (!formData.cliente_id) {
+    //   newErrors.cliente_id = 'El cliente es requerido';
+    // } 
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
+    e?.preventDefault();
     if (!validateForm()) {
       return;
     }
@@ -104,7 +112,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
         ...formData,
         latitud: parseFloat(formData.latitud),
         longitud: parseFloat(formData.longitud),
-        cliente_id: parseInt(formData.cliente_id),
+        cliente_id: formData.cliente_id  ? parseInt(formData.cliente_id) : null,
       };
 
       console.log('Datos a enviar:', dataToSend);

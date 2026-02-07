@@ -14,5 +14,5 @@ export const getStatusClass = (estado) => {
     return 'status-unknown';
   }
 
-  return STATUS_CLASS_MAP[estado.toLowerCase()] || 'status-unknown';
+  return STATUS_CLASS_MAP[estado.trim().toLowerCase().replace(/\s+/g, '-')] || 'status-unknown';
 };
