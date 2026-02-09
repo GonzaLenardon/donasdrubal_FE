@@ -2,6 +2,8 @@ import { React, useEffect, useState } from 'react';
 import ModalPozos from './ModalPozos';
 import { clientePozos } from '../api/pozos';
 import { useNavigate } from 'react-router-dom';
+import { getStatusClass } from '../utils/statusMap';
+
 
 const Pozos = ({ cliente_id }) => {
   const [selectedPozo, setSelectedPozo] = useState(null);
@@ -12,15 +14,6 @@ const Pozos = ({ cliente_id }) => {
   useEffect(() => {
     getPozos();
   }, []);
-
-  const getEstadoColor = (estado) => {
-    const colors = {
-      Activo: { bg: '#22c55e', border: '#16a34a' },
-      Inactivo: { bg: '#ef4444', border: '#dc2626' },
-      Mantenimiento: { bg: '#f59e0b', border: '#d97706' },
-    };
-    return colors[estado] || { bg: '#6b7280', border: '#4b5563' };
-  };
 
   const getPozos = async () => {
     try {
@@ -35,14 +28,7 @@ const Pozos = ({ cliente_id }) => {
 
   return (
     <>
-      <div
-        style={{
-          /*  minHeight: '100vh', */
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          padding: '2rem',
-          borderRadius: '15px',
-        }}
-      >
+      <div  className="pozos-wrapper" >
         <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
 
@@ -54,7 +40,7 @@ const Pozos = ({ cliente_id }) => {
               </p>
             </div>
             <button
-              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedPozo({ cliente_id });
@@ -69,8 +55,6 @@ const Pozos = ({ cliente_id }) => {
           {/* GRID DE POZOS */}
           <div className="pozos-container">
             {pozos.map((pozo) => {
-              const estadoColor = getEstadoColor(pozo.estado);
-
               return (
                 <div
                   className="card_pozos"
@@ -83,15 +67,10 @@ const Pozos = ({ cliente_id }) => {
                       <h5 className="fw-bold text-white mb-1 pozo-nombre">
                         {pozo.nombre}
                       </h5>
-                      <span
-                        className="badge pozo-estado-badge"
-                        style={{
-                          backgroundColor: estadoColor.bg,
-                          border: `2px solid ${estadoColor.border}`,
-                        }}
-                      >
-                        {pozo.estado}
+                      <span className={`status-badge ${getStatusClass(pozo.estado)}`}>
+                        {pozo.estado || 'Desconocido'}
                       </span>
+
                     </div>
                     <div className="pozo-id-badge">
                       <span className="fw-bold pozo-id-text">#{pozo.id}</span>

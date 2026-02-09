@@ -270,25 +270,19 @@ const Clientes = () => {
 
   return (
     <>
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          padding: '2rem',
-          borderRadius: '15px',
-        }}
-      >
+      <div className="clientes-wrapper" >
         <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
-          <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="page-header">
             <div>
-              <h2 className="fw-bold text-white mb-1">Clientes</h2>
-              <p className="text-white-50 mb-0">
+              <h2 className="page-title">Clientes</h2>
+              <p className="page-subtitle">
                 {clienteList.length} Clientes registrados
               </p>
             </div>
 
             <button
-              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozos-btn-nuevo"
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
               onClick={() => {
                 SetNewCliente({});
                 setIngenierosSeleccionados([]);
@@ -303,26 +297,10 @@ const Clientes = () => {
           </div>
 
           {/* TABLA */}
-          <div
-            className="rounded shadow-lg"
-            style={{
-              background: 'linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              overflow: 'hidden',
-            }}
-          >
+          <div className="table-system rounded shadow-lg">
+           
             <div style={{ overflowX: 'auto' }}>
-              <table
-                className="table table-hover mb-0"
-                style={{
-                  '--bs-table-bg': 'transparent',
-                  '--bs-table-accent-bg': 'transparent',
-                  '--bs-table-striped-bg': 'transparent',
-                  '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
-                  '--bs-table-color': '#ffffff',
-                  '--bs-table-border-color': 'rgba(255,255,255,0.15)',
-                }}
-              >
+              <table className="table table-hover mb-0" >
                 <thead>
                   <tr
                     style={{

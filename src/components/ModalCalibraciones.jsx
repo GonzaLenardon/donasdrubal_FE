@@ -278,7 +278,9 @@ const ORingToggle = ({ value, onChange, disabled }) => {
         </button>
         <div className="toggle-label">
           <span
-            className={`badge ${isPresent ? 'bg-success' : 'bg-secondary'}`}
+            className={`badge-soft ${
+              isPresent ? 'badge-soft-success' : 'badge-soft-warning'
+            }`}
           >
             <i
               className={`bi ${isPresent ? 'bi-check-circle-fill' : 'bi-x-circle'} me-1`}
@@ -1597,7 +1599,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               ) : (
                 <button
                   type="button"
-                  className="btn-guardar-pozos"
+                  className="btn-guardar-calibraciones"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                 >

@@ -184,49 +184,23 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.7)',
-        backdropFilter: 'blur(4px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999,
-      }}
-    >
+    <div className="modal-overlay">
       <div
-        className="rounded shadow-lg"
-        style={{
-          background: 'linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%)',
-          maxWidth: '800px',
-          width: '90%',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-        }}
+        className="modal-container rounded shadow-lg"
+        
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div
-          className="p-4 border-bottom d-flex justify-content-between align-items-start"
-          style={{
-            borderColor: 'rgba(255, 255, 255, 0.1) !important',
-            background:
-              'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
-          }}
-        >
+        <div className="modal-header p-4 d-flex justify-content-between align-items-start">
+          
           <div className="d-flex align-items-center gap-3">
             <div
               className="rounded d-flex align-items-center justify-content-center"
               style={{
                 width: '50px',
                 height: '50px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+
                 fontSize: '1.5rem',
                 color: 'white',
               }}
@@ -282,13 +256,13 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
           <div
             className="p-3 rounded mb-4"
             style={{
-              background: 'rgba(0, 0, 0, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
+              background: 'rgba(15,23,42,0.6)',
+              border: '1px solid rgba(34,197,94,0.2)',
             }}
           >
             <h6
               className="fw-semibold text-white mb-3 pb-2"
-              style={{ borderBottom: '2px solid rgba(102, 126, 234, 0.3)' }}
+              style={{ borderBottom: '2px solid rgba(34,197,94,0.35)' }}
             >
               <i className="bi bi-calendar3 me-2"></i>
               Fechas
@@ -308,11 +282,6 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   className={`form-control ${
                     errors.fecha_muestra ? 'is-invalid' : ''
                   }`}
-                  style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                  }}
                   value={formData.fecha_muestra}
                   onChange={handleChange}
                   disabled={isSubmitting}
@@ -336,11 +305,6 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   type="date"
                   name="fecha_analisis"
                   className="form-control"
-                  style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                  }}
                   value={formData.fecha_analisis}
                   onChange={handleChange}
                   disabled={isSubmitting}
@@ -387,11 +351,6 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   step="0.1"
                   name="ph"
                   className={`form-control ${errors.ph ? 'is-invalid' : ''}`}
-                  style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                  }}
                   placeholder="6.5 - 8.5"
                   value={formData.ph}
                   onChange={handleChange}
@@ -430,11 +389,6 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   className={`form-control ${
                     errors.dureza ? 'is-invalid' : ''
                   }`}
-                  style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                  }}
                   placeholder="0 - 500"
                   value={formData.dureza}
                   onChange={handleChange}
@@ -477,11 +431,6 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   className={`form-control ${
                     errors.alcalinidad ? 'is-invalid' : ''
                   }`}
-                  style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                  }}
                   placeholder="0 - 500"
                   value={formData.alcalinidad}
                   onChange={handleChange}
@@ -524,11 +473,7 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   className={`form-control ${
                     errors.salinidad ? 'is-invalid' : ''
                   }`}
-                  style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                  }}
+
                   placeholder="0 - 1000"
                   value={formData.salinidad}
                   onChange={handleChange}
@@ -557,11 +502,7 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   className={`form-control ${
                     errors.fuerza_ionica ? 'is-invalid' : ''
                   }`}
-                  style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                  }}
+
                   placeholder="0.000"
                   value={formData.fuerza_ionica}
                   onChange={handleChange}

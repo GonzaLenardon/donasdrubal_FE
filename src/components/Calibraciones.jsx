@@ -264,13 +264,8 @@ export const Calibraciones = () => {
           </div>
 
           {/* CALIBRACIONES */}
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              padding: '2rem',
-              borderRadius: '15px',
-            }}
-          >
+          <div className="calibraciones-wrapper">
+
             <div style={{ margin: '0 auto' }}>
               {/* HEADER Y BOTÓN NUEVA CALIBRACION */}
               <div className="flex items-center justify-between mb-6">
