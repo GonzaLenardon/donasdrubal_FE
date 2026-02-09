@@ -24,7 +24,33 @@ export const upCliente = async (cliente) => {
   return res.data;
 };
 
-export const getCliente = async (id) => {
-  const resp = await instance.get(`/cliente/${id}`);
+export const getCliente = async (cliente_id) => {
+  const resp = await instance.get(`/cliente/${cliente_id}`);
   return resp.data;
 };
+
+
+export const getClienteStats = async (cliente_id) => {
+  const resp = await instance.get(`/cliente/${cliente_id}/stats`);
+   if (!resp.ok) throw new Error('Error al obtener estadísticas');
+  return resp.data;
+};
+
+export const getClienteServicesChart = async (cliente_id) => {
+  const resp = await instance.get(`/cliente/${cliente_id}/services-chart`);
+  return resp.data;
+};
+
+export const getClienteMachinesChart = async (cliente_id) => {
+  const resp = await instance.get(`/cliente/${cliente_id}/machines-chart`);
+  return resp.data;
+};
+
+export const getClienteUpcomingServices = async (cliente_id) => {
+  const resp = await instance.get(`/cliente/${cliente_id}/upcoming-services`);
+  return resp.data;
+};
+
+
+
+
