@@ -14,6 +14,7 @@ import MaquinaTipo from './components/MaquinasTipos.jsx';
 import DashboardLayout from './components/DashboardLayout.jsx';
 import Dash from './components/Dash.jsx';
 import MuestrasPozos from './components/MuestrasPozos.jsx';
+import Alertas from './components/Alertas.jsx';
 
 function App() {
   return (
@@ -46,6 +47,8 @@ function App() {
           <Route path="maquinas" element={<Maquinas />} />
           <Route path="varios" element={<Varios />} />
           <Route path="cliente" element={<Clientes />} />
+
+          <Route path="alertas" element={<Alertas />} />
 
           {/* Detalles */}
           <Route
