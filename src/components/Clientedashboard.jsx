@@ -18,7 +18,7 @@ import {
   getClienteServicesChart, 
   getClienteMachinesChart, 
   getClienteUpcomingServices 
-} from '../api/clientes_moks_errorgranular.js';
+} from '../api/clientes.js';
 
 // ==================== STATS CARD ====================
 const StatCard = ({ title, value, trendLabel, isPositive, icon: Icon, color }) => {
