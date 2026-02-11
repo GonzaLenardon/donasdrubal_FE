@@ -43,67 +43,54 @@ const ClienteDetalles = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
       <div className="mx-auto max-w-7xl">
         {/* ================= HEADER MODERNIZADO ================= */}
-        <div className="relative mb-8 rounded-2xl overflow-hidden bg-gradient-to-r from-[#2d5016] to-[#4a7c1f] shadow-xl">
-          {/* Decorative background pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
-          </div>
+<div className="cliente-header">
+  <div className="cliente-header-bg"></div>
 
-          <div className="relative z-10 p-8">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                <Building2 className="w-8 h-8 text-white" />
-              </div>
-              <div className="flex-1">
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                  {cliente?.razon_social}
-                </h1>
-                <p className="text-white/80 text-sm">
-                  Cliente activo desde {new Date().getFullYear() - 2}
-                </p>
-              </div>
-            </div>
+  <div className="cliente-header-content">
+    <div className="cliente-header-top">
+      <div className="cliente-header-icon">
+        <Building2 />
+      </div>
 
-            {/* Info Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3 mb-2">
-                  <Building2 className="text-white/80" size={18} />
-                  <p className="text-xs text-white/70 uppercase tracking-wider font-semibold">
-                    Razón Social
-                  </p>
-                </div>
-                <p className="text-white font-semibold text-lg">
-                  {cliente?.razon_social}
-                </p>
-              </div>
+      <div className="cliente-header-title">
+        <h1>{cliente?.razon_social}</h1>
+        <p>Cliente activo desde {new Date().getFullYear() - 2}</p>
+      </div>
+    </div>
 
-              <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3 mb-2">
-                  <Phone className="text-white/80" size={18} />
-                  <p className="text-xs text-white/70 uppercase tracking-wider font-semibold">
-                    Teléfono
-                  </p>
-                </div>
-                <p className="text-white font-semibold text-lg">
-                  {cliente?.telefono || 'No especificado'}
-                </p>
-              </div>
-
-              <div className="bg-white/15 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                <div className="flex items-center gap-3 mb-2">
-                  <MapPin className="text-white/80" size={18} />
-                  <p className="text-xs text-white/70 uppercase tracking-wider font-semibold">
-                    Localidad
-                  </p>
-                </div>
-                <p className="text-white font-semibold text-lg">
-                  {cliente?.localidad || 'Paraná, Entre Ríos'}
-                </p>
-              </div>
-            </div>
-          </div>
+    <div className="cliente-info-grid">
+      <div className="cliente-info-card">
+        <div className="cliente-info-label">
+          <Building2 size={18} />
+          <span>Razón Social</span>
         </div>
+        <p className="cliente-info-value">{cliente?.razon_social}</p>
+      </div>
+
+      <div className="cliente-info-card">
+        <div className="cliente-info-label">
+          <Phone size={18} />
+          <span>Teléfono</span>
+        </div>
+        <p className="cliente-info-value">
+          {cliente?.telefono || 'No especificado'}
+        </p>
+      </div>
+
+      <div className="cliente-info-card">
+        <div className="cliente-info-label">
+          <MapPin size={18} />
+          <span>Localidad</span>
+        </div>
+        <p className="cliente-info-value">
+          {cliente?.localidad || 'Paraná, Entre Ríos'}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
         {/* ================= TABS NAVIGATION ================= */}
         <div className="flex flex-wrap gap-2 mb-6 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
