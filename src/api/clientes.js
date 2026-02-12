@@ -32,7 +32,8 @@ export const getCliente = async (cliente_id) => {
 
 export const getClienteStats = async (cliente_id) => {
   const resp = await instance.get(`/cliente/${cliente_id}/stats`);
-   if (!resp.ok) throw new Error('Error al obtener estadísticas');
+  //  if (!resp.ok) throw new Error('Error al obtener estadísticas');
+   console.log('Stats obtenidas:', resp.data);
   return resp.data;
 };
 

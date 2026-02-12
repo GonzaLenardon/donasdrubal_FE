@@ -19,7 +19,13 @@ import {
   getClienteServicesChart,
   getClienteMachinesChart,
   getClienteUpcomingServices,
-} from '../api/clientes_moks_errorgranular.js';
+} from '../api/clientes.js';
+// import {
+//   getClienteStats,
+//   getClienteServicesChart,
+//   getClienteMachinesChart,
+//   getClienteUpcomingServices,
+// } from '../api/clientes_moks_errorgranular.js';
 
 // ==================== STATS CARD ====================
 const StatCard = ({ title, value, trendLabel, isPositive, icon: Icon, color }) => {
@@ -254,7 +260,8 @@ const ClienteDashboard = ({ cliente }) => {
       setErrors(prev => ({ ...prev, stats: null }));
       
       const stats = await getClienteStats(cliente.id);
-      setData(prev => ({ ...prev, stats }));
+      console.log('Stats obtenidas:', stats);
+      setData(prev => ({ ...prev, stats: stats.data }));
     } catch (err) {
       console.error('Error fetching stats:', err);
       setErrors(prev => ({ ...prev, stats: err.message }));
