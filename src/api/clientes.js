@@ -12,9 +12,9 @@ export const addCliente = async (cliente) => {
 };
 
 export const allCliente = async () => {
-  const resp = await instance.get(`/cliente`);
+  const res = await instance.get(`/cliente`);
 
-  return resp.data;
+  return res.data;
 };
 
 // ✅ MEJOR PRÁCTICA
@@ -25,31 +25,30 @@ export const upCliente = async (cliente) => {
 };
 
 export const getCliente = async (cliente_id) => {
-  const resp = await instance.get(`/cliente/${cliente_id}`);
-  return resp.data;
+  const res = await instance.get(`/cliente/${cliente_id}`);
+  return res.data;
 };
 
 
 export const getClienteStats = async (cliente_id) => {
-  const resp = await instance.get(`/cliente/${cliente_id}/stats`);
-  //  if (!resp.ok) throw new Error('Error al obtener estadísticas');
-   console.log('Stats obtenidas:', resp.data);
-  return resp.data;
+  const res = await instance.get(`/cliente/${cliente_id}/stats`);
+  console.log('Respuesta de stats:', res);
+  return res.data.payload;
 };
 
 export const getClienteServicesChart = async (cliente_id) => {
-  const resp = await instance.get(`/cliente/${cliente_id}/services-chart`);
-  return resp.data;
+  const res = await instance.get(`/cliente/${cliente_id}/services-chart`);
+  return res.data.payload;
 };
 
 export const getClienteMachinesChart = async (cliente_id) => {
-  const resp = await instance.get(`/cliente/${cliente_id}/machines-chart`);
-  return resp.data;
+  const res = await instance.get(`/cliente/${cliente_id}/machines-chart`);
+  return res.data.payload;
 };
 
 export const getClienteUpcomingServices = async (cliente_id) => {
-  const resp = await instance.get(`/cliente/${cliente_id}/upcoming-services`);
-  return resp.data;
+  const res = await instance.get(`/cliente/${cliente_id}/upcoming-services`);
+  return res.data.payload;
 };
 
 

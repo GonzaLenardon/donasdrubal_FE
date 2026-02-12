@@ -10,15 +10,22 @@ import {
   Wrench,
   Loader,
   AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 
-import { 
-
-  getClienteStatsWithAlerts as getClienteStats,
-  getClienteServicesChart, 
-  getClienteMachinesChart, 
-  getClienteUpcomingServices 
+// Importar funciones API
+import {
+  getClienteStats,
+  getClienteServicesChart,
+  getClienteMachinesChart,
+  getClienteUpcomingServices,
 } from '../api/clientes.js';
+// import {
+//   getClienteStats,
+//   getClienteServicesChart,
+//   getClienteMachinesChart,
+//   getClienteUpcomingServices,
+// } from '../api/clientes_moks_errorgranular.js';
 
 // ==================== STATS CARD ====================
 const StatCard = ({ title, value, trendLabel, isPositive, icon: Icon, color }) => {
@@ -96,6 +103,38 @@ const ServiceItemSkeleton = () => {
         <div className="h-6 w-20 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
       </div>
       <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/3"></div>
+    </div>
+  );
+};
+
+// ==================== ERROR CARD (para secciones individuales) ====================
+const ErrorCard = ({ title, error, onRetry, icon: Icon }) => {
+  return (
+    <div className="flex flex-col gap-4 rounded-xl p-6 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800">
+      <div className="flex items-center gap-3">
+        {Icon && <Icon className="text-red-600 dark:text-red-400" size={24} />}
+        <h3 className="text-red-800 dark:text-red-300 font-bold text-lg">
+          {title}
+        </h3>
+      </div>
+      
+      <div className="flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <p className="text-sm text-red-600 dark:text-red-400 mb-3">
+            {error || 'No se pudo cargar la información'}
+          </p>
+          {onRetry && (
+            <button
+              onClick={onRetry}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors font-semibold"
+            >
+              <RefreshCw size={16} />
+              Reintentar
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -189,209 +228,151 @@ const ServiceItem = ({ title, subtitle, date, status, badge, icon }) => {
   );
 };
 
-// ==================== ERROR COMPONENT ====================
-const ErrorDisplay = ({ error, onRetry }) => {
-  return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-8 max-w-md text-center">
-        <AlertCircle className="w-16 h-16 text-red-600 dark:text-red-400 mx-auto mb-4" />
-        <h3 className="text-red-800 dark:text-red-300 font-bold text-xl mb-2">
-          Error al cargar el dashboard
-        </h3>
-        <p className="text-red-600 dark:text-red-400 text-sm mb-6">
-          {error || 'Ocurrió un error al obtener los datos. Por favor, intenta nuevamente.'}
-        </p>
-        <button
-          onClick={onRetry}
-          className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold"
-        >
-          Reintentar
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ==================== EMPTY STATE ====================
-const EmptyState = () => {
-  return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="text-center">
-        <div className="w-24 h-24 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-          <Droplets className="w-12 h-12 text-gray-400" />
-        </div>
-        <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">
-          Sin datos disponibles
-        </h3>
-        <p className="text-gray-500 dark:text-gray-400">
-          No hay información para mostrar en este momento.
-        </p>
-      </div>
-    </div>
-  );
-};
-
 // ==================== MAIN DASHBOARD ====================
 const ClienteDashboard = ({ cliente }) => {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [dashboardData, setDashboardData] = useState({
+  // Estados separados para cada sección
+  const [loading, setLoading] = useState({
+    stats: true,
+    servicesChart: true,
+    machinesChart: true,
+    upcomingServices: true,
+  });
+
+  const [errors, setErrors] = useState({
     stats: null,
     servicesChart: null,
     machinesChart: null,
     upcomingServices: null,
   });
 
-  // // Importar funciones de API (ajusta la ruta según tu estructura)
-  // const getClienteStats = async (clienteId) => {
-  //   const response = await fetch(`/api/clientes/${clienteId}/stats`);
-  //   if (!response.ok) throw new Error('Error al obtener estadísticas');
-  //   return response.json();
-  // };
+  const [data, setData] = useState({
+    stats: null,
+    servicesChart: null,
+    machinesChart: null,
+    upcomingServices: null,
+  });
 
-  // const getClienteServicesChart = async (clienteId) => {
-  //   const response = await fetch(`/api/clientes/${clienteId}/services-chart`);
-  //   if (!response.ok) throw new Error('Error al obtener gráfico de servicios');
-  //   return response.json();
-  // };
-
-  // const getClienteMachinesChart = async (clienteId) => {
-  //   const response = await fetch(`/api/clientes/${clienteId}/machines-chart`);
-  //   if (!response.ok) throw new Error('Error al obtener gráfico de máquinas');
-  //   return response.json();
-  // };
-
-  // const getClienteUpcomingServices = async (clienteId) => {
-  //   const response = await fetch(`/api/clientes/${clienteId}/upcoming-services`);
-  //   if (!response.ok) throw new Error('Error al obtener servicios próximos');
-  //   return response.json();
-  // };
-
-  // Fetch de datos
-  const fetchDashboardData = async () => {
+  // ==================== FETCH INDIVIDUAL CON MANEJO DE ERRORES ====================
+  
+  const fetchStats = async () => {
     try {
-      setLoading(true);
-      setError(null);
-
-      const [stats, servicesChart, machinesChart, upcomingServices] = 
-        await Promise.all([
-          getClienteStats(cliente.id),
-          getClienteServicesChart(cliente.id),
-          getClienteMachinesChart(cliente.id),
-          getClienteUpcomingServices(cliente.id),
-        ]);
-
-      setDashboardData({
-        stats,
-        servicesChart,
-        machinesChart,
-        upcomingServices,
-      });
+      setLoading(prev => ({ ...prev, stats: true }));
+      setErrors(prev => ({ ...prev, stats: null }));
+      
+      const stats = await getClienteStats(cliente.id);
+      setData(prev => ({ ...prev, stats }));
     } catch (err) {
-      setError(err.message);
-      console.error('Error fetching dashboard data:', err);
+      console.error('Error fetching stats:', err);
+      setErrors(prev => ({ ...prev, stats: err.message }));
     } finally {
-      setLoading(false);
+      setLoading(prev => ({ ...prev, stats: false }));
     }
+  };
+
+  const fetchServicesChart = async () => {
+    try {
+      setLoading(prev => ({ ...prev, servicesChart: true }));
+      setErrors(prev => ({ ...prev, servicesChart: null }));
+      
+      const servicesChart = await getClienteServicesChart(cliente.id);
+      setData(prev => ({ ...prev, servicesChart }));
+    } catch (err) {
+      console.error('Error fetching services chart:', err);
+      setErrors(prev => ({ ...prev, servicesChart: err.message }));
+    } finally {
+      setLoading(prev => ({ ...prev, servicesChart: false }));
+    }
+  };
+
+  const fetchMachinesChart = async () => {
+    try {
+      setLoading(prev => ({ ...prev, machinesChart: true }));
+      setErrors(prev => ({ ...prev, machinesChart: null }));
+      
+      const machinesChart = await getClienteMachinesChart(cliente.id);
+      setData(prev => ({ ...prev, machinesChart }));
+    } catch (err) {
+      console.error('Error fetching machines chart:', err);
+      setErrors(prev => ({ ...prev, machinesChart: err.message }));
+    } finally {
+      setLoading(prev => ({ ...prev, machinesChart: false }));
+    }
+  };
+
+  const fetchUpcomingServices = async () => {
+    try {
+      setLoading(prev => ({ ...prev, upcomingServices: true }));
+      setErrors(prev => ({ ...prev, upcomingServices: null }));
+      
+      const upcomingServices = await getClienteUpcomingServices(cliente.id);
+      setData(prev => ({ ...prev, upcomingServices }));
+    } catch (err) {
+      console.error('Error fetching upcoming services:', err);
+      setErrors(prev => ({ ...prev, upcomingServices: err.message }));
+    } finally {
+      setLoading(prev => ({ ...prev, upcomingServices: false }));
+    }
+  };
+
+  // Cargar todas las secciones de forma independiente
+  const fetchAllData = () => {
+    fetchStats();
+    fetchServicesChart();
+    fetchMachinesChart();
+    fetchUpcomingServices();
   };
 
   useEffect(() => {
     if (cliente?.id) {
-      fetchDashboardData();
+      fetchAllData();
     }
   }, [cliente?.id]);
 
-  // ==================== LOADING STATE ====================
-  if (loading) {
-    return (
-      <div className="flex flex-col gap-8 pb-8">
-        {/* Stats Row Skeleton */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <StatCardSkeleton key={i} />
-          ))}
-        </div>
-
-        {/* Charts Row Skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {[1, 2].map((i) => (
-            <ChartCardSkeleton key={i} />
-          ))}
-        </div>
-
-        {/* Services Row Skeleton */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {[1, 2].map((col) => (
-            <div key={col}>
-              <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-2/3 mb-4 animate-pulse"></div>
-              <div className="flex flex-col gap-3">
-                {[1, 2, 3].map((i) => (
-                  <ServiceItemSkeleton key={i} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ==================== ERROR STATE ====================
-  if (error) {
-    return <ErrorDisplay error={error} onRetry={fetchDashboardData} />;
-  }
-
-  // ==================== EMPTY STATE ====================
-  if (!dashboardData.stats) {
-    return <EmptyState />;
-  }
-
-  // ==================== TRANSFORM API DATA ====================
-  // Transformar datos de stats
-  const statsData = [
+  // ==================== TRANSFORM DATA ====================
+  
+  // Stats Cards
+  const statsData = data.stats ? [
     {
       title: 'Pozos Registrados',
-      value: dashboardData.stats?.pozos?.total?.toString() || '0',
-      trendLabel: `${dashboardData.stats?.pozos?.nuevos || 0} nuevos ${dashboardData.stats?.pozos?.periodo || 'este año'}`,
-      isPositive: (dashboardData.stats?.pozos?.nuevos || 0) > 0,
+      value: data.stats?.pozos?.total?.toString() || '0',
+      trendLabel: `${data.stats?.pozos?.nuevos || 0} nuevos ${data.stats?.pozos?.periodo || 'este año'}`,
+      isPositive: (data.stats?.pozos?.nuevos || 0) > 0,
       icon: Droplets,
       color: 'green',
     },
     {
       title: 'Máquinas Pulverizadoras',
-      value: dashboardData.stats?.maquinas?.total?.toString() || '0',
-      trendLabel: `${dashboardData.stats?.maquinas?.porcentaje || 0}% calibradas`,
-      isPositive: (dashboardData.stats?.maquinas?.porcentaje || 0) >= 80,
+      value: data.stats?.maquinas?.total?.toString() || '0',
+      trendLabel: `${data.stats?.maquinas?.porcentaje || 0}% calibradas`,
+      isPositive: (data.stats?.maquinas?.porcentaje || 0) >= 80,
       icon: Tractor,
       color: 'blue',
     },
     {
       title: 'Servicios Pendientes',
-      value: dashboardData.stats?.serviciosPendientes?.total?.toString() || '0',
-      trendLabel: `${dashboardData.stats?.serviciosPendientes?.proximos15dias || 0} próximos 15 días`,
+      value: data.stats?.serviciosPendientes?.total?.toString() || '0',
+      trendLabel: `${data.stats?.serviciosPendientes?.proximos15dias || 0} próximos 15 días`,
       isPositive: false,
       icon: Calendar,
       color: 'amber',
     },
     {
       title: 'Jornadas Realizadas',
-      value: dashboardData.stats?.jornadas?.total?.toString() || '0',
-      trendLabel: `${dashboardData.stats?.jornadas?.personasCapacitadas || 0} personas capacitadas`,
+      value: data.stats?.jornadas?.total?.toString() || '0',
+      trendLabel: `${data.stats?.jornadas?.personasCapacitadas || 0} personas capacitadas`,
       isPositive: true,
       icon: GraduationCap,
       color: 'purple',
     },
-  ];
+  ] : [];
 
-  // Datos de gráficos
-  const servicesChartData = dashboardData.servicesChart?.data || [];
-  const servicesChartTotal = dashboardData.servicesChart?.total || 0;
+  const servicesChartData = data.servicesChart?.data || [];
+  const servicesChartTotal = data.servicesChart?.total || 0;
 
-  const machinesChartData = dashboardData.machinesChart?.data || [];
-  const machinesChartTotal = dashboardData.machinesChart?.total || 0;
+  const machinesChartData = data.machinesChart?.data || [];
+  const machinesChartTotal = data.machinesChart?.total || 0;
 
-  // Transformar servicios de calibración
-  const calibracionServices = (dashboardData.upcomingServices?.calibracion || []).map(service => ({
+  const calibracionServices = (data.upcomingServices?.calibracion || []).map(service => ({
     title: service.maquina || service.nombre,
     subtitle: service.tipo || service.descripcion,
     date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
@@ -404,8 +385,7 @@ const ClienteDashboard = ({ cliente }) => {
     icon: '🚜',
   }));
 
-  // Transformar otros servicios
-  const otrosServices = (dashboardData.upcomingServices?.otros || []).map(service => ({
+  const otrosServices = (data.upcomingServices?.otros || []).map(service => ({
     title: service.nombre || service.titulo,
     subtitle: service.tipo || service.descripcion,
     date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
@@ -420,21 +400,60 @@ const ClienteDashboard = ({ cliente }) => {
   // ==================== RENDER DASHBOARD ====================
   return (
     <div className="flex flex-col gap-8 pb-8">
-      {/* Stats Row */}
+      {/* ==================== STATS ROW ==================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statsData.map((stat, idx) => (
-          <StatCard key={idx} {...stat} />
-        ))}
+        {loading.stats ? (
+          // Skeleton mientras carga
+          <>
+            {[1, 2, 3, 4].map((i) => (
+              <StatCardSkeleton key={i} />
+            ))}
+          </>
+        ) : errors.stats ? (
+          // Error en toda la sección de stats
+          <div className="col-span-full">
+            <ErrorCard
+              title="Estadísticas"
+              error={errors.stats}
+              onRetry={fetchStats}
+              icon={AlertCircle}
+            />
+          </div>
+        ) : (
+          // Datos cargados correctamente
+          statsData.map((stat, idx) => (
+            <StatCard key={idx} {...stat} />
+          ))
+        )}
       </div>
 
-      {/* Charts Row */}
+      {/* ==================== CHARTS ROW ==================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Chart 1 - Servicios por Tipo */}
         <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
           <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
             Servicios por Tipo
           </h3>
-          {servicesChartData.length > 0 ? (
+          
+          {loading.servicesChart ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
+            </div>
+          ) : errors.servicesChart ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <AlertCircle className="w-12 h-12 text-red-400" />
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                {errors.servicesChart}
+              </p>
+              <button
+                onClick={fetchServicesChart}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <RefreshCw size={16} />
+                Reintentar
+              </button>
+            </div>
+          ) : servicesChartData.length > 0 ? (
             <>
               <div className="flex-grow">
                 <DonutChart
@@ -469,7 +488,26 @@ const ClienteDashboard = ({ cliente }) => {
           <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
             Estado de Máquinas
           </h3>
-          {machinesChartData.length > 0 ? (
+          
+          {loading.machinesChart ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
+            </div>
+          ) : errors.machinesChart ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <AlertCircle className="w-12 h-12 text-red-400" />
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                {errors.machinesChart}
+              </p>
+              <button
+                onClick={fetchMachinesChart}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <RefreshCw size={16} />
+                Reintentar
+              </button>
+            </div>
+          ) : machinesChartData.length > 0 ? (
             <>
               <div className="flex-grow">
                 <DonutChart
@@ -500,7 +538,7 @@ const ClienteDashboard = ({ cliente }) => {
         </div>
       </div>
 
-      {/* Services Row */}
+      {/* ==================== SERVICES ROW ==================== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Servicios de Calibración */}
         <div>
@@ -510,17 +548,30 @@ const ClienteDashboard = ({ cliente }) => {
               Próximos Servicios de Calibración
             </h2>
           </div>
-          <div className="flex flex-col gap-3">
-            {calibracionServices.length > 0 ? (
-              calibracionServices.map((service, idx) => (
+          
+          {loading.upcomingServices ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3].map((i) => (
+                <ServiceItemSkeleton key={i} />
+              ))}
+            </div>
+          ) : errors.upcomingServices ? (
+            <ErrorCard
+              title=""
+              error={errors.upcomingServices}
+              onRetry={fetchUpcomingServices}
+            />
+          ) : calibracionServices.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {calibracionServices.map((service, idx) => (
                 <ServiceItem key={idx} {...service} />
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-400">
-                No hay servicios de calibración programados
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400 bg-card-light dark:bg-card-dark rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
+              No hay servicios de calibración programados
+            </div>
+          )}
         </div>
 
         {/* Análisis de Agua y Capacitaciones */}
@@ -531,17 +582,30 @@ const ClienteDashboard = ({ cliente }) => {
               Análisis de Agua y Capacitaciones
             </h2>
           </div>
-          <div className="flex flex-col gap-3">
-            {otrosServices.length > 0 ? (
-              otrosServices.map((service, idx) => (
+          
+          {loading.upcomingServices ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3].map((i) => (
+                <ServiceItemSkeleton key={i} />
+              ))}
+            </div>
+          ) : errors.upcomingServices ? (
+            <ErrorCard
+              title=""
+              error={errors.upcomingServices}
+              onRetry={fetchUpcomingServices}
+            />
+          ) : otrosServices.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {otrosServices.map((service, idx) => (
                 <ServiceItem key={idx} {...service} />
-              ))
-            ) : (
-              <div className="text-center py-8 text-gray-400">
-                No hay servicios programados
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400 bg-card-light dark:bg-card-dark rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
+              No hay servicios programados
+            </div>
+          )}
         </div>
       </div>
     </div>

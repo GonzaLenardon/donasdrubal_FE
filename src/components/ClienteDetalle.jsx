@@ -10,7 +10,7 @@ import {
 import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
 import JornadasTable from './JornadasTable.jsx';
-import ClienteDashboard from './Clientedashboard_errorgranular.jsx';
+import ClienteDashboard from './Clientedashboard.jsx';
 import {
   Building2,
   Phone,
