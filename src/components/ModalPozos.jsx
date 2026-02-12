@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { addPozos, upPozos } from '../api/pozos';
 import Spinner from './Spinner';
 
-const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
+const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
   const [formData, setFormData] = useState({
     nombre: '',
     establecimiento: '',
@@ -17,12 +17,10 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
-    console.log('hay pozos ?', pozo);
-
     if (!isOpen) return;
 
     if (pozo) {
-       setFormData({
+      setFormData({
         id: pozo.id,
         nombre: pozo.nombre ?? '',
         establecimiento: pozo.establecimiento ?? '',
@@ -91,14 +89,14 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
 
     // if (!formData.cliente_id) {
     //   newErrors.cliente_id = 'El cliente es requerido';
-    // } 
+    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    e?.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!validateForm()) {
       return;
     }
@@ -112,7 +110,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
         ...formData,
         latitud: parseFloat(formData.latitud),
         longitud: parseFloat(formData.longitud),
-        cliente_id: formData.cliente_id  ? parseInt(formData.cliente_id) : null,
+        cliente_id: formData.cliente_id ? parseInt(formData.cliente_id) : null,
       };
 
       console.log('Datos a enviar:', dataToSend);
@@ -296,39 +294,43 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved }) => {
             </div>
 
             {/* Botones */}
-            <div className="modal-footer-pozos">
-              <button
-                type="button"
-                className="btn-cancelar-pozos"
-                onClick={handleClose}
-                disabled={isSubmitting}
-              >
-                <i className="bi bi-x-circle me-2"></i>
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="btn-guardar-pozos"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-check-circle me-2"></i>
-                    {formData.id ? 'Actualizar' : 'Crear Pozo'}
-                  </>
-                )}
-              </button>
-            </div>
+
+            {!onlyView && (
+              <div className="modal-footer-pozos">
+                <button
+                  type="button"
+                  className="btn-cancelar-pozos"
+                  onClick={handleClose}
+                  disabled={isSubmitting}
+                >
+                  <i className="bi bi-x-circle me-2"></i>
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-guardar-pozos"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle me-2"></i>
+                      {formData.id ? 'Actualizar' : 'Crear Pozo'}
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

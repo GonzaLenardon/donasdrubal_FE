@@ -10,6 +10,7 @@ const Maquinas = ({ cliente_id }) => {
   const navigate = useNavigate();
   const [modal, setModal] = useState(false);
   const [maquinaEdit, setMaquinaEdit] = useState({});
+  const [onlyView, setOnlyView] = useState(false);
 
   useEffect(() => {
     getMaquinas();
@@ -39,11 +40,11 @@ const Maquinas = ({ cliente_id }) => {
   const handleEditarMaquina = (maquina) => {
     setMaquinaEdit(maquina);
     setModal(true);
+    setOnlyView(false);
   };
 
   return (
     <div className="maquinas-wrapper">
-
       <div style={{ margin: '0 auto' }}>
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -57,6 +58,7 @@ const Maquinas = ({ cliente_id }) => {
             className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
             onClick={() => {
               setMaquinaEdit({ cliente_id: cliente_id });
+              setOnlyView(false);
               setModal(true);
             }}
           >
@@ -73,7 +75,7 @@ const Maquinas = ({ cliente_id }) => {
         )}
 
         {/* TABLA */}
-        <div className="maquinas-table-wrapper rounded shadow-lg" >
+        <div className="maquinas-table-wrapper rounded shadow-lg">
           {loading ? (
             <div className="text-center py-5">
               <div className="spinner-border text-white" role="status">
@@ -186,9 +188,15 @@ const Maquinas = ({ cliente_id }) => {
                       style={{
                         borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                         transition: 'background 0.2s ease',
-                      }}                      
+                        cursor: 'pointer',
+                      }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.background = 'transparent';
+                      }}
+                      onClick={() => {
+                        setMaquinaEdit(maq);
+                        setModal(true);
+                        setOnlyView(true);
                       }}
                     >
                       {/* Marca */}
@@ -285,8 +293,11 @@ const Maquinas = ({ cliente_id }) => {
                       <td className="py-2 px-3">
                         <div className="d-flex gap-2 justify-content-center">
                           <button
-                            className="btn btn-sm maquina-btn-editar"                            
-                            onClick={() => handleEditarMaquina(maq)}
+                            className="btn btn-sm maquina-btn-editar"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditarMaquina(maq);
+                            }}
                           >
                             <i className="bi bi-pencil"></i>
                           </button>
@@ -321,6 +332,7 @@ const Maquinas = ({ cliente_id }) => {
           onSaved={() => getMaquinas()}
           maquinaEdit={maquinaEdit}
           setMaquinaEdit={setMaquinaEdit}
+          onlyView={onlyView}
         />
       )}
     </div>
