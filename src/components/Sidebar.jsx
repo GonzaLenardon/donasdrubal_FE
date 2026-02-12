@@ -10,14 +10,22 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
 
   const basicSelectores = [
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
-    { title: 'Configuración', icon: 'bi-gear-fill', children: [
-        { title: 'Usuarios', path: '/user', icon: 'bi-person-fill'},
-        { title: 'Tipos Máquinas', path: '/maquinasTipos',icon: 'bi-layers-fill'},
+    {
+      title: 'Configuración',
+      icon: 'bi-gear-fill',
+      children: [
+        { title: 'Usuarios', path: '/user', icon: 'bi-person-fill' },
+        {
+          title: 'Tipos Máquinas',
+          path: '/maquinasTipos',
+          icon: 'bi-layers-fill',
+        },
+
+        { title: 'Campañas', path: '/campañas', icon: 'bi bi-flower1' },
       ],
     },
     // { title: 'Máquinas', path: '/maquinas', icon: 'bi-gear-fill' },
     // { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
-    
   ];
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -62,10 +70,10 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
         <div className="sidebar-user">
           <div
             className="sidebar-avatar"
-            style={{
+            /*   style={{
               backgroundImage:
                 'url("https://lh3.googleusercontent.com/aida-public/...")',
-            }}
+            }} */
           />
           <div>
             <p className="sidebar-username">{user?.email}</p>
@@ -74,48 +82,56 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
         </div>
 
         {/* Menú */}
-<ul className="sidebar-menu">
-  {basicSelectores.map((item, index) => (
-    <li key={index}>
-      {/* Ítem con submenú */}
-      {item.children ? (
-        <>
-          <button
-            className="sidebar-link sidebar-link-parent"
-            onClick={() => setOpenConfig(!openConfig)}
-          >
-            <i className={`bi ${item.icon} sidebar-icon`} />
-            {item.title}
-            <i
-              className={`bi bi-chevron-${
-                openConfig ? 'down' : 'right'
-              } sidebar-arrow`}
-            />
-          </button>
+        <ul className="sidebar-menu">
+          {basicSelectores.map((item, index) => (
+            <li key={index}>
+              {/* Ítem con submenú */}
+              {item.children ? (
+                <>
+                  <button
+                    className="sidebar-link sidebar-link-parent"
+                    onClick={() => setOpenConfig(!openConfig)}
+                  >
+                    <i className={`bi ${item.icon} sidebar-icon`} />
+                    {item.title}
+                    <i
+                      className={`bi bi-chevron-${
+                        openConfig ? 'down' : 'right'
+                      } sidebar-arrow`}
+                    />
+                  </button>
 
-          {openConfig && (
-            <ul className="sidebar-submenu">
-              {item.children.map((child, i) => (
-                <li key={i}>
-                  <Link to={child.path} className="sidebar-link sidebar-sublink" onClick={closeSidebar}>
-                    <i className={`bi ${child.icon} sidebar-icon`} />
-                    {child.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
-      ) : (
-        /* Ítem normal */
-        <Link to={item.path} className="sidebar-link" onClick={closeSidebar}>
-          <i className={`bi ${item.icon} sidebar-icon`} />
-          {item.title}
-        </Link>
-      )}
-    </li>
-  ))}
-</ul>
+                  {openConfig && (
+                    <ul className="sidebar-submenu">
+                      {item.children.map((child, i) => (
+                        <li key={i}>
+                          <Link
+                            to={child.path}
+                            className="sidebar-link sidebar-sublink"
+                            onClick={closeSidebar}
+                          >
+                            <i className={`bi ${child.icon} sidebar-icon`} />
+                            {child.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </>
+              ) : (
+                /* Ítem normal */
+                <Link
+                  to={item.path}
+                  className="sidebar-link"
+                  onClick={closeSidebar}
+                >
+                  <i className={`bi ${item.icon} sidebar-icon`} />
+                  {item.title}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
 
         {/* Footer */}
         <div className="sidebar-bottom">

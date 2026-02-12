@@ -4,11 +4,11 @@ import { clientePozos } from '../api/pozos';
 import { useNavigate } from 'react-router-dom';
 import { getStatusClass } from '../utils/statusMap';
 
-
 const Pozos = ({ cliente_id }) => {
   const [selectedPozo, setSelectedPozo] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [pozos, setPozos] = useState([]);
+  const [onlyView, setOnlyView] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const Pozos = ({ cliente_id }) => {
 
   return (
     <>
-      <div  className="pozos-wrapper" >
+      <div className="pozos-wrapper">
         <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
 
@@ -59,7 +59,12 @@ const Pozos = ({ cliente_id }) => {
                 <div
                   className="card_pozos"
                   key={pozo.id}
-                  onClick={() => setSelectedPozo(pozo)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedPozo(pozo);
+                    setIsOpen(true);
+                    setOnlyView(true);
+                  }}
                 >
                   {/* Header de la Card */}
                   <div className="d-flex justify-content-between align-items-start mb-3">
@@ -67,10 +72,11 @@ const Pozos = ({ cliente_id }) => {
                       <h5 className="fw-bold text-white mb-1 pozo-nombre">
                         {pozo.nombre}
                       </h5>
-                      <span className={`status-badge ${getStatusClass(pozo.estado)}`}>
+                      <span
+                        className={`status-badge ${getStatusClass(pozo.estado)}`}
+                      >
                         {pozo.estado || 'Desconocido'}
                       </span>
-
                     </div>
                     <div className="pozo-id-badge">
                       <span className="fw-bold pozo-id-text">#{pozo.id}</span>
@@ -129,6 +135,7 @@ const Pozos = ({ cliente_id }) => {
                         e.stopPropagation();
                         setSelectedPozo(pozo);
                         setIsOpen(true);
+                        setOnlyView(false);
                       }}
                     >
                       <i className="bi bi-pencil me-1"></i>
@@ -148,6 +155,7 @@ const Pozos = ({ cliente_id }) => {
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
           onSaved={getPozos}
+          onlyView={onlyView}
         />
       )}
     </>

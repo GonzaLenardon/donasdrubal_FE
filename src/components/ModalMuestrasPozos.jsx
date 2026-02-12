@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { addMuestraPozo, upMuestraPozo } from '../api/muestrasAgua';
 
-const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
+const ModalMuestrasPozos = ({
+  isOpen,
+  onClose,
+  muestra,
+  onSaved,
+  onlyView,
+}) => {
   const [formData, setFormData] = useState({
     ph: '',
     dureza: '',
@@ -13,7 +19,7 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
     fecha_analisis: '',
   });
 
-  console.log('muestars', muestra);
+  console.log('muestars', onlyView);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -187,12 +193,10 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
     <div className="modal-overlay">
       <div
         className="modal-container rounded shadow-lg"
-        
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="modal-header p-4 d-flex justify-content-between align-items-start">
-          
           <div className="d-flex align-items-center gap-3">
             <div
               className="rounded d-flex align-items-center justify-content-center"
@@ -473,7 +477,6 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   className={`form-control ${
                     errors.salinidad ? 'is-invalid' : ''
                   }`}
-
                   placeholder="0 - 1000"
                   value={formData.salinidad}
                   onChange={handleChange}
@@ -502,7 +505,6 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
                   className={`form-control ${
                     errors.fuerza_ionica ? 'is-invalid' : ''
                   }`}
-
                   placeholder="0.000"
                   value={formData.fuerza_ionica}
                   onChange={handleChange}
@@ -543,51 +545,55 @@ const ModalMuestrasPozos = ({ isOpen, onClose, muestra, onSaved }) => {
           </div>
 
           {/* Botones */}
-          <div
-            className="d-flex gap-3 pt-3"
-            style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
-          >
-            <button
-              type="button"
-              className="btn flex-fill fw-semibold"
-              style={{
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: 'rgba(255, 255, 255, 0.9)',
-                border: '2px solid rgba(255, 255, 255, 0.2)',
-              }}
-              onClick={handleClose}
-              disabled={isSubmitting}
+
+          {!onlyView && (
+            <div
+              className="d-flex gap-3 pt-3"
+              style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
             >
-              <i className="bi bi-x-circle me-2"></i>
-              Cancelar
-            </button>
-            <button
-              type="button"
-              className="btn flex-fill fw-semibold text-white"
-              style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                border: 'none',
-              }}
-              onClick={handleSubmit}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <span
-                    className="spinner-border spinner-border-sm me-2"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                  Guardando...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-check-circle me-2"></i>
-                  {muestra?.id ? 'Actualizar' : 'Guardar Muestra'}
-                </>
-              )}
-            </button>
-          </div>
+              <button
+                type="button"
+                className="btn flex-fill fw-semibold"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  border: '2px solid rgba(255, 255, 255, 0.2)',
+                }}
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
+                <i className="bi bi-x-circle me-2"></i>
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn flex-fill fw-semibold text-white"
+                style={{
+                  background:
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  border: 'none',
+                }}
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-circle me-2"></i>
+                    {muestra?.id ? 'Actualizar' : 'Guardar Muestra'}
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -17,6 +17,7 @@ const Clientes = () => {
   const [newCliente, SetNewCliente] = useState({});
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [onlyView, setOnlyView] = useState(false);
   const [msg, setMsg] = useState('');
   const navigate = useNavigate();
 
@@ -250,6 +251,7 @@ const Clientes = () => {
     SetNewCliente({});
     setIngenierosSeleccionados([]);
     setIngenieroPlrincipal(null);
+    setOnlyView(false);
     setErrors({});
   };
 
@@ -270,7 +272,7 @@ const Clientes = () => {
 
   return (
     <>
-      <div className="clientes-wrapper" >
+      <div className="clientes-wrapper">
         <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
           <div className="page-header">
@@ -298,9 +300,8 @@ const Clientes = () => {
 
           {/* TABLA */}
           <div className="table-system rounded shadow-lg">
-           
             <div style={{ overflowX: 'auto' }}>
-              <table className="table table-hover mb-0" >
+              <table className="table table-hover mb-0">
                 <thead>
                   <tr
                     style={{
@@ -361,6 +362,12 @@ const Clientes = () => {
                       style={{
                         borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                         transition: 'background 0.2s ease',
+                        cursor: 'pointer',
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        modalUpCliente(cliente);
+                        setOnlyView(true);
                       }}
                     >
                       <td className="py-2 px-3">
@@ -450,6 +457,7 @@ const Clientes = () => {
                             onClick={(e) => {
                               e.stopPropagation();
                               modalUpCliente(cliente);
+                              setOnlyView(false);
                             }}
                           >
                             <i className="bi bi-pencil"></i>
@@ -1031,39 +1039,41 @@ const Clientes = () => {
               </div>
 
               {/* Botones */}
-              <div className="modal-footer-pozos">
-                <button
-                  type="button"
-                  className="btn-cancelar-pozos"
-                  onClick={modalClose}
-                  disabled={isSubmitting}
-                >
-                  <i className="bi bi-x-circle me-2"></i>
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  className="btn-guardar-pozos"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span
-                        className="spinner-border spinner-border-sm me-2"
-                        role="status"
-                        aria-hidden="true"
-                      ></span>
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <i className="bi bi-check-circle me-2"></i>
-                      {newCliente?.id ? 'Actualizar' : 'Crear Cliente'}
-                    </>
-                  )}
-                </button>
-              </div>
+              {!onlyView && (
+                <div className="modal-footer-pozos">
+                  <button
+                    type="button"
+                    className="btn-cancelar-pozos"
+                    onClick={modalClose}
+                    disabled={isSubmitting}
+                  >
+                    <i className="bi bi-x-circle me-2"></i>
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-guardar-pozos"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-check-circle me-2"></i>
+                        {newCliente?.id ? 'Actualizar' : 'Crear Cliente'}
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

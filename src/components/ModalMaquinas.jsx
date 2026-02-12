@@ -8,6 +8,7 @@ export const ModalMaquinas = ({
   maquinaEdit,
   setMaquinaEdit,
   onSaved,
+  onlyView,
 }) => {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState();
@@ -358,39 +359,42 @@ export const ModalMaquinas = ({
             </div>
 
             {/* Botones */}
-            <div className="modal-footer-pozos">
-              <button
-                type="button"
-                className="btn-cancelar-pozos"
-                onClick={onClose}
-                disabled={isSubmitting}
-              >
-                <i className="bi bi-x-circle me-2"></i>
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="btn-guardar-pozos"
-                onClick={handleSubmitMaquina}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-check-circle me-2"></i>
-                    {maquinaEdit.id ? 'Actualizar' : 'Crear Máquina'}
-                  </>
-                )}
-              </button>
-            </div>
+
+            {!onlyView && (
+              <div className="modal-footer-pozos">
+                <button
+                  type="button"
+                  className="btn-cancelar-pozos"
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                >
+                  <i className="bi bi-x-circle me-2"></i>
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn-guardar-pozos"
+                  onClick={handleSubmitMaquina}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle me-2"></i>
+                      {maquinaEdit.id ? 'Actualizar' : 'Crear Máquina'}
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

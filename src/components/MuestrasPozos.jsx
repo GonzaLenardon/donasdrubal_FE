@@ -24,6 +24,7 @@ const MuestrasPozos = () => {
   const [hasta, setHasta] = useState('');
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [onlyView, setOnlyView] = useState(false);
   const [muestraEdit, setMuestraEdit] = useState(null);
 
   useEffect(() => {
@@ -49,30 +50,29 @@ const MuestrasPozos = () => {
   const formatFecha = (fecha) =>
     fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-';
 
-const getValorColor = (valor, min, max) => {
-  // Sin dato
-  if (valor === null || valor === undefined) {
-    return {
-      color: '#9ca3af',                 // gris claro legible
-      bg: 'rgba(156,163,175,0.12)',     // fondo neutro suave
-    };
-  }
+  const getValorColor = (valor, min, max) => {
+    // Sin dato
+    if (valor === null || valor === undefined) {
+      return {
+        color: '#9ca3af', // gris claro legible
+        bg: 'rgba(156,163,175,0.12)', // fondo neutro suave
+      };
+    }
 
-  // Fuera de rango (alerta)
-  if (valor < min || valor > max) {
-    return {
-      color: '#fecaca',                 // rojo claro (menos agresivo)
-      bg: 'rgba(220,38,38,0.25)',       // rojo profundo translúcido
-    };
-  }
+    // Fuera de rango (alerta)
+    if (valor < min || valor > max) {
+      return {
+        color: '#fecaca', // rojo claro (menos agresivo)
+        bg: 'rgba(220,38,38,0.25)', // rojo profundo translúcido
+      };
+    }
 
-  // OK / dentro de rango
-  return {
-    color: '#d1fae5',                   // verde muy claro (excelente contraste)
-    bg: 'rgba(16,185,129,0.25)',        // verde esmeralda acorde a la paleta
+    // OK / dentro de rango
+    return {
+      color: '#d1fae5', // verde muy claro (excelente contraste)
+      bg: 'rgba(16,185,129,0.25)', // verde esmeralda acorde a la paleta
+    };
   };
-};
-
 
   const getValorIcon = (valor, min, max) => {
     if (valor === null || valor === undefined) return '•';
@@ -96,6 +96,7 @@ const getValorColor = (valor, min, max) => {
   };
 
   const handleEditarMuestra = (m) => {
+    setOnlyView(false);
     setMuestraEdit({ ...m });
     setIsOpen(true);
   };
@@ -182,10 +183,10 @@ const getValorColor = (valor, min, max) => {
 
               <button
                 className="btn text-white d-flex align-items-center gap-2 shadow-lg muestra-pozo-btn-nuevo"
-
                 onClick={(e) => {
                   e.stopPropagation();
                   setMuestraEdit({ pozo_id: pozos_id });
+                  setOnlyView(false);
                   setIsOpen(true);
                 }}
               >
@@ -234,7 +235,7 @@ const getValorColor = (valor, min, max) => {
                 <div style={{ overflowX: 'auto' }}>
                   <table className="table table-hover mb-0">
                     <thead>
-                      <tr>      
+                      <tr>
                         <th
                           className="text-white fw-semibold py-2 px-3"
                           style={{ fontSize: '0.875rem' }}
@@ -296,8 +297,13 @@ const getValorColor = (valor, min, max) => {
 
                         return (
                           <tr
-                            key={m.id}                          
-
+                            key={m.id}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => {
+                              setMuestraEdit(m);
+                              setOnlyView(true);
+                              setIsOpen(true);
+                            }}
                           >
                             {/* Fecha */}
                             <td className="py-2 px-3">
@@ -357,8 +363,10 @@ const getValorColor = (valor, min, max) => {
                             <td className="text-center py-2 px-3">
                               <button
                                 className="btn btn-sm maquina-btn-editar"
-                                
-                                onClick={() => handleEditarMuestra(m)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditarMuestra(m);
+                                }}
                               >
                                 <i className="bi bi-pencil"></i>
                               </button>
@@ -375,9 +383,12 @@ const getValorColor = (valor, min, max) => {
 
           <ModalMuestrasPozos
             isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
+            onClose={() => {
+              setIsOpen(false);
+            }}
             muestra={muestraEdit}
             onSaved={getMuestras}
+            onlyView={onlyView}
           />
         </div>
       </div>
