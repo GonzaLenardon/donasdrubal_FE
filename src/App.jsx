@@ -48,7 +48,7 @@ function App() {
           <Route path="varios" element={<Varios />} />
           <Route path="cliente" element={<Clientes />} />
 
-          <Route path="alertas" element={<Alertas />} />
+          <Route path="campañas" element={<Alertas />} />
 
           {/* Detalles */}
           <Route
