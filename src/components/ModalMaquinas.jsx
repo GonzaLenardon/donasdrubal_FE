@@ -106,16 +106,16 @@ export const ModalMaquinas = ({
       <div className="modal-overlay">
         <div className="modal-container" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
-          <div className="modal-header-pozos">
+          <div className="modal-header">
             <div className="d-flex align-items-center gap-3">
               <div className="modal-icon-container">
                 <i className="bi bi-gear-wide-connected"></i>
               </div>
               <div>
-                <h3 className="modal-title-pozos mb-1">
+                <h3 className="modal-title mb-1">
                   {maquinaEdit.id ? 'Editar Máquina' : 'Nueva Máquina'}
                 </h3>
-                <p className="modal-subtitle-pozos mb-0">
+                <p className="modal-subtitle mb-0">
                   {maquinaEdit.id
                     ? 'Modifica la información de la máquina'
                     : 'Completa los datos de la nueva máquina'}
@@ -128,7 +128,7 @@ export const ModalMaquinas = ({
           </div>
 
           {/* Body */}
-          <div className="modal-body-pozos">
+          <div className="modal-body">
             {/* Error general */}
             {errors.submit && (
               <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
@@ -138,15 +138,15 @@ export const ModalMaquinas = ({
             )}
 
             {/* Tipo de Máquina */}
-            <div className="form-group-pozos">
-              <label htmlFor="tipo_maquina" className="form-label-pozos">
+            <div className="form-group">
+              <label htmlFor="tipo_maquina" className="form-label">
                 <i className="bi bi-tag-fill me-2"></i>
                 Tipo de Máquina
               </label>
               <select
                 id="tipo_maquina"
                 name="tipo_maquina"
-                className={`form-control-pozos ${
+                className={`form-control ${
                   errors.tipo_maquina ? 'is-invalid' : ''
                 }`}
                 value={maquinaEdit.tipo_maquina || ''}
@@ -161,7 +161,7 @@ export const ModalMaquinas = ({
                 ))}
               </select>
               {errors.tipo_maquina && (
-                <div className="invalid-feedback-pozos">
+                <div className="invalid-feedback">
                   <i className="bi bi-exclamation-circle me-1"></i>
                   {errors.tipo_maquina}
                 </div>
@@ -171,8 +171,8 @@ export const ModalMaquinas = ({
             {/* Fila 1: Operario y Ancho Trabajo */}
             <div className="row g-3">
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label htmlFor="responsable" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="responsable" className="form-label">
                     <i className="bi bi-person-fill me-2"></i>
                     Operario
                   </label>
@@ -180,7 +180,7 @@ export const ModalMaquinas = ({
                     type="text"
                     id="responsable"
                     name="responsable"
-                    className={`form-control-pozos ${
+                    className={`form-control ${
                       errors.responsable ? 'is-invalid' : ''
                     }`}
                     placeholder="Ej: Juan Pérez"
@@ -189,7 +189,7 @@ export const ModalMaquinas = ({
                     disabled={isSubmitting}
                   />
                   {errors.responsable && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.responsable}
                     </div>
@@ -198,8 +198,8 @@ export const ModalMaquinas = ({
               </div>
 
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label htmlFor="ancho_trabajo" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="ancho_trabajo" className="form-label">
                     <i className="bi bi-arrows-expand me-2"></i>
                     Ancho Trabajo
                   </label>
@@ -207,7 +207,7 @@ export const ModalMaquinas = ({
                     type="text"
                     id="ancho_trabajo"
                     name="ancho_trabajo"
-                    className={`form-control-pozos ${
+                    className={`form-control ${
                       errors.ancho_trabajo ? 'is-invalid' : ''
                     }`}
                     placeholder="Ej: 24 metros"
@@ -216,7 +216,7 @@ export const ModalMaquinas = ({
                     disabled={isSubmitting}
                   />
                   {errors.ancho_trabajo && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.ancho_trabajo}
                     </div>
@@ -228,8 +228,8 @@ export const ModalMaquinas = ({
             {/* Fila 2: Número Picos y Distancia entre Picos */}
             <div className="row g-3">
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label htmlFor="numero_picos" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="numero_picos" className="form-label">
                     <i className="bi bi-hash me-2"></i>
                     Número Picos
                   </label>
@@ -237,7 +237,7 @@ export const ModalMaquinas = ({
                     type="text"
                     id="numero_picos"
                     name="numero_picos"
-                    className={`form-control-pozos ${
+                    className={`form-control ${
                       errors.numero_picos ? 'is-invalid' : ''
                     }`}
                     placeholder="Ej: 48"
@@ -246,7 +246,7 @@ export const ModalMaquinas = ({
                     disabled={isSubmitting}
                   />
                   {errors.numero_picos && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.numero_picos}
                     </div>
@@ -255,11 +255,8 @@ export const ModalMaquinas = ({
               </div>
 
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label
-                    htmlFor="distancia_entrePicos"
-                    className="form-label-pozos"
-                  >
+                <div className="form-group">
+                  <label htmlFor="distancia_entrePicos" className="form-label">
                     <i className="bi bi-rulers me-2"></i>
                     Distancia entre Picos
                   </label>
@@ -267,7 +264,7 @@ export const ModalMaquinas = ({
                     type="text"
                     id="distancia_entrePicos"
                     name="distancia_entrePicos"
-                    className={`form-control-pozos ${
+                    className={`form-control ${
                       errors.distancia_entrePicos ? 'is-invalid' : ''
                     }`}
                     placeholder="Ej: 0.5 metros"
@@ -276,7 +273,7 @@ export const ModalMaquinas = ({
                     disabled={isSubmitting}
                   />
                   {errors.distancia_entrePicos && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.distancia_entrePicos}
                     </div>
@@ -288,11 +285,8 @@ export const ModalMaquinas = ({
             {/* Fila 3: Capacidad Tanque y Sistema Corte */}
             <div className="row g-3">
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label
-                    htmlFor="capacidad_tanque"
-                    className="form-label-pozos"
-                  >
+                <div className="form-group">
+                  <label htmlFor="capacidad_tanque" className="form-label">
                     <i className="bi bi-droplet-half me-2"></i>
                     Capacidad Tanque
                   </label>
@@ -300,7 +294,7 @@ export const ModalMaquinas = ({
                     type="text"
                     id="capacidad_tanque"
                     name="capacidad_tanque"
-                    className={`form-control-pozos ${
+                    className={`form-control ${
                       errors.capacidad_tanque ? 'is-invalid' : ''
                     }`}
                     placeholder="Ej: 3000 litros"
@@ -309,7 +303,7 @@ export const ModalMaquinas = ({
                     disabled={isSubmitting}
                   />
                   {errors.capacidad_tanque && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.capacidad_tanque}
                     </div>
@@ -318,15 +312,15 @@ export const ModalMaquinas = ({
               </div>
 
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label htmlFor="tipo_maquina" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="tipo_maquina" className="form-label">
                     <i className="bi bi-tag-fill me-2"></i>
                     Sistema de Corte
                   </label>
                   <select
                     id="sistema_corte"
                     name="sistema_corte"
-                    className={`form-control-pozos ${
+                    className={`form-control ${
                       errors.sistema_corte ? 'is-invalid' : ''
                     }`}
                     value={maquinaEdit.sistema_corte || ''}
@@ -349,7 +343,7 @@ export const ModalMaquinas = ({
                     </option>
                   </select>
                   {errors.tipo_maquina && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.tipo_maquina}
                     </div>

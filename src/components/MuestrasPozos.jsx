@@ -12,6 +12,10 @@ import {
   Plus,
   MoreVertical,
   FileText,
+  Droplet,
+  Phone,
+  MapPin,
+  Building,
 } from 'lucide-react';
 
 const MuestrasPozos = () => {
@@ -107,63 +111,86 @@ const MuestrasPozos = () => {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="mx-auto">
         {/* HEADER REDISEÑADO */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Card Cliente */}
-          <div className="card_calibracion">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-blue-50 rounded-lg">
-                <Building2 className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <h2 className="fs-4 font-bold text-white mb-3">
-                  Información del Cliente
-                </h2>
-                <div className="space-y-1">
-                  <div className="d-flex gap-5">
-                    <p className="text-md fs-6 fw-bold text-white ">
-                      Razón Social
-                    </p>
-                    <p className="text-md fs-6 text-white">
-                      {cliente?.razon_social || 'sin razón social'}
-                    </p>
-                  </div>
-                  <div className="d-flex gap-5">
-                    <p className="text-md fs-6 fw-bold text-white ">Teléfono</p>
 
-                    <p className="text-md fs-6 text-white">
-                      {cliente?.telefono || 'sin telefono'}
-                    </p>
-                  </div>
+        <div className="info-cards-grid">
+          {/* Card Cliente */}
+
+          <div className="info-card">
+            <div className="info-card-header">
+              <div className="info-card-icon">
+                <Building2 size={24} />
+              </div>
+              <h3 className="info-card-title">Información del Cliente</h3>
+            </div>
+            <div className="info-card-body-row">
+              <div className="info-item-horizontal">
+                <div className="info-item-icon">
+                  <Building size={20} />
+                </div>
+                <div className="info-item-content">
+                  <span className="info-item-label">Razón Social</span>
+                  <span className="info-item-value">
+                    {cliente?.razon_social || 'Sin razón social'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="info-item-horizontal">
+                <div className="info-item-icon">
+                  <Phone size={20} />
+                </div>
+                <div className="info-item-content">
+                  <span className="info-item-label">Teléfono</span>
+                  <span className="info-item-value">
+                    {cliente?.telefono || 'No especificado'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="info-item-horizontal">
+                <div className="info-item-icon">
+                  <MapPin size={20} />
+                </div>
+                <div className="info-item-content">
+                  <span className="info-item-label">Localidad</span>
+                  <span className="info-item-value">
+                    {cliente?.ciudad || 'No especificado'}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Card Pozo */}
-          <div className="card_calibracion">
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-purple-50 rounded-lg">
-                <Wrench className="w-6 h-6 text-purple-600" />
+          <div className="info-card">
+            <div className="info-card-header">
+              <div className="info-card-icon">
+                <Droplet size={24} />
               </div>
-              <div className="flex-1">
-                <h2 className="fs-4 font-bold text-white mb-3">
-                  Información del Pozo
-                </h2>
-                <div className="space-y-1">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-md fs-6 fw-bold text-white ">Nombre</p>
-                      <p className="text-md fs-6 text-white">
-                        {pozo?.nombre || 'Sin nombre'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-md fs-6 fw-bold text-white ">Modelo</p>
-                      <p className="text-md fs-6 text-white">
-                        {pozo?.establecimiento || 'Sin establecimiento'}
-                      </p>
-                    </div>
-                  </div>
+              <h3 className="info-card-title">Información del Pozo</h3>
+            </div>
+            <div className="info-card-body-row">
+              <div className="info-item-horizontal">
+                <div className="info-item-icon">
+                  <Droplet size={20} />
+                </div>
+                <div className="info-item-content">
+                  <span className="info-item-label">Nombre</span>
+                  <span className="info-item-value">
+                    {pozo?.nombre || 'Sin nombre'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="info-item-horizontal">
+                <div className="info-item-icon">
+                  <Building size={20} />
+                </div>
+                <div className="info-item-content">
+                  <span className="info-item-label">Establecimiento</span>
+                  <span className="info-item-value">
+                    {pozo?.establecimiento || 'No especificado'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -226,26 +253,21 @@ const MuestrasPozos = () => {
             </div>
 
             {/* TABLA */}
-            <div className="table-system rounded shadow-lg">
+
+            <div className="container-table rounded shadow-lg">
               {loading ? (
                 <div className="text-center text-white py-5">
                   <div className="spinner-border" />
                 </div>
               ) : (
-                <div style={{ overflowX: 'auto' }}>
+                <div className="table-wrapper">
                   <table className="table table-hover mb-0">
                     <thead>
                       <tr>
-                        <th
-                          className="text-white fw-semibold py-2 px-3"
-                          style={{ fontSize: '0.875rem' }}
-                        >
+                        <th>
                           <i className="bi bi-calendar-event me-2"></i>Fecha
                         </th>
-                        <th
-                          className="text-white fw-semibold py-2 px-3 text-center"
-                          style={{ fontSize: '0.875rem' }}
-                        >
+                        <th>
                           <i className="bi bi-droplet me-2"></i>pH
                         </th>
                         <th
@@ -308,7 +330,7 @@ const MuestrasPozos = () => {
                             {/* Fecha */}
                             <td className="py-2 px-3">
                               <span
-                                className="fw-semibold text-white"
+                                className="fw-semibold"
                                 style={{ fontSize: '0.85rem' }}
                               >
                                 {formatFecha(m.fecha_muestra)}
@@ -327,7 +349,7 @@ const MuestrasPozos = () => {
                                   className="rounded px-2 py-1"
                                   style={{
                                     background: x.c.bg,
-                                    color: x.c.color,
+                                    /*    color: x.c.color, */
                                     fontWeight: 600,
                                     fontSize: '0.75rem',
                                     display: 'inline-block',
@@ -341,22 +363,12 @@ const MuestrasPozos = () => {
 
                             {/* Fuerza Iónica */}
                             <td className="text-center py-2 px-3">
-                              <span
-                                className="text-white"
-                                style={{ fontSize: '0.85rem' }}
-                              >
-                                {m.fuerza_ionica ?? '-'}
-                              </span>
+                              <span>{m.fuerza_ionica ?? '-'}</span>
                             </td>
 
                             {/* Dosis */}
                             <td className="py-2 px-3">
-                              <span
-                                className="text-white"
-                                style={{ fontSize: '0.85rem' }}
-                              >
-                                {m.dosis || '-'}
-                              </span>
+                              <span>{m.dosis || '-'}</span>
                             </td>
 
                             {/* Acciones */}

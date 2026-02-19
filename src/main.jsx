@@ -7,9 +7,11 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 /* import './index.css';
  */ import App from './App.jsx';
 import './css/style.css';
+import './css/newStyle.css';
+import './css/clientesStyle.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <App />
-  </StrictMode>
+  </StrictMode>,
 );

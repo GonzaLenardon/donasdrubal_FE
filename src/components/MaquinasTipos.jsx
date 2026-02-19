@@ -350,17 +350,15 @@ const MaquinaTipo = () => {
               )}
 
               {/* Tipo */}
-              <div className="form-group-pozos">
-                <label htmlFor="tipo" className="form-label-pozos">
+              <div className="form-group">
+                <label htmlFor="tipo" className="form-label">
                   <i className="bi bi-tag-fill me-2"></i>
                   Tipo de Máquina
                 </label>
                 <select
                   id="tipo"
                   name="tipo"
-                  className={`form-control-pozos ${
-                    errors.tipo ? 'is-invalid' : ''
-                  }`}
+                  className={`form-control ${errors.tipo ? 'is-invalid' : ''}`}
                   value={tipoMaquina?.tipo || ''}
                   onChange={handleCliente}
                   disabled={isSubmitting}
@@ -374,7 +372,7 @@ const MaquinaTipo = () => {
                   <option value="4">Fija</option>
                 </select>
                 {errors.tipo && (
-                  <div className="invalid-feedback-pozos">
+                  <div className="invalid-feedback">
                     <i className="bi bi-exclamation-circle me-1"></i>
                     {errors.tipo}
                   </div>
@@ -382,8 +380,8 @@ const MaquinaTipo = () => {
               </div>
 
               {/* Marca */}
-              <div className="form-group-pozos">
-                <label htmlFor="marca" className="form-label-pozos">
+              <div className="form-group">
+                <label htmlFor="marca" className="form-label">
                   <i className="bi bi-award-fill me-2"></i>
                   Marca
                 </label>
@@ -391,16 +389,14 @@ const MaquinaTipo = () => {
                   type="text"
                   id="marca"
                   name="marca"
-                  className={`form-control-pozos ${
-                    errors.marca ? 'is-invalid' : ''
-                  }`}
+                  className={`form-control ${errors.marca ? 'is-invalid' : ''}`}
                   placeholder="Ej: John Deere"
                   value={tipoMaquina?.marca || ''}
                   onChange={handleCliente}
                   disabled={isSubmitting}
                 />
                 {errors.marca && (
-                  <div className="invalid-feedback-pozos">
+                  <div className="invalid-feedback">
                     <i className="bi bi-exclamation-circle me-1"></i>
                     {errors.marca}
                   </div>
@@ -408,8 +404,8 @@ const MaquinaTipo = () => {
               </div>
 
               {/* Modelo */}
-              <div className="form-group-pozos">
-                <label htmlFor="modelo" className="form-label-pozos">
+              <div className="form-group">
+                <label htmlFor="modelo" className="form-label">
                   <i className="bi bi-box-seam me-2"></i>
                   Modelo
                 </label>
@@ -417,7 +413,7 @@ const MaquinaTipo = () => {
                   type="text"
                   id="modelo"
                   name="modelo"
-                  className={`form-control-pozos ${
+                  className={`form-control ${
                     errors.modelo ? 'is-invalid' : ''
                   }`}
                   placeholder="Ej: 4730"
@@ -426,7 +422,7 @@ const MaquinaTipo = () => {
                   disabled={isSubmitting}
                 />
                 {errors.modelo && (
-                  <div className="invalid-feedback-pozos">
+                  <div className="invalid-feedback">
                     <i className="bi bi-exclamation-circle me-1"></i>
                     {errors.modelo}
                   </div>
@@ -434,8 +430,8 @@ const MaquinaTipo = () => {
               </div>
 
               {/* Fecha de Fabricación */}
-              <div className="form-group-pozos">
-                <label htmlFor="fecha_fabricacion" className="form-label-pozos">
+              <div className="form-group">
+                <label htmlFor="fecha_fabricacion" className="form-label">
                   <i className="bi bi-calendar-event me-2"></i>
                   Fecha de Fabricación
                 </label>
@@ -443,7 +439,7 @@ const MaquinaTipo = () => {
                   type="date"
                   id="fecha_fabricacion"
                   name="fecha_fabricacion"
-                  className={`form-control-pozos ${
+                  className={`form-control ${
                     errors.fecha_fabricacion ? 'is-invalid' : ''
                   }`}
                   placeholder="Ej: 2020 o 01/2020"
@@ -452,7 +448,7 @@ const MaquinaTipo = () => {
                   disabled={isSubmitting}
                 />
                 {errors.fecha_fabricacion && (
-                  <div className="invalid-feedback-pozos">
+                  <div className="invalid-feedback">
                     <i className="bi bi-exclamation-circle me-1"></i>
                     {errors.fecha_fabricacion}
                   </div>

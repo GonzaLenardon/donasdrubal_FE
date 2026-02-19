@@ -153,7 +153,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
       <div className="modal-overlay">
         <div className="modal-container" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
-          <div className="modal-header-pozos">
+          <div className="modal-header">
             <div className="d-flex align-items-center gap-3">
               <div className="modal-icon-container">
                 <i className="bi bi-droplet-fill"></i>
@@ -175,7 +175,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
           </div>
 
           {/* Body */}
-          <div className="modal-body-pozos">
+          <div className="modal-body">
             {/* Error general */}
             {errors.submit && (
               <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
@@ -185,8 +185,8 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
             )}
 
             {/* Nombre */}
-            <div className="form-group-pozos">
-              <label htmlFor="nombre" className="form-label-pozos">
+            <div className="form-group">
+              <label htmlFor="nombre" className="form-label">
                 <i className="bi bi-pencil-fill me-2"></i>
                 Nombre del Pozo
               </label>
@@ -194,16 +194,14 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
                 type="text"
                 id="nombre"
                 name="nombre"
-                className={`form-control-pozos ${
-                  errors.nombre ? 'is-invalid' : ''
-                }`}
+                className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
                 placeholder="Ej: Pozo Norte A"
                 value={formData.nombre}
                 onChange={handleChange}
                 disabled={isSubmitting}
               />
               {errors.nombre && (
-                <div className="invalid-feedback-pozos">
+                <div className="invalid-feedback">
                   <i className="bi bi-exclamation-circle me-1"></i>
                   {errors.nombre}
                 </div>
@@ -211,8 +209,8 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
             </div>
 
             {/* Establecimiento */}
-            <div className="form-group-pozos">
-              <label htmlFor="establecimiento" className="form-label-pozos">
+            <div className="form-group">
+              <label htmlFor="establecimiento" className="form-label">
                 <i className="bi bi-building me-2"></i>
                 Establecimiento
               </label>
@@ -220,7 +218,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
                 type="text"
                 id="establecimiento"
                 name="establecimiento"
-                className={`form-control-pozos ${
+                className={`form-control ${
                   errors.establecimiento ? 'is-invalid' : ''
                 }`}
                 placeholder="Ej: Campo La Esperanza"
@@ -229,7 +227,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
                 disabled={isSubmitting}
               />
               {errors.establecimiento && (
-                <div className="invalid-feedback-pozos">
+                <div className="invalid-feedback">
                   <i className="bi bi-exclamation-circle me-1"></i>
                   {errors.establecimiento}
                 </div>
@@ -239,8 +237,8 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
             {/* Coordenadas */}
             <div className="row g-3">
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label htmlFor="latitud" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="latitud" className="form-label">
                     <i className="bi bi-geo-alt-fill me-2"></i>
                     Latitud
                   </label>
@@ -248,7 +246,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
                     type="text"
                     id="latitud"
                     name="latitud"
-                    className={`form-control-pozos ${
+                    className={`form-control ${
                       errors.latitud ? 'is-invalid' : ''
                     }`}
                     placeholder="-31.4201"
@@ -257,7 +255,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
                     disabled={isSubmitting}
                   />
                   {errors.latitud && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.latitud}
                     </div>
@@ -266,8 +264,8 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
               </div>
 
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label htmlFor="longitud" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="longitud" className="form-label">
                     <i className="bi bi-geo-alt-fill me-2"></i>
                     Longitud
                   </label>
@@ -275,7 +273,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
                     type="text"
                     id="longitud"
                     name="longitud"
-                    className={`form-control-pozos ${
+                    className={`form-control ${
                       errors.longitud ? 'is-invalid' : ''
                     }`}
                     placeholder="-64.1888"
@@ -284,7 +282,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
                     disabled={isSubmitting}
                   />
                   {errors.longitud && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.longitud}
                     </div>
@@ -296,10 +294,10 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
             {/* Botones */}
 
             {!onlyView && (
-              <div className="modal-footer-pozos">
+              <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn-cancelar-pozos"
+                  className="btn-cancel"
                   onClick={handleClose}
                   disabled={isSubmitting}
                 >
@@ -309,7 +307,7 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
 
                 <button
                   type="button"
-                  className="btn-guardar-pozos"
+                  className="btn-save"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                 >

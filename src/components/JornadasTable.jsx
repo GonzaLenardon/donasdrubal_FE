@@ -71,14 +71,7 @@ const JornadasTable = () => {
   /* ================= RENDER ================= */
 
   return (
-    <div
-      style={{
-        /*  minHeight: '100vh', */
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '2rem',
-        borderRadius: '15px',
-      }}
-    >
+    <div className="maquinas-wrapper">
       <div style={{ margin: '0 auto' }}>
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -139,7 +132,6 @@ const JornadasTable = () => {
         <div
           className="rounded shadow"
           style={{
-            background: 'linear-gradient(145deg,#4a5d7c 0%,#3d4d69 100%)',
             border: '1px solid rgba(255,255,255,0.15)',
             padding: '0.75rem',
           }}
@@ -165,49 +157,141 @@ const JornadasTable = () => {
                   <tr
                     style={{
                       background:
-                        'linear-gradient(135deg,rgba(102,126,234,0.35),rgba(118,75,162,0.35))',
-                      borderBottom: '2px solid rgba(102,126,234,0.4)',
+                        'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
+                      borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
                     }}
                   >
-                    <th className="text-center">Fecha</th>
-                    <th className="text-center">Motivo</th>
-                    <th className="text-center">Estado</th>
-                    <th className="text-center">Observaciones</th>
-                    <th className="text-center">Acciones</th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-calendar-event me-2"></i>Fecha
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-chat-left-text me-2"></i>Motivo
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-flag-fill me-2"></i>Estado
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-card-text me-2"></i>Observaciones
+                    </th>
+                    <th
+                      className="text-white fw-semibold py-2 px-3 text-center"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-gear me-2"></i>Acciones
+                    </th>
                   </tr>
                 </thead>
 
-                <tbody style={{ background: 'transparent' }}>
-                  {jornadasFiltradas.map((m) => {
-                    return (
-                      <tr
-                        key={m.id}
-                        style={{
-                          borderBottom: '1px solid rgba(255,255,255,0.08)',
-                        }}
-                      >
-                        <td className="px-4 py-3">
-                          <strong>{formatFecha(m.fecha_jornada)}</strong>
-                        </td>
-                        <td className="text-center">{m.motivo || '-'}</td>
-                        <td className="text-center">{m.estado || '-'}</td>
-                        <td className="text-left">{m.observaciones || '-'}</td>
-                        <td className="text-center">
+                <tbody>
+                  {jornadasFiltradas.map((m) => (
+                    <tr
+                      key={m.id}
+                      style={{
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                        transition: 'background 0.2s ease',
+                        cursor: 'pointer',
+                        background: 'rgba(45, 80, 22, 0.2)',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          'rgba(74, 124, 31, 0.25)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          'rgba(45, 80, 22, 0.2)';
+                      }}
+                    >
+                      {/* Fecha */}
+                      <td className="py-2 px-3">
+                        <span
+                          className="fw-semibold text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {formatFecha(m.fecha_jornada)}
+                        </span>
+                      </td>
+
+                      {/* Motivo */}
+                      <td className="py-2 px-3">
+                        <span
+                          className="text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {m.motivo || '-'}
+                        </span>
+                      </td>
+
+                      {/* Estado */}
+                      <td className="py-2 px-3">
+                        <span
+                          className="badge px-2 py-1"
+                          style={{
+                            fontSize: '0.75rem',
+                            background: '#17a2b8',
+                            color: '#fff',
+                            textTransform: 'uppercase',
+                            fontWeight: '600',
+                          }}
+                        >
+                          {m.estado || '-'}
+                        </span>
+                      </td>
+
+                      {/* Observaciones */}
+                      <td className="py-2 px-3">
+                        <span
+                          className="text-white"
+                          style={{ fontSize: '0.85rem' }}
+                        >
+                          {m.observaciones || '-'}
+                        </span>
+                      </td>
+
+                      {/* Acciones */}
+                      <td className="py-2 px-3">
+                        <div className="d-flex gap-2 justify-content-center">
                           <button
                             className="btn btn-sm"
                             style={{
-                              background: 'rgba(102,126,234,0.25)',
-                              color: '#93c5fd',
-                              border: '1px solid rgba(102,126,234,0.35)',
+                              background: 'rgba(74, 124, 31, 0.4)',
+                              color: '#b8e6b1',
+                              border: '1px solid rgba(74, 124, 31, 0.6)',
+                              transition: 'all 0.2s ease',
+                              borderRadius: '4px',
                             }}
-                            onClick={() => handleEditarJornada(m)}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background =
+                                'rgba(74, 124, 31, 0.6)';
+                              e.currentTarget.style.transform = 'scale(1.05)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background =
+                                'rgba(74, 124, 31, 0.4)';
+                              e.currentTarget.style.transform = 'scale(1)';
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditarJornada(m);
+                            }}
                           >
-                            <i className="bi bi-pencil me-1"></i>Editar
+                            <i className="bi bi-pencil"></i>
                           </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
