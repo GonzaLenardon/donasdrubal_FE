@@ -191,12 +191,9 @@ const ModalMuestrasPozos = ({
 
   return (
     <div className="modal-overlay">
-      <div
-        className="modal-container rounded shadow-lg"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="modal-header p-4 d-flex justify-content-between align-items-start">
+        <div className="modal-header ">
           <div className="d-flex align-items-center gap-3">
             <div
               className="rounded d-flex align-items-center justify-content-center"
@@ -257,15 +254,10 @@ const ModalMuestrasPozos = ({
           )}
 
           {/* Fechas */}
-          <div
-            className="p-3 rounded mb-4"
-            style={{
-              background: 'rgba(15,23,42,0.6)',
-              border: '1px solid rgba(34,197,94,0.2)',
-            }}
-          >
+
+          <div className="p-3 rounded mb-4">
             <h6
-              className="fw-semibold text-white mb-3 pb-2"
+              className="fw-semibold mb-3 pb-2"
               style={{ borderBottom: '2px solid rgba(34,197,94,0.35)' }}
             >
               <i className="bi bi-calendar3 me-2"></i>
@@ -274,7 +266,7 @@ const ModalMuestrasPozos = ({
             <div className="row g-3">
               <div className="col-md-6">
                 <label
-                  className="form-label fw-semibold text-white d-flex align-items-center"
+                  className="form-label fw-semibold  d-flex align-items-center"
                   style={{ fontSize: '0.875rem' }}
                 >
                   Fecha de Muestra
@@ -300,7 +292,7 @@ const ModalMuestrasPozos = ({
 
               <div className="col-md-6">
                 <label
-                  className="form-label fw-semibold text-white"
+                  className="form-label fw-semibold"
                   style={{ fontSize: '0.875rem' }}
                 >
                   Fecha de Análisis
@@ -318,15 +310,12 @@ const ModalMuestrasPozos = ({
           </div>
 
           {/* Parámetros Químicos */}
-          <div
-            className="p-3 rounded mb-4"
-            style={{
-              background: 'rgba(0, 0, 0, 0.15)',
-              border: '1px solid rgba(255, 255, 255, 0.05)',
-            }}
-          >
+
+          <div className="p-3 rounded mb-4">
+            <div className="form-group"></div>
+
             <h6
-              className="fw-semibold text-white mb-3 pb-2"
+              className="fw-semibold  mb-3 pb-2"
               style={{ borderBottom: '2px solid rgba(102, 126, 234, 0.3)' }}
             >
               <i className="bi bi-droplet-half me-2"></i>
@@ -336,7 +325,7 @@ const ModalMuestrasPozos = ({
               {/* pH */}
               <div className="col-md-4">
                 <label
-                  className="form-label fw-semibold text-white d-flex justify-content-between align-items-center"
+                  className="form-label fw-semibold d-flex justify-content-between align-items-center"
                   style={{ fontSize: '0.875rem' }}
                 >
                   <span>pH</span>
@@ -371,7 +360,7 @@ const ModalMuestrasPozos = ({
               {/* Dureza */}
               <div className="col-md-4">
                 <label
-                  className="form-label fw-semibold text-white d-flex justify-content-between align-items-center"
+                  className="form-label fw-semibold  d-flex justify-content-between align-items-center"
                   style={{ fontSize: '0.875rem' }}
                 >
                   <span>Dureza (mg/L)</span>
@@ -409,7 +398,7 @@ const ModalMuestrasPozos = ({
               {/* Alcalinidad */}
               <div className="col-md-4">
                 <label
-                  className="form-label fw-semibold text-white d-flex justify-content-between align-items-center"
+                  className="form-label fw-semibold d-flex justify-content-between align-items-center"
                   style={{ fontSize: '0.875rem' }}
                 >
                   <span>Alcalinidad (mg/L)</span>
@@ -451,7 +440,7 @@ const ModalMuestrasPozos = ({
               {/* Salinidad */}
               <div className="col-md-4">
                 <label
-                  className="form-label fw-semibold text-white d-flex justify-content-between align-items-center"
+                  className="form-label fw-semibold d-flex justify-content-between align-items-center"
                   style={{ fontSize: '0.875rem' }}
                 >
                   <span>Salinidad (mg/L)</span>
@@ -493,7 +482,7 @@ const ModalMuestrasPozos = ({
               {/* Fuerza Iónica */}
               <div className="col-md-4">
                 <label
-                  className="form-label fw-semibold text-white"
+                  className="form-label fw-semibold"
                   style={{ fontSize: '0.875rem' }}
                 >
                   Fuerza Iónica
@@ -520,45 +509,37 @@ const ModalMuestrasPozos = ({
 
               {/* Dosis */}
               {/*  <div className="col-md-4">
-                <label
-                  className="form-label fw-semibold text-white"
-                  style={{ fontSize: '0.875rem' }}
-                >
-                  Dosis
-                </label>
-                <input
-                  type="text"
-                  name="dosis"
-                  className="form-control"
-                  style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
-                    border: '2px solid rgba(255, 255, 255, 0.1)',
-                    color: 'white',
-                  }}
-                  placeholder="Ej: 2.5 L/ha"
-                  value={formData.dosis}
-                  onChange={handleChange}
-                  disabled={isSubmitting}
-                />
-              </div> */}
+                  <label
+                    className="form-label fw-semibold text-white"
+                    style={{ fontSize: '0.875rem' }}
+                  >
+                    Dosis
+                  </label>
+                  <input
+                    type="text"
+                    name="dosis"
+                    className="form-control"
+                    style={{
+                      background: 'rgba(0, 0, 0, 0.2)',
+                      border: '2px solid rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                    }}
+                    placeholder="Ej: 2.5 L/ha"
+                    value={formData.dosis}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                  />
+                </div> */}
             </div>
           </div>
 
           {/* Botones */}
 
           {!onlyView && (
-            <div
-              className="d-flex gap-3 pt-3"
-              style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}
-            >
+            <div className="modalx-footer">
               <button
                 type="button"
-                className="btn flex-fill fw-semibold"
-                style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  border: '2px solid rgba(255, 255, 255, 0.2)',
-                }}
+                className="btnx-cancelar"
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
@@ -567,12 +548,7 @@ const ModalMuestrasPozos = ({
               </button>
               <button
                 type="button"
-                className="btn flex-fill fw-semibold text-white"
-                style={{
-                  background:
-                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  border: 'none',
-                }}
+                className="btnx-guardar"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >

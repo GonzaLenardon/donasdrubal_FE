@@ -1,0 +1,1035 @@
+/* =========================================
+   🎨 VARIABLES / COLOR BASE
+========================================= */
+
+:root {
+  --color-base: rgba(27, 89, 49, 0.99);
+  --color-base-soft: rgba(27, 89, 49, 0.12);
+  --color-base-hover: rgba(27, 89, 49, 0.2);
+  --color-base-dark: #1b5931;
+  --color-base-light: rgba(27, 89, 49, 0.05);
+
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, #2d5016 0%, #4a7c1f 100%);
+  --gradient-header: linear-gradient(90deg, #2d5016 0%, #4a7c1f 100%);
+
+  /* Colores de estado */
+  --color-success: #22c55e;
+  --color-success-soft: rgba(34, 197, 94, 0.15);
+  --color-error: #ef4444;
+  --color-error-soft: rgba(239, 68, 68, 0.15);
+
+  /* Neutros */
+  --color-white: #ffffff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+}
+
+/* =========================================
+   🧱 SECCIÓN PRINCIPAL
+========================================= */
+
+.container_seccion {
+  /*  background: var(--color-base);
+  padding: 2rem; */
+  /*   border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25); */
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-weight: 700;
+  color: var(--color-white);
+  font-size: 1.75rem;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0.25rem 0 0 0;
+}
+
+/* =========================================
+   📊 TABLA
+========================================= */
+
+.container-table {
+  background: var(--color-white);
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.container-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Header */
+.container-table thead th {
+  background-color: var(--color-base) !important;
+  color: var(--color-white) !important;
+  border-color: var(--color-base);
+}
+
+.container-table th {
+  color: var(--color-white);
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.8rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.container-table th i {
+  margin-right: 0.4rem;
+  opacity: 0.85;
+}
+
+/* Body */
+.container-table tbody tr {
+  border-bottom: 1px solid var(--color-gray-200);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.container-table tbody tr:hover {
+  background: var(--color-base-soft);
+}
+
+.container-table td {
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-gray-700);
+  vertical-align: middle;
+}
+
+/* =========================================
+   🏷 TEXTOS Y BADGES
+========================================= */
+
+.table-text {
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.table-text-muted {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.table-badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.table-badge-principal {
+  background: var(--color-base-soft);
+  color: var(--color-base);
+  border: 1px solid var(--color-base-hover);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.table-badge-secondary {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+/* =========================================
+   🔘 BOTONES DE TABLA
+========================================= */
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.table-btn {
+  padding: 0.35rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border: 1px solid var(--color-base-hover);
+  background: var(--color-base-soft);
+  color: var(--color-base);
+  transition: all 0.2s ease;
+}
+
+.table-btn:hover {
+  background: var(--color-base-hover);
+  transform: translateY(-1px);
+}
+
+.table-btn-edit {
+  /* Hereda estilos de .table-btn */
+}
+
+.table-btn-view {
+  /* Hereda estilos de .table-btn */
+}
+
+.table-btn-delete {
+  background: var(--color-error-soft);
+  color: #b91c1c;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.table-btn-delete:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+/* =========================================
+   🔘 BOTONES PRINCIPALES
+========================================= */
+
+.btn-primary {
+  background: var(--gradient-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px var(--color-base-soft);
+  color: var(--color-white);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--color-base-hover);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================================
+   🪟 SISTEMA DE MODALES
+========================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-container {
+  background: var(--color-white);
+  border-radius: 20px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 95vh;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+/* Header del Modal */
+.modal-header {
+  padding: 1.5rem 2rem;
+  background: var(--color-base);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de brillo sutil */
+.modal-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+.modal-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-white);
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 2;
+}
+
+.modal-title {
+  color: var(--color-white);
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.modal-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--color-white);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+/* Body del Modal */
+.modal-body {
+  padding: 2rem;
+  /* background: var(--color-white); */
+  overflow-y: auto;
+  background: #dae0da;
+}
+
+/* Footer del Modal */
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1.5rem 0rem;
+  border-top: 1px solid var(--color-gray-200);
+  background: var(--color-gray-50);
+  border-radius: 0 0 20px 20px;
+}
+
+/* =========================================
+   📝 FORMULARIOS
+========================================= */
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.form-label i {
+  color: var(--color-base);
+  margin-right: 0.5rem;
+  font-size: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #edf5ec;
+  border: 2px solid var(--color-gray-200);
+  border-radius: 10px;
+  color: var(--color-gray-700);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.form-control::placeholder {
+  color: #9ca3af;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--color-base);
+  background: rgb(208, 198, 198);
+  box-shadow: 0 0 0 3px var(--color-base-soft);
+}
+
+.form-control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-200);
+}
+
+.form-control.is-invalid {
+  border-color: var(--color-error);
+  background: var(--color-error-soft);
+}
+
+/* Select personalizado */
+select.form-control {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231b5931' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Textarea */
+textarea.form-control {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* =========================================
+   ✅ CHECKBOXES Y RADIOS
+========================================= */
+
+.form-check-container {
+  padding: 1rem;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.form-check-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--color-white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-check-item:last-child {
+  margin-bottom: 0;
+}
+
+.form-check-item:hover {
+  border-color: var(--color-base-soft);
+  background: var(--color-base-light);
+  transform: translateX(2px);
+}
+
+.form-check-item.selected {
+  background: var(--color-base-soft);
+  border-color: var(--color-base-hover);
+}
+
+/* Checkboxes */
+input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--color-base);
+}
+
+input[type='radio'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--color-base);
+}
+
+/* Label de checkbox/radio */
+.form-check-label {
+  cursor: pointer;
+  margin-bottom: 0;
+  color: var(--color-gray-700);
+  font-weight: 500;
+}
+
+/* =========================================
+   🏷️ BADGES
+========================================= */
+
+.badge-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* =========================================
+   ⚠️ ALERTAS Y VALIDACIONES
+========================================= */
+
+.alert {
+  padding: 1rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.alert-success {
+  background: var(--color-success-soft);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-left: 4px solid var(--color-success);
+  color: var(--color-gray-700);
+}
+
+.alert-success i {
+  color: var(--color-success);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.alert-danger {
+  background: var(--color-error-soft);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-left: 4px solid var(--color-error);
+  color: var(--color-gray-700);
+}
+
+.alert-danger i {
+  color: var(--color-error);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.invalid-feedback {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--color-error);
+  animation: fadeIn 0.3s ease;
+}
+
+.invalid-feedback i {
+  margin-right: 0.25rem;
+}
+
+/* =========================================
+   🔘 BOTONES DE FORMULARIO
+========================================= */
+
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  background: var(--color-white);
+  color: var(--color-gray-600);
+  border: 2px solid var(--color-gray-300);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-600);
+  transform: translateY(-1px);
+}
+
+.btn-save {
+  padding: 0.75rem 1.5rem;
+  background: var(--gradient-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px var(--color-base-soft);
+}
+
+.btn-save:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--color-base-hover);
+}
+
+.btn-save:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================================
+   🔄 SPINNER DE CARGA
+========================================= */
+
+.spinner-border {
+  border-color: currentColor;
+  border-right-color: transparent;
+}
+
+/* =========================================
+   📜 SCROLLBAR PERSONALIZADO
+========================================= */
+
+.modal-body::-webkit-scrollbar,
+.form-check-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track,
+.form-check-container::-webkit-scrollbar-track {
+  background: var(--color-gray-100);
+  border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb,
+.form-check-container::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 10px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover,
+.form-check-container::-webkit-scrollbar-thumb:hover {
+  background: var(--color-base-hover);
+}
+
+/* =========================================
+   🎭 ANIMACIONES
+========================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-8px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(8px);
+  }
+}
+
+/* =========================================
+   💬 TEXTOS INFORMATIVOS
+========================================= */
+
+.text-muted {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.text-muted i {
+  color: var(--color-base);
+}
+
+small.text-muted {
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* =========================================
+   📱 RESPONSIVE
+========================================= */
+
+@media (max-width: 1024px) {
+  .modal-container {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container_seccion {
+    padding: 1.25rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .container-table {
+    padding: 0.75rem;
+  }
+
+  .container-table th,
+  .container-table td {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+
+  .table-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .table-btn {
+    padding: 0.25rem 0.6rem;
+  }
+
+  /* Modal responsive */
+  .modal-container {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .modal-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+
+  .modal-title {
+    font-size: 1.25rem;
+  }
+
+  .modal-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    width: 100%;
+  }
+}
+
+/* =========================================
+   🏷 BADGES DE TABLA - VARIANTES DE COLOR
+========================================= */
+
+/* Badge Info (Cyan/Turquesa) */
+.table-badge-info {
+  background: rgba(6, 182, 212, 0.15);
+  color: #0891b2;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Badge Success (Verde) */
+.table-badge-success {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Badge Primary (Azul) */
+.table-badge-primary {
+  background: rgba(59, 130, 246, 0.15);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Badge Warning (Amarillo/Naranja) */
+.table-badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Badge Danger (Rojo) */
+.table-badge-danger {
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Hover effects para todos los badges */
+.table-badge-info:hover,
+.table-badge-success:hover,
+.table-badge-primary:hover,
+.table-badge-warning:hover,
+.table-badge-danger:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* =========================================
+   📊 TABLA - ESTADO VACÍO
+========================================= */
+
+.table-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.table-empty-icon {
+  font-size: 3rem;
+  color: var(--color-gray-300);
+  margin-bottom: 1rem;
+}
+
+.table-empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin-bottom: 0.5rem;
+}
+
+.table-empty-text {
+  font-size: 0.95rem;
+  color: var(--color-gray-600);
+  margin-bottom: 1.5rem;
+}
+
+/* =========================================
+   🔄 LOADING STATE
+========================================= */
+
+.table-loading-state {
+  text-align: center;
+  padding: 3rem 2rem;
+}
+
+.table-loading-spinner {
+  color: var(--color-base);
+}
+
+.table-loading-text {
+  margin-top: 1rem;
+  color: var(--color-gray-600);
+  font-size: 0.95rem;
+}
+
+/* =========================================
+   📱 RESPONSIVE - BADGES
+========================================= */
+
+@media (max-width: 768px) {
+  .table-badge-info,
+  .table-badge-success,
+  .table-badge-primary,
+  .table-badge-warning,
+  .table-badge-danger {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .table-badge-info,
+  .table-badge-success,
+  .table-badge-primary,
+  .table-badge-warning,
+  .table-badge-danger {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .container-table th,
+  .container-table td {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  .table-badge-principal,
+  .table-badge-secondary {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+}
+
+/* =========================================
+   🖨 PRINT
+========================================= */
+
+@media print {
+  .modal-overlay,
+  .sidebar,
+  .hamburger-btn,
+  .btn-primary,
+  .table-actions,
+  .btn-cancel,
+  .btn-save {
+    display: none !important;
+  }
+
+  .modal-container {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .modal-body {
+    overflow: visible;
+  }
+}

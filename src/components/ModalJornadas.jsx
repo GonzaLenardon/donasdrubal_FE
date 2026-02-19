@@ -170,8 +170,8 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
             )}
 
             {/* Fecha Jornada */}
-            <div className="form-group-pozos">
-              <label htmlFor="nombre" className="form-label-pozos">
+            <div className="form-group">
+              <label htmlFor="nombre" className="form-label">
                 <i className="bi bi-pencil-fill me-2"></i>
                 Fecha de la jornada
               </label>
@@ -199,8 +199,8 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
             </div>
 
             {/* Motivo */}
-            <div className="form-group-pozos">
-              <label htmlFor="motivo" className="form-label-pozos">
+            <div className="form-group">
+              <label htmlFor="motivo" className="form-label">
                 <i className="bi bi-building me-2"></i>
                 Motivo
               </label>
@@ -220,8 +220,8 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
             </div>
 
             {/* Estado */}
-            <div className="form-group-pozos">
-              <label htmlFor="estado" className="form-label-pozos">
+            <div className="form-group">
+              <label htmlFor="estado" className="form-label">
                 <i className="bi bi-building me-2"></i>
                 Estado
               </label>
@@ -242,8 +242,8 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
             </div>
 
             {/* Observaciones */}
-            <div className="form-group-pozos">
-              <label htmlFor="observaciones" className="form-label-pozos">
+            <div className="form-group">
+              <label htmlFor="observaciones" className="form-label">
                 <i className="bi bi-building me-2"></i>
                 Observaciones
               </label>
@@ -251,7 +251,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                 type="text"
                 id="observaciones"
                 name="observaciones"
-                className={`form-control-pozos ${
+                className={`form-control ${
                   errors.observaciones ? 'is-invalid' : ''
                 }`}
                 placeholder="Deje aqui algun comentario sobre la jornada..."
@@ -260,7 +260,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                 disabled={isSubmitting}
               />
               {errors.observaciones && (
-                <div className="invalid-feedback-pozos">
+                <div className="invalid-feedback">
                   <i className="bi bi-exclamation-circle me-1"></i>
                   {errors.observaciones}
                 </div>

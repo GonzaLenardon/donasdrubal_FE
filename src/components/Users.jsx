@@ -381,8 +381,8 @@ const Users = () => {
               )}
 
               {/* Nombre */}
-              <div className="form-group-pozos">
-                <label htmlFor="nombre" className="form-label-pozos">
+              <div className="form-group">
+                <label htmlFor="nombre" className="form-label">
                   <i className="bi bi-person-fill me-2"></i>
                   Nombre
                 </label>
@@ -390,7 +390,7 @@ const Users = () => {
                   type="text"
                   id="nombre"
                   name="nombre"
-                  className={`form-control-pozos ${
+                  className={`form-control ${
                     errors.nombre ? 'is-invalid' : ''
                   }`}
                   placeholder="Ingrese nombre completo"
@@ -399,7 +399,7 @@ const Users = () => {
                   disabled={isSubmitting}
                 />
                 {errors.nombre && (
-                  <div className="invalid-feedback-pozos">
+                  <div className="invalid-feedback">
                     <i className="bi bi-exclamation-circle me-1"></i>
                     {errors.nombre}
                   </div>
@@ -407,15 +407,15 @@ const Users = () => {
               </div>
 
               {/* Rol */}
-              <div className="form-group-pozos">
-                <label htmlFor="role_id" className="form-label-pozos">
+              <div className="form-group">
+                <label htmlFor="role_id" className="form-label">
                   <i className="bi bi-shield-check me-2"></i>
                   Rol
                 </label>
                 <select
                   id="role_id"
                   name="role_id"
-                  className={`form-control-pozos ${
+                  className={`form-control ${
                     errors.role_id ? 'is-invalid' : ''
                   }`}
                   value={newUser?.role_id || ''}
@@ -430,7 +430,7 @@ const Users = () => {
                   ))}
                 </select>
                 {errors.role_id && (
-                  <div className="invalid-feedback-pozos">
+                  <div className="invalid-feedback">
                     <i className="bi bi-exclamation-circle me-1"></i>
                     {errors.role_id}
                   </div>
@@ -438,8 +438,8 @@ const Users = () => {
               </div>
 
               {/* Email */}
-              <div className="form-group-pozos">
-                <label htmlFor="email" className="form-label-pozos">
+              <div className="form-group">
+                <label htmlFor="email" className="form-label">
                   <i className="bi bi-envelope-fill me-2"></i>
                   Email
                 </label>
@@ -447,16 +447,14 @@ const Users = () => {
                   type="email"
                   id="email"
                   name="email"
-                  className={`form-control-pozos ${
-                    errors.email ? 'is-invalid' : ''
-                  }`}
+                  className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                   placeholder="ejemplo@email.com"
                   value={newUser?.email || ''}
                   onChange={handleUser}
                   disabled={isSubmitting}
                 />
                 {errors.email && (
-                  <div className="invalid-feedback-pozos">
+                  <div className="invalid-feedback">
                     <i className="bi bi-exclamation-circle me-1"></i>
                     {errors.email}
                   </div>
@@ -464,8 +462,8 @@ const Users = () => {
               </div>
 
               {/* Teléfono */}
-              <div className="form-group-pozos">
-                <label htmlFor="telefono" className="form-label-pozos">
+              <div className="form-group">
+                <label htmlFor="telefono" className="form-label">
                   <i className="bi bi-telephone-fill me-2"></i>
                   Teléfono
                 </label>
@@ -473,7 +471,7 @@ const Users = () => {
                   type="text"
                   id="telefono"
                   name="telefono"
-                  className={`form-control-pozos ${
+                  className={`form-control ${
                     errors.telefono ? 'is-invalid' : ''
                   }`}
                   placeholder="+54 9 11 XXXX-XXXX"
@@ -482,7 +480,7 @@ const Users = () => {
                   disabled={isSubmitting}
                 />
                 {errors.telefono && (
-                  <div className="invalid-feedback-pozos">
+                  <div className="invalid-feedback">
                     <i className="bi bi-exclamation-circle me-1"></i>
                     {errors.telefono}
                   </div>

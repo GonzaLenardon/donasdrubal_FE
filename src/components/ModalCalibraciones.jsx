@@ -235,7 +235,7 @@ const NumeroInput = ({ value, onChange, disabled, min = 0, max = 200 }) => {
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
-        className="form-control-pozos text-center"
+        className="form-control text-center"
         value={value || ''}
         onChange={handleChange}
         disabled={disabled}
@@ -1003,15 +1003,15 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
             <div className="row g-4">
               <div className="col-md-8">
-                <div className="form-group-pozos">
-                  <label htmlFor="responsable" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="responsable" className="form-label">
                     <i className="bi bi-person-fill me-2"></i>
                     Responsable <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
                     id="responsable"
-                    className={`form-control-pozos ${errors.responsable ? 'is-invalid' : ''}`}
+                    className={`form-control ${errors.responsable ? 'is-invalid' : ''}`}
                     name="responsable"
                     placeholder="Ej: Juan Pérez"
                     value={form.responsable || ''}
@@ -1019,7 +1019,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                     disabled={isSubmitting}
                   />
                   {errors.responsable && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.responsable}
                     </div>
@@ -1028,22 +1028,22 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               </div>
 
               <div className="col-md-4">
-                <div className="form-group-pozos">
-                  <label htmlFor="fecha" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="fecha" className="form-label">
                     <i className="bi bi-calendar-fill me-2"></i>
                     Fecha <span className="text-danger">*</span>
                   </label>
                   <input
                     type="date"
                     id="fecha"
-                    className={`form-control-pozos ${errors.fecha ? 'is-invalid' : ''}`}
+                    className={`form-control ${errors.fecha ? 'is-invalid' : ''}`}
                     name="fecha"
                     value={form.fecha || ''}
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
                   {errors.fecha && (
-                    <div className="invalid-feedback-pozos">
+                    <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
                       {errors.fecha}
                     </div>
@@ -1098,13 +1098,13 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
                       <div className="mb-2">
                         <label
-                          className="form-label-pozos"
+                          className="form-label"
                           style={{ fontSize: '0.8rem' }}
                         >
                           Estado
                         </label>
                         <select
-                          className="form-control-pozos"
+                          className="form-control"
                           value={form[campo]?.estado || ''}
                           onChange={(e) =>
                             handleEstadoChange(campo, 'estado', e.target.value)
@@ -1125,13 +1125,13 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                         <>
                           <div className="mb-2">
                             <label
-                              className="form-label-pozos"
+                              className="form-label"
                               style={{ fontSize: '0.8rem' }}
                             >
                               Modelo
                             </label>
                             <select
-                              className="form-control-pozos"
+                              className="form-control"
                               value={form[campo]?.modelo || ''}
                               onChange={(e) =>
                                 handleEstadoChange(
@@ -1154,13 +1154,13 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
                           <div className="mb-2">
                             <label
-                              className="form-label-pozos"
+                              className="form-label"
                               style={{ fontSize: '0.8rem' }}
                             >
                               Materiales
                             </label>
                             <select
-                              className="form-control-pozos"
+                              className="form-control"
                               value={form[campo]?.materiales || ''}
                               onChange={(e) =>
                                 handleEstadoChange(
@@ -1187,7 +1187,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                         <>
                           <div className="mb-3">
                             <label
-                              className="form-label-pozos mb-2"
+                              className="form-label mb-2"
                               style={{ fontSize: '0.8rem' }}
                             >
                               <i className="bi bi-palette me-1"></i>
@@ -1204,7 +1204,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
                           <div className="mb-3">
                             <label
-                              className="form-label-pozos mb-2"
+                              className="form-label mb-2"
                               style={{ fontSize: '0.8rem' }}
                             >
                               <i className="bi bi-123 me-1"></i>
@@ -1223,7 +1223,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
                           <div className="mb-3">
                             <label
-                              className="form-label-pozos mb-2"
+                              className="form-label mb-2"
                               style={{ fontSize: '0.8rem' }}
                             >
                               <i className="bi bi-circle me-1"></i>
@@ -1246,13 +1246,13 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
                       <div className="mb-2">
                         <label
-                          className="form-label-pozos"
+                          className="form-label"
                           style={{ fontSize: '0.8rem' }}
                         >
                           Observación
                         </label>
                         <textarea
-                          className="form-control-pozos"
+                          className="form-control"
                           rows="2"
                           placeholder="Observaciones..."
                           value={form[campo]?.observacion || ''}
@@ -1270,7 +1270,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
                       <div className="mb-2">
                         <label
-                          className="form-label-pozos"
+                          className="form-label"
                           style={{ fontSize: '0.8rem' }}
                         >
                           Recomendaciones
@@ -1286,7 +1286,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
                       <div className="mt-3">
                         <label
-                          className="form-label-pozos"
+                          className="form-label"
                           style={{ fontSize: '0.8rem' }}
                         >
                           Archivo adjunto
@@ -1363,15 +1363,15 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
             <div className="row g-4 mb-5">
               <div className="col-md-4">
-                <div className="form-group-pozos">
-                  <label htmlFor="presion_unimap" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="presion_unimap" className="form-label">
                     <i className="bi bi-speedometer me-2"></i>
                     Presión Unimap (bares)
                   </label>
                   <input
                     type="number"
                     id="presion_unimap"
-                    className="form-control-pozos"
+                    className="form-control"
                     name="presion_unimap"
                     placeholder="Ej: 3.5"
                     step="0.1"
@@ -1383,18 +1383,15 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               </div>
 
               <div className="col-md-4">
-                <div className="form-group-pozos">
-                  <label
-                    htmlFor="presion_computadora"
-                    className="form-label-pozos"
-                  >
+                <div className="form-group">
+                  <label htmlFor="presion_computadora" className="form-label">
                     <i className="bi bi-speedometer me-2"></i>
                     Presión Computadora (bares)
                   </label>
                   <input
                     type="number"
                     id="presion_computadora"
-                    className="form-control-pozos"
+                    className="form-control"
                     name="presion_computadora"
                     placeholder="Ej: 3.5"
                     step="0.1"
@@ -1406,18 +1403,15 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               </div>
 
               <div className="col-md-4">
-                <div className="form-group-pozos">
-                  <label
-                    htmlFor="presion_manometro"
-                    className="form-label-pozos"
-                  >
+                <div className="form-group">
+                  <label htmlFor="presion_manometro" className="form-label">
                     <i className="bi bi-speedometer me-2"></i>
                     Presión Manómetro (bares)
                   </label>
                   <input
                     type="number"
                     id="presion_manometro"
-                    className="form-control-pozos"
+                    className="form-control"
                     name="presion_manometro"
                     placeholder="Ej: 3.5"
                     step="0.1"
@@ -1464,17 +1458,14 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
             <div className="row g-4">
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label
-                    htmlFor="observaciones_acronex"
-                    className="form-label-pozos"
-                  >
+                <div className="form-group">
+                  <label htmlFor="observaciones_acronex" className="form-label">
                     <i className="bi bi-journal-text me-2"></i>
                     Observaciones ACRONEX
                   </label>
                   <textarea
                     id="observaciones_acronex"
-                    className="form-control-pozos"
+                    className="form-control"
                     rows="4"
                     placeholder="Ingrese observaciones de ACRONEX..."
                     name="observaciones_acronex"
@@ -1486,14 +1477,14 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               </div>
 
               <div className="col-md-6">
-                <div className="form-group-pozos">
-                  <label htmlFor="Observaciones" className="form-label-pozos">
+                <div className="form-group">
+                  <label htmlFor="Observaciones" className="form-label">
                     <i className="bi bi-journal-text me-2"></i>
                     Observaciones Generales
                   </label>
                   <textarea
                     id="Observaciones"
-                    className="form-control-pozos"
+                    className="form-control"
                     rows="4"
                     placeholder="Ingrese observaciones generales..."
                     name="Observaciones"

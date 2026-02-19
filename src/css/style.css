@@ -11,7 +11,6 @@
   --green-secondary-soft: rgba(34, 197, 94, 0.2);
 }
 
-
 #root {
   font-size: 1em;
   margin: 0;
@@ -152,13 +151,8 @@ body {
    ============================================ */
 
 .btn-primary {
-  background: linear-gradient(
-    135deg,
-  #5a7f2c 0%,
-  #3f6b1a 100%
-  ) !important;
+  background: linear-gradient(135deg, #5a7f2c 0%, #3f6b1a 100%) !important;
 }
-
 
 /* ============================================
    SIDEBAR
@@ -486,7 +480,6 @@ body {
   margin-bottom: 0.3em;
 }
 
-
 /* ============================================
    CLIENTE HEADER
 ============================================ */
@@ -495,8 +488,9 @@ body {
   position: relative;
   margin-bottom: 2rem;
   border-radius: 1rem;
-  overflow: hidden;
-  background: linear-gradient(90deg, #2d5016 0%, #4a7c1f 100%);
+  /*   overflow: hidden;
+  background: linear-gradient(90deg, #2d5016 0%, #4a7c1f 100%); */
+  background: --bas;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
@@ -558,7 +552,7 @@ body {
 /* Grid info */
 .cliente-info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 2fr));
   gap: 1rem;
 }
 
@@ -836,7 +830,7 @@ body {
    ============================================ */
 
 .modal-container {
-  background: linear-gradient(145deg,   #5a7f2c 0%,  #3f6b1a 100% 100%);
+  background: linear-gradient(145deg, #5a7f2c 0%, #3f6b1a 100% 100%);
   border-radius: 20px;
   max-width: 600px;
   width: 90%;
@@ -853,14 +847,10 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  background: linear-gradient(
-    135deg,
-    #5a7f2c 0%,
-    #3f6b1a 100%
-  );
+  background: linear-gradient(135deg, #5a7f2c 0%, #3f6b1a 100%);
 }
 
-.modal-icon-container {
+/* .modal-icon-container {
   width: 50px;
   height: 50px;
   background: linear-gradient(135deg,   #5a7f2c 0%,  #3f6b1a 100% 100%);
@@ -871,7 +861,7 @@ body {
   font-size: 1.5rem;
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
+} */
 
 .modal-title-pozos {
   font-size: 1.5rem;
@@ -971,7 +961,6 @@ body {
   transform: translateY(-2px);
 }
 
-
 .btn-guardar-pozos:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(90, 127, 44, 0.4);
@@ -988,11 +977,11 @@ body {
    FORM GROUPS POZOS
    ============================================ */
 
-.form-group-pozos {
+.form-group {
   margin-bottom: 1rem;
 }
 
-.form-label-pozos {
+.form-label {
   display: block;
   font-size: 0.875rem;
   font-weight: 600;
@@ -1002,18 +991,18 @@ body {
   align-items: center;
 }
 
-.form-label-pozos i {
+.form-label i {
   color: #0dcaf0;
   margin-right: 0.4rem;
 }
 
 .form-control:focus {
-  border-color: rgba(34,197,94,0.6);
-  box-shadow: 0 0 0 0.15rem rgba(34,197,94,0.25);
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 0 0 0.15rem rgba(34, 197, 94, 0.25);
 }
 
-.form-control-calibraciones,
-.form-control-pozos {
+/* .form-control-calibraciones,
+.form-control {
   width: 100%;
   padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.05) !important;
@@ -1024,38 +1013,38 @@ body {
   transition: all 0.3s ease;
 }
 
-.form-control-pozos::placeholder {
+.form-control::placeholder {
   color: rgba(255, 255, 255, 0.4);
 }
 
-.form-control-pozos:focus {
+.form-control:focus {
   outline: none;
   border-color: rgba(102, 126, 234, 0.6) !important;
   background: rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.form-control-pozos:disabled {
+.form-control:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   background: rgba(255, 255, 255, 0.02) !important;
 }
 
-.form-control-pozos.is-invalid {
+.form-control.is-invalid {
   border-color: #dc3545 !important;
   background: rgba(220, 53, 69, 0.05) !important;
 }
 
-.invalid-feedback-pozos {
+.invalid-feedback {
   display: block;
   margin-top: 0.5rem;
   font-size: 0.8rem;
   color: #fca5a5;
   animation: fadeIn 0.3s ease;
-}
+} */
 
 /* Select especial para jornadas */
-.form-control-jornadas {
+/* .form-control-jornadas {
   width: 100%;
   padding: 0.75rem 1rem;
   background: rgba(0, 0, 0, 0.2);
@@ -1079,7 +1068,7 @@ body {
 .form-control-jornadas option[value=''] {
   color: #bab0c3;
 }
-
+ */
 /* ============================================
    FORM SECTIONS
    ============================================ */
@@ -1160,7 +1149,6 @@ body {
   animation: pulse 2s infinite;
   box-shadow: 0 2px 6px rgba(220, 53, 69, 0.4);
 }
-
 
 .page-header {
   display: flex;
@@ -1425,7 +1413,7 @@ body {
    CALIBRACIONES / POZOS / MAQUINAS
    ============================================ */
 
-   .badge-soft {
+.badge-soft {
   font-size: 0.75rem;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
@@ -1462,11 +1450,7 @@ body {
 .maquinas-wrapper,
 .calibraciones-wrapper,
 .muestras-pozos-wrapper {
-  background: linear-gradient(
-    135deg,
-    #2d5016 0%,
-    #4a7c1f 100%
-  );
+  background: linear-gradient(135deg, #2d5016 0%, #4a7c1f 100%);
   padding: 2rem;
   border-radius: 15px;
 }
@@ -1477,7 +1461,6 @@ body {
   border-radius: 12px;
   overflow: hidden;
 }
-
 
 .pozos-content,
 .calibracion-content {
@@ -1495,8 +1478,6 @@ body {
   font-size: 0.875rem;
 }
 
-
-
 /* Grid de Pozos */
 .pozos-container {
   display: grid;
@@ -1508,11 +1489,7 @@ body {
 .card_pozos,
 .card_calibracion,
 .card_calibracion_acordeon {
-  background: linear-gradient(
-    145deg,
-    #5a7f2c 0%,
-    #3f6b1a 100%
-  );
+  background: linear-gradient(145deg, #5a7f2c 0%, #3f6b1a 100%);
   border: 1px solid var(--green-border-soft);
   border-radius: 15px;
   padding: 1.5rem;
@@ -1667,7 +1644,7 @@ body {
   border: 1px solid var(--green-border);
 }
 
-.maquina-btn-editar, 
+.maquina-btn-editar,
 .muestras-pozoz-editar {
   background-color: var(--green-secondary-soft);
   color: var(--green-secondary);
@@ -1841,7 +1818,7 @@ body {
 /* ============================================
    MUESTRAS DE AGUA VALORES
    ============================================ */
-   /* ==========================
+/* ==========================
    VALUE BADGES (MUESTRAS)
    ========================== */
 
@@ -1963,9 +1940,9 @@ body {
   color: rgba(255, 255, 255, 0.65);
   font-size: 0.9rem;
 }
- /* MODALS */
- /* Overlay */
-.modal-overlay {
+/* MODALS */
+/* Overlay */
+/* .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
@@ -1974,10 +1951,10 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 9999;
-}
+} */
 
 /* Contenedor principal */
-.modal-container {
+/* .modal-container {
   background: linear-gradient(
     145deg,
     rgba(15, 23, 42, 0.95) 0%,
@@ -1989,7 +1966,7 @@ body {
   max-height: 90vh;
   overflow-y: auto;
 }
-
+ */
 /* Header */
 .modal-header {
   background: linear-gradient(
@@ -2020,7 +1997,9 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
   padding: 0.6rem 1.2rem;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
 }
 
 .btn-primary-soft:hover {
@@ -2067,7 +2046,6 @@ body {
   background: rgba(156, 163, 175, 0.15);
 }
 
-
 /* =========================
    BOTONES DE TABLA
 ========================= */
@@ -2090,7 +2068,6 @@ body {
 .btn-table-view:hover {
   filter: brightness(1.15);
 }
-
 
 /* ============================================
    LOGIN
@@ -2395,13 +2372,11 @@ body {
   transition: all 0.2s ease;
 }
 
-
 /* ACTIVO */
 .status-active {
   background-color: #16a34a;
   border-color: #22c55e;
 }
-
 
 /* COMPLETADO / OK */
 .status-success {
@@ -2432,7 +2407,6 @@ body {
   background-color: #6b7280;
   border-color: #9ca3af;
 }
-
 
 /* .badge-status-bueno {
   background: #198754;
@@ -2598,7 +2572,6 @@ textarea:focus-visible {
     gap: 1rem;
   }
 
-
   .footer-navigation {
     width: 100%;
     justify-content: space-between;
@@ -2671,7 +2644,7 @@ textarea:focus-visible {
     font-size: 1.5rem;
   }
 
-   /* Pozos grid */
+  /* Pozos grid */
   .pozos-container {
     grid-template-columns: 1fr;
   }
@@ -2732,7 +2705,7 @@ textarea:focus-visible {
    PRINT STYLES
    ============================================ */
 
-@media print {
+/* @media print {
   .modal-overlay,
   .btn-cancelar-pozos,
   .btn-guardar-pozos,
@@ -2758,3 +2731,4 @@ textarea:focus-visible {
   }
 
 }
+ */

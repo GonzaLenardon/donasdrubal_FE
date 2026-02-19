@@ -1,32 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { 
-  getCliente,  
-  // getClienteStats,
-  // getClienteServicesChart, 
-  // getClienteMachinesChart, 
-  // getClienteUpcomingServices 
-} from '../api/clientes.js';
+import { getCliente } from '../api/clientes.js';
 import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
 import JornadasTable from './JornadasTable.jsx';
 import ClienteDashboard from './Clientedashboard_errorgranular.jsx';
+
 import {
   Building2,
   Phone,
   MapPin,
-  Calendar as CalendarIcon,
+  Calendar,
+  LayoutDashboard,
+  Droplet,
+  Tractor,
+  Mail,
+  FileText,
 } from 'lucide-react';
-
 
 const ClienteDetalles = () => {
   const { cliente_id } = useParams();
   const [cliente, setCliente] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'pozos' | 'maquinas' | 'jornadas' | 'dashboard'
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   useEffect(() => {
     dataCliente();
-  }, []);
+  }, [cliente_id]);
 
   const dataCliente = async () => {
     try {
@@ -37,115 +36,124 @@ const ClienteDetalles = () => {
     }
   };
 
-  if (!cliente) return null;
+  if (!cliente) {
+    return (
+      <div className="container_seccion">
+        <div
+          className="d-flex justify-content-center align-items-center"
+          style={{ minHeight: '400px' }}
+        >
+          <div className="spinner-border text-white" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-6">
-      <div className="mx-auto max-w-7xl">
-        {/* ================= HEADER MODERNIZADO ================= */}
-<div className="cliente-header">
-  <div className="cliente-header-bg"></div>
+    <div className="container_seccion">
+      {/* ================= HEADER DEL CLIENTE ================= */}
+      <div className="cliente-header">
+        <div className="cliente-header-bg"></div>
 
-  <div className="cliente-header-content">
-    <div className="cliente-header-top">
-      <div className="cliente-header-icon">
-        <Building2 />
+        <div className="cliente-header-content">
+          <div className="cliente-header-top">
+            {/* Sección izquierda: Icono + Título */}
+            <div className="cliente-header-main">
+              <div className="cliente-header-icon">
+                <Building2 size={28} />
+              </div>
+              <div className="cliente-header-title">
+                <h1>{cliente?.razon_social}</h1>
+                <p>
+                  <FileText
+                    size={14}
+                    style={{ display: 'inline-block', marginRight: '0.25rem' }}
+                  />
+                  CUIT: {cliente?.cuil_cuit || 'No especificado'}
+                </p>
+              </div>
+            </div>
+
+            {/* Sección derecha: Info compacta */}
+            <div className="cliente-info-inline">
+              <div className="cliente-info-item">
+                <Phone size={16} />
+                <div className="cliente-info-text">
+                  <span className="cliente-info-label">Teléfono</span>
+                  <span className="cliente-info-value">
+                    {cliente?.telefono || 'No especificado'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="cliente-info-item">
+                <Mail size={16} />
+                <div className="cliente-info-text">
+                  <span className="cliente-info-label">Email</span>
+                  <span className="cliente-info-value">
+                    {cliente?.email || 'No especificado'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="cliente-info-item">
+                <MapPin size={16} />
+                <div className="cliente-info-text">
+                  <span className="cliente-info-label">Ubicación</span>
+                  <span className="cliente-info-value">
+                    {cliente?.ciudad || 'No especificado'},{' '}
+                    {cliente?.provincia || ''}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="cliente-header-title">
-        <h1>{cliente?.razon_social}</h1>
-        <p>Cliente activo desde {new Date().getFullYear() - 2}</p>
+      {/* ================= TABS NAVIGATION ================= */}
+      <div className="tabs-container">
+        <button
+          className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setActiveTab('dashboard')}
+        >
+          <LayoutDashboard className="tab-icon" size={18} />
+          <span>Dashboard</span>
+        </button>
+
+        <button
+          className={`tab-button ${activeTab === 'pozos' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pozos')}
+        >
+          <Droplet className="tab-icon" size={18} />
+          <span>Pozos</span>
+        </button>
+
+        <button
+          className={`tab-button ${activeTab === 'maquinas' ? 'active' : ''}`}
+          onClick={() => setActiveTab('maquinas')}
+        >
+          <Tractor className="tab-icon" size={18} />
+          <span>Máquinas</span>
+        </button>
+
+        <button
+          className={`tab-button ${activeTab === 'jornadas' ? 'active' : ''}`}
+          onClick={() => setActiveTab('jornadas')}
+        >
+          <Calendar className="tab-icon" size={18} />
+          <span>Jornadas</span>
+        </button>
       </div>
-    </div>
 
-    <div className="cliente-info-grid">
-      <div className="cliente-info-card">
-        <div className="cliente-info-label">
-          <Building2 size={18} />
-          <span>Razón Social</span>
-        </div>
-        <p className="cliente-info-value">{cliente?.razon_social}</p>
-      </div>
-
-      <div className="cliente-info-card">
-        <div className="cliente-info-label">
-          <Phone size={18} />
-          <span>Teléfono</span>
-        </div>
-        <p className="cliente-info-value">
-          {cliente?.telefono || 'No especificado'}
-        </p>
-      </div>
-
-      <div className="cliente-info-card">
-        <div className="cliente-info-label">
-          <MapPin size={18} />
-          <span>Localidad</span>
-        </div>
-        <p className="cliente-info-value">
-          {cliente?.localidad || 'Paraná, Entre Ríos'}
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-        {/* ================= TABS NAVIGATION ================= */}
-        <div className="flex flex-wrap gap-2 mb-6 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-          <button
-            className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
-              activeTab === 'dashboard'
-                ? 'bg-[#4a7c1f] text-white shadow-md'
-                : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            📊 Dashboard
-          </button>
-
-          <button
-            className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
-              activeTab === 'pozos'
-                ? 'bg-[#4a7c1f] text-white shadow-md'
-                : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-            onClick={() => setActiveTab('pozos')}
-          >
-            💧 Pozos
-          </button>
-
-          <button
-            className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
-              activeTab === 'maquinas'
-                ? 'bg-[#4a7c1f] text-white shadow-md'
-                : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-            onClick={() => setActiveTab('maquinas')}
-          >
-            🚜 Máquinas
-          </button>
-
-          <button
-            className={`px-6 py-3 rounded-lg font-semibold text-sm transition-all duration-300 ${
-              activeTab === 'jornadas'
-                ? 'bg-[#4a7c1f] text-white shadow-md'
-                : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-            onClick={() => setActiveTab('jornadas')}
-          >
-            🎓 Jornadas
-          </button>
-        </div>
-
-        {/* ================= CONTENT AREA ================= */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-          {activeTab === 'dashboard' && <ClienteDashboard cliente={cliente} />}
-          {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}
-          {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
-          {activeTab === 'jornadas' && <JornadasTable cliente_id={cliente_id} />}
-        </div>
+      {/* ================= CONTENT AREA ================= */}
+      <div className="tab-content-container">
+        {activeTab === 'dashboard' && <ClienteDashboard cliente={cliente} />}
+        {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}
+        {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
+        {activeTab === 'jornadas' && <JornadasTable cliente_id={cliente_id} />}
       </div>
     </div>
   );
