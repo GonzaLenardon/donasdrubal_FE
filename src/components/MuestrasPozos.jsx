@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { muestraAguaPozoCliente } from '../api/muestrasAgua';
 import ModalMuestrasPozos from './ModalMuestrasPozos';
+import { useCliente } from '../context/UserContext';
 import {
   Building2,
   Wrench,
@@ -30,6 +31,7 @@ const MuestrasPozos = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [onlyView, setOnlyView] = useState(false);
   const [muestraEdit, setMuestraEdit] = useState(null);
+  const { selectedPozo } = useCliente();
 
   useEffect(() => {
     getMuestras();
@@ -108,12 +110,12 @@ const MuestrasPozos = () => {
   /* ================= RENDER ================= */
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-0">
       <div className="mx-auto">
         {/* HEADER REDISEÑADO */}
 
-        <div className="info-cards-grid">
-          {/* Card Cliente */}
+        {/*      <div className="info-cards-grid">
+        
 
           <div className="info-card">
             <div className="info-card-header">
@@ -161,7 +163,7 @@ const MuestrasPozos = () => {
             </div>
           </div>
 
-          {/* Card Pozo */}
+       
           <div className="info-card">
             <div className="info-card-header">
               <div className="info-card-icon">
@@ -195,7 +197,7 @@ const MuestrasPozos = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="muestras-pozos-wrapper">
           <div style={{ margin: '0 auto' }}>
@@ -203,6 +205,16 @@ const MuestrasPozos = () => {
             <div className="d-flex justify-content-between align-items-center mb-4">
               <div>
                 <h2 className="fw-bold text-white mb-1">Muestras de Agua</h2>
+                <p
+                  style={{
+                    fontSize: '1.2em',
+                    fontWeight: '600',
+                    color: 'rgba(248, 243, 243, 0.5)',
+                  }}
+                >
+                  <strong>Pozo: </strong>
+                  {selectedPozo?.nombre} {selectedPozo?.establecimiento}
+                </p>
                 <p className="text-white-50 mb-0">
                   {muestras?.length || 0} muestras registradas
                 </p>

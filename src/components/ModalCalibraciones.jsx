@@ -1508,10 +1508,10 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       <div className="modal-overlay">
         <div
           className="modal-container"
-          style={{ maxWidth: '95vw', width: '95vw' }}
+          style={{ maxWidth: '95vw', width: '95vw', minHeight: '95vh' }}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="modal-header-pozos">
+          <div className="modal-header">
             <div className="d-flex align-items-center gap-3">
               <div className="modal-icon-container">
                 <i className="bi bi-gear-wide-connected"></i>

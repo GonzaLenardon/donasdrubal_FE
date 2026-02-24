@@ -1,12 +1,15 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { logout } from '../api/users';
+import { useCliente } from '../context/UserContext';
 
 const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [openConfig, setOpenConfig] = useState(false);
+  const [showCliente, setShowCliente] = useState(false);
+  const { selectedCliente } = useCliente();
 
   const basicSelectores = [
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
@@ -27,6 +30,10 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
     // { title: 'Máquinas', path: '/maquinas', icon: 'bi-gear-fill' },
     // { title: 'Calibraciones', path: '/calibraciones', icon: 'bi-tools' },
   ];
+
+  useEffect(() => {
+    console.log('daaaaaaaaa', selectedCliente);
+  }, [selectedCliente]);
 
   const user = JSON.parse(localStorage.getItem('user'));
 
@@ -66,20 +73,47 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           <h2>AgroServicios</h2>
         </div>
 
-        {/* Usuario */}
-        <div className="sidebar-user">
-          <div
-            className="sidebar-avatar"
-            /*   style={{
-              backgroundImage:
-                'url("https://lh3.googleusercontent.com/aida-public/...")',
-            }} */
-          />
-          <div>
-            <p className="sidebar-username">{user?.email}</p>
-            <span className="sidebar-role">{user?.rol}</span>
+        {/* Cliente */}
+
+        {selectedCliente && (
+          <div className={`sidebar-cliente ${!showCliente ? 'collapsed' : ''}`}>
+            <p
+              className="btn-sidebar"
+              onClick={() => setShowCliente(!showCliente)}
+            >
+              {showCliente ? (
+                <i className="bi bi-chevron-double-up"></i>
+              ) : (
+                <i className="bi bi-chevron-double-down"></i>
+              )}
+            </p>
+
+            <div
+              className={`sidebar-avatar-cliente ${!showCliente ? 'collapsed' : ''}`}
+              style={{
+                backgroundImage:
+                  'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvJRZmA9x_QrC6m3FzsZPI_7ZMm5m8qSwHOhkvJuuyLB-30FaOQYY-mD5kQD35W_c06GThpQNqwxsI3_dDzCUJJqonce3itp432LphqDtLM1ThWn02UkXDOQUSv27AwFspClWTQAf1l4xfUgRE05jy2V7Kg30MpGtd_prZwS2DUSJyNcVglxWifzdJDApieDTCtaDLYoqxpTHnmkUHIcODhMdAj63L1bQwswMq3MoVsntT9TmhngfgABweUXxY_EkIu9UUeEbayVM")',
+              }}
+            />
+
+            <div className="cliente-info">
+              <p className="cliente">{selectedCliente.razon_social}</p>
+
+              {/* TELEFONO SIEMPRE VISIBLE */}
+              <p className="telefono">{selectedCliente.telefono}</p>
+
+              {/* ESTOS SOLO CUANDO ESTA EXPANDIDO */}
+              {showCliente && (
+                <>
+                  <p className="domicilio">
+                    {selectedCliente.direccion}, {selectedCliente.ciudad}
+                  </p>
+                  <p className="cuit">CUIT: {selectedCliente.cuil_cuit}</p>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Menú */}
         <ul className="sidebar-menu">
@@ -132,7 +166,19 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
             </li>
           ))}
         </ul>
-
+        <div className="sidebar-user">
+          <div
+            className="sidebar-avatar"
+            /*   style={{
+              backgroundImage:
+                'url("https://lh3.googleusercontent.com/aida-public/...")',
+            }} */
+          />
+          <div>
+            <p className="sidebar-username">{user?.email}</p>
+            <span className="sidebar-role">{user?.rol}</span>
+          </div>
+        </div>
         {/* Footer */}
         <div className="sidebar-bottom">
           {/* <button className="sidebar-button">Nuevo Servicio</button> */}
