@@ -3,13 +3,15 @@ import ModalPozos from './ModalPozos';
 import { clientePozos } from '../api/pozos';
 import { useNavigate } from 'react-router-dom';
 import { getStatusClass } from '../utils/statusMap';
+import { useCliente } from '../context/UserContext';
 
 const Pozos = ({ cliente_id }) => {
-  const [selectedPozo, setSelectedPozo] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
+  /*   const [selectedPozo, setSelectedPozos] = useState(null);
+   */ const [isOpen, setIsOpen] = useState(false);
   const [pozos, setPozos] = useState([]);
   const [onlyView, setOnlyView] = useState(false);
   const navigate = useNavigate();
+  const { setSelectedPozo, selectedPozo } = useCliente();
 
   useEffect(() => {
     getPozos();
@@ -121,6 +123,8 @@ const Pozos = ({ cliente_id }) => {
                       className="btn btn-sm flex-fill pozo-btn-ver"
                       onClick={(e) => {
                         e.stopPropagation();
+                        console.log('pozito', pozo);
+                        setSelectedPozo(pozo);
                         navigate(
                           `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`,
                         );

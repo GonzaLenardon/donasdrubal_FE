@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { calibracionesMaquina } from '../api/calibraciones';
 import { ModalCalibraciones } from './ModalCalibraciones';
+import { useCliente } from '../context/UserContext';
 import {
   Building2,
   Wrench,
@@ -22,6 +23,7 @@ export const Calibraciones = () => {
   const [calibracion, setCalibracion] = useState();
   const [openIndex, setOpenIndex] = useState(null);
   const [modalCalibraciones, setModalCalibraciones] = useState(false);
+  const { setSelectedMaquina, selectedMaquina } = useCliente();
 
   useEffect(() => {
     allcalibraciones();
@@ -30,6 +32,8 @@ export const Calibraciones = () => {
   const allcalibraciones = async () => {
     try {
       const resp = await calibracionesMaquina(maquina_id, cliente_id);
+      /*  setSelectedMaquina(resp.data); */
+
       setCalibraciones(resp.data);
     } catch (error) {
       console.log(error.data.message);
@@ -192,11 +196,10 @@ export const Calibraciones = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-gray-50 p-0">
         <div className="mx-auto">
-          {/* HEADER */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Card Cliente */}
+          {/*  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
             <div className="card_calibracion">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-blue-50 rounded-lg">
@@ -228,7 +231,7 @@ export const Calibraciones = () => {
               </div>
             </div>
 
-            {/* Card Máquina */}
+         
             <div className="card_calibracion">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-purple-50 rounded-lg">
@@ -261,16 +264,26 @@ export const Calibraciones = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
-          {/* CALIBRACIONES */}
           <div className="calibraciones-wrapper">
-
             <div style={{ margin: '0 auto' }}>
               {/* HEADER Y BOTÓN NUEVA CALIBRACION */}
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="fw-bold text-white mb-1">Calibraciones</h2>
+                  <p
+                    style={{
+                      fontSize: '1.2em',
+                      fontWeight: '600',
+                      color: 'rgba(248, 243, 243, 0.5)',
+                      margin: '0px',
+                    }}
+                  >
+                    <strong>Maquina: </strong>
+                    {selectedMaquina?.tipo.marca} {selectedMaquina?.tipo.modelo}
+                  </p>
+
                   <p className="text-white-50 mb-0">
                     {calibraciones?.calibraciones?.length || 0} calibraciones
                     encontradas

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { useCliente } from '../context/UserContext';
 
 /* ============================
    Labels del breadcrumb
@@ -9,7 +10,7 @@ const breadcrumbNames = {
   user: 'Usuarios',
   maquinas: 'Máquinas',
   calibraciones: 'Calibraciones',
-  detalles: 'Detalles',
+  detalles: 'Dashborad',
   cliente: 'Clientes',
   clientes: 'Clientes',
   pozos: 'Pozos',
@@ -27,23 +28,22 @@ const NON_CLICKABLE_SEGMENTS = ['maquinas', 'pozos', 'jornadas'];
 ============================ */
 const isIdSegment = (seg) => /^\d+$/.test(seg);
 
-/* ============================
-   Lee cliente activo (SAFE)
-============================ */
-const getClienteActivo = () => {
-  try {
-    const raw = localStorage.getItem('Cliente');
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
-
 const DashboardLayout = () => {
   const location = useLocation();
-  const cliente = getClienteActivo();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
+
+  const { selectedMaquina, selectedCliente, selectedPozo } = useCliente();
+
+  const clienteNombre = selectedCliente?.razon_social;
+  const maquinaNombre =
+    selectedMaquina?.tipo?.marca && selectedMaquina?.tipo?.modelo
+      ? `${selectedMaquina.tipo.marca} ${selectedMaquina.tipo.modelo}`
+      : null;
+
+  const pozoNombre =
+    selectedPozo?.nombre && selectedPozo?.establecimiento
+      ? `${selectedPozo.nombre} ${selectedPozo.establecimiento}`
+      : null;
 
   /* ============================
      Construcción del breadcrumb
@@ -51,11 +51,13 @@ const DashboardLayout = () => {
   const breadcrumbItems = useMemo(() => {
     const parts = location.pathname.split('/').filter(Boolean);
     const items = [];
-    items.push({
+
+    // Siempre agregar Dashboard
+    /*  items.push({
       label: 'Dashboard',
       to: '/',
       clickable: true,
-    });
+    }); */
 
     let lastValidTo = '/';
 
@@ -64,29 +66,70 @@ const DashboardLayout = () => {
 
       /* ===== CASO: /cliente/:id ===== */
       if (seg === 'cliente' && parts[i + 1] && isIdSegment(parts[i + 1])) {
-        // Clientes
         items.push({
-          label: 'Clientes',
-          to: '/cliente',
+          label: 'Cliente',
+          /*  to: `/cliente/${parts[i + 1]}/detalles`, */
+          to: `/cliente`,
+
           clickable: true,
         });
 
-        // Nombre del cliente (visual)
-        if (cliente?.nombre) {
-          items.push({
-            label: cliente.nombre,
-            to: `/cliente/${parts[i + 1]}/detalles`,
-            clickable: false,
-          });
-        }
+        items.push({
+          label: clienteNombre,
+          /*  to: `/cliente/${parts[i + 1]}/detalles`, */
+          to: `/cliente`,
+
+          clickable: false,
+        });
 
         lastValidTo = `/cliente/${parts[i + 1]}/detalles`;
+        i++; // Saltar el ID
         continue;
       }
 
-      /* ===== Saltar IDs ===== */
+      /* ===== CASO: /maquinas/:id (dentro de cliente) ===== */
+      if (seg === 'maquinas' && parts[i + 1] && isIdSegment(parts[i + 1])) {
+        // Si hay nombre de máquina, usarlo en lugar  de "Máquinas"
+
+        items.push({
+          label: 'Máquinas',
+          to: lastValidTo,
+          clickable: false,
+        });
+
+        items.push({
+          label: maquinaNombre,
+          to: lastValidTo, // No es clickeable a la máquina individual
+          clickable: false,
+        });
+
+        i++; // Saltar el ID de la máquina
+        continue;
+      }
+
+      /* ===== CASO: /pozos/:id (dentro de cliente) ===== */
+      if (seg === 'pozos' && parts[i + 1] && isIdSegment(parts[i + 1])) {
+        // Similar a máquinas, pero para pozos
+
+        items.push({
+          label: 'Pozo ', // O puedes obtener el nombre del pozo del contexto
+          to: lastValidTo,
+          clickable: false,
+        });
+
+        items.push({
+          label: pozoNombre, // O puedes obtener el nombre del pozo del contexto
+          to: lastValidTo,
+          clickable: false,
+        });
+        i++; // Saltar el ID del pozo
+        continue;
+      }
+
+      /* ===== Saltar IDs simples ===== */
       if (isIdSegment(seg)) continue;
 
+      /* ===== Segmentos normales ===== */
       const label = breadcrumbNames[seg] || decodeURIComponent(seg);
       const to = '/' + parts.slice(0, i + 1).join('/');
       const clickable = !NON_CLICKABLE_SEGMENTS.includes(seg);
@@ -101,19 +144,16 @@ const DashboardLayout = () => {
     }
 
     return items;
-  }, [location.pathname, cliente]);
+  }, [location.pathname, clienteNombre, maquinaNombre]);
 
   return (
     <div className="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark">
       {/* Botón hamburguesa */}
       <div className="topbar-mobile">
-        <button
-          className="hamburger-btn"
-          onClick={() => setIsMobileOpen(true)}
-        >
-            <span />
-            <span />
-            <span />
+        <button className="hamburger-btn" onClick={() => setIsMobileOpen(true)}>
+          <span />
+          <span />
+          <span />
         </button>
       </div>
 
@@ -124,6 +164,7 @@ const DashboardLayout = () => {
           onClick={() => setIsMobileOpen(false)}
         />
       )}
+
       {/* Sidebar */}
       <Sidebar
         isMobileOpen={isMobileOpen}

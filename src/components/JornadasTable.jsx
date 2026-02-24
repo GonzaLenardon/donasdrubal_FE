@@ -71,14 +71,7 @@ const JornadasTable = () => {
   /* ================= RENDER ================= */
 
   return (
-    <div
-      style={{
-        /*  minHeight: '100vh', */
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '2rem',
-        borderRadius: '15px',
-      }}
-    >
+    <div className="maquinas-wrapper">
       <div style={{ margin: '0 auto' }}>
         {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -88,12 +81,7 @@ const JornadasTable = () => {
           </div>
 
           <button
-            className="btn text-white"
-            style={{
-              background: 'rgba(102,126,234,0.35)',
-              border: '1px solid rgba(255,255,255,0.3)',
-              padding: '0.6rem 1.2rem',
-            }}
+            className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
             onClick={(e) => {
               e.stopPropagation();
               setJornadaEdit({ cliente_id: cliente_id });
@@ -136,82 +124,93 @@ const JornadasTable = () => {
         </div>
 
         {/* TABLA */}
-        <div
-          className="rounded shadow"
-          style={{
-            background: 'linear-gradient(145deg,#4a5d7c 0%,#3d4d69 100%)',
-            border: '1px solid rgba(255,255,255,0.15)',
-            padding: '0.75rem',
-          }}
-        >
-          {loading ? (
-            <div className="text-center text-white py-5">
-              <div className="spinner-border" />
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table
-                className="table table-hover mb-0"
-                style={{
-                  '--bs-table-bg': 'transparent',
-                  '--bs-table-accent-bg': 'transparent',
-                  '--bs-table-striped-bg': 'transparent',
-                  '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
-                  '--bs-table-color': '#ffffff',
-                  '--bs-table-border-color': 'rgba(255,255,255,0.15)',
-                }}
-              >
+
+        <div className="container-table rounded shadow-lg">
+          <div className="table-wrapper">
+            {loading ? (
+              <div className="text-center py-5">
+                <div
+                  className="spinner-border"
+                  style={{ color: 'var(--color-base)' }}
+                  role="status"
+                >
+                  <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p className="mt-3" style={{ color: 'var(--color-gray-600)' }}>
+                  Cargando jornadas...
+                </p>
+              </div>
+            ) : (
+              <table className="table mb-0">
                 <thead>
-                  <tr
-                    style={{
-                      background:
-                        'linear-gradient(135deg,rgba(102,126,234,0.35),rgba(118,75,162,0.35))',
-                      borderBottom: '2px solid rgba(102,126,234,0.4)',
-                    }}
-                  >
-                    <th className="text-center">Fecha</th>
-                    <th className="text-center">Motivo</th>
-                    <th className="text-center">Estado</th>
-                    <th className="text-center">Observaciones</th>
-                    <th className="text-center">Acciones</th>
+                  <tr>
+                    <th>
+                      <i className="bi bi-calendar-event"></i>Fecha
+                    </th>
+                    <th>
+                      <i className="bi bi-chat-left-text"></i>Motivo
+                    </th>
+                    <th>
+                      <i className="bi bi-flag-fill"></i>Estado
+                    </th>
+                    <th>
+                      <i className="bi bi-card-text"></i>Observaciones
+                    </th>
+                    <th className="text-center">
+                      <i className="bi bi-gear"></i>Acciones
+                    </th>
                   </tr>
                 </thead>
 
-                <tbody style={{ background: 'transparent' }}>
-                  {jornadasFiltradas.map((m) => {
-                    return (
-                      <tr
-                        key={m.id}
-                        style={{
-                          borderBottom: '1px solid rgba(255,255,255,0.08)',
-                        }}
-                      >
-                        <td className="px-4 py-3">
-                          <strong>{formatFecha(m.fecha_jornada)}</strong>
-                        </td>
-                        <td className="text-center">{m.motivo || '-'}</td>
-                        <td className="text-center">{m.estado || '-'}</td>
-                        <td className="text-left">{m.observaciones || '-'}</td>
-                        <td className="text-center">
+                <tbody>
+                  {jornadasFiltradas.map((m) => (
+                    <tr key={m.id} onClick={() => handleEditarJornada(m)}>
+                      {/* Fecha */}
+                      <td>
+                        <span className="table-text fw-semibold">
+                          {formatFecha(m.fecha_jornada)}
+                        </span>
+                      </td>
+
+                      {/* Motivo */}
+                      <td>
+                        <span className="table-text">{m.motivo || '-'}</span>
+                      </td>
+
+                      {/* Estado */}
+                      <td>
+                        <span className="table-badge-info">
+                          {m.estado || '-'}
+                        </span>
+                      </td>
+
+                      {/* Observaciones */}
+                      <td>
+                        <span className="table-text">
+                          {m.observaciones || '-'}
+                        </span>
+                      </td>
+
+                      {/* Acciones */}
+                      <td>
+                        <div className="table-actions">
                           <button
-                            className="btn btn-sm"
-                            style={{
-                              background: 'rgba(102,126,234,0.25)',
-                              color: '#93c5fd',
-                              border: '1px solid rgba(102,126,234,0.35)',
+                            className="table-btn table-btn-edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditarJornada(m);
                             }}
-                            onClick={() => handleEditarJornada(m)}
                           >
-                            <i className="bi bi-pencil me-1"></i>Editar
+                            <i className="bi bi-pencil"></i>
                           </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

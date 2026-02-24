@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { allMaquinas } from '../api/maquinas';
 import { ModalMaquinas } from './ModalMaquinas';
 import { useNavigate } from 'react-router-dom';
+import { useCliente } from '../context/UserContext';
 
 const Maquinas = ({ cliente_id }) => {
   const [maquinas, setMaquinas] = useState([]);
@@ -11,6 +12,8 @@ const Maquinas = ({ cliente_id }) => {
   const [modal, setModal] = useState(false);
   const [maquinaEdit, setMaquinaEdit] = useState({});
   const [onlyView, setOnlyView] = useState(false);
+
+  const { setSelectedMaquina } = useCliente();
 
   useEffect(() => {
     getMaquinas();
@@ -47,6 +50,7 @@ const Maquinas = ({ cliente_id }) => {
     <div className="maquinas-wrapper">
       <div style={{ margin: '0 auto' }}>
         {/* HEADER */}
+
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2 className="fw-bold text-white mb-1">Maquinas</h2>
@@ -75,124 +79,82 @@ const Maquinas = ({ cliente_id }) => {
         )}
 
         {/* TABLA */}
-        <div className="maquinas-table-wrapper rounded shadow-lg">
-          {loading ? (
-            <div className="text-center py-5">
-              <div className="spinner-border text-white" role="status">
-                <span className="visually-hidden">Cargando...</span>
+        <div className="container-table rounded shadow-lg">
+          <div className="table-wrapper">
+            {loading ? (
+              <div className="text-center py-5">
+                <div
+                  className="spinner-border"
+                  style={{ color: 'var(--color-base)' }}
+                  role="status"
+                >
+                  <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p className="mt-3" style={{ color: 'var(--color-gray-600)' }}>
+                  Cargando máquinas...
+                </p>
               </div>
-              <p className="text-white mt-3">Cargando máquinas...</p>
-            </div>
-          ) : maquinas.length === 0 ? (
-            <div className="p-5 text-center">
-              <i
-                className="bi bi-inbox"
-                style={{ fontSize: '3rem', color: 'rgba(255, 255, 255, 0.5)' }}
-              ></i>
-              <h5 className="text-white mt-3 mb-2">No hay máquinas</h5>
-              <p className="text-white-50 mb-3">
-                Aún no hay máquinas registradas para este cliente
-              </p>
-              <button className="btn btn-light" onClick={handleNuevaMaquina}>
-                <i className="bi bi-plus-lg me-2"></i>
-                Agregar primera máquina
-              </button>
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table
-                className="table table-hover mb-0"
-                style={{
-                  '--bs-table-bg': 'transparent',
-                  '--bs-table-accent-bg': 'transparent',
-                  '--bs-table-striped-bg': 'transparent',
-                  '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
-                  '--bs-table-color': '#ffffff',
-                  '--bs-table-border-color': 'rgba(255,255,255,0.15)',
-                }}
-              >
+            ) : maquinas.length === 0 ? (
+              <div className="p-5 text-center">
+                <i
+                  className="bi bi-inbox"
+                  style={{ fontSize: '3rem', color: 'var(--color-gray-300)' }}
+                ></i>
+                <h5
+                  className="mt-3 mb-2"
+                  style={{ color: 'var(--color-gray-700)' }}
+                >
+                  No hay máquinas
+                </h5>
+                <p className="mb-3" style={{ color: 'var(--color-gray-600)' }}>
+                  Aún no hay máquinas registradas para este cliente
+                </p>
+                <button className="btn-primary" onClick={handleNuevaMaquina}>
+                  <i className="bi bi-plus-lg me-2"></i>
+                  Agregar primera máquina
+                </button>
+              </div>
+            ) : (
+              <table className="table mb-0">
                 <thead>
-                  <tr
-                    style={{
-                      background:
-                        'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
-                      borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
-                    }}
-                  >
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-award me-2"></i>Marca
+                  <tr>
+                    <th>
+                      <i className="bi bi-award"></i>Marca
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-box-seam me-2"></i>Modelo
+                    <th>
+                      <i className="bi bi-box-seam"></i>Modelo
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-tag-fill me-2"></i>Tipo
+                    <th>
+                      <i className="bi bi-tag-fill"></i>Tipo
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-arrows-expand me-2"></i>Ancho
+                    <th>
+                      <i className="bi bi-arrows-expand"></i>Ancho
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-droplet-half me-2"></i>Tanque
+                    <th>
+                      <i className="bi bi-droplet-half"></i>Tanque
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-hash me-2"></i>Picos
+                    <th>
+                      <i className="bi bi-hash"></i>Picos
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-rulers me-2"></i>Dist. Picos
+                    <th>
+                      <i className="bi bi-rulers"></i>Dist. Picos
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-scissors me-2"></i>Corte
+                    <th>
+                      <i className="bi bi-scissors"></i>Corte
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-person-fill me-2"></i>Operario
+                    <th>
+                      <i className="bi bi-person-fill"></i>Operario
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3 text-center"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-gear me-2"></i>Acciones
+                    <th className="text-center">
+                      <i className="bi bi-gear"></i>Acciones
                     </th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {maquinas.map((maq) => (
                     <tr
                       key={maq.id}
-                      style={{
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                        transition: 'background 0.2s ease',
-                        cursor: 'pointer',
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
-                      }}
                       onClick={() => {
                         setMaquinaEdit(maq);
                         setModal(true);
@@ -200,100 +162,73 @@ const Maquinas = ({ cliente_id }) => {
                       }}
                     >
                       {/* Marca */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="fw-semibold text-white"
-                          style={{ fontSize: '0.85rem' }}
-                        >
+                      <td>
+                        <span className="table-text fw-semibold">
                           {maq.tipo.marca}
                         </span>
                       </td>
 
                       {/* Modelo */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="text-white"
-                          style={{ fontSize: '0.85rem' }}
-                        >
-                          {maq.tipo.modelo}
-                        </span>
+                      <td>
+                        <span className="table-text">{maq.tipo.modelo}</span>
                       </td>
 
                       {/* Tipo */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="badge bg-info text-dark px-2 py-1"
-                          style={{ fontSize: '0.75rem' }}
-                        >
+                      <td>
+                        <span className="table-badge-info">
                           {maq.tipo.tipo}
                         </span>
                       </td>
 
                       {/* Ancho Trabajo */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="badge bg-success text-white px-2 py-1"
-                          style={{ fontSize: '0.75rem' }}
-                        >
+                      <td>
+                        <span className="table-badge-success">
+                          <i className="bi bi-arrows-expand me-1"></i>
                           {maq.ancho_trabajo}
                         </span>
                       </td>
 
                       {/* Capacidad Tanque */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="badge bg-primary text-white px-2 py-1"
-                          style={{ fontSize: '0.75rem' }}
-                        >
+                      <td>
+                        <span className="table-badge-primary">
+                          <i className="bi bi-droplet-fill me-1"></i>
                           {maq.capacidad_tanque}
                         </span>
                       </td>
 
                       {/* Número Picos */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="badge bg-warning text-dark px-2 py-1"
-                          style={{ fontSize: '0.75rem' }}
-                        >
+                      <td>
+                        <span className="table-badge-warning">
                           {maq.numero_picos}
                         </span>
                       </td>
 
                       {/* Distancia entre Picos */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="badge bg-secondary text-white px-2 py-1"
-                          style={{ fontSize: '0.75rem' }}
-                        >
+                      <td>
+                        <span className="table-badge-secondary">
                           {maq.distancia_entrePicos}
                         </span>
                       </td>
 
                       {/* Sistema Corte */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="badge bg-danger text-white px-2 py-1"
-                          style={{ fontSize: '0.75rem' }}
-                        >
+                      <td>
+                        <span className="table-badge-danger">
                           {maq.sistema_corte}
                         </span>
                       </td>
 
                       {/* Responsable */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="text-white"
-                          style={{ fontSize: '0.85rem' }}
-                        >
+                      <td>
+                        <span className="table-text">
                           {maq.responsable || '-'}
                         </span>
                       </td>
 
                       {/* Acciones */}
-                      <td className="py-2 px-3">
-                        <div className="d-flex gap-2 justify-content-center">
+                      <td>
+                        <div className="table-actions">
                           <button
-                            className="btn btn-sm maquina-btn-editar"
+                            className="table-btn table-btn-edit"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleEditarMaquina(maq);
@@ -302,12 +237,15 @@ const Maquinas = ({ cliente_id }) => {
                             <i className="bi bi-pencil"></i>
                           </button>
                           <button
-                            className="btn btn-sm maquina-btn-ver"
-                            onClick={() =>
+                            className="table-btn table-btn-view"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedMaquina(maq);
+
                               navigate(
                                 `/cliente/${cliente_id}/detalles/maquinas/${maq.id}/calibraciones`,
-                              )
-                            }
+                              );
+                            }}
                           >
                             <i className="bi bi-eye"></i>
                           </button>
@@ -317,8 +255,8 @@ const Maquinas = ({ cliente_id }) => {
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
