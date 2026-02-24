@@ -54,12 +54,12 @@ const ClienteDetalles = () => {
   return (
     <div className="container_seccion">
       {/* ================= HEADER DEL CLIENTE ================= */}
-      <div className="cliente-header">
+      {/*  <div className="cliente-header">
         <div className="cliente-header-bg"></div>
 
         <div className="cliente-header-content">
           <div className="cliente-header-top">
-            {/* Sección izquierda: Icono + Título */}
+          
             <div className="cliente-header-main">
               <div className="cliente-header-icon">
                 <Building2 size={28} />
@@ -76,7 +76,7 @@ const ClienteDetalles = () => {
               </div>
             </div>
 
-            {/* Sección derecha: Info compacta */}
+           
             <div className="cliente-info-inline">
               <div className="cliente-info-item">
                 <Phone size={16} />
@@ -112,7 +112,7 @@ const ClienteDetalles = () => {
           </div>
         </div>
       </div>
-
+ */}
       {/* ================= TABS NAVIGATION ================= */}
       <div className="tabs-container">
         <button

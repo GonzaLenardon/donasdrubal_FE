@@ -1,10 +1,16 @@
 import React from 'react';
-
+import { useEffect } from 'react';
 import StatsRow from './StatsRow';
 import ServicesRow from './ServiceRow';
 import ChartsRow from './ChartsRow';
+import { useCliente } from '../context/UserContext';
 
 const Dash = () => {
+  const { setSelectedCliente } = useCliente();
+  useEffect(() => {
+    setSelectedCliente();
+  }, []);
+
   return (
     <div className="flex flex-col gap-8">
       {/* Page Heading */}

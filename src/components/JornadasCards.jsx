@@ -36,19 +36,20 @@ const Jornadas = ({ cliente_id }) => {
   return (
     <>
       <div className="pozos-wrapper">
-        <div className="pozos-content">
+        <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h2 className="fw-bold text-white mb-1 pozos-title">
-                Gestión de Jornadas
+                Gestión de Jornadas ccccc
               </h2>
               <p className="text-white-50 mb-0 pozos-subtitle">
                 {jornadas.length} jornadas registradas
               </p>
             </div>
+
             <button
-              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedJornada({ cliente_id });
@@ -56,7 +57,7 @@ const Jornadas = ({ cliente_id }) => {
               }}
             >
               <i className="bi bi-plus-lg"></i>
-              Nueva Jornada
+              Nueva Jornada ccc
             </button>
           </div>
 
@@ -88,7 +89,9 @@ const Jornadas = ({ cliente_id }) => {
                       </span>
                     </div>
                     <div className="pozo-id-badge">
-                      <span className="fw-bold pozo-id-text">#{jornada.id}</span>
+                      <span className="fw-bold pozo-id-text">
+                        #{jornada.id}
+                      </span>
                     </div>
                   </div>
 
@@ -131,7 +134,7 @@ const Jornadas = ({ cliente_id }) => {
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(
-                          `/cliente/${cliente_id}/jornadas/${jornada.id}`
+                          `/cliente/${cliente_id}/jornadas/${jornada.id}`,
                         );
                       }}
                     >

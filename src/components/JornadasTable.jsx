@@ -81,12 +81,7 @@ const JornadasTable = () => {
           </div>
 
           <button
-            className="btn text-white"
-            style={{
-              background: 'rgba(102,126,234,0.35)',
-              border: '1px solid rgba(255,255,255,0.3)',
-              padding: '0.6rem 1.2rem',
-            }}
+            className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
             onClick={(e) => {
               e.stopPropagation();
               setJornadaEdit({ cliente_id: cliente_id });
@@ -129,158 +124,78 @@ const JornadasTable = () => {
         </div>
 
         {/* TABLA */}
-        <div
-          className="rounded shadow"
-          style={{
-            border: '1px solid rgba(255,255,255,0.15)',
-            padding: '0.75rem',
-          }}
-        >
-          {loading ? (
-            <div className="text-center text-white py-5">
-              <div className="spinner-border" />
-            </div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table
-                className="table table-hover mb-0"
-                style={{
-                  '--bs-table-bg': 'transparent',
-                  '--bs-table-accent-bg': 'transparent',
-                  '--bs-table-striped-bg': 'transparent',
-                  '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
-                  '--bs-table-color': '#ffffff',
-                  '--bs-table-border-color': 'rgba(255,255,255,0.15)',
-                }}
-              >
+
+        <div className="container-table rounded shadow-lg">
+          <div className="table-wrapper">
+            {loading ? (
+              <div className="text-center py-5">
+                <div
+                  className="spinner-border"
+                  style={{ color: 'var(--color-base)' }}
+                  role="status"
+                >
+                  <span className="visually-hidden">Cargando...</span>
+                </div>
+                <p className="mt-3" style={{ color: 'var(--color-gray-600)' }}>
+                  Cargando jornadas...
+                </p>
+              </div>
+            ) : (
+              <table className="table mb-0">
                 <thead>
-                  <tr
-                    style={{
-                      background:
-                        'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
-                      borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
-                    }}
-                  >
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-calendar-event me-2"></i>Fecha
+                  <tr>
+                    <th>
+                      <i className="bi bi-calendar-event"></i>Fecha
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-chat-left-text me-2"></i>Motivo
+                    <th>
+                      <i className="bi bi-chat-left-text"></i>Motivo
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-flag-fill me-2"></i>Estado
+                    <th>
+                      <i className="bi bi-flag-fill"></i>Estado
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-card-text me-2"></i>Observaciones
+                    <th>
+                      <i className="bi bi-card-text"></i>Observaciones
                     </th>
-                    <th
-                      className="text-white fw-semibold py-2 px-3 text-center"
-                      style={{ fontSize: '0.875rem' }}
-                    >
-                      <i className="bi bi-gear me-2"></i>Acciones
+                    <th className="text-center">
+                      <i className="bi bi-gear"></i>Acciones
                     </th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {jornadasFiltradas.map((m) => (
-                    <tr
-                      key={m.id}
-                      style={{
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                        transition: 'background 0.2s ease',
-                        cursor: 'pointer',
-                        background: 'rgba(45, 80, 22, 0.2)',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          'rgba(74, 124, 31, 0.25)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background =
-                          'rgba(45, 80, 22, 0.2)';
-                      }}
-                    >
+                    <tr key={m.id} onClick={() => handleEditarJornada(m)}>
                       {/* Fecha */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="fw-semibold text-white"
-                          style={{ fontSize: '0.85rem' }}
-                        >
+                      <td>
+                        <span className="table-text fw-semibold">
                           {formatFecha(m.fecha_jornada)}
                         </span>
                       </td>
 
                       {/* Motivo */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="text-white"
-                          style={{ fontSize: '0.85rem' }}
-                        >
-                          {m.motivo || '-'}
-                        </span>
+                      <td>
+                        <span className="table-text">{m.motivo || '-'}</span>
                       </td>
 
                       {/* Estado */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="badge px-2 py-1"
-                          style={{
-                            fontSize: '0.75rem',
-                            background: '#17a2b8',
-                            color: '#fff',
-                            textTransform: 'uppercase',
-                            fontWeight: '600',
-                          }}
-                        >
+                      <td>
+                        <span className="table-badge-info">
                           {m.estado || '-'}
                         </span>
                       </td>
 
                       {/* Observaciones */}
-                      <td className="py-2 px-3">
-                        <span
-                          className="text-white"
-                          style={{ fontSize: '0.85rem' }}
-                        >
+                      <td>
+                        <span className="table-text">
                           {m.observaciones || '-'}
                         </span>
                       </td>
 
                       {/* Acciones */}
-                      <td className="py-2 px-3">
-                        <div className="d-flex gap-2 justify-content-center">
+                      <td>
+                        <div className="table-actions">
                           <button
-                            className="btn btn-sm"
-                            style={{
-                              background: 'rgba(74, 124, 31, 0.4)',
-                              color: '#b8e6b1',
-                              border: '1px solid rgba(74, 124, 31, 0.6)',
-                              transition: 'all 0.2s ease',
-                              borderRadius: '4px',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background =
-                                'rgba(74, 124, 31, 0.6)';
-                              e.currentTarget.style.transform = 'scale(1.05)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background =
-                                'rgba(74, 124, 31, 0.4)';
-                              e.currentTarget.style.transform = 'scale(1)';
-                            }}
+                            className="table-btn table-btn-edit"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleEditarJornada(m);
@@ -294,8 +209,8 @@ const JornadasTable = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 

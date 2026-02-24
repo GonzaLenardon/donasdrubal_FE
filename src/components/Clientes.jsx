@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { allIngenieros } from '../api/users.js';
 import { allTipoClientes } from '../api/tipoClientes.js';
 import { Radius } from 'lucide-react';
+import { useCliente } from '../context/UserContext.jsx';
 
 const Clientes = () => {
   const [clienteList, setClienteList] = useState([]);
@@ -21,6 +22,7 @@ const Clientes = () => {
   const [onlyView, setOnlyView] = useState(false);
   const [msg, setMsg] = useState('');
   const navigate = useNavigate();
+  const { setSelectedCliente } = useCliente();
 
   useEffect(() => {
     const all = async () => {
@@ -28,7 +30,9 @@ const Clientes = () => {
       getAllIngenieros();
       getAllTipoClientes();
     };
+
     all();
+    setSelectedCliente();
   }, []);
 
   const getAllCliente = async () => {
@@ -251,14 +255,9 @@ const Clientes = () => {
   };
 
   const handleVer = (cliente) => {
-    localStorage.setItem(
-      'Cliente',
-      JSON.stringify({
-        id: cliente.id,
-        nombre: cliente.razon_social,
-      }),
-    );
+    console.log('Clientes', cliente);
 
+    setSelectedCliente(cliente);
     navigate(`/cliente/${cliente.id}/detalles`);
   };
 

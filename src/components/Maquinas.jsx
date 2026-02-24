@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { allMaquinas } from '../api/maquinas';
 import { ModalMaquinas } from './ModalMaquinas';
 import { useNavigate } from 'react-router-dom';
+import { useCliente } from '../context/UserContext';
 
 const Maquinas = ({ cliente_id }) => {
   const [maquinas, setMaquinas] = useState([]);
@@ -11,6 +12,8 @@ const Maquinas = ({ cliente_id }) => {
   const [modal, setModal] = useState(false);
   const [maquinaEdit, setMaquinaEdit] = useState({});
   const [onlyView, setOnlyView] = useState(false);
+
+  const { setSelectedMaquina } = useCliente();
 
   useEffect(() => {
     getMaquinas();
@@ -47,6 +50,7 @@ const Maquinas = ({ cliente_id }) => {
     <div className="maquinas-wrapper">
       <div style={{ margin: '0 auto' }}>
         {/* HEADER */}
+
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2 className="fw-bold text-white mb-1">Maquinas</h2>
@@ -236,6 +240,8 @@ const Maquinas = ({ cliente_id }) => {
                             className="table-btn table-btn-view"
                             onClick={(e) => {
                               e.stopPropagation();
+                              setSelectedMaquina(maq);
+
                               navigate(
                                 `/cliente/${cliente_id}/detalles/maquinas/${maq.id}/calibraciones`,
                               );
