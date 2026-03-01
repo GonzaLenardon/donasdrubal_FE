@@ -32,13 +32,13 @@ export const Calibraciones = () => {
   const allcalibraciones = async () => {
     try {
       const resp = await calibracionesMaquina(maquina_id, cliente_id);
-      /*  setSelectedMaquina(resp.data); */
-
       setCalibraciones(resp.data);
     } catch (error) {
       console.log(error.data.message);
     }
   };
+
+  // ── Parsers ────────────────────────────────────────────────────────────────
 
   const parseEstado = (estadoString) => {
     if (!estadoString)
@@ -56,9 +56,7 @@ export const Calibraciones = () => {
       };
     let parsed = estadoString;
     try {
-      if (typeof parsed === 'string') {
-        parsed = JSON.parse(parsed);
-      }
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
       return {
         estado: parsed.estado || '',
         observacion: parsed.observacion || '',
@@ -90,6 +88,78 @@ export const Calibraciones = () => {
     }
   };
 
+  /**
+   * Parsea la estructura de presión { valor, nombreArchivo }.
+   * La DB devuelve doble-encoded: string que contiene otro string JSON.
+   * Ej: "\"{\\\"valor\\\":\\\"15\\\",\\\"nombreArchivo\\\":\\\"...\\\"}\""
+   * Cubre: doble-encoding, objeto directo, número plano (formato viejo).
+   */
+  const parsePresion = (presionData) => {
+    if (presionData === null || presionData === undefined) {
+      return { valor: '', nombreArchivo: '' };
+    }
+
+    // Número plano (retrocompatibilidad con campo FLOAT viejo)
+    if (typeof presionData === 'number') {
+      return { valor: presionData, nombreArchivo: '' };
+    }
+
+    // Objeto ya parseado correctamente
+    if (typeof presionData === 'object') {
+      return {
+        valor: presionData.valor ?? '',
+        nombreArchivo: presionData.nombreArchivo ?? '',
+      };
+    }
+
+    if (typeof presionData === 'string') {
+      if (presionData.trim() === '') return { valor: '', nombreArchivo: '' };
+
+      try {
+        // Primer parse
+        let parsed = JSON.parse(presionData);
+
+        // 👇 Doble-encoding: si sigue siendo string, parsear de nuevo
+        if (typeof parsed === 'string') {
+          parsed = JSON.parse(parsed);
+        }
+
+        // Número plano serializado
+        if (typeof parsed === 'number') {
+          return { valor: parsed, nombreArchivo: '' };
+        }
+
+        // Objeto { valor, nombreArchivo }
+        if (typeof parsed === 'object' && parsed !== null) {
+          return {
+            valor: parsed.valor ?? '',
+            nombreArchivo: parsed.nombreArchivo ?? '',
+          };
+        }
+      } catch {
+        // Número como string puro sin JSON ("3.5")
+        const numValor = parseFloat(presionData);
+        return { valor: isNaN(numValor) ? '' : numValor, nombreArchivo: '' };
+      }
+    }
+
+    return { valor: '', nombreArchivo: '' };
+  };
+
+  const parseSecciones = (seccionesString) => {
+    if (!seccionesString) return {};
+    try {
+      let parsed = JSON.parse(seccionesString);
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+      return parsed || {};
+    } catch (error) {
+      console.error('Error parseando secciones:', error);
+      return {};
+    }
+  };
+
+  // ── Helpers de UI ──────────────────────────────────────────────────────────
+
   const formateo = {
     estado_maquina: 'Estado General',
     estado_bomba: 'Bomba',
@@ -108,63 +178,17 @@ export const Calibraciones = () => {
 
   const getEstadoColor = (estado) => {
     const colores = {
-      'Muy bueno': {
-        bg: '#059669',
-        border: '#10b981',
-        color: '#ffffff',
-      },
-      Bueno: {
-        bg: '#16a34a',
-        border: '#22c55e',
-        color: '#ffffff',
-      },
-      Regular: {
-        bg: '#f59e0b',
-        border: '#fbbf24',
-        color: '#000000',
-      },
-      Malo: {
-        bg: '#dc2626',
-        border: '#ef4444',
-        color: '#ffffff',
-      },
-      'No aplica': {
-        bg: '#6b7280',
-        border: '#9ca3af',
-        color: '#ffffff',
-      },
+      'Muy bueno': { bg: '#059669', border: '#10b981', color: '#ffffff' },
+      Bueno: { bg: '#16a34a', border: '#22c55e', color: '#ffffff' },
+      Regular: { bg: '#f59e0b', border: '#fbbf24', color: '#000000' },
+      Malo: { bg: '#dc2626', border: '#ef4444', color: '#ffffff' },
+      'No aplica': { bg: '#6b7280', border: '#9ca3af', color: '#ffffff' },
     };
-
     return (
       colores[estado] || { bg: '#6b7280', border: '#9ca3af', color: '#ffffff' }
     );
   };
 
-  const parseSecciones = (seccionesString) => {
-    if (!seccionesString) return {};
-
-    try {
-      let parsed = JSON.parse(seccionesString);
-      if (typeof parsed === 'string') {
-        parsed = JSON.parse(parsed);
-      }
-      return parsed || {};
-    } catch (error) {
-      console.error('Error parseando secciones:', error);
-      return {};
-    }
-  };
-
-  const toggle = (i) => {
-    setOpenIndex(openIndex === i ? null : i);
-  };
-
-  const handleEditar = (cal) => {
-    setCalibracion(cal);
-    setModalCalibraciones(true);
-  };
-
-  // Helper para convertir nombre de color a hex
   const getColorHex = (colorName) => {
     const colorMap = {
       Rojo: '#dc3545',
@@ -176,7 +200,6 @@ export const Calibraciones = () => {
     return colorMap[colorName] || '#6c757d';
   };
 
-  // Helper para obtener ícono del componente
   const getComponentIcon = (componentName) => {
     const iconMap = {
       'Estado General': 'bi-gear-wide-connected',
@@ -194,81 +217,39 @@ export const Calibraciones = () => {
     return iconMap[componentName] || 'bi-gear';
   };
 
+  // 👇 NUEVO: helper para renderizar el botón de archivo adjunto
+  const BtnArchivo = ({ nombreArchivo }) => {
+    if (!nombreArchivo)
+      return <span className="text-white-50 fst-italic">—</span>;
+    return (
+      <a
+        href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${nombreArchivo}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn btn-sm btn-outline-info"
+        style={{ fontSize: '0.7rem', padding: '0.3rem 0.6rem' }}
+      >
+        <i className="bi bi-image me-1"></i>Ver
+      </a>
+    );
+  };
+
+  const toggle = (i) => setOpenIndex(openIndex === i ? null : i);
+
+  const handleEditar = (cal) => {
+    setCalibracion(cal);
+    setModalCalibraciones(true);
+  };
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   return (
     <>
       <div className="min-h-screen bg-gray-50 p-0">
         <div className="mx-auto">
-          {/*  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        
-            <div className="card_calibracion">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <Building2 className="w-6 h-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h2 className="fs-4 font-bold text-white mb-3">
-                    Información del Cliente
-                  </h2>
-                  <div className="space-y-1">
-                    <div className="d-flex gap-5">
-                      <p className="text-md fs-6 fw-bold text-white ">
-                        Razón Social
-                      </p>
-                      <p className="text-md fs-6 text-white">
-                        {calibraciones?.cliente?.razon_social}
-                      </p>
-                    </div>
-                    <div className="d-flex gap-5">
-                      <p className="text-md fs-6 fw-bold text-white ">
-                        Teléfono
-                      </p>
-                      <p className="text-md fs-6 text-white">
-                        {calibraciones?.cliente?.telefono}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-         
-            <div className="card_calibracion">
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-purple-50 rounded-lg">
-                  <Wrench className="w-6 h-6 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <h2 className="fs-4 font-bold text-white mb-3">
-                    Información de la Máquina
-                  </h2>
-                  <div className="space-y-1">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-md fs-6 fw-bold text-white ">
-                          Marca
-                        </p>
-                        <p className="text-md fs-6 text-white">
-                          {calibraciones?.tipo?.marca}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-md fs-6 fw-bold text-white ">
-                          Modelo
-                        </p>
-                        <p className="text-md fs-6 text-white">
-                          {calibraciones?.tipo?.modelo}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div> */}
-
           <div className="calibraciones-wrapper">
             <div style={{ margin: '0 auto' }}>
-              {/* HEADER Y BOTÓN NUEVA CALIBRACION */}
+              {/* HEADER Y BOTÓN NUEVA CALIBRACIÓN */}
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="fw-bold text-white mb-1">Calibraciones</h2>
@@ -283,13 +264,11 @@ export const Calibraciones = () => {
                     <strong>Maquina: </strong>
                     {selectedMaquina?.tipo.marca} {selectedMaquina?.tipo.modelo}
                   </p>
-
                   <p className="text-white-50 mb-0">
                     {calibraciones?.calibraciones?.length || 0} calibraciones
                     encontradas
                   </p>
                 </div>
-
                 <button
                   type="button"
                   onClick={() => handleEditar({ maquina_id: maquina_id })}
@@ -313,6 +292,21 @@ export const Calibraciones = () => {
                   const isOpen = openIndex === i;
                   const estadoMaquinaData = parseEstado(cal.estado_maquina);
 
+                  // 👇 NUEVO: parsear presiones con nueva estructura
+                  const presionUnimap = parsePresion(cal.presion_unimap);
+                  const presionComputadora = parsePresion(
+                    cal.presion_computadora,
+                  );
+                  const presionManometro = parsePresion(cal.presion_manometro);
+
+                  // Hay datos de presión si al menos una tiene valor
+                  // Usamos String() + trim() para cubrir: '', null, undefined, 0, '0', '3.5'
+                  const tieneValor = (v) => String(v ?? '').trim() !== '';
+                  const hayPresiones =
+                    tieneValor(presionUnimap.valor) ||
+                    tieneValor(presionComputadora.valor) ||
+                    tieneValor(presionManometro.valor);
+
                   return (
                     <div
                       key={i}
@@ -333,10 +327,7 @@ export const Calibraciones = () => {
                                 backgroundColor: getEstadoColor(
                                   estadoMaquinaData.estado,
                                 ).bg,
-                                border: `2px solid ${
-                                  getEstadoColor(estadoMaquinaData.estado)
-                                    .border
-                                }`,
+                                border: `2px solid ${getEstadoColor(estadoMaquinaData.estado).border}`,
                                 color: getEstadoColor(estadoMaquinaData.estado)
                                   .color,
                               }}
@@ -358,7 +349,6 @@ export const Calibraciones = () => {
                                 </p>
                               </div>
                             </div>
-
                             <div className="d-flex align-items-start gap-2">
                               <i className="bi bi-person-fill calibracion-icon"></i>
                               <div style={{ flex: 1 }}>
@@ -418,9 +408,7 @@ export const Calibraciones = () => {
                             }}
                           >
                             <i
-                              className={`bi ${
-                                isOpen ? 'bi-eye-slash' : 'bi-eye'
-                              } me-1`}
+                              className={`bi ${isOpen ? 'bi-eye-slash' : 'bi-eye'} me-1`}
                             ></i>
                             {isOpen ? 'Ocultar' : 'Ver Detalles'}
                           </button>
@@ -437,9 +425,9 @@ export const Calibraciones = () => {
                         </div>
                       </div>
 
-                      {/* ═══════════════════════════════════════════════════════ */}
-                      {/* CUERPO EXPANDIBLE - FORMATO TABLA */}
-                      {/* ═══════════════════════════════════════════════════════ */}
+                      {/* ═══════════════════════════════════════════════════ */}
+                      {/* CUERPO EXPANDIBLE                                  */}
+                      {/* ═══════════════════════════════════════════════════ */}
                       {isOpen && (
                         <div
                           style={{
@@ -448,24 +436,50 @@ export const Calibraciones = () => {
                             borderTop: '1px solid rgba(255,255,255,0.1)',
                           }}
                         >
+                          {/* 👇 IMAGEN DEL INFORME — solo si existe */}
+                          {cal.imagen && (
+                            <div className="mb-4">
+                              <p
+                                className="mb-2 fw-semibold text-white-50"
+                                style={{
+                                  fontSize: '0.8rem',
+                                  textTransform: 'uppercase',
+                                  letterSpacing: '0.5px',
+                                }}
+                              >
+                                <i className="bi bi-image-fill me-2 text-info"></i>
+                                Imagen del Informe
+                              </p>
+                              <img
+                                src={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${cal.imagen}`}
+                                alt="Imagen del informe"
+                                className="rounded"
+                                style={{
+                                  maxHeight: '200px',
+                                  maxWidth: '100%',
+                                  objectFit: 'contain',
+                                  border: '1px solid rgba(255,255,255,0.15)',
+                                }}
+                              />
+                            </div>
+                          )}
+
                           {/* TABLA DE COMPONENTES */}
                           <div
                             className="table-responsive"
                             style={{
-                              background: 'rgba(255, 255, 255, 0.05)',
+                              background: 'rgba(255,255,255,0.05)',
                               borderRadius: '10px',
                               overflow: 'hidden',
                             }}
                           >
                             <table
                               className="table table-dark table-hover mb-0"
-                              style={{
-                                fontSize: '0.85rem',
-                              }}
+                              style={{ fontSize: '0.85rem' }}
                             >
                               <thead
                                 style={{
-                                  background: 'rgba(255, 255, 255, 0.1)',
+                                  background: 'rgba(255,255,255,0.1)',
                                   position: 'sticky',
                                   top: 0,
                                   zIndex: 10,
@@ -553,8 +567,7 @@ export const Calibraciones = () => {
                                       textAlign: 'center',
                                     }}
                                   >
-                                    <i className="bi bi-image me-2"></i>
-                                    Archivo
+                                    <i className="bi bi-image me-2"></i>Archivo
                                   </th>
                                 </tr>
                               </thead>
@@ -575,10 +588,10 @@ export const Calibraciones = () => {
                                       key={key}
                                       style={{
                                         borderBottom:
-                                          '1px solid rgba(255, 255, 255, 0.05)',
+                                          '1px solid rgba(255,255,255,0.05)',
                                       }}
                                     >
-                                      {/* COLUMNA 1: COMPONENTE */}
+                                      {/* COMPONENTE */}
                                       <td
                                         style={{
                                           padding: '1rem',
@@ -596,7 +609,7 @@ export const Calibraciones = () => {
                                         </div>
                                       </td>
 
-                                      {/* COLUMNA 2: ESTADO */}
+                                      {/* ESTADO */}
                                       <td
                                         style={{
                                           padding: '1rem',
@@ -610,10 +623,7 @@ export const Calibraciones = () => {
                                             backgroundColor: getEstadoColor(
                                               estadoData.estado,
                                             ).bg,
-                                            border: `1px solid ${
-                                              getEstadoColor(estadoData.estado)
-                                                .border
-                                            }`,
+                                            border: `1px solid ${getEstadoColor(estadoData.estado).border}`,
                                             color: getEstadoColor(
                                               estadoData.estado,
                                             ).color,
@@ -627,7 +637,7 @@ export const Calibraciones = () => {
                                         </span>
                                       </td>
 
-                                      {/* COLUMNA 3: OBSERVACIÓN */}
+                                      {/* OBSERVACIÓN */}
                                       <td
                                         style={{
                                           padding: '1rem',
@@ -651,7 +661,7 @@ export const Calibraciones = () => {
                                         )}
                                       </td>
 
-                                      {/* COLUMNA 4: DETALLES (Modelo, Materiales, Color, Número, O-Ring) */}
+                                      {/* DETALLES */}
                                       <td
                                         style={{
                                           padding: '1rem',
@@ -659,7 +669,6 @@ export const Calibraciones = () => {
                                         }}
                                       >
                                         <div className="d-flex flex-column gap-2">
-                                          {/* BOMBA - Modelo y Materiales */}
                                           {isBomba && (
                                             <>
                                               {estadoData.modelo && (
@@ -717,10 +726,8 @@ export const Calibraciones = () => {
                                             </>
                                           )}
 
-                                          {/* FILTROS - Color, Número, O-Ring, Materiales */}
                                           {isFiltro && (
                                             <>
-                                              {/* Color */}
                                               {estadoData.color && (
                                                 <div className="d-flex align-items-center gap-2">
                                                   <span
@@ -747,8 +754,6 @@ export const Calibraciones = () => {
                                                   </span>
                                                 </div>
                                               )}
-
-                                              {/* Número */}
                                               {estadoData.numero !== '' &&
                                                 estadoData.numero !== null && (
                                                   <div className="d-flex align-items-center gap-2">
@@ -778,29 +783,17 @@ export const Calibraciones = () => {
                                                     </span>
                                                   </div>
                                                 )}
-
-                                              {/* O-Ring */}
                                               {estadoData.presenciaORing && (
                                                 <div>
                                                   <span
-                                                    className={`badge ${
-                                                      estadoData.presenciaORing ===
-                                                      'Si'
-                                                        ? 'bg-success'
-                                                        : 'bg-secondary'
-                                                    }`}
+                                                    className={`badge ${estadoData.presenciaORing === 'Si' ? 'bg-success' : 'bg-secondary'}`}
                                                     style={{
                                                       fontSize: '0.65rem',
                                                       padding: '0.25rem 0.5rem',
                                                     }}
                                                   >
                                                     <i
-                                                      className={`bi ${
-                                                        estadoData.presenciaORing ===
-                                                        'Si'
-                                                          ? 'bi-check-circle-fill'
-                                                          : 'bi-x-circle'
-                                                      } me-1`}
+                                                      className={`bi ${estadoData.presenciaORing === 'Si' ? 'bi-check-circle-fill' : 'bi-x-circle'} me-1`}
                                                     ></i>
                                                     {estadoData.presenciaORing ===
                                                     'Si'
@@ -809,8 +802,6 @@ export const Calibraciones = () => {
                                                   </span>
                                                 </div>
                                               )}
-
-                                              {/* Materiales */}
                                               {estadoData.materiales && (
                                                 <div className="d-flex align-items-center gap-2">
                                                   <i
@@ -854,7 +845,7 @@ export const Calibraciones = () => {
                                         </div>
                                       </td>
 
-                                      {/* COLUMNA 5: RECOMENDACIONES */}
+                                      {/* RECOMENDACIONES */}
                                       <td
                                         style={{
                                           padding: '1rem',
@@ -872,11 +863,11 @@ export const Calibraciones = () => {
                                                   className="d-flex align-items-start gap-2"
                                                   style={{
                                                     background:
-                                                      'rgba(13, 202, 240, 0.1)',
+                                                      'rgba(13,202,240,0.1)',
                                                     padding: '0.4rem 0.6rem',
                                                     borderRadius: '4px',
                                                     border:
-                                                      '1px solid rgba(13, 202, 240, 0.2)',
+                                                      '1px solid rgba(13,202,240,0.2)',
                                                   }}
                                                 >
                                                   <i
@@ -908,7 +899,7 @@ export const Calibraciones = () => {
                                         )}
                                       </td>
 
-                                      {/* COLUMNA 6: ARCHIVO */}
+                                      {/* ARCHIVO */}
                                       <td
                                         style={{
                                           padding: '1rem',
@@ -916,25 +907,11 @@ export const Calibraciones = () => {
                                           textAlign: 'center',
                                         }}
                                       >
-                                        {estadoData.nombreArchivo ? (
-                                          <a
-                                            href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${estadoData.nombreArchivo}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="btn btn-sm btn-outline-info"
-                                            style={{
-                                              fontSize: '0.7rem',
-                                              padding: '0.3rem 0.6rem',
-                                            }}
-                                          >
-                                            <i className="bi bi-image me-1"></i>
-                                            Ver
-                                          </a>
-                                        ) : (
-                                          <span className="text-white-50 fst-italic">
-                                            —
-                                          </span>
-                                        )}
+                                        <BtnArchivo
+                                          nombreArchivo={
+                                            estadoData.nombreArchivo
+                                          }
+                                        />
                                       </td>
                                     </tr>
                                   );
@@ -943,6 +920,7 @@ export const Calibraciones = () => {
                             </table>
                           </div>
 
+                          {/* SECCIONES Y PRESIONES POR ZONA */}
                           {cal.secciones &&
                             Object.keys(parseSecciones(cal.secciones)).length >
                               0 && (
@@ -950,9 +928,9 @@ export const Calibraciones = () => {
                                 <div
                                   className="p-3"
                                   style={{
-                                    background: 'rgba(139, 92, 246, 0.1)',
+                                    background: 'rgba(139,92,246,0.1)',
                                     borderRadius: '10px',
-                                    border: '1px solid rgba(139, 92, 246, 0.3)',
+                                    border: '1px solid rgba(139,92,246,0.3)',
                                     boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                                   }}
                                 >
@@ -960,11 +938,10 @@ export const Calibraciones = () => {
                                     <i className="bi bi-list-ol me-2"></i>
                                     Secciones y Presiones por Zona
                                   </h6>
-
                                   <div
                                     className="table-responsive"
                                     style={{
-                                      background: 'rgba(255, 255, 255, 0.05)',
+                                      background: 'rgba(255,255,255,0.05)',
                                       borderRadius: '8px',
                                       overflow: 'hidden',
                                     }}
@@ -972,7 +949,7 @@ export const Calibraciones = () => {
                                     <table className="table table-dark table-sm table-hover mb-0">
                                       <thead
                                         style={{
-                                          background: 'rgba(139, 92, 246, 0.2)',
+                                          background: 'rgba(139,92,246,0.2)',
                                         }}
                                       >
                                         <tr>
@@ -1006,7 +983,7 @@ export const Calibraciones = () => {
                                         )
                                           .map(([seccion, presion]) => ({
                                             seccion: parseInt(seccion),
-                                            presion: presion,
+                                            presion,
                                           }))
                                           .sort((a, b) => a.seccion - b.seccion)
                                           .map(({ seccion, presion }) => (
@@ -1014,7 +991,7 @@ export const Calibraciones = () => {
                                               key={seccion}
                                               style={{
                                                 borderBottom:
-                                                  '1px solid rgba(255, 255, 255, 0.05)',
+                                                  '1px solid rgba(255,255,255,0.05)',
                                               }}
                                             >
                                               <td
@@ -1051,9 +1028,9 @@ export const Calibraciones = () => {
                                                   className="badge"
                                                   style={{
                                                     backgroundColor:
-                                                      'rgba(139, 92, 246, 0.3)',
+                                                      'rgba(139,92,246,0.3)',
                                                     border:
-                                                      '1px solid rgba(139, 92, 246, 0.5)',
+                                                      '1px solid rgba(139,92,246,0.5)',
                                                     color: '#fff',
                                                     fontSize: '0.8rem',
                                                     padding: '0.4rem 0.8rem',
@@ -1069,8 +1046,7 @@ export const Calibraciones = () => {
                                       </tbody>
                                       <tfoot
                                         style={{
-                                          background:
-                                            'rgba(139, 92, 246, 0.15)',
+                                          background: 'rgba(139,92,246,0.15)',
                                         }}
                                       >
                                         <tr>
@@ -1114,18 +1090,15 @@ export const Calibraciones = () => {
                               </div>
                             )}
 
-                          {/* Información adicional (presiones y observaciones ACRONEX) */}
-                          {(cal.presion_unimap ||
-                            cal.presion_computadora ||
-                            cal.presion_manometro ||
-                            cal.observaciones_acronex) && (
+                          {/* 👇 INFORMACIÓN DE PRESIONES — nueva estructura con adjuntos */}
+                          {(hayPresiones || cal.observaciones_acronex) && (
                             <div className="mt-4">
                               <div
                                 className="p-3"
                                 style={{
-                                  background: 'rgba(99, 102, 241, 0.1)',
+                                  background: 'rgba(99,102,241,0.1)',
                                   borderRadius: '10px',
-                                  border: '1px solid rgba(99, 102, 241, 0.3)',
+                                  border: '1px solid rgba(99,102,241,0.3)',
                                   boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                                 }}
                               >
@@ -1133,53 +1106,131 @@ export const Calibraciones = () => {
                                   <i className="bi bi-speedometer2 me-2"></i>
                                   Información de Presiones
                                 </h6>
+
                                 <div className="row g-3">
-                                  {cal.presion_unimap && (
+                                  {/* Presión Unimap */}
+                                  {tieneValor(presionUnimap.valor) && (
                                     <div className="col-md-4">
-                                      <p
-                                        className="mb-1 text-white-50"
-                                        style={{ fontSize: '0.875rem' }}
+                                      <div
+                                        className="p-3 rounded-3"
+                                        style={{
+                                          background: 'rgba(255,255,255,0.05)',
+                                          border:
+                                            '1px solid rgba(255,255,255,0.1)',
+                                        }}
                                       >
-                                        Presión Unimap
-                                      </p>
-                                      <p className="mb-0 text-white fw-bold">
-                                        {cal.presion_unimap} bar
-                                      </p>
+                                        <p
+                                          className="mb-1 text-white-50 d-flex align-items-center gap-2"
+                                          style={{ fontSize: '0.8rem' }}
+                                        >
+                                          <i className="bi bi-speedometer text-indigo-400"></i>
+                                          Presión Unimap
+                                        </p>
+                                        <p className="mb-2 text-white fw-bold fs-5">
+                                          {presionUnimap.valor}{' '}
+                                          <small
+                                            className="text-white-50 fw-normal"
+                                            style={{ fontSize: '0.75rem' }}
+                                          >
+                                            bar
+                                          </small>
+                                        </p>
+                                        <BtnArchivo
+                                          nombreArchivo={
+                                            presionUnimap.nombreArchivo
+                                          }
+                                        />
+                                      </div>
                                     </div>
                                   )}
-                                  {cal.presion_computadora && (
+
+                                  {/* Presión Computadora */}
+                                  {tieneValor(presionComputadora.valor) && (
                                     <div className="col-md-4">
-                                      <p
-                                        className="mb-1 text-white-50"
-                                        style={{ fontSize: '0.875rem' }}
+                                      <div
+                                        className="p-3 rounded-3"
+                                        style={{
+                                          background: 'rgba(255,255,255,0.05)',
+                                          border:
+                                            '1px solid rgba(255,255,255,0.1)',
+                                        }}
                                       >
-                                        Presión Computadora
-                                      </p>
-                                      <p className="mb-0 text-white fw-bold">
-                                        {cal.presion_computadora} bar
-                                      </p>
+                                        <p
+                                          className="mb-1 text-white-50 d-flex align-items-center gap-2"
+                                          style={{ fontSize: '0.8rem' }}
+                                        >
+                                          <i className="bi bi-speedometer text-indigo-400"></i>
+                                          Presión Computadora
+                                        </p>
+                                        <p className="mb-2 text-white fw-bold fs-5">
+                                          {presionComputadora.valor}{' '}
+                                          <small
+                                            className="text-white-50 fw-normal"
+                                            style={{ fontSize: '0.75rem' }}
+                                          >
+                                            bar
+                                          </small>
+                                        </p>
+                                        <BtnArchivo
+                                          nombreArchivo={
+                                            presionComputadora.nombreArchivo
+                                          }
+                                        />
+                                      </div>
                                     </div>
                                   )}
-                                  {cal.presion_manometro && (
+
+                                  {/* Presión Manómetro */}
+                                  {tieneValor(presionManometro.valor) && (
                                     <div className="col-md-4">
-                                      <p
-                                        className="mb-1 text-white-50"
-                                        style={{ fontSize: '0.875rem' }}
+                                      <div
+                                        className="p-3 rounded-3"
+                                        style={{
+                                          background: 'rgba(255,255,255,0.05)',
+                                          border:
+                                            '1px solid rgba(255,255,255,0.1)',
+                                        }}
                                       >
-                                        Presión Manómetro
-                                      </p>
-                                      <p className="mb-0 text-white fw-bold">
-                                        {cal.presion_manometro} bar
-                                      </p>
+                                        <p
+                                          className="mb-1 text-white-50 d-flex align-items-center gap-2"
+                                          style={{ fontSize: '0.8rem' }}
+                                        >
+                                          <i className="bi bi-speedometer text-indigo-400"></i>
+                                          Presión Manómetro
+                                        </p>
+                                        <p className="mb-2 text-white fw-bold fs-5">
+                                          {presionManometro.valor}{' '}
+                                          <small
+                                            className="text-white-50 fw-normal"
+                                            style={{ fontSize: '0.75rem' }}
+                                          >
+                                            bar
+                                          </small>
+                                        </p>
+                                        <BtnArchivo
+                                          nombreArchivo={
+                                            presionManometro.nombreArchivo
+                                          }
+                                        />
+                                      </div>
                                     </div>
                                   )}
                                 </div>
+
+                                {/* Observaciones ACRONEX */}
                                 {cal.observaciones_acronex && (
-                                  <div className="mt-3">
+                                  <div
+                                    className="mt-3 pt-3"
+                                    style={{
+                                      borderTop:
+                                        '1px solid rgba(255,255,255,0.08)',
+                                    }}
+                                  >
                                     <p
                                       className="mb-1 text-white-50"
                                       style={{ fontSize: '0.875rem' }}
                                     >
+                                      <i className="bi bi-journal-text me-2"></i>
                                       Observaciones ACRONEX
                                     </p>
                                     <p
