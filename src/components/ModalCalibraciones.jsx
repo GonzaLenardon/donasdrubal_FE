@@ -2,10 +2,6 @@ import { useState, useEffect } from 'react';
 import Spinner from '../components/Spinner.jsx';
 import { addCalibraciones, upCalibraciones } from '../api/calibraciones.js';
 
-// ══════════════════════════════════════════════════════════
-// CONSTANTES Y CONFIGURACIONES
-// ══════════════════════════════════════════════════════════
-
 const opcionesEstado = ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'No aplica'];
 const opcionesModelo = ['Modelo1', 'Modelo2', 'Modelo3', 'Modelo4', 'Modelo5'];
 const opcionesMateriales = ['Acero Inox', 'Fundicion', 'Plastico', 'Otros'];
@@ -21,6 +17,7 @@ const COLOR_CONFIG = {
 const emptyCalibracion = {
   fecha: '',
   responsable: '',
+  imagen: '',
   estado_maquina: {
     estado: '',
     observacion: '',
@@ -107,16 +104,14 @@ const emptyCalibracion = {
     recomendaciones: [],
   },
   secciones: {},
-  presion_unimap: '',
-  presion_computadora: '',
-  presion_manometro: '',
+  presion_unimap: { valor: '', nombreArchivo: '' },
+  presion_computadora: { valor: '', nombreArchivo: '' },
+  presion_manometro: { valor: '', nombreArchivo: '' },
   observaciones_acronex: '',
   Observaciones: '',
 };
 
-// ══════════════════════════════════════════════════════════
-// FUNCIONES AUXILIARES
-// ══════════════════════════════════════════════════════════
+// ── Helpers de parseo ──────────────────────────────────────────────────────
 
 const parseEstadoField = (estadoString) => {
   if (!estadoString) {
@@ -132,14 +127,9 @@ const parseEstadoField = (estadoString) => {
       recomendaciones: [],
     };
   }
-
   try {
     let parsed = JSON.parse(estadoString);
-
-    if (typeof parsed === 'string') {
-      parsed = JSON.parse(parsed);
-    }
-
+    if (typeof parsed === 'string') parsed = JSON.parse(parsed);
     return {
       estado: parsed.estado || '',
       modelo: parsed.modelo || '',
@@ -170,65 +160,86 @@ const parseEstadoField = (estadoString) => {
   }
 };
 
-// ══════════════════════════════════════════════════════════
-// COMPONENTE: Selector de Color con Botones
-// ══════════════════════════════════════════════════════════
-
-const ColorSelector = ({ value, onChange, disabled }) => {
-  return (
-    <div className="color-selector-container">
-      <div className="d-flex gap-2 flex-wrap">
-        {Object.entries(COLOR_CONFIG).map(([colorName, config]) => (
-          <button
-            key={colorName}
-            type="button"
-            className={`btn-color ${value === colorName ? 'selected' : ''}`}
-            onClick={() => onChange(colorName)}
-            disabled={disabled}
-            style={{
-              '--color-bg': config.bg,
-              '--color-border': config.border,
-            }}
-            title={colorName}
-          >
-            <span className="color-icon">{config.icon}</span>
-            <span className="color-label">{colorName}</span>
-          </button>
-        ))}
-      </div>
-      {value && (
-        <button
-          type="button"
-          className="btn btn-sm btn-link text-danger mt-2 p-0"
-          onClick={() => onChange('')}
-          disabled={disabled}
-          style={{ fontSize: '0.7rem' }}
-        >
-          <i className="bi bi-x-circle me-1"></i>
-          Limpiar selección
-        </button>
-      )}
-    </div>
-  );
+/**
+ * Parser para campos de presión — soporta doble encoding de DB.
+ * La DB devuelve: "\"{\\\"valor\\\":\\\"15\\\",\\\"nombreArchivo\\\":\\\"...\\\"}\""
+ * Cubre: doble-encoding, objeto directo, número plano (retrocompat FLOAT).
+ */
+const parsePresionField = (presionData) => {
+  if (presionData === null || presionData === undefined)
+    return { valor: '', nombreArchivo: '' };
+  if (typeof presionData === 'number')
+    return { valor: presionData, nombreArchivo: '' };
+  if (typeof presionData === 'object') {
+    return {
+      valor: presionData.valor ?? '',
+      nombreArchivo: presionData.nombreArchivo ?? '',
+    };
+  }
+  if (typeof presionData === 'string') {
+    if (presionData.trim() === '') return { valor: '', nombreArchivo: '' };
+    try {
+      let parsed = JSON.parse(presionData);
+      // 👇 Doble encoding: la DB serializa el JSON.stringify del frontend como string
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+      if (typeof parsed === 'number')
+        return { valor: parsed, nombreArchivo: '' };
+      if (typeof parsed === 'object' && parsed !== null) {
+        return {
+          valor: parsed.valor ?? '',
+          nombreArchivo: parsed.nombreArchivo ?? '',
+        };
+      }
+    } catch {
+      const numValor = parseFloat(presionData);
+      return { valor: isNaN(numValor) ? '' : numValor, nombreArchivo: '' };
+    }
+  }
+  return { valor: '', nombreArchivo: '' };
 };
 
-// ══════════════════════════════════════════════════════════
-// COMPONENTE: Input Numérico con Validación
-// ══════════════════════════════════════════════════════════
+// ── Sub-componentes ────────────────────────────────────────────────────────
+
+const ColorSelector = ({ value, onChange, disabled }) => (
+  <div className="color-selector-container">
+    <div className="d-flex gap-2 flex-wrap">
+      {Object.entries(COLOR_CONFIG).map(([colorName, config]) => (
+        <button
+          key={colorName}
+          type="button"
+          className={`btn-color ${value === colorName ? 'selected' : ''}`}
+          onClick={() => onChange(colorName)}
+          disabled={disabled}
+          style={{ '--color-bg': config.bg, '--color-border': config.border }}
+          title={colorName}
+        >
+          <span className="color-icon">{config.icon}</span>
+          <span className="color-label">{colorName}</span>
+        </button>
+      ))}
+    </div>
+    {value && (
+      <button
+        type="button"
+        className="btn btn-sm btn-link text-danger mt-2 p-0"
+        onClick={() => onChange('')}
+        disabled={disabled}
+        style={{ fontSize: '0.7rem' }}
+      >
+        <i className="bi bi-x-circle me-1"></i>Limpiar selección
+      </button>
+    )}
+  </div>
+);
 
 const NumeroInput = ({ value, onChange, disabled, min = 0, max = 200 }) => {
   const handleChange = (e) => {
     const val = e.target.value;
-
     if (val === '' || /^\d+$/.test(val)) {
       const numVal = val === '' ? '' : parseInt(val, 10);
-
-      if (val === '' || (numVal >= min && numVal <= max)) {
-        onChange(numVal);
-      }
+      if (val === '' || (numVal >= min && numVal <= max)) onChange(numVal);
     }
   };
-
   return (
     <div className="numero-input-container">
       <input
@@ -254,33 +265,22 @@ const NumeroInput = ({ value, onChange, disabled, min = 0, max = 200 }) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════
-// COMPONENTE: Toggle Switch para Presencia O-Ring
-// ══════════════════════════════════════════════════════════
-
 const ORingToggle = ({ value, onChange, disabled }) => {
   const isPresent = value === 'Si' || value === true;
-
-  const handleToggle = () => {
-    onChange(isPresent ? 'No' : 'Si');
-  };
-
   return (
     <div className="oring-toggle-container">
       <div className="d-flex align-items-center gap-3">
         <button
           type="button"
           className={`toggle-button ${isPresent ? 'active' : ''}`}
-          onClick={handleToggle}
+          onClick={() => onChange(isPresent ? 'No' : 'Si')}
           disabled={disabled}
         >
           <span className="toggle-slider"></span>
         </button>
         <div className="toggle-label">
           <span
-            className={`badge-soft ${
-              isPresent ? 'badge-soft-success' : 'badge-soft-warning'
-            }`}
+            className={`badge-soft ${isPresent ? 'badge-soft-success' : 'badge-soft-warning'}`}
           >
             <i
               className={`bi ${isPresent ? 'bi-check-circle-fill' : 'bi-x-circle'} me-1`}
@@ -293,10 +293,6 @@ const ORingToggle = ({ value, onChange, disabled }) => {
   );
 };
 
-// ══════════════════════════════════════════════════════════
-// COMPONENTE: Gestor de Recomendaciones
-// ══════════════════════════════════════════════════════════
-
 const RecomendacionesManager = ({
   recomendaciones = [],
   onChange,
@@ -306,26 +302,20 @@ const RecomendacionesManager = ({
 
   const agregarRecomendacion = () => {
     if (nuevaRecomendacion.trim()) {
-      const nuevaRec = {
-        id: Date.now(),
-        texto: nuevaRecomendacion.trim(),
-        fecha: new Date().toISOString(),
-      };
-      onChange([...recomendaciones, nuevaRec]);
+      onChange([
+        ...recomendaciones,
+        {
+          id: Date.now(),
+          texto: nuevaRecomendacion.trim(),
+          fecha: new Date().toISOString(),
+        },
+      ]);
       setNuevaRecomendacion('');
     }
   };
 
-  const eliminarRecomendacion = (id) => {
+  const eliminarRecomendacion = (id) =>
     onChange(recomendaciones.filter((rec) => rec.id !== id));
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      agregarRecomendacion();
-    }
-  };
 
   return (
     <div className="recomendaciones-container">
@@ -363,7 +353,6 @@ const RecomendacionesManager = ({
           ))}
         </div>
       )}
-
       <div className="input-group input-group-sm">
         <input
           type="text"
@@ -371,12 +360,17 @@ const RecomendacionesManager = ({
           placeholder="Escribir recomendación... (Enter para agregar)"
           value={nuevaRecomendacion}
           onChange={(e) => setNuevaRecomendacion(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              agregarRecomendacion();
+            }
+          }}
           disabled={disabled}
           style={{
             fontSize: '0.75rem',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
             color: '#fff',
           }}
         />
@@ -394,58 +388,35 @@ const RecomendacionesManager = ({
   );
 };
 
-// ══════════════════════════════════════════════════════════
-// COMPONENTE: Gestor de Secciones con Presiones (FIJAS 1-30)
-// ══════════════════════════════════════════════════════════
-
 const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
   const TOTAL_SECCIONES = 30;
   const MIN_PRESION = 0;
   const MAX_PRESION = 20;
 
-  // Crear array de secciones fijas del 1 al 30
-  const seccionesArray = Array.from({ length: TOTAL_SECCIONES }, (_, i) => {
-    const numeroSeccion = i + 1;
-    return {
-      seccion: numeroSeccion,
-      presion: secciones[numeroSeccion] || '',
-    };
-  });
+  const seccionesArray = Array.from({ length: TOTAL_SECCIONES }, (_, i) => ({
+    seccion: i + 1,
+    presion: secciones[i + 1] || '',
+  }));
 
   const actualizarPresion = (seccion, valor) => {
-    // Validar que el valor esté dentro del rango permitido
     if (valor !== '') {
       const numValor = parseFloat(valor);
-      if (isNaN(numValor) || numValor < MIN_PRESION || numValor > MAX_PRESION) {
+      if (isNaN(numValor) || numValor < MIN_PRESION || numValor > MAX_PRESION)
         return;
-      }
     }
-
     const nuevasSecciones = { ...secciones };
-
     if (valor === '' || valor === null) {
-      // Si el valor está vacío, eliminar la sección
       delete nuevasSecciones[seccion];
     } else {
-      // Guardar con máximo 2 decimales
       nuevasSecciones[seccion] = parseFloat(parseFloat(valor).toFixed(2));
     }
-
     onChange(nuevasSecciones);
   };
 
-  const limpiarTodasSecciones = () => {
-    if (window.confirm('¿Está seguro de limpiar todas las secciones?')) {
-      onChange({});
-    }
-  };
-
-  // Contar secciones con datos
   const seccionesCargadas = Object.keys(secciones).length;
 
   return (
     <div className="secciones-container">
-      {/* Header con información */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <span className="badge bg-info text-dark me-2">
@@ -470,26 +441,27 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
           <button
             type="button"
             className="btn btn-sm btn-outline-danger"
-            onClick={limpiarTodasSecciones}
+            onClick={() => {
+              if (
+                window.confirm('¿Está seguro de limpiar todas las secciones?')
+              )
+                onChange({});
+            }}
             disabled={disabled}
           >
-            <i className="bi bi-trash me-1"></i>
-            Limpiar todas
+            <i className="bi bi-trash me-1"></i>Limpiar todas
           </button>
         )}
       </div>
 
-      {/* Info de validación */}
       <div
         className="alert alert-info py-2 px-3 mb-3"
         style={{ fontSize: '0.75rem' }}
       >
         <i className="bi bi-info-circle me-2"></i>
-        Rango permitido: <strong>0 a 20 bares</strong> (hasta 2 decimales). Las
-        secciones se mantienen fijas del 1 al 30.
+        Rango permitido: <strong>0 a 20 bares</strong> (hasta 2 decimales).
       </div>
 
-      {/* Tabla de secciones */}
       <div
         className="table-responsive"
         style={{ maxHeight: '400px', overflowY: 'auto' }}
@@ -518,7 +490,7 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
                 style={{ width: '20%', fontSize: '0.8rem', padding: '0.75rem' }}
                 className="text-center"
               >
-                <i className="bi bi-gear-fill"></i>Estado
+                <i className="bi bi-gear-fill"></i> Estado
               </th>
             </tr>
           </thead>
@@ -530,11 +502,10 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
                   key={seccion}
                   style={{
                     background: tieneDatos
-                      ? 'rgba(13, 202, 240, 0.05)'
+                      ? 'rgba(13,202,240,0.05)'
                       : 'transparent',
                   }}
                 >
-                  {/* Número de sección */}
                   <td
                     style={{
                       verticalAlign: 'middle',
@@ -548,8 +519,6 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
                       Sección {seccion}
                     </span>
                   </td>
-
-                  {/* Input de presión */}
                   <td
                     style={{
                       verticalAlign: 'middle',
@@ -564,12 +533,10 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
                         actualizarPresion(seccion, e.target.value)
                       }
                       onBlur={(e) => {
-                        // Al perder el foco, formatear a 2 decimales
                         if (e.target.value !== '') {
                           const valor = parseFloat(e.target.value);
-                          if (!isNaN(valor)) {
+                          if (!isNaN(valor))
                             actualizarPresion(seccion, valor.toFixed(2));
-                          }
                         }
                       }}
                       disabled={disabled}
@@ -580,18 +547,16 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
                       style={{
                         fontSize: '0.85rem',
                         background: tieneDatos
-                          ? 'rgba(13, 202, 240, 0.1)'
-                          : 'rgba(255, 255, 255, 0.05)',
+                          ? 'rgba(13,202,240,0.1)'
+                          : 'rgba(255,255,255,0.05)',
                         border: tieneDatos
-                          ? '1px solid rgba(13, 202, 240, 0.3)'
-                          : '1px solid rgba(255, 255, 255, 0.1)',
+                          ? '1px solid rgba(13,202,240,0.3)'
+                          : '1px solid rgba(255,255,255,0.1)',
                         color: '#fff',
                         fontWeight: tieneDatos ? '600' : '400',
                       }}
                     />
                   </td>
-
-                  {/* Estado / Acción */}
                   <td
                     className="text-center"
                     style={{
@@ -629,25 +594,19 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
         </table>
       </div>
 
-      {/* Footer informativo */}
       <div
         className="mt-3 p-2"
-        style={{ background: 'rgba(255, 255, 255, 0.03)', borderRadius: '5px' }}
+        style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '5px' }}
       >
         <small className="text-white-50 d-block" style={{ fontSize: '0.7rem' }}>
           <i className="bi bi-lightbulb me-1"></i>
-          <strong>Tip:</strong> Las secciones están numeradas del 1 al 30. Solo
-          ingrese valores en las secciones que necesite. Puede dejar las demás
-          vacías.
+          <strong>Tip:</strong> Ingrese solo los valores de las secciones que
+          necesite.
         </small>
       </div>
     </div>
   );
 };
-
-// ══════════════════════════════════════════════════════════
-// COMPONENTE: Navegación de Páginas
-// ══════════════════════════════════════════════════════════
 
 const PaginationNav = ({ currentPage, onPageChange, errors }) => {
   const pages = [
@@ -655,35 +614,132 @@ const PaginationNav = ({ currentPage, onPageChange, errors }) => {
     { number: 2, title: 'Estados y Componentes', icon: 'bi-clipboard-check' },
     { number: 3, title: 'Presiones y Observaciones', icon: 'bi-speedometer2' },
   ];
-
   return (
     <div className="d-flex justify-content-center gap-2 mb-4 flex-wrap">
-      {pages.map((page) => {
-        const hasErrors = errors[`page${page.number}`];
-        return (
-          <button
-            key={page.number}
-            type="button"
-            className={`btn ${currentPage === page.number ? 'btn-primary' : 'btn-outline-secondary'} btn-sm position-relative`}
-            onClick={() => onPageChange(page.number)}
-            style={{ minWidth: '150px' }}
+      {pages.map((page) => (
+        <button
+          key={page.number}
+          type="button"
+          className={`btn ${currentPage === page.number ? 'btn-primary' : 'btn-outline-secondary'} btn-sm position-relative`}
+          onClick={() => onPageChange(page.number)}
+          style={{ minWidth: '150px' }}
+        >
+          <i className={`${page.icon} me-2`}></i>
+          {page.title}
+          {errors[`page${page.number}`] && (
+            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              !
+            </span>
+          )}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+/**
+ * AdjuntoArchivo — muestra archivo existente (con link "Ver") o permite adjuntar uno nuevo.
+ * En edición, si hay nombreArchivo guardado en DB se ofrece ver el archivo actual.
+ */
+const AdjuntoArchivo = ({ campo, form, onFileChange, onRemove, disabled }) => {
+  const nombreArchivo = form[campo]?.nombreArchivo;
+  const tieneArchivoNuevo = !!form[campo]?.archivo;
+
+  return (
+    <div>
+      <label className="form-label" style={{ fontSize: '0.8rem' }}>
+        <i className="bi bi-paperclip me-1"></i>Archivo adjunto
+      </label>
+      <div className="d-flex align-items-center gap-2 flex-wrap">
+        {!nombreArchivo ? (
+          /* Sin archivo — zona de carga */
+          <label
+            className="btn btn-sm btn-outline-success flex-grow-1"
+            style={{
+              fontSize: '0.75rem',
+              padding: '0.25rem 0.5rem',
+              cursor: disabled ? 'not-allowed' : 'pointer',
+            }}
           >
-            <i className={`${page.icon} me-2`}></i>
-            {page.title}
-            {hasErrors && (
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                !
-              </span>
-            )}
-          </button>
-        );
-      })}
+            <i className="bi bi-paperclip me-1"></i>Adjuntar archivo
+            <input
+              type="file"
+              className="d-none"
+              onChange={(e) => onFileChange(campo, e.target.files[0])}
+              disabled={disabled}
+              accept="image/*,.pdf"
+            />
+          </label>
+        ) : tieneArchivoNuevo ? (
+          /* Archivo nuevo seleccionado (aún no subido) */
+          <>
+            <span
+              className="badge bg-warning text-dark flex-grow-1 text-truncate"
+              style={{ fontSize: '0.7rem', maxWidth: '160px' }}
+              title={nombreArchivo}
+            >
+              <i className="bi bi-clock me-1"></i>Nuevo archivo pendiente
+            </span>
+            <button
+              type="button"
+              className="btn btn-sm btn-danger"
+              style={{ fontSize: '0.7rem', padding: '0.2rem 0.4rem' }}
+              onClick={() => onRemove(campo)}
+              disabled={disabled}
+              title="Cancelar"
+            >
+              <i className="bi bi-x-lg"></i>
+            </button>
+          </>
+        ) : (
+          /* Archivo existente guardado en DB */
+          <>
+            <a
+              href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${nombreArchivo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm btn-outline-info"
+              style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}
+            >
+              <i className="bi bi-eye me-1"></i>Ver actual
+            </a>
+            {/* Reemplazar archivo existente */}
+            <label
+              className="btn btn-sm btn-outline-warning"
+              style={{
+                fontSize: '0.7rem',
+                padding: '0.2rem 0.5rem',
+                cursor: disabled ? 'not-allowed' : 'pointer',
+              }}
+            >
+              <i className="bi bi-arrow-repeat me-1"></i>Reemplazar
+              <input
+                type="file"
+                className="d-none"
+                onChange={(e) => onFileChange(campo, e.target.files[0])}
+                disabled={disabled}
+                accept="image/*,.pdf"
+              />
+            </label>
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-danger"
+              style={{ fontSize: '0.7rem', padding: '0.2rem 0.4rem' }}
+              onClick={() => onRemove(campo)}
+              disabled={disabled}
+              title="Quitar archivo"
+            >
+              <i className="bi bi-trash"></i>
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
 
 // ══════════════════════════════════════════════════════════
-// COMPONENTE PRINCIPAL: Modal de Calibraciones
+// COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════════════════════
 
 export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
@@ -738,6 +794,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       if (calibracion.id) {
         const parsedCalibracion = { ...calibracion };
 
+        // Parsear campos de estado
         camposEstado.forEach(({ campo }) => {
           if (typeof calibracion[campo] === 'string') {
             parsedCalibracion[campo] = parseEstadoField(calibracion[campo]);
@@ -756,12 +813,20 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
           }
         });
 
-        // Parsear secciones si existe
+        // Parsear presiones — con doble encoding de DB
+        ['presion_unimap', 'presion_computadora', 'presion_manometro'].forEach(
+          (campo) => {
+            parsedCalibracion[campo] = parsePresionField(calibracion[campo]);
+          },
+        );
+
+        parsedCalibracion.imagen = calibracion.imagen || '';
+
+        // Parsear secciones
         if (typeof calibracion.secciones === 'string') {
           try {
             parsedCalibracion.secciones = JSON.parse(calibracion.secciones);
-          } catch (error) {
-            console.error('Error parseando secciones:', error);
+          } catch {
             parsedCalibracion.secciones = {};
           }
         } else if (!calibracion.secciones) {
@@ -773,74 +838,69 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
           fecha: calibracion.fecha ? calibracion.fecha.split('T')[0] : '',
         });
       } else {
-        setForm({
-          ...emptyCalibracion,
-          maquina_id: calibracion.maquina_id,
-        });
+        setForm({ ...emptyCalibracion, maquina_id: calibracion.maquina_id });
       }
     }
   }, [calibracion]);
 
   if (!calibracion) return null;
 
+  // ── Handlers ──────────────────────────────────────────────────────────────
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
+    if (errors[name])
       setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[name];
-        return newErrors;
+        const n = { ...prev };
+        delete n[name];
+        return n;
       });
-    }
   };
 
   const handleEstadoChange = (campo, propiedad, value) => {
     setForm((prev) => ({
       ...prev,
-      [campo]: {
-        ...prev[campo],
-        [propiedad]: value,
-      },
+      [campo]: { ...prev[campo], [propiedad]: value },
     }));
   };
 
   const handleRecomendacionesChange = (campo, recomendaciones) => {
     setForm((prev) => ({
       ...prev,
-      [campo]: {
-        ...prev[campo],
-        recomendaciones,
-      },
+      [campo]: { ...prev[campo], recomendaciones },
     }));
   };
 
   const handleFileChange = (campo, file) => {
-    if (file) {
-      const timestamp = Date.now();
-      const nombreUnico = `${campo}_${timestamp}_${file.name}`;
-
+    if (!file) return;
+    const nombreUnico = `${campo}_${Date.now()}_${file.name}`;
+    if (campo === 'imagen') {
       setForm((prev) => ({
         ...prev,
-        [campo]: {
-          ...prev[campo],
-          nombreArchivo: nombreUnico,
-          archivo: file,
-        },
+        imagen: nombreUnico,
+        imagenArchivo: file,
       }));
+      return;
     }
+    setForm((prev) => ({
+      ...prev,
+      [campo]: { ...prev[campo], nombreArchivo: nombreUnico, archivo: file },
+    }));
   };
 
   const handleRemoveFile = (campo) => {
+    if (campo === 'imagen') {
+      setForm((prev) => ({ ...prev, imagen: '', imagenArchivo: null }));
+      return;
+    }
     setForm((prev) => ({
       ...prev,
-      [campo]: {
-        ...prev[campo],
-        nombreArchivo: '',
-        archivo: null,
-      },
+      [campo]: { ...prev[campo], nombreArchivo: '', archivo: null },
     }));
   };
+
+  // ── Upload de archivos ────────────────────────────────────────────────────
 
   const uploadFiles = async () => {
     const archivosParaSubir = [];
@@ -855,62 +915,59 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       }
     });
 
-    if (archivosParaSubir.length === 0) {
-      return true;
-    }
-
-    try {
-      for (const item of archivosParaSubir) {
-        const formData = new FormData();
-        formData.append('campo', item.campo);
-        formData.append('nombreArchivo', item.nombreArchivo);
-        formData.append('file', item.archivo);
-
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/calibraciones/upload`,
-          {
-            method: 'POST',
-            credentials: 'include',
-            body: formData,
-          },
-        );
-
-        if (!response.ok) {
-          throw new Error(`Error al subir archivo de ${item.campo}`);
+    ['presion_unimap', 'presion_computadora', 'presion_manometro'].forEach(
+      (campo) => {
+        if (form[campo]?.archivo) {
+          archivosParaSubir.push({
+            campo,
+            archivo: form[campo].archivo,
+            nombreArchivo: form[campo].nombreArchivo,
+          });
         }
+      },
+    );
 
-        const result = await response.json();
-        console.log(`Archivo ${item.nombreArchivo} subido exitosamente`);
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error al subir archivos:', error);
-      throw error;
+    if (form.imagenArchivo) {
+      archivosParaSubir.push({
+        campo: 'imagen',
+        archivo: form.imagenArchivo,
+        nombreArchivo: form.imagen,
+      });
     }
+
+    if (archivosParaSubir.length === 0) return true;
+
+    for (const item of archivosParaSubir) {
+      const formData = new FormData();
+      formData.append('campo', item.campo);
+      formData.append('nombreArchivo', item.nombreArchivo);
+      formData.append('file', item.archivo);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/calibraciones/upload`,
+        { method: 'POST', credentials: 'include', body: formData },
+      );
+      if (!response.ok)
+        throw new Error(`Error al subir archivo de ${item.campo}`);
+    }
+    return true;
   };
+
+  // ── Validaciones ──────────────────────────────────────────────────────────
 
   const validarCamposPorPagina = (pageNumber) => {
     const newErrors = {};
-
     if (pageNumber === 1) {
-      if (!form.responsable?.trim()) {
+      if (!form.responsable?.trim())
         newErrors.responsable = 'El responsable es requerido';
-      }
-      if (!form.fecha) {
-        newErrors.fecha = 'La fecha es requerida';
-      }
-      if (Object.keys(newErrors).length > 0) {
-        newErrors.page1 = true;
-      }
+      if (!form.fecha) newErrors.fecha = 'La fecha es requerida';
+      if (Object.keys(newErrors).length > 0) newErrors.page1 = true;
     }
-
     return newErrors;
   };
 
   const validarTodoElFormulario = () => {
     const newErrors = {};
-
     if (!form.responsable?.trim()) {
       newErrors.responsable = 'El responsable es requerido';
       newErrors.page1 = true;
@@ -919,7 +976,6 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       newErrors.fecha = 'La fecha es requerida';
       newErrors.page1 = true;
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -933,6 +989,8 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
     setCurrentPage(pageNumber);
     setErrors({});
   };
+
+  // ── Submit ────────────────────────────────────────────────────────────────
 
   const handleSubmit = async () => {
     if (!validarTodoElFormulario()) {
@@ -949,6 +1007,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
       const formToSend = { ...form };
 
+      // Serializar campos de estado
       camposEstado.forEach(({ campo }) => {
         if (typeof formToSend[campo] === 'object') {
           const { archivo, path, ...jsonData } = formToSend[campo];
@@ -956,7 +1015,18 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
         }
       });
 
-      // Convertir secciones a JSON string
+      // Serializar presiones
+      ['presion_unimap', 'presion_computadora', 'presion_manometro'].forEach(
+        (campo) => {
+          if (typeof formToSend[campo] === 'object') {
+            const { archivo, ...jsonData } = formToSend[campo];
+            formToSend[campo] = JSON.stringify(jsonData);
+          }
+        },
+      );
+
+      delete formToSend.imagenArchivo;
+
       if (typeof formToSend.secciones === 'object') {
         formToSend.secciones = JSON.stringify(formToSend.secciones);
       }
@@ -972,33 +1042,32 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       }
 
       setMsg(resp.message || 'Calibración guardada exitosamente');
-
       await new Promise((res) => setTimeout(res, 1500));
-
       onSaved();
       onClose();
     } catch (error) {
       console.error('Error al guardar:', error);
       setErrors({ submit: error.message || 'Error al guardar la calibración' });
       setMsg('Error al guardar');
-
-      setTimeout(() => {
-        setMsg('');
-      }, 3000);
+      setTimeout(() => setMsg(''), 3000);
     } finally {
       setLoading(false);
       setIsSubmitting(false);
     }
   };
 
+  // ══════════════════════════════════════════════════════════
+  // RENDER POR PÁGINA
+  // ══════════════════════════════════════════════════════════
+
   const renderPageContent = () => {
     switch (currentPage) {
+      // ── Página 1: Datos básicos + imagen ──────────────────────────────────
       case 1:
         return (
           <div className="fade-in">
-            <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
-              <i className="bi bi-info-circle me-2"></i>
-              Información General
+            <h4 className="fw-bold mb-4 d-flex align-items-center">
+              <i className="bi bi-info-circle me-2"></i>Información General
             </h4>
 
             <div className="row g-4">
@@ -1050,6 +1119,177 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                   )}
                 </div>
               </div>
+
+              {/* Imagen del Informe */}
+              <div className="col-12">
+                <div
+                  className="border rounded p-4"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderStyle: 'dashed',
+                  }}
+                >
+                  <label className="form-label d-flex align-items-center gap-2 mb-3">
+                    <i className="bi bi-image-fill text-info fs-5"></i>
+                    <span>
+                      Imagen del Informe{' '}
+                      <small className="text-white-50 fw-normal">
+                        (opcional)
+                      </small>
+                    </span>
+                  </label>
+
+                  {/* EDICIÓN: imagen guardada en DB — mostrar preview + acciones */}
+                  {form.imagen && !form.imagenArchivo && (
+                    <div className="mb-3">
+                      <img
+                        src={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${form.imagen}`}
+                        alt="Imagen actual del informe"
+                        className="rounded mb-2"
+                        style={{
+                          maxHeight: '160px',
+                          maxWidth: '100%',
+                          objectFit: 'contain',
+                          border: '1px solid rgba(255,255,255,0.15)',
+                          display: 'block',
+                        }}
+                      />
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <span
+                          className="badge bg-info text-dark px-2 py-1"
+                          style={{ fontSize: '0.7rem' }}
+                        >
+                          <i className="bi bi-image me-1"></i>Imagen actual
+                          guardada
+                        </span>
+                        {/* Reemplazar */}
+                        <label
+                          className="btn btn-sm btn-outline-warning mb-0"
+                          style={{
+                            fontSize: '0.75rem',
+                            padding: '0.2rem 0.6rem',
+                            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                          }}
+                        >
+                          <i className="bi bi-arrow-repeat me-1"></i>Reemplazar
+                          <input
+                            type="file"
+                            className="d-none"
+                            onChange={(e) =>
+                              handleFileChange('imagen', e.target.files[0])
+                            }
+                            disabled={isSubmitting}
+                            accept="image/*,.pdf"
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          style={{
+                            fontSize: '0.75rem',
+                            padding: '0.2rem 0.6rem',
+                          }}
+                          onClick={() => handleRemoveFile('imagen')}
+                          disabled={isSubmitting}
+                        >
+                          <i className="bi bi-trash me-1"></i>Quitar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Preview imagen nueva seleccionada */}
+                  {form.imagenArchivo && (
+                    <div className="mb-3">
+                      <img
+                        src={URL.createObjectURL(form.imagenArchivo)}
+                        alt="Preview informe"
+                        className="rounded mb-2"
+                        style={{
+                          maxHeight: '180px',
+                          maxWidth: '100%',
+                          objectFit: 'contain',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          display: 'block',
+                        }}
+                      />
+                      <div className="d-flex align-items-center gap-2">
+                        <span
+                          className="badge bg-warning text-dark"
+                          style={{ fontSize: '0.7rem' }}
+                        >
+                          <i className="bi bi-clock me-1"></i>Nueva imagen —
+                          pendiente de guardar
+                        </span>
+                        <small className="text-white-50">
+                          {form.imagenArchivo.name}
+                        </small>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleRemoveFile('imagen')}
+                          disabled={isSubmitting}
+                          style={{
+                            fontSize: '0.7rem',
+                            padding: '0.15rem 0.5rem',
+                          }}
+                        >
+                          <i className="bi bi-trash me-1"></i>Quitar
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Zona de carga — solo si no hay imagen ni preview */}
+                  {!form.imagen && !form.imagenArchivo && (
+                    <label
+                      className="d-flex flex-column align-items-center justify-content-center gap-2 rounded p-4"
+                      style={{
+                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                        border: '2px dashed rgba(13,202,240,0.3)',
+                        background: 'rgba(13,202,240,0.03)',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSubmitting)
+                          e.currentTarget.style.background =
+                            'rgba(13,202,240,0.08)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          'rgba(13,202,240,0.03)';
+                      }}
+                    >
+                      <i
+                        className="bi bi-cloud-upload text-info"
+                        style={{ fontSize: '2rem' }}
+                      ></i>
+                      <span
+                        className="text-white-50"
+                        style={{ fontSize: '0.85rem' }}
+                      >
+                        Hacé clic para seleccionar una imagen
+                      </span>
+                      <small
+                        className="text-white-50"
+                        style={{ fontSize: '0.7rem' }}
+                      >
+                        JPG, PNG, PDF
+                      </small>
+                      <input
+                        type="file"
+                        className="d-none"
+                        onChange={(e) =>
+                          handleFileChange('imagen', e.target.files[0])
+                        }
+                        disabled={isSubmitting}
+                        accept="image/*,.pdf"
+                      />
+                    </label>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div
@@ -1065,12 +1305,13 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
           </div>
         );
 
+      // ── Página 2: Estados y Componentes ───────────────────────────────────
       case 2:
         return (
           <div className="fade-in">
             <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
-              <i className="bi bi-clipboard-check me-2"></i>
-              Estados y Componentes
+              <i className="bi bi-clipboard-check me-2"></i>Estados y
+              Componentes
             </h4>
 
             <div className="row g-3">
@@ -1087,8 +1328,8 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                     <div
                       className="border rounded p-3 h-100"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        background: 'rgba(255,255,255,0.05)',
+                        borderColor: 'rgba(255,255,255,0.1)',
                       }}
                     >
                       <div className="d-flex align-items-center mb-3">
@@ -1151,7 +1392,6 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                               ))}
                             </select>
                           </div>
-
                           <div className="mb-2">
                             <label
                               className="form-label"
@@ -1190,8 +1430,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                               className="form-label mb-2"
                               style={{ fontSize: '0.8rem' }}
                             >
-                              <i className="bi bi-palette me-1"></i>
-                              Color
+                              <i className="bi bi-palette me-1"></i>Color
                             </label>
                             <ColorSelector
                               value={form[campo]?.color || ''}
@@ -1201,14 +1440,12 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                               disabled={isSubmitting}
                             />
                           </div>
-
                           <div className="mb-3">
                             <label
                               className="form-label mb-2"
                               style={{ fontSize: '0.8rem' }}
                             >
-                              <i className="bi bi-123 me-1"></i>
-                              Número (0-200)
+                              <i className="bi bi-123 me-1"></i>Número (0-200)
                             </label>
                             <NumeroInput
                               value={form[campo]?.numero || ''}
@@ -1220,14 +1457,13 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                               max={200}
                             />
                           </div>
-
                           <div className="mb-3">
                             <label
                               className="form-label mb-2"
                               style={{ fontSize: '0.8rem' }}
                             >
-                              <i className="bi bi-circle me-1"></i>
-                              Presencia O-Ring
+                              <i className="bi bi-circle me-1"></i>Presencia
+                              O-Ring
                             </label>
                             <ORingToggle
                               value={form[campo]?.presenciaORing || 'No'}
@@ -1285,65 +1521,13 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                       </div>
 
                       <div className="mt-3">
-                        <label
-                          className="form-label"
-                          style={{ fontSize: '0.8rem' }}
-                        >
-                          Archivo adjunto
-                        </label>
-                        <div className="d-flex align-items-center gap-2">
-                          {!form[campo]?.nombreArchivo ? (
-                            <label
-                              className="btn btn-sm btn-outline-light flex-grow-1"
-                              style={{
-                                fontSize: '0.75rem',
-                                padding: '0.25rem 0.5rem',
-                                cursor: isSubmitting
-                                  ? 'not-allowed'
-                                  : 'pointer',
-                              }}
-                            >
-                              <i className="bi bi-paperclip me-1"></i>
-                              Adjuntar archivo
-                              <input
-                                type="file"
-                                className="d-none"
-                                onChange={(e) =>
-                                  handleFileChange(campo, e.target.files[0])
-                                }
-                                disabled={isSubmitting}
-                                accept="image/*,.pdf"
-                              />
-                            </label>
-                          ) : (
-                            <>
-                              <span
-                                className="badge bg-success flex-grow-1 text-truncate"
-                                style={{
-                                  fontSize: '0.7rem',
-                                  maxWidth: '150px',
-                                }}
-                                title={form[campo]?.nombreArchivo}
-                              >
-                                <i className="bi bi-check-circle me-1"></i>
-                                Archivo adjunto
-                              </span>
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-danger"
-                                style={{
-                                  fontSize: '0.7rem',
-                                  padding: '0.2rem 0.4rem',
-                                }}
-                                onClick={() => handleRemoveFile(campo)}
-                                disabled={isSubmitting}
-                                title="Eliminar archivo"
-                              >
-                                <i className="bi bi-trash"></i>
-                              </button>
-                            </>
-                          )}
-                        </div>
+                        <AdjuntoArchivo
+                          campo={campo}
+                          form={form}
+                          onFileChange={handleFileChange}
+                          onRemove={handleRemoveFile}
+                          disabled={isSubmitting}
+                        />
                       </div>
                     </div>
                   </div>
@@ -1353,88 +1537,68 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
           </div>
         );
 
+      // ── Página 3: Presiones + secciones + observaciones ───────────────────
       case 3:
         return (
           <div className="fade-in">
             <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
-              <i className="bi bi-speedometer2 me-2"></i>
-              Presiones
+              <i className="bi bi-speedometer2 me-2"></i>Presiones
             </h4>
 
             <div className="row g-4 mb-5">
-              <div className="col-md-4">
-                <div className="form-group">
-                  <label htmlFor="presion_unimap" className="form-label">
-                    <i className="bi bi-speedometer me-2"></i>
-                    Presión Unimap (bares)
-                  </label>
-                  <input
-                    type="number"
-                    id="presion_unimap"
-                    className="form-control"
-                    name="presion_unimap"
-                    placeholder="Ej: 3.5"
-                    step="0.1"
-                    value={form.presion_unimap || ''}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                  />
+              {[
+                { campo: 'presion_unimap', label: 'Presión Unimap' },
+                { campo: 'presion_computadora', label: 'Presión Computadora' },
+                { campo: 'presion_manometro', label: 'Presión Manómetro' },
+              ].map(({ campo, label }) => (
+                <div className="col-md-4" key={campo}>
+                  <div
+                    className="border rounded p-3 h-100"
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      borderColor: 'rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    <label className="form-label">
+                      <i className="bi bi-speedometer me-2"></i>
+                      {label} (bares)
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control mb-3"
+                      placeholder="Ej: 3.5"
+                      step="0.1"
+                      value={form[campo]?.valor || ''}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          [campo]: { ...prev[campo], valor: e.target.value },
+                        }))
+                      }
+                      disabled={isSubmitting}
+                    />
+                    <AdjuntoArchivo
+                      campo={campo}
+                      form={form}
+                      onFileChange={handleFileChange}
+                      onRemove={handleRemoveFile}
+                      disabled={isSubmitting}
+                    />
+                  </div>
                 </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-group">
-                  <label htmlFor="presion_computadora" className="form-label">
-                    <i className="bi bi-speedometer me-2"></i>
-                    Presión Computadora (bares)
-                  </label>
-                  <input
-                    type="number"
-                    id="presion_computadora"
-                    className="form-control"
-                    name="presion_computadora"
-                    placeholder="Ej: 3.5"
-                    step="0.1"
-                    value={form.presion_computadora || ''}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                  />
-                </div>
-              </div>
-
-              <div className="col-md-4">
-                <div className="form-group">
-                  <label htmlFor="presion_manometro" className="form-label">
-                    <i className="bi bi-speedometer me-2"></i>
-                    Presión Manómetro (bares)
-                  </label>
-                  <input
-                    type="number"
-                    id="presion_manometro"
-                    className="form-control"
-                    name="presion_manometro"
-                    placeholder="Ej: 3.5"
-                    step="0.1"
-                    value={form.presion_manometro || ''}
-                    onChange={handleChange}
-                    disabled={isSubmitting}
-                  />
-                </div>
-              </div>
+              ))}
             </div>
 
             <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
-              <i className="bi bi-list-ol me-2"></i>
-              Secciones y Presiones
+              <i className="bi bi-list-ol me-2"></i>Secciones y Presiones
             </h4>
-
             <div className="row g-4 mb-5">
               <div className="col-12">
                 <div
                   className="border rounded p-4"
                   style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderColor: 'rgba(255,255,255,0.1)',
                   }}
                 >
                   <SeccionesManager
@@ -1452,16 +1616,15 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
             </div>
 
             <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
-              <i className="bi bi-chat-left-text me-2"></i>
-              Observaciones Adicionales
+              <i className="bi bi-chat-left-text me-2"></i>Observaciones
+              Adicionales
             </h4>
-
             <div className="row g-4">
               <div className="col-md-6">
                 <div className="form-group">
                   <label htmlFor="observaciones_acronex" className="form-label">
-                    <i className="bi bi-journal-text me-2"></i>
-                    Observaciones ACRONEX
+                    <i className="bi bi-journal-text me-2"></i>Observaciones
+                    ACRONEX
                   </label>
                   <textarea
                     id="observaciones_acronex"
@@ -1475,12 +1638,11 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                   />
                 </div>
               </div>
-
               <div className="col-md-6">
                 <div className="form-group">
                   <label htmlFor="Observaciones" className="form-label">
-                    <i className="bi bi-journal-text me-2"></i>
-                    Observaciones Generales
+                    <i className="bi bi-journal-text me-2"></i>Observaciones
+                    Generales
                   </label>
                   <textarea
                     id="Observaciones"
@@ -1502,6 +1664,10 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
         return null;
     }
   };
+
+  // ══════════════════════════════════════════════════════════
+  // RENDER PRINCIPAL
+  // ══════════════════════════════════════════════════════════
 
   return (
     <>
@@ -1542,14 +1708,12 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                 {errors.submit}
               </div>
             )}
-
             <PaginationNav
               currentPage={currentPage}
               totalPages={3}
               onPageChange={handlePageChange}
               errors={errors}
             />
-
             {renderPageContent()}
           </div>
 
@@ -1560,8 +1724,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               onClick={onClose}
               disabled={isSubmitting}
             >
-              <i className="bi bi-x-circle me-2"></i>
-              Cancelar
+              <i className="bi bi-x-circle me-2"></i>Cancelar
             </button>
 
             <div className="d-flex gap-2">
@@ -1572,8 +1735,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={isSubmitting}
                 >
-                  <i className="bi bi-chevron-left me-2"></i>
-                  Anterior
+                  <i className="bi bi-chevron-left me-2"></i>Anterior
                 </button>
               )}
 
@@ -1584,8 +1746,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={isSubmitting}
                 >
-                  Siguiente
-                  <i className="bi bi-chevron-right ms-2"></i>
+                  Siguiente<i className="bi bi-chevron-right ms-2"></i>
                 </button>
               ) : (
                 <button
@@ -1622,7 +1783,6 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
         .fade-in {
           animation: fadeIn 0.3s ease-in;
         }
-
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -1633,22 +1793,15 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
             transform: translateY(0);
           }
         }
-
         .recomendaciones-container {
           font-size: 0.85rem;
         }
-
         .secciones-container {
           font-size: 0.85rem;
         }
-
-        /* ══════════════════════════════════════════ */
-        /* COLOR SELECTOR STYLES */
-        /* ══════════════════════════════════════════ */
         .color-selector-container {
           width: 100%;
         }
-
         .btn-color {
           flex: 1;
           min-width: 60px;
@@ -1664,55 +1817,41 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
           align-items: center;
           gap: 0.25rem;
         }
-
         .btn-color:hover:not(:disabled) {
           transform: translateY(-2px);
           border-color: var(--color-border);
           background: var(--color-bg);
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-
         .btn-color.selected {
           border-color: var(--color-border);
           background: var(--color-bg);
           border-width: 3px;
           box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
         }
-
         .btn-color:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
-
         .color-icon {
           font-size: 1.2rem;
           line-height: 1;
         }
-
         .color-label {
           font-size: 0.7rem;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-
-        /* ══════════════════════════════════════════ */
-        /* NUMERO INPUT STYLES */
-        /* ══════════════════════════════════════════ */
         .numero-input-container input {
           font-family: 'Courier New', monospace;
           letter-spacing: 1px;
         }
-
-        /* ══════════════════════════════════════════ */
-        /* O-RING TOGGLE STYLES */
-        /* ══════════════════════════════════════════ */
         .oring-toggle-container {
           padding: 0.5rem;
           background: rgba(255, 255, 255, 0.03);
           border-radius: 8px;
         }
-
         .toggle-button {
           position: relative;
           width: 56px;
@@ -1724,20 +1863,16 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
           transition: background-color 0.3s ease;
           padding: 0;
         }
-
         .toggle-button:hover:not(:disabled) {
           opacity: 0.9;
         }
-
         .toggle-button:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
-
         .toggle-button.active {
           background: #198754;
         }
-
         .toggle-slider {
           position: absolute;
           top: 2px;
@@ -1749,32 +1884,25 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
           transition: transform 0.3s ease;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-
         .toggle-button.active .toggle-slider {
           transform: translateX(28px);
         }
-
         .toggle-label {
           flex: 1;
         }
-
         .toggle-label .badge {
           font-size: 0.75rem;
           padding: 0.4rem 0.8rem;
           font-weight: 600;
         }
-
-        /* Responsive adjustments */
         @media (max-width: 768px) {
           .btn-color {
             min-width: 50px;
             padding: 0.4rem 0.2rem;
           }
-
           .color-icon {
             font-size: 1rem;
           }
-
           .color-label {
             font-size: 0.65rem;
           }
