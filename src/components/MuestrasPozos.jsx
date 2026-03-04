@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { muestraAguaPozoCliente } from '../api/muestrasAgua';
 import ModalMuestrasPozos from './ModalMuestrasPozos';
 import { useCliente } from '../context/UserContext';
+
 import {
   Building2,
   Wrench,
@@ -18,6 +19,7 @@ import {
   MapPin,
   Building,
 } from 'lucide-react';
+import ModalImpresion from './ModalImpresion';
 
 const MuestrasPozos = () => {
   const { cliente_id, pozos_id } = useParams();
@@ -31,6 +33,9 @@ const MuestrasPozos = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [onlyView, setOnlyView] = useState(false);
   const [muestraEdit, setMuestraEdit] = useState(null);
+  const [showViewer, setShowViewer] = useState(false);
+  const [viewerUrl, setViewerUrl] = useState('');
+
   const { selectedPozo } = useCliente();
 
   useEffect(() => {
@@ -313,6 +318,14 @@ const MuestrasPozos = () => {
                         >
                           <i className="bi bi-prescription2 me-2"></i>Dosis
                         </th>
+
+                        <th
+                          className="text-white fw-semibold py-2 px-3"
+                          style={{ fontSize: '0.875rem' }}
+                        >
+                          <i className="bi bi-prescription2 me-2"></i>Informe
+                        </th>
+
                         <th
                           className="text-white fw-semibold py-2 px-3 text-center"
                           style={{ fontSize: '0.875rem' }}
@@ -383,6 +396,33 @@ const MuestrasPozos = () => {
                               <span>{m.dosis || '-'}</span>
                             </td>
 
+                            <td
+                              className="text-center py-2 px-3"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowViewer(true);
+                                setViewerUrl(
+                                  '/uploads/muestrasAgua/' + m.informe,
+                                );
+                              }}
+
+                              /* apiUrl + '/uploads/muestrasAgua/' + formData.informe, */
+                            >
+                              <span
+                                className="rounded px-2 py-1"
+                                style={{
+                                  background: '#18830cb2',
+                                  color: '#f4efef',
+                                  fontWeight: 600,
+                                  fontSize: '0.75rem',
+                                  display: 'inline-block',
+                                  lineHeight: 1.2,
+                                }}
+                              >
+                                {m.informe ? 'si' : ''}
+                              </span>
+                            </td>
+
                             {/* Acciones */}
                             <td className="text-center py-2 px-3">
                               <button
@@ -416,6 +456,10 @@ const MuestrasPozos = () => {
           />
         </div>
       </div>
+
+      {showViewer && (
+        <ModalImpresion setShowViewer={setShowViewer} viewerUrl={viewerUrl} />
+      )}
     </div>
   );
 };
