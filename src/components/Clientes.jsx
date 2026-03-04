@@ -301,6 +301,9 @@ const Clientes = () => {
                       <i className="bi bi-person-badge"></i>Nombre
                     </th>
                     <th>
+                      <i className="bi bi-person-badge"></i>Cuit
+                    </th>
+                    <th>
                       <i className="bi bi-geo-alt"></i>Domicilio
                     </th>
                     <th>
@@ -311,6 +314,9 @@ const Clientes = () => {
                     </th>
                     <th>
                       <i className="bi bi-people"></i>Ingenieros
+                    </th>
+                    <th>
+                      <i className="bi bi-person-badge"></i>Tipo
                     </th>
                     <th>
                       <i className="bi bi-toggle-on"></i>Estado
@@ -336,6 +342,11 @@ const Clientes = () => {
                           {cliente.razon_social}
                         </span>
                       </td>
+
+                      <td>
+                        <span className="table-text">{cliente.cuil_cuit}</span>
+                      </td>
+
                       <td>
                         <span className="table-text">
                           {cliente.direccion_fiscal}
@@ -370,7 +381,14 @@ const Clientes = () => {
                           <span className="table-text-muted">Sin asignar</span>
                         )}
                       </td>
+
                       <td className="text-center">
+                        <span className="table-text">
+                          {cliente.tipoCliente.tipoClientes}
+                        </span>
+                      </td>
+
+                      <td className="text-center ">
                         <span className="table-text">{cliente.estado}</span>
                       </td>
                       <td>
