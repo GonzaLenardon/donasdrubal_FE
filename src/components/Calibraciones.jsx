@@ -16,6 +16,7 @@ import {
   Lightbulb,
   Image as ImageIcon,
 } from 'lucide-react';
+import ModalImpresion from './ModalImpresion';
 
 export const Calibraciones = () => {
   const { maquina_id, cliente_id } = useParams();
@@ -24,6 +25,9 @@ export const Calibraciones = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [modalCalibraciones, setModalCalibraciones] = useState(false);
   const { setSelectedMaquina, selectedMaquina } = useCliente();
+
+  const [showViewer, setShowViewer] = useState(false);
+  const [viewerUrl, setViewerUrl] = useState('');
 
   useEffect(() => {
     allcalibraciones();
@@ -218,7 +222,7 @@ export const Calibraciones = () => {
   };
 
   // 👇 NUEVO: helper para renderizar el botón de archivo adjunto
-  const BtnArchivo = ({ nombreArchivo }) => {
+  /*   const BtnArchivo = ({ nombreArchivo }) => {
     if (!nombreArchivo)
       return <span className="text-white-50 fst-italic">—</span>;
     return (
@@ -231,6 +235,24 @@ export const Calibraciones = () => {
       >
         <i className="bi bi-image me-1"></i>Ver
       </a>
+    );
+  }; */
+
+  const BtnArchivo = ({ nombreArchivo }) => {
+    if (!nombreArchivo)
+      return <span className="text-white-50 fst-italic">—</span>;
+
+    return (
+      <button
+        type="button"
+        className="btn btn-sm btn-outline-info"
+        onClick={() => {
+          setViewerUrl(`/uploads/calibraciones/${nombreArchivo}`);
+          setShowViewer(true);
+        }}
+      >
+        Ver
+      </button>
     );
   };
 
@@ -302,6 +324,7 @@ export const Calibraciones = () => {
                   // Hay datos de presión si al menos una tiene valor
                   // Usamos String() + trim() para cubrir: '', null, undefined, 0, '0', '3.5'
                   const tieneValor = (v) => String(v ?? '').trim() !== '';
+
                   const hayPresiones =
                     tieneValor(presionUnimap.valor) ||
                     tieneValor(presionComputadora.valor) ||
@@ -1261,6 +1284,10 @@ export const Calibraciones = () => {
           calibracion={calibracion}
           onSaved={() => allcalibraciones()}
         />
+      )}
+
+      {showViewer && (
+        <ModalImpresion setShowViewer={setShowViewer} viewerUrl={viewerUrl} />
       )}
     </>
   );
