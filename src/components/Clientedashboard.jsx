@@ -349,20 +349,20 @@ const ClienteDashboard = ({ cliente }) => {
       color: 'blue',
     },
     {
+      title: 'Jornadas Realizadas',
+      value: data.stats?.jornadas?.total?.toString() || '0',
+      trendLabel: `${data.stats?.pozos?.nuevasJornadas || 0} nuevos ${data.stats?.jornadas?.periodo || 'este año'}`,
+      isPositive: (data.stats?.jornadas?.nuevos || 0) > 1,
+      icon: GraduationCap,
+      color: 'purple',
+    },
+    {
       title: 'Servicios Pendientes',
       value: data.stats?.serviciosPendientes?.total?.toString() || '0',
       trendLabel: `${data.stats?.serviciosPendientes?.proximos15dias || 0} próximos 15 días`,
       isPositive: false,
       icon: Calendar,
       color: 'amber',
-    },
-    {
-      title: 'Jornadas Realizadas',
-      value: data.stats?.jornadas?.total?.toString() || '0',
-      trendLabel: `${data.stats?.jornadas?.personasCapacitadas || 0} personas capacitadas`,
-      isPositive: true,
-      icon: GraduationCap,
-      color: 'purple',
     },
   ] : [];
 
@@ -381,11 +381,11 @@ const ClienteDashboard = ({ cliente }) => {
       year: 'numeric'
     }) : 'Sin fecha',
     status: service.estado || 'Pendiente',
-    badge: service.tipoMaquina,
+    badge: service.tipoMaquina.tipo,
     icon: '🚜',
   }));
 
-  const otrosServices = (data.upcomingServices?.otros || []).map(service => ({
+  const muestrasServices = (data.upcomingServices?.muestras_agua || []).map(service => ({
     title: service.nombre || service.titulo,
     subtitle: service.tipo || service.descripcion,
     date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
@@ -397,6 +397,18 @@ const ClienteDashboard = ({ cliente }) => {
     icon: service.categoria === 'analisis' ? '💧' : '🎓',
   }));
 
+  const jornadasServices = (data.upcomingServices?.jornadas || []).map(service => ({
+    title: service.nombre || service.titulo,
+    subtitle: service.tipo || service.descripcion,
+    date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }) : 'Sin fecha',
+    status: service.estado || 'Pendiente',
+    icon: service.categoria === 'analisis' ? '💧' : '🎓',
+  }));
+const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => new Date(a.date) - new Date(b.date));
   // ==================== RENDER DASHBOARD ====================
   return (
     <div className="flex flex-col gap-8 pb-8">
