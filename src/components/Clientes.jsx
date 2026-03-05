@@ -384,7 +384,7 @@ const Clientes = () => {
 
                       <td className="text-center">
                         <span className="table-text">
-                          {cliente.tipoCliente.tipoClientes}
+                          {cliente.tipoCliente?.tipoClientes}
                         </span>
                       </td>
 
@@ -718,7 +718,7 @@ const Clientes = () => {
                   </div>
                 </div>
 
-                <div className="col-md-4">
+                <div className="col-md-2">
                   <div className="form-group">
                     <label htmlFor="estado" className="form-label">
                       <i className="bi bi-toggle-on me-2"></i>Estado *
@@ -744,7 +744,7 @@ const Clientes = () => {
                   </div>
                 </div>
 
-                <div className="col-md-4">
+                <div className="col-md-2">
                   <div className="form-group">
                     <label htmlFor="tipo_cliente_id" className="form-label">
                       <i className="bi bi-bookmark me-2"></i>Tipo Cliente
@@ -768,6 +768,31 @@ const Clientes = () => {
                       <div className="invalid-feedback">
                         <i className="bi bi-exclamation-circle me-1"></i>
                         {errors.tipo_cliente_id}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="col-md-4">
+                  <div className="form-group">
+                    <label htmlFor="litros_estimados" className="form-label">
+                      <i className="bi bi-droplet-half me-2"></i>Litros
+                      Estimados
+                    </label>
+                    <input
+                      type="number"
+                      id="litros_estimados"
+                      name="litros_estimados"
+                      className={`form-control ${errors.litros_estimados ? 'is-invalid' : ''}`}
+                      placeholder="Cantidad litros estimados para la campaña"
+                      value={newCliente?.litros_estimados || ''}
+                      onChange={handleCliente}
+                      disabled={isSubmitting}
+                    />
+                    {errors.email && (
+                      <div className="invalid-feedback">
+                        <i className="bi bi-exclamation-circle me-1"></i>
+                        {errors.litros_estimados}
                       </div>
                     )}
                   </div>

@@ -4,14 +4,15 @@ import { clientePozos } from '../api/pozos';
 import { useNavigate } from 'react-router-dom';
 import { getStatusClass } from '../utils/statusMap';
 import { useCliente } from '../context/UserContext';
+import { multiInformes } from '../api/informes';
 
 const Pozos = ({ cliente_id }) => {
-  /*   const [selectedPozo, setSelectedPozos] = useState(null);
-   */ const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [pozos, setPozos] = useState([]);
   const [onlyView, setOnlyView] = useState(false);
   const navigate = useNavigate();
   const { setSelectedPozo, selectedPozo } = useCliente();
+  const [informes, setInformes] = useState([]);
 
   useEffect(() => {
     getPozos();
@@ -28,12 +29,22 @@ const Pozos = ({ cliente_id }) => {
     }
   };
 
+  const handleInformes = ({ target: { id, checked } }) => {
+    setInformes((prev) =>
+      checked ? [...prev, Number(id)] : prev.filter((i) => i !== Number(id)),
+    );
+  };
+
+  const handleMultiInforme = async () => {
+    const res = await multiInformes(informes);
+    console.log('Informes', res);
+  };
+
   return (
     <>
       <div className="pozos-wrapper">
         <div style={{ margin: '0 auto' }}>
           {/* HEADER */}
-
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h2 className="fw-bold text-white mb-1">Gestión de Pozos</h2>
@@ -41,6 +52,17 @@ const Pozos = ({ cliente_id }) => {
                 {pozos.length} pozos registrados
               </p>
             </div>
+
+            {informes.length > 0 && (
+              <button
+                className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
+                onClick={handleMultiInforme}
+              >
+                <i className="bi bi-plus-lg"></i>
+                Generar Informe
+              </button>
+            )}
+
             <button
               className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
               onClick={(e) => {
@@ -68,48 +90,63 @@ const Pozos = ({ cliente_id }) => {
                     setOnlyView(true);
                   }}
                 >
-                  {/* Header de la Card */}
+                  {/* Header */}
                   <div className="d-flex justify-content-between align-items-start mb-3">
                     <div style={{ flex: 1 }}>
                       <h5 className="fw-bold text-white mb-1 pozo-nombre">
                         {pozo.nombre}
                       </h5>
+
                       <span
                         className={`status-badge ${getStatusClass(pozo.estado)}`}
                       >
                         {pozo.estado || 'Desconocido'}
                       </span>
                     </div>
+
                     <div className="pozo-id-badge">
                       <span className="fw-bold pozo-id-text">#{pozo.id}</span>
                     </div>
                   </div>
 
+                  <div className="d-flex justify-content-between text-white">
+                    <span>Multi Informe</span>
+
+                    <input
+                      type="checkbox"
+                      id={pozo.id}
+                      onClick={(e) => e.stopPropagation()} // ⭐ SOLUCIÓN
+                      onChange={handleInformes}
+                    />
+                  </div>
+
                   {/* Divider */}
                   <hr className="pozo-divider" />
 
-                  {/* Información del Pozo */}
+                  {/* Información */}
                   <div className="d-flex flex-column gap-2">
-                    {/* Establecimiento */}
                     <div className="d-flex align-items-start gap-2">
                       <i className="bi bi-building pozo-icon"></i>
+
                       <div style={{ flex: 1 }}>
                         <p className="mb-0 text-white-50 pozo-label">
                           Establecimiento
                         </p>
+
                         <p className="mb-0 text-white fw-semibold pozo-value">
                           {pozo.establecimiento}
                         </p>
                       </div>
                     </div>
 
-                    {/* Coordenadas */}
                     <div className="d-flex align-items-start gap-2">
                       <i className="bi bi-geo-alt-fill pozo-icon"></i>
+
                       <div style={{ flex: 1 }}>
                         <p className="mb-0 text-white-50 pozo-label">
                           Coordenadas
                         </p>
+
                         <p className="mb-0 text-white pozo-coords">
                           {pozo.latitud}, {pozo.longitud}
                         </p>
@@ -117,7 +154,7 @@ const Pozos = ({ cliente_id }) => {
                     </div>
                   </div>
 
-                  {/* Footer con Acciones */}
+                  {/* Footer */}
                   <div className="d-flex gap-2 mt-3 pt-3 pozo-actions">
                     <button
                       className="btn btn-sm flex-fill pozo-btn-ver"
@@ -125,14 +162,16 @@ const Pozos = ({ cliente_id }) => {
                         e.stopPropagation();
                         console.log('pozito', pozo);
                         setSelectedPozo(pozo);
+
                         navigate(
                           `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`,
                         );
                       }}
                     >
                       <i className="bi bi-eye me-1"></i>
-                      Ver
+                      Muestras
                     </button>
+
                     <button
                       className="btn btn-sm flex-fill pozo-btn-editar"
                       onClick={(e) => {
@@ -165,4 +204,5 @@ const Pozos = ({ cliente_id }) => {
     </>
   );
 };
+
 export default Pozos;
