@@ -36,7 +36,7 @@ const Pozos = ({ cliente_id }) => {
   };
 
   const handleMultiInforme = async () => {
-    const res = await multiInformes(informes);
+    const res = await multiInformes(cliente_id, informes);
     console.log('Informes', res);
   };
 
