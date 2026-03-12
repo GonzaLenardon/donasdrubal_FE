@@ -103,7 +103,7 @@ const ModalMuestrasPozos = ({
     fd.append('file', formData.informeFile);
 
     const response = await fetch(
-      import.meta.env.VITE_API_URL + '/muestrasAgua/upload',
+      import.meta.env.VITE_API_URL + '/uploads/muestrasagua/',
       { method: 'POST', credentials: 'include', body: fd },
     );
     if (!response.ok)
@@ -731,7 +731,7 @@ const ModalMuestrasPozos = ({
                 >
                   {esImagen && (
                     <img
-                      src={'/uploads/muestrasAgua/' + formData.informe}
+                      src={'/uploads/muestrasagua/' + formData.informe}
                       alt="Informe"
                       className="rounded mb-2 d-block"
                       style={{
@@ -789,7 +789,7 @@ const ModalMuestrasPozos = ({
                       title="Ver informe"
                       onClick={() =>
                         handleOpenViewer(
-                          '/uploads/muestrasAgua/' + formData.informe,
+                          '/uploads/muestrasagua/' + formData.informe,
                         )
                       }
                     >

@@ -402,7 +402,7 @@ const MuestrasPozos = () => {
                                 e.stopPropagation();
                                 setShowViewer(true);
                                 setViewerUrl(
-                                  '/uploads/muestrasAgua/' + m.informe,
+                                  '/uploads/muestrasagua/' + m.informe,
                                 );
                               }}
 
