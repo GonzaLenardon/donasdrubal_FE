@@ -4,7 +4,7 @@ import { clientePozos } from '../api/pozos';
 import { useNavigate } from 'react-router-dom';
 import { getStatusClass } from '../utils/statusMap';
 import { useCliente } from '../context/UserContext';
-import { multiInformes } from '../api/informes';
+import { pozoMultiInformes } from '../api/informes'; 
 
 const Pozos = ({ cliente_id }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +36,8 @@ const Pozos = ({ cliente_id }) => {
   };
 
   const handleMultiInforme = async () => {
-    const res = await multiInformes(cliente_id, informes);
+    const res = await pozoMultiInformes(cliente_id, informes, `informe_${cliente_id}_pozos_${informes.join('_')}.pdf`);
+    console.log('filename', `informe_${cliente_id}_pozos_${informes.join('_')}.pdf`);
     console.log('Informes', res);
   };
 
