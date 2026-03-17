@@ -1,18 +1,16 @@
 import instance from './axios';
 
 export const pozoMultiInformes = async (cliente_id, pozos_ids, filename) => {
-
   // console.log('Llamando ... ', cliente_id, pozos_ids);
-
   const res = await instance.post(
     '/informes/pozos',
     {
       cliente_id,
-      pozos_ids
+      pozos_ids,
     },
     {
-      responseType: 'blob'   //  IMPORTANTE para PDFs
-    }
+      responseType: 'blob', //  IMPORTANTE para PDFs
+    },
   );
 
   const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -23,22 +21,31 @@ export const pozoMultiInformes = async (cliente_id, pozos_ids, filename) => {
   document.body.appendChild(a);
   a.click();
   a.remove();
-
 };
 
-export const calibracionInforme = async (cliente_id, calibracion_id, filename) => {
+export const calibracionesPreview = async (id) => {
+  const resp = await instance.get(`/calibraciones/${id}/preview-pdf`, {
+    responseType: 'blob', // 👈 clave: le decís a Axios que espere datos binarios
+  });
+  return resp.data; // retorna el Blob directamente
+};
 
+export const calibracionInforme = async (
+  cliente_id,
+  calibracion_id,
+  filename,
+) => {
   // console.log('Llamando ... ', cliente_id, pozos_ids);
 
   const res = await instance.post(
     '/informes/calibracion',
     {
       cliente_id,
-      calibracion_id
+      calibracion_id,
     },
     {
-      responseType: 'blob'   //  IMPORTANTE para PDFs
-    }
+      responseType: 'blob', //  IMPORTANTE para PDFs
+    },
   );
   console.log('Respuesta ... ', res.headers);
 
@@ -50,5 +57,4 @@ export const calibracionInforme = async (cliente_id, calibracion_id, filename) =
   document.body.appendChild(a);
   a.click();
   a.remove();
-
 };

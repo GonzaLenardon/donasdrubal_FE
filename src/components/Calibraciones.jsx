@@ -17,6 +17,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import ModalImpresion from './ModalImpresion';
+import { calibracionesPreview, calibracionInforme } from '../api/informes';
 
 export const Calibraciones = () => {
   const { maquina_id, cliente_id } = useParams();
@@ -263,6 +264,39 @@ export const Calibraciones = () => {
     setModalCalibraciones(true);
   };
 
+  const handleInforme = async (cal) => {
+    const { id } = cal;
+    try {
+      const blob = await calibracionesPreview(id);
+
+      // Verificamos que sea realmente un PDF
+      if (blob.type !== 'application/pdf') {
+        console.error('El servidor no devolvió un PDF válido');
+        return;
+      }
+
+      // Creamos una URL temporal en memoria para el blob
+      const url = URL.createObjectURL(blob);
+
+      // Opción A: abrir en una nueva pestaña (previsualización)
+      window.open(url, '_blank');
+
+      // Opción B: forzar descarga (comentá la línea de arriba y usá esto)
+      // const link = document.createElement('a');
+      // link.href = url;
+      // link.download = `calibracion-${id}.pdf`;
+      // link.click();
+
+      // Liberamos la memoria después de un tiempo prudencial
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch (error) {
+      console.error(
+        'Error al previsualizar PDF:',
+        error?.response?.data?.message ?? error.message,
+      );
+    }
+  };
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -435,6 +469,7 @@ export const Calibraciones = () => {
                             ></i>
                             {isOpen ? 'Ocultar' : 'Ver Detalles'}
                           </button>
+
                           <button
                             className="btn btn-sm flex-fill calibracion-btn-editar"
                             onClick={(e) => {
@@ -444,6 +479,17 @@ export const Calibraciones = () => {
                           >
                             <i className="bi bi-pencil me-1"></i>
                             Editar
+                          </button>
+
+                          <button
+                            className="btn btn-sm flex-fill calibracion-btn-editar"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleInforme(cal);
+                            }}
+                          >
+                            <i className="bi-file-earmark-text me-1 fs-5"></i>
+                            Generar Informe
                           </button>
                         </div>
                       </div>

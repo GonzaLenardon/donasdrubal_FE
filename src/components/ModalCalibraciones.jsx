@@ -334,10 +334,7 @@ const RecomendacionesManager = ({
                 className="bi bi-check-circle-fill text-info mt-1"
                 style={{ fontSize: '0.8rem' }}
               ></i>
-              <small
-                className="flex-grow-1 text-white"
-                style={{ fontSize: '0.75rem' }}
-              >
+              <small className="flex-grow-1" style={{ fontSize: '0.9rem' }}>
                 {rec.texto}
               </small>
               <button
@@ -368,10 +365,9 @@ const RecomendacionesManager = ({
           }}
           disabled={disabled}
           style={{
-            fontSize: '0.75rem',
+            fontSize: '0.9rem',
             background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            color: '#fff',
+            border: '1px solid rgba(255, 255, 255, 0.79)',
           }}
         />
         <button
@@ -1309,7 +1305,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       case 2:
         return (
           <div className="fade-in">
-            <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
+            <h4 className="fw-bold mb-4  d-flex align-items-center">
               <i className="bi bi-clipboard-check me-2"></i>Estados y
               Componentes
             </h4>
@@ -1326,15 +1322,17 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                 return (
                   <div className="col-xl-4 col-lg-6 col-md-6 mb-3" key={campo}>
                     <div
-                      className="border rounded p-3 h-100"
+                      className="rounded p-3 h-100"
                       style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        borderColor: 'rgba(255,255,255,0.1)',
+                        background: 'rgba(234, 21, 21, 0.05)',
+
+                        border: '2px solid rgba(76, 147, 9, 0.63)',
+                        boxShadow: '0 0 10pxrgba(199, 218, 180, 0.66))',
                       }}
                     >
                       <div className="d-flex align-items-center mb-3">
                         <i className={`${icon} me-2 text-info`}></i>
-                        <h6 className="mb-0 text-white fw-bold">{label}</h6>
+                        <h6 className="mb-0 fw-bold">{label}</h6>
                       </div>
 
                       <div className="mb-2">
@@ -1541,7 +1539,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       case 3:
         return (
           <div className="fade-in">
-            <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
+            <h4 className="fw-bold mb-4 d-flex align-items-center">
               <i className="bi bi-speedometer2 me-2"></i>Presiones
             </h4>
 
@@ -1589,7 +1587,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
               ))}
             </div>
 
-            <h4 className="fw-bold mb-4 text-white d-flex align-items-center">
+            <h4 className="fw-bold mb-4 d-flex align-items-center">
               <i className="bi bi-list-ol me-2"></i>Secciones y Presiones
             </h4>
             <div className="row g-4 mb-5">
@@ -1674,7 +1672,11 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       <div className="modal-overlay">
         <div
           className="modal-container"
-          style={{ maxWidth: '95vw', width: '95vw', minHeight: '95vh' }}
+          style={{
+            maxWidth: '95vw',
+            width: '95vw',
+            minHeight: '95vh',
+          }}
           onClick={(e) => e.stopPropagation()}
         >
           <div className="modal-header">
@@ -1700,7 +1702,11 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
           <div
             className="modal-body-pozos"
-            style={{ maxHeight: '70vh', overflowY: 'auto' }}
+            style={{
+              /*   maxHeight: '70vh',
+              overflowY: 'auto', */
+              background: 'rgba(68, 179, 53, 0.41)',
+            }}
           >
             {errors.submit && (
               <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
