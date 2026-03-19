@@ -26,6 +26,7 @@ export const Calibraciones = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [modalCalibraciones, setModalCalibraciones] = useState(false);
   const { setSelectedMaquina, selectedMaquina } = useCliente();
+  const [ingenieros, setIngenieros] = useState('');
 
   const [showViewer, setShowViewer] = useState(false);
   const [viewerUrl, setViewerUrl] = useState('');
@@ -38,6 +39,8 @@ export const Calibraciones = () => {
     try {
       const resp = await calibracionesMaquina(maquina_id, cliente_id);
       setCalibraciones(resp.data);
+      setIngenieros(resp.data.cliente.ingenieros);
+      console.log('Ingenieros del Cliente => ', resp.data.cliente.ingenieros);
     } catch (error) {
       console.log(error.data.message);
     }
@@ -348,6 +351,13 @@ export const Calibraciones = () => {
                   const isOpen = openIndex === i;
                   const estadoMaquinaData = parseEstado(cal.estado_maquina);
 
+                  const ingResponsable = ingenieros.find(
+                    (i) => i.id === cal.responsable_id,
+                  );
+
+                  console.log('ddddddddddddddd,', ingResponsable);
+                  console.log('queeuueeueu', cal.responsable_id);
+
                   // 👇 NUEVO: parsear presiones con nueva estructura
                   const presionUnimap = parsePresion(cal.presion_unimap);
                   const presionComputadora = parsePresion(
@@ -413,14 +423,14 @@ export const Calibraciones = () => {
                                   Responsable
                                 </p>
                                 <p className="mb-0 text-white calibracion-responsable">
-                                  {cal.responsable}
+                                  {ingResponsable?.nombre}
                                 </p>
                               </div>
                             </div>
                           </div>
 
                           {/* Columna Derecha - Observaciones Generales */}
-                          {cal.Observaciones && (
+                          {cal.observaciones_generales && (
                             <div className="col-12 col-md-6">
                               <div
                                 className="p-3 h-100"
@@ -446,7 +456,7 @@ export const Calibraciones = () => {
                                     fontSize: '0.875rem',
                                   }}
                                 >
-                                  {cal.Observaciones}
+                                  {cal.observaciones_generales}
                                 </p>
                               </div>
                             </div>
@@ -1173,7 +1183,7 @@ export const Calibraciones = () => {
                               >
                                 <h6 className="fw-bold text-white mb-3">
                                   <i className="bi bi-speedometer2 me-2"></i>
-                                  Información de Presiones
+                                  Información de Presiones ccccccccc
                                 </h6>
 
                                 <div className="row g-3">
@@ -1286,6 +1296,54 @@ export const Calibraciones = () => {
                                   )}
                                 </div>
 
+                                {cal.observaciones_presion && (
+                                  <div
+                                    className="mt-3 pt-3"
+                                    style={{
+                                      borderTop:
+                                        '1px solid rgba(255,255,255,0.08)',
+                                    }}
+                                  >
+                                    <p
+                                      className="mb-1 text-white-50"
+                                      style={{ fontSize: '0.875rem' }}
+                                    >
+                                      <i className="bi bi-journal-text me-2"></i>
+                                      Observaciones Presion
+                                    </p>
+                                    <p
+                                      className="mb-0 text-white"
+                                      style={{ fontSize: '0.875rem' }}
+                                    >
+                                      {cal.observaciones_presion}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {cal.recomendaciones_presion && (
+                                  <div
+                                    className="mt-3 pt-3"
+                                    style={{
+                                      borderTop:
+                                        '1px solid rgba(255,255,255,0.08)',
+                                    }}
+                                  >
+                                    <p
+                                      className="mb-1 text-white-50"
+                                      style={{ fontSize: '0.875rem' }}
+                                    >
+                                      <i className="bi bi-journal-text me-2"></i>
+                                      Recomendaciones Presion
+                                    </p>
+                                    <p
+                                      className="mb-0 text-white"
+                                      style={{ fontSize: '0.875rem' }}
+                                    >
+                                      {cal.recomendaciones_presion}
+                                    </p>
+                                  </div>
+                                )}
+
                                 {/* Observaciones ACRONEX */}
                                 {cal.observaciones_acronex && (
                                   <div
@@ -1328,6 +1386,7 @@ export const Calibraciones = () => {
         <ModalCalibraciones
           onClose={() => setModalCalibraciones(false)}
           calibracion={calibracion}
+          ingenieros={ingenieros}
           onSaved={() => allcalibraciones()}
         />
       )}
