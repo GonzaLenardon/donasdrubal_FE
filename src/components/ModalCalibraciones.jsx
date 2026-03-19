@@ -3,8 +3,8 @@ import Spinner from '../components/Spinner.jsx';
 import { addCalibraciones, upCalibraciones } from '../api/calibraciones.js';
 
 const opcionesEstado = ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'No aplica'];
-const opcionesModelo = ['Modelo1', 'Modelo2', 'Modelo3', 'Modelo4', 'Modelo5'];
-const opcionesMateriales = ['Acero Inox', 'Fundicion', 'Plastico', 'Otros'];
+/* const opcionesModelo = ['Modelo1', 'Modelo2', 'Modelo3', 'Modelo4', 'Modelo5'];
+ */ const opcionesMateriales = ['Acero Inox', 'Fundicion', 'Plastico', 'Otros'];
 
 const COLOR_CONFIG = {
   Rojo: { bg: '#dc3545', border: '#b02a37', icon: '🔴' },
@@ -16,7 +16,7 @@ const COLOR_CONFIG = {
 
 const emptyCalibracion = {
   fecha: '',
-  responsable: '',
+  responsable_id: '',
   imagen: '',
   estado_maquina: {
     estado: '',
@@ -107,8 +107,10 @@ const emptyCalibracion = {
   presion_unimap: { valor: '', nombreArchivo: '' },
   presion_computadora: { valor: '', nombreArchivo: '' },
   presion_manometro: { valor: '', nombreArchivo: '' },
+  observaciones_presion: '',
+  recomendaciones_presion: '',
   observaciones_acronex: '',
-  Observaciones: '',
+  observaciones_generales: '',
 };
 
 // ── Helpers de parseo ──────────────────────────────────────────────────────
@@ -738,7 +740,12 @@ const AdjuntoArchivo = ({ campo, form, onFileChange, onRemove, disabled }) => {
 // COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════════════════════
 
-export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
+export const ModalCalibraciones = ({
+  onClose,
+  calibracion,
+  ingenieros,
+  onSaved,
+}) => {
   const [form, setForm] = useState({ ...emptyCalibracion });
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -754,13 +761,20 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
       campo: 'estado_filtroPrimario',
       label: 'Filtro Primario',
       icon: 'bi-funnel',
+      recomendaciones: 'Protege a la bomba de pulverización',
     },
     {
       campo: 'estado_filtroSecundario',
       label: 'Filtro Secundario',
       icon: 'bi-funnel-fill',
+      recomendaciones: 'Protegen caudalímetro, electroválvulas',
     },
-    { campo: 'estado_filtroLinea', label: 'Filtro Línea', icon: 'bi-filter' },
+    {
+      campo: 'estado_filtroLinea',
+      label: 'Filtro Línea',
+      icon: 'bi-filter',
+      recomendaciones: 'Protegen a las boquillas de taponamiento',
+    },
     {
       campo: 'estado_manguerayconexiones',
       label: 'Mangueras y Conexiones',
@@ -789,6 +803,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
     if (calibracion) {
       if (calibracion.id) {
         const parsedCalibracion = { ...calibracion };
+        console.log('Calibraciones .........................', calibracion);
 
         // Parsear campos de estado
         camposEstado.forEach(({ campo }) => {
@@ -845,7 +860,12 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === 'responsable_id' ? (value ? Number(value) : '') : value,
+    }));
+
     if (errors[name])
       setErrors((prev) => {
         const n = { ...prev };
@@ -954,9 +974,13 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
   const validarCamposPorPagina = (pageNumber) => {
     const newErrors = {};
     if (pageNumber === 1) {
-      if (!form.responsable?.trim())
-        newErrors.responsable = 'El responsable es requerido';
-      if (!form.fecha) newErrors.fecha = 'La fecha es requerida';
+      // responsable_id es número, validamos que sea truthy (no 0, no '', no null)
+      if (!form.responsable_id) {
+        newErrors.responsable_id = 'El responsable es requerido';
+      }
+      if (!form.fecha) {
+        newErrors.fecha = 'La fecha es requerida';
+      }
       if (Object.keys(newErrors).length > 0) newErrors.page1 = true;
     }
     return newErrors;
@@ -964,8 +988,8 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
 
   const validarTodoElFormulario = () => {
     const newErrors = {};
-    if (!form.responsable?.trim()) {
-      newErrors.responsable = 'El responsable es requerido';
+    if (!form.responsable_id) {
+      newErrors.responsable_id = 'El responsable es requerido';
       newErrors.page1 = true;
     }
     if (!form.fecha) {
@@ -1073,7 +1097,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                     <i className="bi bi-person-fill me-2"></i>
                     Responsable <span className="text-danger">*</span>
                   </label>
-                  <input
+                  {/*   <input
                     type="text"
                     id="responsable"
                     className={`form-control ${errors.responsable ? 'is-invalid' : ''}`}
@@ -1082,11 +1106,28 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                     value={form.responsable || ''}
                     onChange={handleChange}
                     disabled={isSubmitting}
-                  />
-                  {errors.responsable && (
+                  /> */}
+
+                  <select
+                    className={`form-control ${errors.responsable_id ? 'is-invalid' : ''}`}
+                    name="responsable_id"
+                    value={form.responsable_id || ''}
+                    onChange={handleChange}
+                    disabled={isSubmitting}
+                    style={{ fontSize: '0.85rem' }}
+                  >
+                    <option value="">Seleccione responsable</option>
+                    {ingenieros.map((op) => (
+                      <option key={op.id} value={op.id}>
+                        {op.nombre}
+                      </option>
+                    ))}
+                  </select>
+
+                  {errors.responsable_id && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
-                      {errors.responsable}
+                      {errors.responsable_id}
                     </div>
                   )}
                 </div>
@@ -1311,7 +1352,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
             </h4>
 
             <div className="row g-3">
-              {camposEstado.map(({ campo, label, icon }) => {
+              {camposEstado.map(({ campo, label, icon, recomendaciones }) => {
                 const esFiltro = [
                   'Filtro Primario',
                   'Filtro Secundario',
@@ -1325,14 +1366,25 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                       className="rounded p-3 h-100"
                       style={{
                         background: 'rgba(234, 21, 21, 0.05)',
-
                         border: '2px solid rgba(76, 147, 9, 0.63)',
                         boxShadow: '0 0 10pxrgba(199, 218, 180, 0.66))',
                       }}
                     >
-                      <div className="d-flex align-items-center mb-3">
+                      <div className="d-flex mb-3">
                         <i className={`${icon} me-2 text-info`}></i>
-                        <h6 className="mb-0 fw-bold">{label}</h6>
+
+                        <div>
+                          <h6 className="mb-0 fw-bold">{label}</h6>
+                          <span
+                            style={{
+                              fontSize: '0.85em',
+                              opacity: 0.7,
+                              paddingLeft: '0.5em',
+                            }}
+                          >
+                            {recomendaciones}
+                          </span>
+                        </div>
                       </div>
 
                       <div className="mb-2">
@@ -1369,7 +1421,7 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                             >
                               Modelo
                             </label>
-                            <select
+                            {/*   <select
                               className="form-control"
                               value={form[campo]?.modelo || ''}
                               onChange={(e) =>
@@ -1388,7 +1440,24 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                                   {op}
                                 </option>
                               ))}
-                            </select>
+                            </select> */}
+
+                            <input
+                              type="text"
+                              id="responsable"
+                              className={`form-control`}
+                              name="modelo"
+                              placeholder="Modelo bomba ..."
+                              value={form[campo]?.modelo || ''}
+                              onChange={(e) =>
+                                handleEstadoChange(
+                                  campo,
+                                  'modelo',
+                                  e.target.value,
+                                )
+                              }
+                              disabled={isSubmitting}
+                            />
                           </div>
                           <div className="mb-2">
                             <label
@@ -1585,6 +1654,51 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                   </div>
                 </div>
               ))}
+
+              <div className="row g-4">
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label
+                      htmlFor="observaciones_presion"
+                      className="form-label"
+                    >
+                      <i className="bi bi-journal-text me-2"></i>
+                      Observaciones Presiones
+                    </label>
+                    <textarea
+                      id="observaciones_presion"
+                      className="form-control"
+                      rows="4"
+                      placeholder="Ingrese observaciones de las presiones ..."
+                      name="observaciones_presion"
+                      value={form.observaciones_presion || ''}
+                      onChange={handleChange}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="form-group">
+                    <label
+                      htmlFor="recomendaciones_presion"
+                      className="form-label"
+                    >
+                      <i className="bi bi-journal-text me-2"></i>
+                      Recomendaciones Presiones
+                    </label>
+                    <textarea
+                      id="recomendaciones_presion"
+                      className="form-control"
+                      rows="4"
+                      placeholder="Ingrese recomendaciones de las presiones..."
+                      name="recomendaciones_presion"
+                      value={form.recomendaciones_presion || ''}
+                      onChange={handleChange}
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <h4 className="fw-bold mb-4 d-flex align-items-center">
@@ -1643,12 +1757,12 @@ export const ModalCalibraciones = ({ onClose, calibracion, onSaved }) => {
                     Generales
                   </label>
                   <textarea
-                    id="Observaciones"
+                    id="observaciones_generales"
                     className="form-control"
                     rows="4"
                     placeholder="Ingrese observaciones generales..."
-                    name="Observaciones"
-                    value={form.Observaciones || ''}
+                    name="observaciones_generales"
+                    value={form.observaciones_generales || ''}
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />

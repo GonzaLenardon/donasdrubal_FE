@@ -824,7 +824,6 @@ const Clientes = () => {
                           <div
                             key={ing.id}
                             className={`form-check-item ${isSelected ? 'selected' : ''}`}
-                            onClick={() => handleIngenierosCheckbox(ing.id)}
                           >
                             {/* Checkbox + Nombre */}
                             <div className="d-flex align-items-center gap-2">
@@ -833,7 +832,10 @@ const Clientes = () => {
                                 id={`ing-${ing.id}`}
                                 checked={isSelected}
                                 onChange={() => {}}
-                                onClick={(e) => e.stopPropagation()}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleIngenierosCheckbox(ing.id);
+                                }}
                               />
                               <label
                                 htmlFor={`ing-${ing.id}`}
