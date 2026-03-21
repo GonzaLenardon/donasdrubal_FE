@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { muestraAguaPozoCliente } from '../api/muestrasAgua';
 import ModalMuestrasPozos from './ModalMuestrasPozos';
 import { useCliente } from '../context/UserContext';
+import generarPDF from '../utils/generarPdf';
 
 import {
   Building2,
@@ -20,6 +21,7 @@ import {
   Building,
 } from 'lucide-react';
 import ModalImpresion from './ModalImpresion';
+import { apiGenerarInformeMuestras } from '../api/informes';
 
 const MuestrasPozos = () => {
   const { cliente_id, pozos_id } = useParams();
@@ -110,6 +112,27 @@ const MuestrasPozos = () => {
     setOnlyView(false);
     setMuestraEdit({ ...m });
     setIsOpen(true);
+  };
+
+  const generarInformeMuestra = async (muestra) => {
+    try {
+      const blob = await apiGenerarInformeMuestras(muestra);
+
+      if (blob.type !== 'application/pdf') {
+        console.error('El servidor no devolvió un PDF válido');
+        return;
+      }
+
+      const nombrePozo = muestra?.nombrePozo || 'sin_nombre';
+      const filename = `InformeMuestra_Pozo_${nombrePozo}.pdf`;
+
+      generarPDF(blob, filename, 'preview'); // 'download' o 'preview'
+    } catch (error) {
+      console.error(
+        'Error al previsualizar PDF:',
+        error?.response?.data?.message ?? error.message,
+      );
+    }
   };
 
   /* ================= RENDER ================= */
@@ -433,6 +456,16 @@ const MuestrasPozos = () => {
                                 }}
                               >
                                 <i className="bi bi-pencil"></i>
+                              </button>
+
+                              <button
+                                className="btn btn-sm muestrasPdf"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  generarInformeMuestra(m);
+                                }}
+                              >
+                                <i className="bi bi-file-earmark-pdf-fill"></i>
                               </button>
                             </td>
                           </tr>
