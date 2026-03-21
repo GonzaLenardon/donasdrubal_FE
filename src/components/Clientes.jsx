@@ -263,6 +263,25 @@ const Clientes = () => {
 
   const cantidadErrores = Object.keys(errors).length;
 
+  const handleCuilCuit = (e) => {
+    // Extraemos solo dígitos
+    const soloDigitos = e.target.value.replace(/\D/g, '').slice(0, 11);
+
+    // Formateamos progresivamente según longitud
+    let formateado = soloDigitos;
+    if (soloDigitos.length > 2 && soloDigitos.length <= 10) {
+      formateado = `${soloDigitos.slice(0, 2)}-${soloDigitos.slice(2)}`;
+    } else if (soloDigitos.length > 10) {
+      formateado = `${soloDigitos.slice(0, 2)}-${soloDigitos.slice(2, 10)}-${soloDigitos.slice(10)}`;
+    }
+
+    SetNewCliente((prev) => ({ ...prev, cuil_cuit: formateado }));
+
+    if (errors.cuil_cuit) {
+      setErrors((prev) => ({ ...prev, cuil_cuit: '' }));
+    }
+  };
+
   return (
     <>
       <div className="container_seccion">
@@ -621,6 +640,7 @@ const Clientes = () => {
                     <label htmlFor="cuil_cuit" className="form-label">
                       <i className="bi bi-card-text me-2"></i>CUIL / CUIT *
                     </label>
+
                     <input
                       type="text"
                       id="cuil_cuit"
@@ -628,9 +648,12 @@ const Clientes = () => {
                       className={`form-control ${errors.cuil_cuit ? 'is-invalid' : ''}`}
                       placeholder="XX-XXXXXXXX-X"
                       value={newCliente?.cuil_cuit || ''}
-                      onChange={handleCliente}
+                      onChange={handleCuilCuit} // 👈 handler dedicado en lugar de handleCliente
                       disabled={isSubmitting}
+                      maxLength={13} // 11 dígitos + 2 guiones
+                      inputMode="numeric" // teclado numérico en mobile
                     />
+
                     {errors.cuil_cuit && (
                       <div className="invalid-feedback">
                         <i className="bi bi-exclamation-circle me-1"></i>
@@ -773,7 +796,64 @@ const Clientes = () => {
                   </div>
                 </div>
 
-                <div className="col-md-4">
+                <div className="col-md-2">
+                  <div className="form-group">
+                    <label htmlFor="comodato" className="form-label">
+                      <i className="bi bi-box-seam me-2"></i>Comodato
+                    </label>
+
+                    <div
+                      className="d-flex align-items-center gap-3 p-2 rounded"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        minHeight: '38px', // misma altura que los inputs
+                      }}
+                    >
+                      <div className="form-check form-switch mb-0">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id="comodato"
+                          role="switch"
+                          checked={!!newCliente?.comodato}
+                          onChange={(e) => {
+                            SetNewCliente((prev) => ({
+                              ...prev,
+                              comodato: e.target.checked,
+                            }));
+                          }}
+                          disabled={isSubmitting}
+                          style={{
+                            width: '2.5em',
+                            height: '1.25em',
+                            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                          }}
+                        />
+                        <label
+                          className="form-check-label ms-2"
+                          htmlFor="comodato"
+                          style={{
+                            cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                            fontWeight: 500,
+                          }}
+                        >
+                          {newCliente?.comodato ? (
+                            <span className="text-success">
+                              <i className="bi bi-check-circle-fill me-1"></i>Sí
+                            </span>
+                          ) : (
+                            <span className="text-secondary">
+                              <i className="bi bi-x-circle me-1"></i>No
+                            </span>
+                          )}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-md-2">
                   <div className="form-group">
                     <label htmlFor="litros_estimados" className="form-label">
                       <i className="bi bi-droplet-half me-2"></i>Litros

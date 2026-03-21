@@ -1651,6 +1651,13 @@ body {
   border: 1px solid var(--green-border);
 }
 
+.muestrasPdf {
+  background-color: #b91b103b;
+
+  color: #d90909f9;
+  border: 1px solid var(--green-border);
+}
+
 .maquinas-table-wrapper tbody tr:hover {
   background-color: rgba(34, 197, 94, 0.1);
 }
