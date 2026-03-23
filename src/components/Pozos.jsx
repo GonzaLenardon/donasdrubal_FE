@@ -4,7 +4,11 @@ import { clientePozos } from '../api/pozos';
 import { useNavigate } from 'react-router-dom';
 import { getStatusClass } from '../utils/statusMap';
 import { useCliente } from '../context/UserContext';
-import { pozoMultiInformes } from '../api/informes'; 
+import {
+  apiGenerarInformeMultiplePozos,
+  pozoMultiInformes,
+} from '../api/informes';
+import generarPDF from '../utils/generarPdf';
 
 const Pozos = ({ cliente_id }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +16,7 @@ const Pozos = ({ cliente_id }) => {
   const [onlyView, setOnlyView] = useState(false);
   const navigate = useNavigate();
   const { setSelectedPozo, selectedPozo } = useCliente();
-  const [informes, setInformes] = useState([]);
+  const [pozoId, setPozoId] = useState([]);
 
   useEffect(() => {
     getPozos();
@@ -30,15 +34,26 @@ const Pozos = ({ cliente_id }) => {
   };
 
   const handleInformes = ({ target: { id, checked } }) => {
-    setInformes((prev) =>
+    setPozoId((prev) =>
       checked ? [...prev, Number(id)] : prev.filter((i) => i !== Number(id)),
     );
   };
 
-  const handleMultiInforme = async () => {
-    const res = await pozoMultiInformes(cliente_id, informes, `informe_${cliente_id}_pozos_${informes.join('_')}.pdf`);
-    console.log('filename', `informe_${cliente_id}_pozos_${informes.join('_')}.pdf`);
-    console.log('Informes', res);
+  const generarInformeMultiplesPozos = async () => {
+    try {
+      const blob = await apiGenerarInformeMultiplePozos(cliente_id, pozoId);
+
+      if (blob.type !== 'application/pdf') {
+        console.error('El servidor no devolvió un PDF válido');
+        return;
+      }
+      const filename = `informe_${cliente_id}_pozos_${pozoId.join('_')}.pdf`;
+
+      // Usar la función generarPDF existente
+      generarPDF(blob, filename, 'preview'); // o 'download' según necesites
+    } catch (error) {
+      console.error('Error al manejar informe múltiple:', error);
+    }
   };
 
   return (
@@ -54,10 +69,10 @@ const Pozos = ({ cliente_id }) => {
               </p>
             </div>
 
-            {informes.length > 0 && (
+            {pozoId.length > 0 && (
               <button
                 className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
-                onClick={handleMultiInforme}
+                onClick={generarInformeMultiplesPozos}
               >
                 <i className="bi bi-plus-lg"></i>
                 Generar Informe

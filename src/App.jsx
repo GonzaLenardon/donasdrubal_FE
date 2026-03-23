@@ -3,7 +3,6 @@ import Users from './components/Users.jsx';
 import Clientes from './components/Clientes.jsx';
 import Maquinas from './components/Maquinas.jsx';
 
-import UserDetalles from './components/UserDetalles.jsx';
 import ClienteDetalles from './components/ClienteDetalle.jsx';
 import { Calibraciones } from './components/Calibraciones.jsx';
 import { Varios } from './components/Varios.jsx';

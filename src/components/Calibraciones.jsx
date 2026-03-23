@@ -267,7 +267,7 @@ export const Calibraciones = () => {
     setModalCalibraciones(true);
   };
 
-  const handleInforme = async (cal) => {
+  const generarInformeCalibracion = async (cal) => {
     const { id } = cal;
     try {
       const blob = await calibracionesPreview(id);
@@ -495,11 +495,11 @@ export const Calibraciones = () => {
                             className="btn btn-sm flex-fill calibracion-btn-editar"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleInforme(cal);
+                              generarInformeCalibracion(cal);
                             }}
                           >
-                            <i className="bi-file-earmark-text me-1 fs-5"></i>
-                            Generar Informe
+                            <i className="bi bi-file-earmark-pdf"></i> Generar
+                            Informe
                           </button>
                         </div>
                       </div>
