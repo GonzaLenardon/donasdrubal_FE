@@ -6,7 +6,6 @@ import { getStatusClass } from '../utils/statusMap';
 import { useCliente } from '../context/UserContext';
 import {
   apiGenerarInformeMultiplePozos,
-  pozoMultiInformes,
 } from '../api/informes';
 import generarPDF from '../utils/generarPdf';
 
