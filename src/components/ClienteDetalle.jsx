@@ -5,6 +5,8 @@ import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
 import JornadasTable from './JornadasTable.jsx';
 import ClienteDashboard from './Clientedashboard.jsx';
+import { useCliente } from '../context/UserContext';
+
 import {
   Building2,
   Phone,
@@ -20,7 +22,8 @@ import {
 const ClienteDetalles = () => {
   const { cliente_id } = useParams();
   const [cliente, setCliente] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
+
+  const { activeTab, setActiveTab } = useCliente();
 
   useEffect(() => {
     dataCliente();
@@ -52,66 +55,6 @@ const ClienteDetalles = () => {
 
   return (
     <div className="container_seccion">
-      {/* ================= HEADER DEL CLIENTE ================= */}
-      {/*  <div className="cliente-header">
-        <div className="cliente-header-bg"></div>
-
-        <div className="cliente-header-content">
-          <div className="cliente-header-top">
-          
-            <div className="cliente-header-main">
-              <div className="cliente-header-icon">
-                <Building2 size={28} />
-              </div>
-              <div className="cliente-header-title">
-                <h1>{cliente?.razon_social}</h1>
-                <p>
-                  <FileText
-                    size={14}
-                    style={{ display: 'inline-block', marginRight: '0.25rem' }}
-                  />
-                  CUIT: {cliente?.cuil_cuit || 'No especificado'}
-                </p>
-              </div>
-            </div>
-
-           
-            <div className="cliente-info-inline">
-              <div className="cliente-info-item">
-                <Phone size={16} />
-                <div className="cliente-info-text">
-                  <span className="cliente-info-label">Teléfono</span>
-                  <span className="cliente-info-value">
-                    {cliente?.telefono || 'No especificado'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="cliente-info-item">
-                <Mail size={16} />
-                <div className="cliente-info-text">
-                  <span className="cliente-info-label">Email</span>
-                  <span className="cliente-info-value">
-                    {cliente?.email || 'No especificado'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="cliente-info-item">
-                <MapPin size={16} />
-                <div className="cliente-info-text">
-                  <span className="cliente-info-label">Ubicación</span>
-                  <span className="cliente-info-value">
-                    {cliente?.ciudad || 'No especificado'},{' '}
-                    {cliente?.provincia || ''}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
- */}
       {/* ================= TABS NAVIGATION ================= */}
       <div className="tabs-container">
         <button
