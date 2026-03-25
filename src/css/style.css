@@ -641,13 +641,13 @@ body {
   overflow-y: auto;
 }
 
-.modal-footer {
+/* .modal-footer {
   padding: 15px 20px;
   display: flex;
   justify-content: end;
   gap: 1em;
   border-top: 1px solid #ddd;
-}
+} */
 
 /* Scroll personalizado para modal-body */
 .modal-body::-webkit-scrollbar {
@@ -829,7 +829,7 @@ body {
    MODAL POZOS/CALIBRACIONES
    ============================================ */
 
-.modal-container {
+/* .modal-container {
   background: linear-gradient(145deg, #5a7f2c 0%, #3f6b1a 100% 100%);
   border-radius: 20px;
   max-width: 600px;
@@ -839,7 +839,7 @@ body {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
   animation: slideUp 0.3s ease;
-}
+} */
 
 .modal-header-pozos {
   padding: 1.5rem 2rem;
@@ -920,7 +920,7 @@ body {
   background: rgba(13, 202, 240, 0.5);
 }
 
-.modal-footer-pozos {
+/* .modal-footer-pozos {
   display: flex;
   gap: 1rem;
   justify-content: space-between;
@@ -931,7 +931,7 @@ body {
   background: rgba(0, 0, 0, 0.729);
   border-radius: 0 0 15px 15px;
   flex-wrap: wrap;
-}
+} */
 .btn-guardar-calibraciones,
 .btn-cancelar-pozos,
 .btn-guardar-pozos {
