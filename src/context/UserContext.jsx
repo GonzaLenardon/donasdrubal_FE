@@ -8,6 +8,7 @@ export function UserProvider({ children }) {
   const [selectedCliente, setSelectedCliente] = useState(null);
   const [selectedMaquina, setSelectedMaquina] = useState(null);
   const [selectedPozo, setSelectedPozo] = useState(null);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
     <UserContext.Provider
@@ -18,6 +19,8 @@ export function UserProvider({ children }) {
         setSelectedMaquina,
         selectedPozo,
         setSelectedPozo,
+        activeTab,
+        setActiveTab,
       }}
     >
       {children}
