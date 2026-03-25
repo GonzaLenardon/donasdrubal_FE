@@ -32,7 +32,8 @@ const DashboardLayout = () => {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const { selectedMaquina, selectedCliente, selectedPozo } = useCliente();
+  const { selectedMaquina, selectedCliente, selectedPozo, setActiveTab } =
+    useCliente();
 
   const clienteNombre = selectedCliente?.razon_social;
   const maquinaNombre =
@@ -52,99 +53,106 @@ const DashboardLayout = () => {
     const parts = location.pathname.split('/').filter(Boolean);
     const items = [];
 
-    // Siempre agregar Dashboard
-    /*  items.push({
-      label: 'Dashboard',
-      to: '/',
-      clickable: true,
-    }); */
-
+    let clienteId = null;
     let lastValidTo = '/';
 
     for (let i = 0; i < parts.length; i++) {
       const seg = parts[i];
 
-      /* ===== CASO: /cliente/:id ===== */
+      /* ===== CLIENTE ===== */
       if (seg === 'cliente' && parts[i + 1] && isIdSegment(parts[i + 1])) {
-        items.push({
-          label: 'Cliente',
-          /*  to: `/cliente/${parts[i + 1]}/detalles`, */
-          to: `/cliente`,
+        clienteId = parts[i + 1];
 
+        // Cliente (lista)
+        items.push({
+          label: 'Clientes',
+          to: '/cliente',
           clickable: true,
+          action: () => setActiveTab('dashboard'),
         });
 
+        // Nombre cliente
         items.push({
           label: clienteNombre,
-          /*  to: `/cliente/${parts[i + 1]}/detalles`, */
-          to: `/cliente`,
-
-          clickable: false,
+          to: `/cliente/${clienteId}/detalles`,
+          clickable: true,
+          action: () => setActiveTab('dashboard'),
         });
 
-        lastValidTo = `/cliente/${parts[i + 1]}/detalles`;
-        i++; // Saltar el ID
+        lastValidTo = `/cliente/${clienteId}/detalles`;
+        i++;
         continue;
       }
 
-      /* ===== CASO: /maquinas/:id (dentro de cliente) ===== */
-      if (seg === 'maquinas' && parts[i + 1] && isIdSegment(parts[i + 1])) {
-        // Si hay nombre de máquina, usarlo en lugar  de "Máquinas"
-
+      /* ===== POZOS ===== */
+      if (seg === 'pozos') {
         items.push({
-          label: 'Máquinas',
+          label: 'Pozos',
           to: lastValidTo,
-          clickable: false,
+          clickable: true,
+          action: () => setActiveTab('pozos'),
         });
 
-        items.push({
-          label: maquinaNombre,
-          to: lastValidTo, // No es clickeable a la máquina individual
-          clickable: false,
-        });
-
-        i++; // Saltar el ID de la máquina
         continue;
       }
 
-      /* ===== CASO: /pozos/:id (dentro de cliente) ===== */
+      /* ===== POZO ID ===== */
       if (seg === 'pozos' && parts[i + 1] && isIdSegment(parts[i + 1])) {
-        // Similar a máquinas, pero para pozos
-
         items.push({
-          label: 'Pozo ', // O puedes obtener el nombre del pozo del contexto
+          label: 'Pozo',
           to: lastValidTo,
-          clickable: false,
+          clickable: true,
+          action: () => setActiveTab('pozos'),
         });
 
         items.push({
-          label: pozoNombre, // O puedes obtener el nombre del pozo del contexto
-          to: lastValidTo,
+          label: pozoNombre,
           clickable: false,
         });
-        i++; // Saltar el ID del pozo
+
+        i++;
         continue;
       }
 
-      /* ===== Saltar IDs simples ===== */
+      /* ===== Maquinas ===== */
+      if (seg === 'maquinas') {
+        items.push({
+          label: 'Maquinas',
+          to: lastValidTo,
+          clickable: true,
+          action: () => setActiveTab('maquinas'),
+        });
+
+        continue;
+      }
+
+      /* ===== MUESTRAS ===== */
+      if (seg === 'muestras') {
+        items.push({
+          label: 'Muestras',
+          clickable: false,
+        });
+        continue;
+      }
+
+      /* ===== IGNORAR DETALLES ===== */
+      if (seg === 'detalles') continue;
+
+      /* ===== SALTAR IDs ===== */
       if (isIdSegment(seg)) continue;
 
-      /* ===== Segmentos normales ===== */
-      const label = breadcrumbNames[seg] || decodeURIComponent(seg);
-      const to = '/' + parts.slice(0, i + 1).join('/');
-      const clickable = !NON_CLICKABLE_SEGMENTS.includes(seg);
+      /* ===== GENERICO ===== */
+      const label = breadcrumbNames[seg] || seg;
 
       items.push({
         label,
-        to: clickable ? to : lastValidTo,
-        clickable,
+        to: '/' + parts.slice(0, i + 1).join('/'),
+        clickable: true,
       });
-
-      if (clickable) lastValidTo = to;
     }
 
     return items;
-  }, [location.pathname, clienteNombre, maquinaNombre]);
+  }, [location.pathname, clienteNombre, pozoNombre]);
 
   return (
     <div className="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark">
@@ -186,7 +194,11 @@ const DashboardLayout = () => {
                 return (
                   <span key={idx} className="crumb-wrapper">
                     {item.clickable && !isLast ? (
-                      <Link to={item.to} className="crumb link">
+                      <Link
+                        to={item.to}
+                        className="crumb link"
+                        onClick={() => item.action?.()}
+                      >
                         {item.label}
                       </Link>
                     ) : (

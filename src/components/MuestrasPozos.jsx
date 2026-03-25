@@ -448,25 +448,27 @@ const MuestrasPozos = () => {
 
                             {/* Acciones */}
                             <td className="text-center py-2 px-3">
-                              <button
-                                className="btn btn-sm maquina-btn-editar"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditarMuestra(m);
-                                }}
-                              >
-                                <i className="bi bi-pencil"></i>
-                              </button>
+                              <div className="d-flex gap-2 justify-content-center">
+                                <button
+                                  className="btn btn-sm maquina-btn-editar"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditarMuestra(m);
+                                  }}
+                                >
+                                  <i className="bi bi-pencil"></i>
+                                </button>
 
-                              <button
-                                className="btn btn-sm muestrasPdf"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  generarInformeMuestra(m);
-                                }}
-                              >
-                                <i className="bi bi-file-earmark-pdf-fill"></i>
-                              </button>
+                                <button
+                                  className="btn btn-sm muestrasPdf"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    generarInformeMuestra(m);
+                                  }}
+                                >
+                                  <i className="bi bi-file-earmark-pdf-fill"></i>
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );

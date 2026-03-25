@@ -59,10 +59,14 @@ export const calibracionInforme = async (
   a.remove();
 };
 
-export const apiGenerarInformeMultiplePozos = async (cliente_id, pozos_ids) => {
+export const apiGenerarInformeMultiplePozos = async (
+  cliente_id,
+  pozos_ids,
+  conclusion,
+) => {
   const resp = await instance.post(
     '/informes/pozos',
-    { cliente_id, pozos_ids },
+    { cliente_id, pozos_ids, conclusion },
     {
       responseType: 'blob', // importante para recibir PDF
     },
