@@ -141,8 +141,11 @@ const DashboardLayout = () => {
       /* ===== SALTAR IDs ===== */
       if (isIdSegment(seg)) continue;
 
+      /* ===== IGNORAR Maquinas tipos ===== */
+      if (seg === 'detalles') continue;
+
       /* ===== GENERICO ===== */
-      const label = breadcrumbNames[seg] || seg;
+      const label = breadcrumbNames[seg] || '';
 
       items.push({
         label,
