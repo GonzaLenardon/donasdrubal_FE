@@ -11,12 +11,14 @@ const emptyJornada = {
 
 const ESTADOS_JORNADA = [
   { value: 'Pendiente', label: 'Pendiente' },
-  { value: 'En Proceso', label: 'En Proceso' },
-  { value: 'Completada', label: 'Completada' },
+  { value: 'Alertado', label: 'Alertado' },
+  { value: 'Vencido', label: 'Vencido' },
+  { value: 'Completado', label: 'Completado' },
+  { value: 'Cancelado', label: 'Cancelado' },
 ];
 
 const MOTIVOS_JORNADA = [
-  { value: 'Mezcals', label: 'Mezcals' },
+  { value: 'Mezclas', label: 'Mezclas' },
   { value: 'Capacitacion', label: 'Capacitación' },
   { value: 'Otro', label: 'Otro' },
 ];
@@ -138,7 +140,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
       <div className="modal-overlay">
         <div className="modal-container" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
-          <div className="modal-header-pozos">
+          <div className="modal-header">
             <div className="d-flex align-items-center gap-3">
               <div className="modal-icon-container">
                 <i className="bi bi-droplet-fill"></i>
@@ -268,10 +270,10 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
             </div>
 
             {/* Botones */}
-            <div className="modal-footer-pozos">
+            <div className="modal-footer">
               <button
                 type="button"
-                className="btn-cancelar-pozos"
+                className="btn-cancel"
                 onClick={handleClose}
                 disabled={isSubmitting}
               >
@@ -280,7 +282,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
               </button>
               <button
                 type="button"
-                className="btn-guardar-pozos"
+                className="btn-save"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >

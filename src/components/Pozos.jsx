@@ -306,7 +306,9 @@ const Pozos = ({ cliente_id }) => {
               </button>
             </div>
 
-            <div className="modal-conclusion-pozos-resumen">
+            {/*  <div className="modal-conclusion-pozos-resumen"> */}
+
+            <div className="modal-body">
               <div className="d-flex align-items-center gap-2 mb-2">
                 <i
                   className="bi bi-check-circle-fill"
@@ -360,7 +362,7 @@ const Pozos = ({ cliente_id }) => {
             <div className="modal-footer">
               <button
                 type="button"
-                className="modal-conclusion-btn-cancelar"
+                className="btn btn-cancel"
                 onClick={handleCerrarModalConclusion}
                 disabled={generando}
               >
@@ -368,7 +370,7 @@ const Pozos = ({ cliente_id }) => {
               </button>
               <button
                 type="button"
-                className="modal-conclusion-btn-generar"
+                className="btn btn-save"
                 onClick={generarInformeMultiplesPozos}
                 disabled={generando}
               >

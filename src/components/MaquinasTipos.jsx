@@ -366,10 +366,10 @@ const MaquinaTipo = () => {
                   <option value="" disabled>
                     Seleccione un tipo
                   </option>
-                  <option value="1">Autopropulsada</option>
-                  <option value="2">Suspendida</option>
-                  <option value="3">Remolque</option>
-                  <option value="4">Fija</option>
+                  <option value="Autopropulsada">Autopropulsada</option>
+                  <option value="Suspendida">Suspendida</option>
+                  <option value="Remolque">Remolque</option>
+                  <option value="Fija">Fija</option>
                 </select>
                 {errors.tipo && (
                   <div className="invalid-feedback">
@@ -456,7 +456,7 @@ const MaquinaTipo = () => {
               </div>
 
               {/* Botones */}
-              <div className="modal-footer-pozos">
+              <div className="modal-footer">
                 <button
                   type="button"
                   className="btn-cancelar-pozos"

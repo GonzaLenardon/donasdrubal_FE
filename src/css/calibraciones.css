@@ -1,0 +1,711 @@
+/* ══════════════════════════════════════════════════════════════════════
+   MODAL CALIBRACIONES — estilos específicos
+   Agregar al final de global.css
+   Depende de las clases genéricas: .modal-overlay, .modal-container,
+   .modal-header, .modal-icon, .modal-title, .modal-subtitle,
+   .modal-close-btn, .modal-body, .modal-footer, .btn-save
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Modificador de tamaño del modal ───────────────────────────────── */
+.cal-modal-calibraciones {
+  max-width: 95vw;
+  width: 95vw;
+  min-height: 95vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Override del body ─────────────────────────────────────────────── */
+.cal-modal-body {
+  /* background: #f0f4f0; */
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ── Título de página ──────────────────────────────────────────────── */
+.cal-page-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-gray-700);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SECTION CARD — contenedor de sección (páginas 1 y 3)
+   Fondo blanco, borde izquierdo verde, sombra suave
+   ══════════════════════════════════════════════════════════════════════ */
+.cal-section-card {
+  background: #4e9a59de;
+  border: 5px solid var(--color-base);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cal-section-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.cal-section-card-icon {
+  font-size: 1.1rem;
+  color: var(--color-base-dark);
+}
+
+.cal-section-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-gray-700);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cal-section-card-subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-gray-600);
+  background: var(--color-gray-100);
+  padding: 0.1rem 0.5rem;
+  border-radius: 20px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   COMPONENTE CARD — cards de la página 2
+   Blanco puro, borde izquierdo verde, diferenciadas del body #f0f4f0
+   ══════════════════════════════════════════════════════════════════════ */
+.cal-componente-card {
+  background: #4e9a59de;
+  border: 5px solid var(--color-base);
+  border-radius: 10px;
+  padding: 1rem 1rem 0.75rem;
+  height: 100%;
+  transition: box-shadow 0.2s ease;
+}
+
+.cal-componente-card:hover {
+  box-shadow: 0 4px 12px rgba(27, 89, 49, 0.12);
+}
+
+.cal-componente-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+  padding-bottom: 0.625rem;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.cal-componente-icon {
+  font-size: 1rem;
+  color: var(--color-base-dark);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.cal-componente-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-gray-700);
+  margin: 0;
+}
+
+.cal-componente-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  display: block;
+  margin-top: 1px;
+}
+
+.cal-componente-adjunto-separator {
+  border-top: 1px dashed var(--color-gray-200);
+}
+
+/* ── Card de presión (página 3) ────────────────────────────────────── */
+.cal-presion-card {
+  background: #4e9a59de;
+  border: 5px solid var(--color-base);
+
+  border-radius: 10px;
+  padding: 1rem;
+  height: 100%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ADJUNTO ARCHIVO — componente mejorado
+   ══════════════════════════════════════════════════════════════════════ */
+.cal-adjunto-wrapper {
+  width: 100%;
+}
+
+.cal-adjunto-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cal-adjunto-label-icon {
+  color: var(--color-base-dark);
+  font-size: 0.85rem;
+}
+
+/* Zona de carga (sin archivo) */
+.cal-adjunto-zona {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0.6rem;
+  border: 1.5px dashed rgba(27, 89, 49, 0.35);
+  border-radius: 8px;
+  background: rgba(27, 89, 49, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.cal-adjunto-zona:hover:not(.cal-adjunto-zona--disabled) {
+  border-color: var(--color-base-dark);
+  background: rgba(27, 89, 49, 0.07);
+}
+
+.cal-adjunto-zona--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cal-adjunto-upload-icon {
+  font-size: 1.25rem;
+  color: var(--color-base-dark);
+}
+
+.cal-adjunto-upload-text {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  font-weight: 500;
+}
+
+.cal-adjunto-upload-hint {
+  font-size: 0.65rem;
+  color: var(--color-gray-600);
+}
+
+/* Archivo pendiente (nuevo, sin subir) */
+.cal-adjunto-pendiente {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.4rem 0.6rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 7px;
+}
+
+.cal-adjunto-pendiente-icon {
+  font-size: 0.85rem;
+  color: #d97706;
+  flex-shrink: 0;
+}
+
+.cal-adjunto-pendiente-text {
+  font-size: 0.72rem;
+  color: #92400e;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* Archivo existente (guardado en DB) */
+.cal-adjunto-existente {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.4rem 0.6rem;
+  background: rgba(27, 89, 49, 0.06);
+  border: 1px solid rgba(27, 89, 49, 0.2);
+  border-radius: 7px;
+  flex-wrap: wrap;
+}
+
+.cal-adjunto-existente-icon {
+  font-size: 0.9rem;
+  color: var(--color-base-dark);
+  flex-shrink: 0;
+}
+
+/* Botones de adjunto */
+.cal-adjunto-btn-ver {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 5px;
+  border: 1px solid rgba(27, 89, 49, 0.4);
+  background: transparent;
+  color: var(--color-base-dark);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cal-adjunto-btn-ver:hover {
+  background: rgba(27, 89, 49, 0.1);
+  color: var(--color-base-dark);
+}
+
+.cal-adjunto-btn-reemplazar {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 5px;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  background: transparent;
+  color: #92400e;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0;
+}
+
+.cal-adjunto-btn-reemplazar:hover:not(.disabled) {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.cal-adjunto-btn-reemplazar.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cal-adjunto-btn-quitar {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 5px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: transparent;
+  color: var(--color-error);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.cal-adjunto-btn-quitar:hover:not(:disabled) {
+  background: var(--color-error-soft);
+}
+
+.cal-adjunto-btn-quitar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Error de archivo */
+.cal-file-error {
+  font-size: 0.75rem;
+  color: var(--color-error);
+  display: flex;
+  align-items: center;
+  margin: 0.3rem 0 0;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   IMAGEN DEL INFORME (página 1)
+   ══════════════════════════════════════════════════════════════════════ */
+.cal-imagen-preview {
+  max-height: 160px;
+  max-width: 100%;
+  object-fit: contain;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  display: block;
+}
+
+.cal-imagen-badge {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+  background: rgba(27, 89, 49, 0.1);
+  color: var(--color-base-dark);
+  border: 1px solid rgba(27, 89, 49, 0.25);
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cal-imagen-badge-pending {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.6rem;
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cal-imagen-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  border: 2px dashed rgba(27, 89, 49, 0.3);
+  border-radius: 10px;
+  background: rgba(27, 89, 49, 0.03);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.cal-imagen-dropzone:hover:not(.cal-imagen-dropzone--disabled) {
+  border-color: var(--color-base-dark);
+  background: rgba(27, 89, 49, 0.07);
+}
+
+.cal-imagen-dropzone--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cal-imagen-dropzone-icon {
+  font-size: 2rem;
+  color: var(--color-base-dark);
+}
+
+.cal-imagen-dropzone-text {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+}
+
+.cal-imagen-dropzone-hint {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RECOMENDACIONES
+   ══════════════════════════════════════════════════════════════════════ */
+.cal-recomendacion-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(27, 89, 49, 0.06);
+  border: 1px solid rgba(27, 89, 49, 0.15);
+  font-size: 0.82rem;
+}
+
+.cal-recomendacion-icon {
+  font-size: 0.75rem;
+  color: var(--color-base-dark);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.cal-rec-input {
+  background: var(--color-gray-50) !important;
+  border-color: var(--color-gray-200) !important;
+  color: var(--color-gray-700) !important;
+  font-size: 0.82rem !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SECCIONES — grilla de cards (reemplaza la tabla)
+   ══════════════════════════════════════════════════════════════════════ */
+.cal-secciones-grid {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  gap: 8px;
+}
+
+@media (max-width: 992px) {
+  .cal-secciones-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .cal-secciones-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .cal-secciones-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.cal-seccion-card {
+  background: #e7ece8de;
+  border: 5px solid var(--color-base);
+  border-radius: 8px;
+  padding: 0.5rem 0.4rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.cal-seccion-card--activa {
+  border-color: rgba(27, 89, 49, 0.5);
+  background: rgb(66, 164, 80);
+  box-shadow: 0 0 0 2px rgba(27, 89, 49, 0.1);
+}
+
+.cal-seccion-numero {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-gray-600);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.cal-seccion-card--activa .cal-seccion-numero {
+  color: var(--color-base-dark);
+}
+
+.cal-seccion-input {
+  width: 100%;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 5px;
+  padding: 3px 4px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-gray-700);
+  background: var(--color-gray-50);
+  outline: none;
+  transition: border-color 0.15s ease;
+  -moz-appearance: textfield;
+}
+
+.cal-seccion-input::-webkit-outer-spin-button,
+.cal-seccion-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.cal-seccion-input:focus {
+  border-color: var(--color-base-dark);
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(27, 89, 49, 0.15);
+}
+
+.cal-seccion-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cal-seccion-clear {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-error-soft);
+  color: var(--color-error);
+  font-size: 0.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  transition: background 0.15s ease;
+}
+
+.cal-seccion-clear:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+/* Badges del resumen */
+.cal-seccion-badge-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  background: rgba(13, 202, 240, 0.12);
+  color: #0891b2;
+  border: 1px solid rgba(13, 202, 240, 0.25);
+  display: inline-flex;
+  align-items: center;
+}
+
+.cal-seccion-badge-avg {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  background: var(--color-success-soft);
+  color: #166534;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  display: inline-flex;
+  align-items: center;
+}
+
+.cal-seccion-hint {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  margin-bottom: 0.875rem;
+  display: flex;
+  align-items: center;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TOGGLE Y COLOR SELECTOR — adaptados al fondo claro
+   ══════════════════════════════════════════════════════════════════════ */
+.badge-soft {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.badge-soft-success {
+  background: var(--color-success-soft);
+  color: #166534;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.badge-soft-warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* Toggle button */
+.toggle-button {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  background: var(--color-gray-300);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.toggle-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.toggle-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.toggle-button.active {
+  background: #198754;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-button.active .toggle-slider {
+  transform: translateX(28px);
+}
+
+.oring-toggle-container {
+  padding: 0.5rem 0.75rem;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+}
+
+/* Color selector */
+.color-selector-container {
+  width: 100%;
+}
+
+.btn-color {
+  flex: 1;
+  min-width: 55px;
+  padding: 0.4rem 0.25rem;
+  border: 2px solid var(--color-gray-200);
+  background: var(--color-gray-50);
+  color: var(--color-gray-700);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.btn-color:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--color-border);
+  background: var(--color-bg);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-color.selected {
+  border-color: var(--color-border);
+  background: var(--color-bg);
+  border-width: 3px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+}
+
+.btn-color:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.color-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.color-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-gray-700);
+}
+
+.numero-input-container input {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ANIMACIÓN FADE IN
+   ══════════════════════════════════════════════════════════════════════ */
+.fade-in {
+  animation: fadeIn 0.25s ease-in;
+}

@@ -361,7 +361,7 @@
   padding: 1.5rem 0rem;
   border-top: 1px solid var(--color-gray-200);
   /*   background: var(--color-gray-50); */
-  background-color: #1b5931;
+
   border-radius: 0 0 20px 20px;
 }
 
@@ -392,7 +392,7 @@
 
 /* ── Override del body genérico ────────────────────────────────────── */
 .modal-conclusion .modal-body {
-  background: #0f1a12;
+  background: #80a38a;
   padding: 22px 24px;
   flex: 1;
   overflow-y: auto;
@@ -400,13 +400,14 @@
 
 /* ── Override del footer genérico ──────────────────────────────────── */
 .modal-conclusion .modal-footer {
-  background: #0a1209;
+  background: #80a38a;
   border-top: 1px solid rgba(27, 89, 49, 0.2);
   border-radius: 0 0 16px 16px;
   padding: 16px 24px;
 }
 
 /* ── Franja de pozos seleccionados ─────────────────────────────────── */
+
 .modal-conclusion-pozos-resumen {
   padding: 13px 24px;
   background: #0f1a12;
@@ -437,9 +438,9 @@
 /* ── Label del textarea ────────────────────────────────────────────── */
 .modal-conclusion-label {
   display: block;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 12px;
-  font-weight: 500;
+  color: rgba(2, 36, 8, 0.75);
+  font-size: 16px;
+  font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin-bottom: 10px;
@@ -449,12 +450,13 @@
 .modal-conclusion-textarea {
   width: 100%;
   min-height: 130px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(195, 188, 188, 0.04);
   border: 1px solid rgba(27, 89, 49, 0.4);
   border-radius: 10px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(16, 15, 15, 0.85);
   padding: 12px 14px;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
   line-height: 1.65;
   resize: vertical;
   outline: none;
@@ -465,7 +467,7 @@
 }
 
 .modal-conclusion-textarea::placeholder {
-  color: rgba(255, 255, 255, 0.22);
+  color: rgba(21, 20, 20, 0.526);
 }
 
 .modal-conclusion-textarea:focus {
@@ -497,8 +499,8 @@
 .modal-conclusion-hint {
   display: block;
   margin-top: 8px;
-  color: rgba(255, 255, 255, 0.3);
-  font-size: 11px;
+  color: rgba(10, 40, 2, 0.734);
+  font-size: 13px;
 }
 
 /* ── Botón cancelar ────────────────────────────────────────────────── */
@@ -946,7 +948,7 @@ input[type='radio'] {
 
 .btn-save {
   padding: 0.75rem 1.5rem;
-  background: var(--gradient-primary);
+  background: var(--color-success);
   color: var(--color-white);
   border: none;
   border-radius: 10px;
