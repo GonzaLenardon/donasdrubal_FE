@@ -12,6 +12,7 @@ const Clientes = () => {
   const [ingenieros, setIngenieros] = useState([]);
   const [tipoClientes, setTipoClientes] = useState([]);
   const [ingenierosSeleccionados, setIngenierosSeleccionados] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [ingenieroPlrincipal, setIngenieroPlrincipal] = useState(null);
   const [errors, setErrors] = useState({});
   const [modal, setModal] = useState(false);
@@ -282,6 +283,20 @@ const Clientes = () => {
     }
   };
 
+  const filteredClientes = clienteList.filter((cliente) => {
+    const term = searchTerm.toLowerCase();
+
+    return (
+      cliente.razon_social?.toLowerCase().includes(term) ||
+      cliente.cuil_cuit?.toLowerCase().includes(term) ||
+      cliente.email?.toLowerCase().includes(term) ||
+      cliente.telefono?.toLowerCase().includes(term) ||
+      cliente.direccion_fiscal?.toLowerCase().includes(term) ||
+      cliente.estado?.toLowerCase().includes(term) ||
+      cliente.tipoCliente?.tipoClientes?.toLowerCase().includes(term)
+    );
+  });
+
   return (
     <>
       <div className="container_seccion">
@@ -308,6 +323,19 @@ const Clientes = () => {
               <i className="bi bi-plus-lg"></i>
               Nuevo Cliente
             </button>
+          </div>
+
+          {/* TABLA */}
+          <div className="container-table rounded shadow-lg">
+            <div style={{ marginBottom: '15px' }}>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="🔍 Buscar cliente..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
 
           {/* TABLA */}
@@ -347,7 +375,7 @@ const Clientes = () => {
                 </thead>
 
                 <tbody>
-                  {clienteList.map((cliente) => (
+                  {filteredClientes.map((cliente) => (
                     <tr
                       key={cliente.id}
                       onClick={(e) => {

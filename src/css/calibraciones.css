@@ -1,10 +1,13 @@
 /* ══════════════════════════════════════════════════════════════════════
    MODAL CALIBRACIONES — estilos específicos
-   Agregar al final de global.css
    Depende de las clases genéricas: .modal-overlay, .modal-container,
    .modal-header, .modal-icon, .modal-title, .modal-subtitle,
    .modal-close-btn, .modal-body, .modal-footer, .btn-save
    ══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --color-bg: rgba(28, 97, 52, 0.99);
+}
 
 /* ── Modificador de tamaño del modal ───────────────────────────────── */
 .cal-modal-calibraciones {
@@ -15,9 +18,9 @@
   flex-direction: column;
 }
 
-/* ── Override del body ─────────────────────────────────────────────── */
+/* ── Body ──────────────────────────────────────────────────────────── */
 .cal-modal-body {
-  /* background: #f0f4f0; */
+  background: #f0f4f0;
   flex: 1;
   overflow-y: auto;
 }
@@ -33,11 +36,11 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   SECTION CARD — contenedor de sección (páginas 1 y 3)
-   Fondo blanco, borde izquierdo verde, sombra suave
+   SECTION CARD — páginas 1 y 3
+   Fondo verde semitransparente, textos blancos en header
    ══════════════════════════════════════════════════════════════════════ */
 .cal-section-card {
-  background: #4e9a59de;
+  background: var(--color-bg);
   border: 5px solid var(--color-base);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
@@ -50,39 +53,51 @@
   gap: 0.6rem;
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .cal-section-card-icon {
-  font-size: 1.1rem;
-  color: var(--color-base-dark);
+  font-size: 1.2rem;
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .cal-section-card-title {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--color-gray-700);
+  color: #ffffff;
   margin: 0;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .cal-section-card-subtitle {
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: var(--color-gray-600);
-  background: var(--color-gray-100);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 0.1rem 0.5rem;
   border-radius: 20px;
 }
 
+/* Labels dentro de section-card */
+.cal-section-card .form-label {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.cal-section-card .form-label i {
+  color: rgba(255, 255, 255, 0.85);
+}
+
 /* ══════════════════════════════════════════════════════════════════════
-   COMPONENTE CARD — cards de la página 2
-   Blanco puro, borde izquierdo verde, diferenciadas del body #f0f4f0
+   COMPONENTE CARD — página 2
    ══════════════════════════════════════════════════════════════════════ */
 .cal-componente-card {
-  background: #4e9a59de;
+  background: var(--color-bg);
   border: 5px solid var(--color-base);
   border-radius: 10px;
   padding: 1rem 1rem 0.75rem;
@@ -91,7 +106,8 @@
 }
 
 .cal-componente-card:hover {
-  box-shadow: 0 4px 12px rgba(27, 89, 49, 0.12);
+  box-shadow: 0 10px 20px rgb(142, 174, 110);
+  transform: translateY(-4px);
 }
 
 .cal-componente-card-header {
@@ -100,47 +116,64 @@
   gap: 0.5rem;
   margin-bottom: 0.875rem;
   padding-bottom: 0.625rem;
-  border-bottom: 1px solid var(--color-gray-100);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .cal-componente-icon {
-  font-size: 1rem;
-  color: var(--color-base-dark);
+  font-size: 1.1rem;
+  color: #ffffff;
   margin-top: 2px;
   flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 }
 
 .cal-componente-title {
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--color-gray-700);
+  color: #ffffff;
   margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .cal-componente-subtitle {
-  font-size: 0.75rem;
-  color: var(--color-gray-600);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.8);
   display: block;
-  margin-top: 1px;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.cal-componente-card .form-label {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.cal-componente-card .form-label i {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .cal-componente-adjunto-separator {
-  border-top: 1px dashed var(--color-gray-200);
+  border-top: 1px dashed rgba(255, 255, 255, 0.3);
+  padding-top: 0.5rem;
 }
 
-/* ── Card de presión (página 3) ────────────────────────────────────── */
+/* ── Card de presión ────────────────────────────────────────────────── */
 .cal-presion-card {
   background: #4e9a59de;
   border: 5px solid var(--color-base);
-
   border-radius: 10px;
   padding: 1rem;
   height: 100%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+.cal-presion-card .form-label {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
 /* ══════════════════════════════════════════════════════════════════════
-   ADJUNTO ARCHIVO — componente mejorado
+   ADJUNTO ARCHIVO
    ══════════════════════════════════════════════════════════════════════ */
 .cal-adjunto-wrapper {
   width: 100%;
@@ -149,7 +182,7 @@
 .cal-adjunto-label {
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--color-gray-600);
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 0.4rem;
   display: flex;
   align-items: center;
@@ -157,11 +190,10 @@
 }
 
 .cal-adjunto-label-icon {
-  color: var(--color-base-dark);
+  color: #ffffff;
   font-size: 0.85rem;
 }
 
-/* Zona de carga (sin archivo) */
 .cal-adjunto-zona {
   display: flex;
   flex-direction: column;
@@ -169,17 +201,17 @@
   justify-content: center;
   gap: 4px;
   padding: 0.6rem;
-  border: 1.5px dashed rgba(27, 89, 49, 0.35);
+  border: 1.5px dashed rgba(255, 255, 255, 0.45);
   border-radius: 8px;
-  background: rgba(27, 89, 49, 0.03);
+  background: rgba(255, 255, 255, 0.08);
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
 }
 
 .cal-adjunto-zona:hover:not(.cal-adjunto-zona--disabled) {
-  border-color: var(--color-base-dark);
-  background: rgba(27, 89, 49, 0.07);
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .cal-adjunto-zona--disabled {
@@ -189,102 +221,101 @@
 
 .cal-adjunto-upload-icon {
   font-size: 1.25rem;
-  color: var(--color-base-dark);
+  color: #ffffff;
 }
 
 .cal-adjunto-upload-text {
   font-size: 0.75rem;
-  color: var(--color-gray-600);
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
 }
 
 .cal-adjunto-upload-hint {
   font-size: 0.65rem;
-  color: var(--color-gray-600);
+  color: rgba(255, 255, 255, 0.65);
 }
 
-/* Archivo pendiente (nuevo, sin subir) */
 .cal-adjunto-pendiente {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 0.4rem 0.6rem;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
   border-radius: 7px;
 }
 
 .cal-adjunto-pendiente-icon {
   font-size: 0.85rem;
-  color: #d97706;
+  color: #fbbf24;
   flex-shrink: 0;
 }
 
 .cal-adjunto-pendiente-text {
   font-size: 0.72rem;
-  color: #92400e;
+  color: #fef3c7;
   font-weight: 500;
   flex: 1;
 }
 
-/* Archivo existente (guardado en DB) */
 .cal-adjunto-existente {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 0.4rem 0.6rem;
-  background: rgba(27, 89, 49, 0.06);
-  border: 1px solid rgba(27, 89, 49, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 7px;
   flex-wrap: wrap;
 }
 
 .cal-adjunto-existente-icon {
   font-size: 0.9rem;
-  color: var(--color-base-dark);
+  color: #ffffff;
   flex-shrink: 0;
 }
 
-/* Botones de adjunto */
 .cal-adjunto-btn-ver {
   font-size: 0.7rem;
   padding: 0.2rem 0.55rem;
   border-radius: 5px;
-  border: 1px solid rgba(27, 89, 49, 0.4);
-  background: transparent;
-  color: var(--color-base-dark);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
   text-decoration: none;
   cursor: pointer;
   transition: background 0.15s ease;
   display: inline-flex;
   align-items: center;
+  font-weight: 500;
 }
 
 .cal-adjunto-btn-ver:hover {
-  background: rgba(27, 89, 49, 0.1);
-  color: var(--color-base-dark);
+  background: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
 }
 
 .cal-adjunto-btn-reemplazar {
   font-size: 0.7rem;
   padding: 0.2rem 0.55rem;
   border-radius: 5px;
-  border: 1px solid rgba(245, 158, 11, 0.5);
-  background: transparent;
-  color: #92400e;
+  border: 1px solid rgba(251, 191, 36, 0.6);
+  background: rgba(251, 191, 36, 0.15);
+  color: #fef3c7;
   cursor: pointer;
   transition: background 0.15s ease;
   display: inline-flex;
   align-items: center;
   margin-bottom: 0;
+  font-weight: 500;
 }
 
 .cal-adjunto-btn-reemplazar:hover:not(.disabled) {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(251, 191, 36, 0.28);
 }
 
 .cal-adjunto-btn-reemplazar.disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -292,18 +323,20 @@
   font-size: 0.7rem;
   padding: 0.2rem 0.45rem;
   border-radius: 5px;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  background: transparent;
-  color: var(--color-error);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
   cursor: pointer;
   transition: background 0.15s ease;
   display: inline-flex;
   align-items: center;
   margin-left: auto;
+  font-weight: 500;
 }
 
 .cal-adjunto-btn-quitar:hover:not(:disabled) {
-  background: var(--color-error-soft);
+  background: rgba(239, 68, 68, 0.3);
+  color: #ffffff;
 }
 
 .cal-adjunto-btn-quitar:disabled {
@@ -311,10 +344,9 @@
   cursor: not-allowed;
 }
 
-/* Error de archivo */
 .cal-file-error {
   font-size: 0.75rem;
-  color: var(--color-error);
+  color: #fca5a5;
   display: flex;
   align-items: center;
   margin: 0.3rem 0 0;
@@ -327,7 +359,7 @@
   max-height: 160px;
   max-width: 100%;
   object-fit: contain;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   display: block;
 }
@@ -335,9 +367,9 @@
 .cal-imagen-badge {
   font-size: 0.72rem;
   padding: 0.2rem 0.6rem;
-  background: rgba(27, 89, 49, 0.1);
-  color: var(--color-base-dark);
-  border: 1px solid rgba(27, 89, 49, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   font-weight: 500;
   display: inline-flex;
@@ -347,9 +379,9 @@
 .cal-imagen-badge-pending {
   font-size: 0.72rem;
   padding: 0.2rem 0.6rem;
-  background: rgba(245, 158, 11, 0.12);
-  color: #92400e;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(251, 191, 36, 0.2);
+  color: #fef3c7;
+  border: 1px solid rgba(251, 191, 36, 0.4);
   border-radius: 20px;
   font-weight: 500;
   display: inline-flex;
@@ -363,17 +395,17 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 2rem;
-  border: 2px dashed rgba(27, 89, 49, 0.3);
+  border: 2px dashed rgba(255, 255, 255, 0.4);
   border-radius: 10px;
-  background: rgba(27, 89, 49, 0.03);
+  background: rgba(255, 255, 255, 0.07);
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
 }
 
 .cal-imagen-dropzone:hover:not(.cal-imagen-dropzone--disabled) {
-  border-color: var(--color-base-dark);
-  background: rgba(27, 89, 49, 0.07);
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.13);
 }
 
 .cal-imagen-dropzone--disabled {
@@ -383,17 +415,18 @@
 
 .cal-imagen-dropzone-icon {
   font-size: 2rem;
-  color: var(--color-base-dark);
+  color: #ffffff;
 }
 
 .cal-imagen-dropzone-text {
   font-size: 0.875rem;
-  color: var(--color-gray-600);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
 }
 
 .cal-imagen-dropzone-hint {
   font-size: 0.75rem;
-  color: var(--color-gray-600);
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* ══════════════════════════════════════════════════════════════════════
@@ -406,27 +439,28 @@
   margin-bottom: 6px;
   padding: 6px 8px;
   border-radius: 6px;
-  background: rgba(27, 89, 49, 0.06);
-  border: 1px solid rgba(27, 89, 49, 0.15);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 0.82rem;
+  color: #ffffff;
 }
 
 .cal-recomendacion-icon {
   font-size: 0.75rem;
-  color: var(--color-base-dark);
+  color: rgba(255, 255, 255, 0.85);
   margin-top: 2px;
   flex-shrink: 0;
 }
 
 .cal-rec-input {
-  background: var(--color-gray-50) !important;
-  border-color: var(--color-gray-200) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
   color: var(--color-gray-700) !important;
   font-size: 0.82rem !important;
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   SECCIONES — grilla de cards (reemplaza la tabla)
+   SECCIONES — grilla de cards
    ══════════════════════════════════════════════════════════════════════ */
 .cal-secciones-grid {
   display: grid;
@@ -439,13 +473,11 @@
     grid-template-columns: repeat(5, 1fr);
   }
 }
-
 @media (max-width: 768px) {
   .cal-secciones-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
-
 @media (max-width: 480px) {
   .cal-secciones-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -453,8 +485,8 @@
 }
 
 .cal-seccion-card {
-  background: #e7ece8de;
-  border: 5px solid var(--color-base);
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 8px;
   padding: 0.5rem 0.4rem 0.4rem;
   display: flex;
@@ -464,19 +496,26 @@
   position: relative;
   transition:
     border-color 0.15s ease,
-    box-shadow 0.15s ease;
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
+.cal-seccion-card:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Activa: fondo blanco para que el valor resalte */
 .cal-seccion-card--activa {
-  border-color: rgba(27, 89, 49, 0.5);
-  background: rgb(66, 164, 80);
-  box-shadow: 0 0 0 2px rgba(27, 89, 49, 0.1);
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .cal-seccion-numero {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  color: var(--color-gray-600);
+  color: rgba(255, 255, 255, 0.75);
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
@@ -487,17 +526,27 @@
 
 .cal-seccion-input {
   width: 100%;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   border-radius: 5px;
   padding: 3px 4px;
   font-size: 1.2rem;
   font-weight: 600;
   text-align: center;
-  color: var(--color-gray-700);
-  background: var(--color-gray-50);
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.1);
   outline: none;
-  transition: border-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
   -moz-appearance: textfield;
+}
+
+.cal-seccion-card--activa .cal-seccion-input {
+  color: var(--color-base-dark);
+  background: #ffffff;
+  border-color: rgba(27, 89, 49, 0.4);
+  font-weight: 700;
 }
 
 .cal-seccion-input::-webkit-outer-spin-button,
@@ -507,9 +556,15 @@
 }
 
 .cal-seccion-input:focus {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.cal-seccion-card--activa .cal-seccion-input:focus {
   border-color: var(--color-base-dark);
-  background: #fff;
-  box-shadow: 0 0 0 2px rgba(27, 89, 49, 0.15);
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(27, 89, 49, 0.2);
 }
 
 .cal-seccion-input:disabled {
@@ -525,9 +580,11 @@
   height: 14px;
   border-radius: 50%;
   border: none;
-  background: var(--color-error-soft);
-  color: var(--color-error);
-  font-size: 0.6rem;
+  /*   background: rgba(239, 68, 68, 0.25);
+ */
+  color: var(--color-base);
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -538,18 +595,18 @@
 }
 
 .cal-seccion-clear:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.25);
+  background: var(--color-base);
+  color: #ffffff;
 }
 
-/* Badges del resumen */
 .cal-seccion-badge-count {
   font-size: 0.78rem;
   font-weight: 600;
   padding: 0.25rem 0.65rem;
   border-radius: 20px;
-  background: rgba(13, 202, 240, 0.12);
-  color: #0891b2;
-  border: 1px solid rgba(13, 202, 240, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   display: inline-flex;
   align-items: center;
 }
@@ -559,23 +616,27 @@
   font-weight: 600;
   padding: 0.25rem 0.65rem;
   border-radius: 20px;
-  background: var(--color-success-soft);
-  color: #166534;
-  border: 1px solid rgba(34, 197, 94, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   display: inline-flex;
   align-items: center;
 }
 
 .cal-seccion-hint {
   font-size: 0.75rem;
-  color: var(--color-gray-600);
+  color: rgba(255, 255, 255, 0.8);
   margin-bottom: 0.875rem;
   display: flex;
   align-items: center;
 }
 
+.cal-seccion-hint strong {
+  color: #ffffff;
+}
+
 /* ══════════════════════════════════════════════════════════════════════
-   TOGGLE Y COLOR SELECTOR — adaptados al fondo claro
+   TOGGLE Y COLOR SELECTOR
    ══════════════════════════════════════════════════════════════════════ */
 .badge-soft {
   display: inline-flex;
@@ -587,23 +648,22 @@
 }
 
 .badge-soft-success {
-  background: var(--color-success-soft);
-  color: #166534;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.2);
+  color: #bbf7d0;
+  border: 1px solid rgba(34, 197, 94, 0.4);
 }
 
 .badge-soft-warning {
-  background: rgba(245, 158, 11, 0.12);
-  color: #92400e;
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.2);
+  color: #fef3c7;
+  border: 1px solid rgba(245, 158, 11, 0.4);
 }
 
-/* Toggle button */
 .toggle-button {
   position: relative;
   width: 56px;
   height: 28px;
-  background: var(--color-gray-300);
+  background: rgba(255, 255, 255, 0.25);
   border: none;
   border-radius: 14px;
   cursor: pointer;
@@ -620,7 +680,7 @@
   cursor: not-allowed;
 }
 .toggle-button.active {
-  background: #198754;
+  background: #16a34a;
 }
 
 .toggle-slider {
@@ -632,7 +692,7 @@
   background: white;
   border-radius: 50%;
   transition: transform 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
 }
 
 .toggle-button.active .toggle-slider {
@@ -641,12 +701,11 @@
 
 .oring-toggle-container {
   padding: 0.5rem 0.75rem;
-  background: var(--color-gray-50);
-  border: 1px solid var(--color-gray-200);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
 }
 
-/* Color selector */
 .color-selector-container {
   width: 100%;
 }
@@ -655,9 +714,9 @@
   flex: 1;
   min-width: 55px;
   padding: 0.4rem 0.25rem;
-  border: 2px solid var(--color-gray-200);
-  background: var(--color-gray-50);
-  color: var(--color-gray-700);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
   border-radius: 7px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -671,14 +730,14 @@
   transform: translateY(-2px);
   border-color: var(--color-border);
   background: var(--color-bg);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-color.selected {
   border-color: var(--color-border);
   background: var(--color-bg);
   border-width: 3px;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
 }
 
 .btn-color:disabled {
@@ -695,7 +754,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.4px;
-  color: var(--color-gray-700);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .numero-input-container input {
@@ -704,7 +763,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════
-   ANIMACIÓN FADE IN
+   ANIMACIÓN
    ══════════════════════════════════════════════════════════════════════ */
 .fade-in {
   animation: fadeIn 0.25s ease-in;

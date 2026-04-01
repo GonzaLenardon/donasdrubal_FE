@@ -445,7 +445,7 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
               key={seccion}
               className={`cal-seccion-card ${tieneDatos ? 'cal-seccion-card--activa' : ''}`}
             >
-              <span className="cal-seccion-numero">S{seccion}</span>
+              <span className="cal-seccion-numero">Seccion{seccion}</span>
               <input
                 type="number"
                 className="cal-seccion-input"
