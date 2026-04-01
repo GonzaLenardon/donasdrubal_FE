@@ -10,6 +10,7 @@ import { UserProvider } from './context/UserContext.jsx';
 import './css/style.css';
 import './css/newStyle.css';
 import './css/clientesStyle.css';
+import './css/calibraciones.css';
 
 createRoot(document.getElementById('root')).render(
   <UserProvider>

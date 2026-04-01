@@ -103,7 +103,7 @@ const ModalMuestrasPozos = ({
     fd.append('file', formData.informeFile);
 
     const response = await fetch(
-      import.meta.env.VITE_API_URL + '/uploads/muestrasagua/',
+      import.meta.env.VITE_API_URL + '/muestrasAgua/upload',
       { method: 'POST', credentials: 'include', body: fd },
     );
     if (!response.ok)
@@ -254,50 +254,21 @@ const ModalMuestrasPozos = ({
           {/* Header */}
           <div className="modal-header">
             <div className="d-flex align-items-center gap-3">
-              <div
-                className="rounded d-flex align-items-center justify-content-center"
-                style={{
-                  width: '50px',
-                  height: '50px',
-                  background:
-                    'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-                  fontSize: '1.5rem',
-                  color: 'white',
-                }}
-              >
+              <div>
                 <i className="bi bi-clipboard-data"></i>
               </div>
               <div>
-                <h3
-                  className="fw-bold text-white mb-1"
-                  style={{ fontSize: '1.5rem' }}
-                >
+                <h3 className="modal-title-pozos mb-1">
                   {muestra?.id ? 'Editar Muestra' : 'Nueva Muestra'}
                 </h3>
-                <p
-                  className="mb-0"
-                  style={{
-                    fontSize: '0.875rem',
-                    color: 'rgba(255, 255, 255, 0.7)',
-                  }}
-                >
+                <p className="modal-subtitle-pozos mb-0">
                   {muestra
                     ? 'Modifica los datos de la muestra'
                     : 'Registra una nueva muestra de agua'}
                 </p>
               </div>
             </div>
-            <button
-              className="btn btn-sm rounded"
-              onClick={handleClose}
-              style={{
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: 'rgba(255,255,255,0.8)',
-                width: '36px',
-                height: '36px',
-              }}
-            >
+            <button className="modal-close-btn" onClick={handleClose}>
               <i className="bi bi-x-lg"></i>
             </button>
           </div>
@@ -834,10 +805,10 @@ const ModalMuestrasPozos = ({
 
             {/* Botones */}
             {!onlyView && (
-              <div className="modalx-footer">
+              <div className="modal-footer">
                 <button
                   type="button"
-                  className="btnx-cancelar"
+                  className="btn-cancel"
                   onClick={handleClose}
                   disabled={isSubmitting}
                 >
@@ -845,7 +816,7 @@ const ModalMuestrasPozos = ({
                 </button>
                 <button
                   type="button"
-                  className="btnx-guardar"
+                  className="btn-save"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                 >

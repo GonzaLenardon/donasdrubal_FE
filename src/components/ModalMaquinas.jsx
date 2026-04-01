@@ -355,10 +355,10 @@ export const ModalMaquinas = ({
             {/* Botones */}
 
             {!onlyView && (
-              <div className="modal-footer-pozos">
+              <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn-cancelar-pozos"
+                  className="btn-cancel"
                   onClick={onClose}
                   disabled={isSubmitting}
                 >
@@ -367,7 +367,7 @@ export const ModalMaquinas = ({
                 </button>
                 <button
                   type="button"
-                  className="btn-guardar-pozos"
+                  className="btn-save"
                   onClick={handleSubmitMaquina}
                   disabled={isSubmitting}
                 >
