@@ -615,7 +615,7 @@ const AdjuntoArchivoPdf = ({
     <div className="cal-adjunto-wrapper">
       <p className="cal-adjunto-label">
         <i className="bi bi-file-pdf cal-adjunto-label-icon"></i>
-        Informe de agua (PDF)
+        Informe Fluxim (PDF)
       </p>
 
       {!nombreArchivo ? (
