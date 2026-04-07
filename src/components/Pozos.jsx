@@ -241,9 +241,9 @@ const Pozos = ({ cliente_id }) => {
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedPozo(pozo);
-                        navigate(
-                          `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`,
-                        );
+                        const url = `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`;
+                        console.log('uuuuuuuuuurrrrrrrrrrrrrlllllllllll', url);
+                        navigate(url);
                       }}
                     >
                       <i className="bi bi-eye me-1"></i>Muestras

@@ -50,24 +50,23 @@ function App() {
           <Route path="campañas" element={<Alertas />} />
 
           {/* Detalles */}
+
           <Route
             path="cliente/:cliente_id/detalles"
             element={<ClienteDetalles />}
-          />
-
-          {/* Calibraciones */}
-          <Route
-            path="cliente/:cliente_id/detalles/maquinas/:maquina_id/calibraciones"
-            element={<Calibraciones />}
-          />
+          >
+            <Route
+              path="maquinas/:maquina_id/calibraciones"
+              element={<Calibraciones />}
+            />
+            <Route
+              path="pozos/:pozos_id/muestras"
+              element={<MuestrasPozos />}
+            />
+          </Route>
 
           {/* Tipo de Maquinas */}
           <Route path="maquinasTipos" element={<MaquinaTipo />} />
-
-          <Route
-            path="cliente/:cliente_id/detalles/pozos/:pozos_id/muestras"
-            element={<MuestrasPozos />}
-          />
 
           {/* Página no encontrada (dentro del dashboard) */}
           <Route path="*" element={<NotFound />} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutlet, useNavigate } from 'react-router-dom';
 import { getCliente } from '../api/clientes.js';
 import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
@@ -24,10 +24,17 @@ const ClienteDetalles = () => {
   const [cliente, setCliente] = useState(null);
 
   const { activeTab, setActiveTab } = useCliente();
+  const outlet = useOutlet();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dataCliente();
   }, [cliente_id]);
+
+  useEffect(() => {
+    // Si el cliente cambia, reseteamos al tab principal
+    navigate(`/cliente/${cliente_id}/detalles`);
+  }, [activeTab]);
 
   const dataCliente = async () => {
     try {
@@ -67,7 +74,9 @@ const ClienteDetalles = () => {
 
         <button
           className={`tab-button ${activeTab === 'pozos' ? 'active' : ''}`}
-          onClick={() => setActiveTab('pozos')}
+          onClick={() => {
+            setActiveTab('pozos');
+          }}
         >
           <Droplet className="tab-icon" size={18} />
           <span>Pozos</span>
@@ -83,7 +92,9 @@ const ClienteDetalles = () => {
 
         <button
           className={`tab-button ${activeTab === 'jornadas' ? 'active' : ''}`}
-          onClick={() => setActiveTab('jornadas')}
+          onClick={() => {
+            setActiveTab('jornadas');
+          }}
         >
           <Calendar className="tab-icon" size={18} />
           <span>Jornadas</span>
@@ -92,10 +103,24 @@ const ClienteDetalles = () => {
 
       {/* ================= CONTENT AREA ================= */}
       <div className="tab-content-container">
-        {activeTab === 'dashboard' && <ClienteDashboard cliente={cliente} />}
-        {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}
-        {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
-        {activeTab === 'jornadas' && <JornadasTable cliente_id={cliente_id} />}
+        {/*
+          Si hay una sub-ruta activa (calibraciones / muestras),
+          renderiza el Outlet. Si no, muestra el tab correspondiente.
+        */}
+        {outlet ? (
+          outlet
+        ) : (
+          <>
+            {activeTab === 'dashboard' && (
+              <ClienteDashboard cliente={cliente} />
+            )}
+            {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}
+            {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
+            {activeTab === 'jornadas' && (
+              <JornadasTable cliente_id={cliente_id} />
+            )}
+          </>
+        )}
       </div>
     </div>
   );
