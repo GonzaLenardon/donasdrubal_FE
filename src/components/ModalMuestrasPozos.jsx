@@ -25,12 +25,21 @@ const ModalMuestrasPozos = ({
   });
 
   const [errors, setErrors] = useState({});
+  const [fileErrors, setFileErrors] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
   // VISOR DE INFORME
   const [showViewer, setShowViewer] = useState(false);
   const [viewerUrl, setViewerUrl] = useState('');
+  const rangos = {
+    ph: { min: 0, max: 50 },
+    dureza: { min: 0, max: 1500 },
+    salinidad: { min: 0, max: 3000 },
+    alcalinidad: { min: 0, max: 1000 },
+  };
+  const TIPOS_PDF_PERMITIDOS = ['application/pdf'];
+  const EXTENSION_PDF_REGEX = /\.pdf$/i;
 
   // ── Cargar datos al abrir ──────────────────────────────────────────────────
   useEffect(() => {
@@ -80,6 +89,15 @@ const ModalMuestrasPozos = ({
   // Mismo patron que ModalPozos / ModalCalibraciones
   const handleFileChange = (campo, file) => {
     if (!file) return;
+
+    if (
+      !TIPOS_PDF_PERMITIDOS.includes(file.type) ||
+      !EXTENSION_PDF_REGEX.test(file.name)
+    ) {
+      setFileErrors('Solo se permiten archivos PDF.');
+      return;
+    }
+
     const nombreUnico = campo + '_' + Date.now() + '_' + file.name;
     setFormData((prev) => ({
       ...prev,
@@ -219,13 +237,9 @@ const ModalMuestrasPozos = ({
   const getValorIndicador = (valor, campo) => {
     if (!valor) return null;
     const val = parseFloat(valor);
-    const rangos = {
-      ph: { min: 6.5, max: 8.5 },
-      dureza: { min: 0, max: 500 },
-      salinidad: { min: 0, max: 1000 },
-      alcalinidad: { min: 0, max: 500 },
-    };
+
     const rango = rangos[campo];
+
     if (!rango) return null;
     if (val < rango.min || val > rango.max)
       return {
@@ -233,7 +247,11 @@ const ModalMuestrasPozos = ({
         icon: 'bi-exclamation-triangle-fill',
         color: 'danger',
       };
-    return { status: 'ok', icon: 'bi-check-circle-fill', color: 'success' };
+    return {
+      status: 'ok',
+      icon: 'bi-check-circle-fill',
+      color: 'success',
+    };
   };
 
   if (!isOpen) return null;
@@ -352,16 +370,19 @@ const ModalMuestrasPozos = ({
                   >
                     <span>pH</span>
                     {formData.ph && getValorIndicador(formData.ph, 'ph') && (
-                      <i
-                        className={
-                          'bi ' +
-                          getValorIndicador(formData.ph, 'ph').icon +
-                          ' text-' +
-                          getValorIndicador(formData.ph, 'ph').color
-                        }
-                      ></i>
+                      <>
+                        <i
+                          className={
+                            'bi ' +
+                            getValorIndicador(formData.ph, 'ph').icon +
+                            ' text-' +
+                            getValorIndicador(formData.ph, 'ph').color
+                          }
+                        ></i>
+                      </>
                     )}
                   </label>
+
                   <input
                     type="number"
                     step="0.1"
@@ -369,11 +390,23 @@ const ModalMuestrasPozos = ({
                     className={
                       'form-control' + (errors.ph ? ' is-invalid' : '')
                     }
-                    placeholder="6.5 - 8.5"
+                    placeholder={rangos['ph'].min + ' - ' + rangos['ph'].max}
                     value={formData.ph}
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
+
+                  <small
+                    className="d-flex justify-content-end"
+                    style={{
+                      fontSize: '0.7rem',
+                      fontWeight: '700',
+                      color: 'rgba(27, 100, 15, 0.91)',
+                    }}
+                  >
+                    Max {rangos['ph'].max}
+                  </small>
+
                   {errors.ph && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -408,11 +441,25 @@ const ModalMuestrasPozos = ({
                     className={
                       'form-control' + (errors.dureza ? ' is-invalid' : '')
                     }
-                    placeholder="0 - 500"
+                    placeholder={
+                      rangos['dureza'].min + ' - ' + rangos['dureza'].max
+                    }
                     value={formData.dureza}
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
+
+                  <small
+                    className="d-flex justify-content-end"
+                    style={{
+                      fontSize: '0.7rem',
+                      fontWeight: '700',
+                      color: 'rgba(27, 100, 15, 0.91)',
+                    }}
+                  >
+                    Max {rangos['dureza'].max}
+                  </small>
+
                   {errors.dureza && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -456,11 +503,27 @@ const ModalMuestrasPozos = ({
                     className={
                       'form-control' + (errors.alcalinidad ? ' is-invalid' : '')
                     }
-                    placeholder="0 - 500"
+                    placeholder={
+                      rangos['alcalinidad'].min +
+                      ' - ' +
+                      rangos['alcalinidad'].max
+                    }
                     value={formData.alcalinidad}
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
+
+                  <small
+                    className="d-flex justify-content-end"
+                    style={{
+                      fontSize: '0.7rem',
+                      fontWeight: '700',
+                      color: 'rgba(27, 100, 15, 0.91)',
+                    }}
+                  >
+                    Max {rangos['alcalinidad'].max}
+                  </small>
+
                   {errors.alcalinidad && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -497,11 +560,25 @@ const ModalMuestrasPozos = ({
                     className={
                       'form-control' + (errors.salinidad ? ' is-invalid' : '')
                     }
-                    placeholder="0 - 1000"
+                    placeholder={
+                      rangos['salinidad'].min + ' - ' + rangos['salinidad'].max
+                    }
                     value={formData.salinidad}
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
+
+                  <small
+                    className="d-flex justify-content-end"
+                    style={{
+                      fontSize: '0.7rem',
+                      fontWeight: '700',
+                      color: 'rgba(27, 100, 15, 0.91)',
+                    }}
+                  >
+                    Max {rangos['salinidad'].max}
+                  </small>
+
                   {errors.salinidad && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -531,6 +608,29 @@ const ModalMuestrasPozos = ({
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
+
+                  {formData.fuerza_ionica &&
+                    getValorIndicador(
+                      formData.fuerza_ionica,
+                      'fuerza_ionica',
+                    ) && (
+                      <small
+                        style={{
+                          fontSize: '0.7rem',
+                          fontWeight: '700',
+                          color: 'rgba(27, 100, 15, 0.91)',
+                        }}
+                      >
+                        Max{' '}
+                        {
+                          getValorIndicador(
+                            formData.fuerza_ionica,
+                            'fuerza_ionica',
+                          ).valorMax
+                        }
+                      </small>
+                    )}
+
                   {errors.fuerza_ionica && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -548,64 +648,64 @@ const ModalMuestrasPozos = ({
                 style={{ borderBottom: '2px solid rgba(34,197,94,0.35)' }}
               >
                 <i className="bi bi-paperclip me-2"></i>Informe adjunto
-                <small className="text-50 fw-normal ms-2">
-                  (opcional - JPG, PNG, PDF)
-                </small>
+                <small className="text-50 fw-normal ms-2">(PDF)</small>
               </h6>
 
               {/* Estado A: sin archivo */}
               {!formData.informe && !formData.informeFile && (
-                <label
-                  className="d-flex flex-column align-items-center justify-content-center gap-2 rounded w-100 p-4"
-                  style={{
-                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                    border: '2px dashed rgba(255, 255, 255, 0.89)',
-                    background: '#edf5ec',
-                    transition: 'background 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isSubmitting)
-                      e.currentTarget.style.background = '#9caca89f';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#edf5ec';
-                  }}
-                >
-                  <i
-                    className="bi bi-cloud-upload"
+                <>
+                  <label
+                    className="d-flex flex-column align-items-center justify-content-center gap-2 rounded w-100 p-4"
                     style={{
-                      fontSize: '2.5rem',
-                      fontWeight: 'bolder',
-                      color: 'rgba(20, 59, 4, 0.85)',
+                      cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                      border: '2px dashed rgba(255, 255, 255, 0.89)',
+                      background: '#edf5ec',
+                      transition: 'background 0.2s ease',
                     }}
-                  ></i>
-                  <span
-                    style={{
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                      color: 'rgba(20, 59, 4, 0.85)',
+                    onMouseEnter={(e) => {
+                      if (!isSubmitting)
+                        e.currentTarget.style.background = '#9caca89f';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#edf5ec';
                     }}
                   >
-                    Hace clic para adjuntar el informe
-                  </span>
-                  <small
-                    style={{
-                      fontSize: '0.7rem',
-                      color: 'rgba(255,255,255,0.45)',
-                    }}
-                  >
-                    JPG - PNG - PDF
-                  </small>
-                  <input
-                    type="file"
-                    className="d-none"
-                    accept="image/*,.pdf"
-                    onChange={(e) =>
-                      handleFileChange('muestra', e.target.files[0])
-                    }
-                    disabled={isSubmitting}
-                  />
-                </label>
+                    <i
+                      className="bi bi-cloud-upload"
+                      style={{
+                        fontSize: '2.5rem',
+                        fontWeight: 'bolder',
+                        color: 'rgba(20, 59, 4, 0.85)',
+                      }}
+                    ></i>
+                    <span
+                      style={{
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        color: 'rgba(20, 59, 4, 0.85)',
+                      }}
+                    >
+                      Hace clic para adjuntar el informe .PDF
+                    </span>
+
+                    <input
+                      type="file"
+                      className="d-none"
+                      accept=".pdf,application/pdf"
+                      onChange={(e) =>
+                        handleFileChange('muestra', e.target.files[0])
+                      }
+                      disabled={isSubmitting}
+                    />
+                  </label>
+
+                  {fileErrors && (
+                    <p className="cal-file-error">
+                      <i className="bi bi-exclamation-triangle me-1"></i>
+                      {fileErrors}
+                    </p>
+                  )}
+                </>
               )}
 
               {/* Estado B: archivo nuevo seleccionado (pendiente de guardar) */}
@@ -669,7 +769,7 @@ const ModalMuestrasPozos = ({
                       <input
                         type="file"
                         className="d-none"
-                        accept="image/*,.pdf"
+                        accept=".pdf,application/pdf"
                         onChange={(e) =>
                           handleFileChange('muestra', e.target.files[0])
                         }
@@ -780,7 +880,7 @@ const ModalMuestrasPozos = ({
                       <input
                         type="file"
                         className="d-none"
-                        accept="image/*,.pdf"
+                        accept=".pdf,application/pdf"
                         onChange={(e) =>
                           handleFileChange('muestra', e.target.files[0])
                         }
