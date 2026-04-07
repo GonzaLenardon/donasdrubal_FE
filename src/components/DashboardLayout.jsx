@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { useCliente } from '../context/UserContext';
+import ClienteDetalles from './ClienteDetalle';
 
 /* ============================
    Labels del breadcrumb
@@ -217,6 +218,7 @@ const DashboardLayout = () => {
           {/* ============================
               Contenido
           ============================ */}
+
           <Outlet />
         </div>
       </main>

@@ -333,7 +333,7 @@ export const ModalMaquinas = ({
                       Electroválvula
                     </option>
                     <option key={2} value={'Neumatico'}>
-                      Neuamatico
+                      Neumático
                     </option>
                     <option key={3} value={'PWN'}>
                       PWN
