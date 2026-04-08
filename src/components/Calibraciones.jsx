@@ -48,7 +48,7 @@ export const Calibraciones = () => {
 
   // ── Parsers ────────────────────────────────────────────────────────────────
 
-  const parseEstado = (estadoString) => {
+  const parseEstado = (calibracion_id, estadoString) => {
     if (!estadoString)
       return {
         estado: '',
@@ -63,6 +63,7 @@ export const Calibraciones = () => {
         presenciaORing: 'No',
       };
     let parsed = estadoString;
+    let path = `/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${calibracion_id}/`;
     try {
       if (typeof parsed === 'string') parsed = JSON.parse(parsed);
       return {
@@ -74,7 +75,7 @@ export const Calibraciones = () => {
         numero: parsed.numero || '',
         presenciaORing: parsed.presenciaORing || 'No',
         nombreArchivo: parsed.nombreArchivo || parsed.nombre_archivo || '',
-        path: parsed.path || '',
+        path: path || '',
         recomendaciones: Array.isArray(parsed.recomendaciones)
           ? parsed.recomendaciones
           : [],
@@ -242,8 +243,8 @@ export const Calibraciones = () => {
     );
   }; */
 
-  const BtnArchivo = ({ nombreArchivo }) => {
-    if (!nombreArchivo)
+  const BtnArchivo = ({archivo }) => {
+    if (!archivo?.nombreArchivo)
       return <span className="text-white-50 fst-italic">—</span>;
 
     return (
@@ -251,7 +252,8 @@ export const Calibraciones = () => {
         type="button"
         className="btn btn-sm btn-outline-info"
         onClick={() => {
-          setViewerUrl(`/uploads/calibraciones/${nombreArchivo}`);
+          // setViewerUrl(`/uploads/calibraciones/${nombreArchivo}`);
+          setViewerUrl(`${archivo.path}/${archivo.nombreArchivo}`);
           setShowViewer(true);
         }}
       >
@@ -349,7 +351,8 @@ export const Calibraciones = () => {
                     year: 'numeric',
                   });
                   const isOpen = openIndex === i;
-                  const estadoMaquinaData = parseEstado(cal.estado_maquina);
+                  const estadoMaquinaData = parseEstado(cal.id, cal.estado_maquina);
+                  console.log('Estado Máquina => ', cal.estado_maquina, estadoMaquinaData);
 
                   const ingResponsable = ingenieros.find(
                     (i) => i.id === cal.responsable_id,
@@ -530,7 +533,7 @@ export const Calibraciones = () => {
                                 Imagen del Informe
                               </p>
                               <img
-                                src={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${cal.imagen}`}
+                                src={`${import.meta.env.VITE_API_URL}/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/${cal.imagen}`}
                                 alt="Imagen del informe"
                                 className="rounded"
                                 style={{
@@ -655,7 +658,8 @@ export const Calibraciones = () => {
                                   if (formateo[key] === 'Estado General')
                                     return null;
 
-                                  const estadoData = parseEstado(cal[key]);
+                                  const estadoData = parseEstado(cal.id, cal[key]);
+                                  console.log('estadoData => ', key, estadoData);
                                   if (!estadoData.estado) return null;
 
                                   const isFiltro =
@@ -987,9 +991,10 @@ export const Calibraciones = () => {
                                         }}
                                       >
                                         <BtnArchivo
-                                          nombreArchivo={
-                                            estadoData.nombreArchivo
-                                          }
+                                          archivo={{
+                                            path: estadoData.path,
+                                            nombreArchivo: estadoData.nombreArchivo
+                                          }}
                                         />
                                       </td>
                                     </tr>
@@ -1215,9 +1220,10 @@ export const Calibraciones = () => {
                                           </small>
                                         </p>
                                         <BtnArchivo
-                                          nombreArchivo={
-                                            presionUnimap.nombreArchivo
-                                          }
+                                          archivo={{
+                                            path: `/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/`,
+                                            nombreArchivo: presionUnimap.nombreArchivo
+                                          }}
                                         />
                                       </div>
                                     </div>
@@ -1251,9 +1257,10 @@ export const Calibraciones = () => {
                                           </small>
                                         </p>
                                         <BtnArchivo
-                                          nombreArchivo={
-                                            presionComputadora.nombreArchivo
-                                          }
+                                          archivo={{
+                                            path:`/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/`,
+                                            nombreArchivo: presionComputadora.nombreArchivo
+                                          }}
                                         />
                                       </div>
                                     </div>
@@ -1287,9 +1294,10 @@ export const Calibraciones = () => {
                                           </small>
                                         </p>
                                         <BtnArchivo
-                                          nombreArchivo={
-                                            presionManometro.nombreArchivo
-                                          }
+                                          archivo={{
+                                            path: `/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/`,
+                                            nombreArchivo: presionManometro.nombreArchivo
+                                          }}
                                         />
                                       </div>
                                     </div>

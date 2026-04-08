@@ -425,7 +425,7 @@ const MuestrasPozos = () => {
                                 e.stopPropagation();
                                 setShowViewer(true);
                                 setViewerUrl(
-                                  '/uploads/muestrasagua/' + m.informe,
+                                  `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` + m.informe,
                                 );
                               }}
 

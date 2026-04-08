@@ -1195,17 +1195,19 @@ export const ModalCalibraciones = ({
               </div>
 
               {form.imagen && !form.imagenArchivo && (
-                <div className="mb-3">
-                  <img
+                <div className="cal-adjunto-existente">
+                  <i className="bi bi-image cal-adjunto-existente-icon"></i>
+                  <a
                     // src={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${form.imagen}`}
                      href={`${import.meta.env.VITE_API_URL}/uploads/clientes/${form.cliente_id}/maquinas/${form.maquina_id}/calibraciones/${form.id}/${form.imagen}`}
-                    alt="Imagen actual"
-                    className="cal-imagen-preview"
-                  />
-                  <div className="d-flex align-items-center gap-2 flex-wrap mt-2">
-                    <span className="cal-imagen-badge">
-                      <i className="bi bi-image me-1"></i>Imagen guardada
-                    </span>
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="cal-adjunto-btn-ver"
+
+                  >
+                    <i className="bi bi-eye me-1"></i>Ver
+                  </a>
+                 
                     <label
                       className={`cal-adjunto-btn-reemplazar ${isSubmitting ? 'disabled' : ''}`}
                     >
@@ -1228,7 +1230,7 @@ export const ModalCalibraciones = ({
                     >
                       <i className="bi bi-trash me-1"></i>Quitar
                     </button>
-                  </div>
+                  
                 </div>
               )}
 
