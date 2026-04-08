@@ -1,0 +1,139 @@
+[1mdiff --git a/src/App.jsx b/src/App.jsx[m
+[1mindex 367b4b9..9cecc2e 100644[m
+[1m--- a/src/App.jsx[m
+[1m+++ b/src/App.jsx[m
+[36m@@ -50,25 +50,24 @@[m [mfunction App() {[m
+           <Route path="campañas" element={<Alertas />} />[m
+ [m
+           {/* Detalles */}[m
+[32m+[m
+           <Route[m
+             path="cliente/:cliente_id/detalles"[m
+             element={<ClienteDetalles />}[m
+[31m-          />[m
+[31m-[m
+[31m-          {/* Calibraciones */}[m
+[31m-          <Route[m
+[31m-            path="cliente/:cliente_id/detalles/maquinas/:maquina_id/calibraciones"[m
+[31m-            element={<Calibraciones />}[m
+[31m-          />[m
+[32m+[m[32m          >[m
+[32m+[m[32m            <Route[m
+[32m+[m[32m              path="maquinas/:maquina_id/calibraciones"[m
+[32m+[m[32m              element={<Calibraciones />}[m
+[32m+[m[32m            />[m
+[32m+[m[32m            <Route[m
+[32m+[m[32m              path="pozos/:pozos_id/muestras"[m
+[32m+[m[32m              element={<MuestrasPozos />}[m
+[32m+[m[32m            />[m
+[32m+[m[32m          </Route>[m
+ [m
+           {/* Tipo de Maquinas */}[m
+           <Route path="maquinasTipos" element={<MaquinaTipo />} />[m
+ [m
+[31m-          <Route[m
+[31m-            path="cliente/:cliente_id/detalles/pozos/:pozos_id/muestras"[m
+[31m-            element={<MuestrasPozos />}[m
+[31m-          />[m
+[31m-[m
+           {/* Página no encontrada (dentro del dashboard) */}[m
+           <Route path="*" element={<NotFound />} />[m
+         </Route>[m
+[1mdiff --git a/src/components/ClienteDetalle.jsx b/src/components/ClienteDetalle.jsx[m
+[1mindex 47fe0ae..5e839c1 100644[m
+[1m--- a/src/components/ClienteDetalle.jsx[m
+[1m+++ b/src/components/ClienteDetalle.jsx[m
+[36m@@ -1,5 +1,5 @@[m
+ import React, { useEffect, useState } from 'react';[m
+[31m-import { useParams } from 'react-router-dom';[m
+[32m+[m[32mimport { useParams, useOutlet, useNavigate } from 'react-router-dom';[m
+ import { getCliente } from '../api/clientes.js';[m
+ import Pozos from './Pozos.jsx';[m
+ import Maquinas from './Maquinas.jsx';[m
+[36m@@ -24,11 +24,18 @@[m [mconst ClienteDetalles = () => {[m
+   const [cliente, setCliente] = useState(null);[m
+ [m
+   const { activeTab, setActiveTab } = useCliente();[m
+[32m+[m[32m  const outlet = useOutlet();[m
+[32m+[m[32m  const navigate = useNavigate();[m
+ [m
+   useEffect(() => {[m
+     dataCliente();[m
+   }, [cliente_id]);[m
+ [m
+[32m+[m[32m  useEffect(() => {[m
+[32m+[m[32m    // Si el cliente cambia, reseteamos al tab principal[m
+[32m+[m[32m    navigate(`/cliente/${cliente_id}/detalles`);[m
+[32m+[m[32m  }, [activeTab]);[m
+[32m+[m
+   const dataCliente = async () => {[m
+     try {[m
+       const res = await getCliente(cliente_id);[m
+[36m@@ -67,7 +74,9 @@[m [mconst ClienteDetalles = () => {[m
+ [m
+         <button[m
+           className={`tab-button ${activeTab === 'pozos' ? 'active' : ''}`}[m
+[31m-          onClick={() => setActiveTab('pozos')}[m
+[32m+[m[32m          onClick={() => {[m
+[32m+[m[32m            setActiveTab('pozos');[m
+[32m+[m[32m          }}[m
+         >[m
+           <Droplet className="tab-icon" size={18} />[m
+           <span>Pozos</span>[m
+[36m@@ -83,7 +92,9 @@[m [mconst ClienteDetalles = () => {[m
+ [m
+         <button[m
+           className={`tab-button ${activeTab === 'jornadas' ? 'active' : ''}`}[m
+[31m-          onClick={() => setActiveTab('jornadas')}[m
+[32m+[m[32m          onClick={() => {[m
+[32m+[m[32m            setActiveTab('jornadas');[m
+[32m+[m[32m          }}[m
+         >[m
+           <Calendar className="tab-icon" size={18} />[m
+           <span>Jornadas</span>[m
+[36m@@ -92,10 +103,24 @@[m [mconst ClienteDetalles = () => {[m
+ [m
+       {/* ================= CONTENT AREA ================= */}[m
+       <div className="tab-content-container">[m
+[31m-        {activeTab === 'dashboard' && <ClienteDashboard cliente={cliente} />}[m
+[31m-        {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}[m
+[31m-        {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}[m
+[31m-        {activeTab === 'jornadas' && <JornadasTable cliente_id={cliente_id} />}[m
+[32m+[m[32m        {/*[m
+[32m+[m[32m          Si hay una sub-ruta activa (calibraciones / muestras),[m
+[32m+[m[32m          renderiza el Outlet. Si no, muestra el tab correspondiente.[m
+[32m+[m[32m        */}[m
+[32m+[m[32m        {outlet ? ([m
+[32m+[m[32m          outlet[m
+[32m+[m[32m        ) : ([m
+[32m+[m[32m          <>[m
+[32m+[m[32m            {activeTab === 'dashboard' && ([m
+[32m+[m[32m              <ClienteDashboard cliente={cliente} />[m
+[32m+[m[32m            )}[m
+[32m+[m[32m            {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}[m
+[32m+[m[32m            {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}[m
+[32m+[m[32m            {activeTab === 'jornadas' && ([m
+[32m+[m[32m              <JornadasTable cliente_id={cliente_id} />[m
+[32m+[m[32m            )}[m
+[32m+[m[32m          </>[m
+[32m+[m[32m        )}[m
+       </div>[m
+     </div>[m
+   );[m
+[1mdiff --git a/src/components/Pozos.jsx b/src/components/Pozos.jsx[m
+[1mindex 89ca9ef..3117a47 100644[m
+[1m--- a/src/components/Pozos.jsx[m
+[1m+++ b/src/components/Pozos.jsx[m
+[36m@@ -241,9 +241,9 @@[m [mconst Pozos = ({ cliente_id }) => {[m
+                       onClick={(e) => {[m
+                         e.stopPropagation();[m
+                         setSelectedPozo(pozo);[m
+[31m-                        navigate([m
+[31m-                          `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`,[m
+[31m-                        );[m
+[32m+[m[32m                        const url = `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`;[m
+[32m+[m[32m                        console.log('uuuuuuuuuurrrrrrrrrrrrrlllllllllll', url);[m
+[32m+[m[32m                        navigate(url);[m
+                       }}[m
+                     >[m
+                       <i className="bi bi-eye me-1"></i>Muestras[m
