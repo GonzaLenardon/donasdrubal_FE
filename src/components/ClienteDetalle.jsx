@@ -25,16 +25,16 @@ const ClienteDetalles = () => {
 
   const { activeTab, setActiveTab } = useCliente();
   const outlet = useOutlet();
-  const navigate = useNavigate();
-
+  /*   const navigate = useNavigate();
+   */
   useEffect(() => {
     dataCliente();
   }, [cliente_id]);
 
-  useEffect(() => {
+  /*   useEffect(() => {
     // Si el cliente cambia, reseteamos al tab principal
     navigate(`/cliente/${cliente_id}/detalles`);
-  }, [activeTab]);
+  }, [activeTab]); */
 
   const dataCliente = async () => {
     try {
