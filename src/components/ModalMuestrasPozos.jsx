@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { addMuestraPozo, upMuestraPozo } from '../api/muestrasAgua';
 import Spinner from './Spinner';
 import ModalImpresion from './ModalImpresion';
+import { useParams } from "react-router-dom";
 
 const ModalMuestrasPozos = ({
   isOpen,
@@ -10,6 +11,9 @@ const ModalMuestrasPozos = ({
   onSaved,
   onlyView,
 }) => {
+  const { cliente, cliente_id } = useParams();
+
+  
   const [formData, setFormData] = useState({
     ph: '',
     dureza: '',
@@ -97,8 +101,11 @@ const ModalMuestrasPozos = ({
       setFileErrors('Solo se permiten archivos PDF.');
       return;
     }
-
-    const nombreUnico = campo + '_' + Date.now() + '_' + file.name;
+    const ext = file.name.includes('.') 
+      ? file.name.substring(file.name.lastIndexOf('.') + 1)
+      : '';
+    // const nombreUnico = campo + '_' + Date.now() + '_' + file.name;
+    const nombreUnico = `${campo}_${Date.now()}${ext ? `.${ext}` : ''}`;
     setFormData((prev) => ({
       ...prev,
       informe: nombreUnico, // nombre que se guarda en DB
@@ -112,10 +119,12 @@ const ModalMuestrasPozos = ({
 
   // ── Upload separado (mismo patron uploadFile de ModalPozos) ───────────────
 
-  const uploadFile = async () => {
+  const uploadFile = async (resp) => {
     if (!formData.informeFile) return true;
-
     const fd = new FormData();
+    fd.append('cliente_id', cliente_id);
+    fd.append('pozo_id', resp.data.pozo_id);
+    fd.append('muestra_agua_id', resp.data.id);
     fd.append('campo', 'muestra');
     fd.append('nombreArchivo', formData.informe);
     fd.append('file', formData.informeFile);
@@ -176,9 +185,6 @@ const ModalMuestrasPozos = ({
     setMsg('Procesando...');
 
     try {
-      // 1. Subir archivo si hay uno nuevo seleccionado
-      await uploadFile();
-
       // 2. Armar payload JSON (sin el File object)
       const { informeFile, ...dataToSend } = formData;
       dataToSend.ph = formData.ph ? parseFloat(formData.ph) : null;
@@ -204,6 +210,8 @@ const ModalMuestrasPozos = ({
         setMsg('Guardando muestra...');
         resp = await addMuestraPozo(dataToSend);
       }
+      // 4. Subir archivo si hay uno nuevo seleccionado
+      await uploadFile(resp);    
 
       setMsg(resp?.message || 'Muestra guardada correctamente');
       await new Promise((r) => setTimeout(r, 1000));

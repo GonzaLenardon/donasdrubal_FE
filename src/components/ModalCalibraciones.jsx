@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Spinner from '../components/Spinner.jsx';
 import { addCalibraciones, upCalibraciones } from '../api/calibraciones.js';
+import { useParams } from "react-router-dom";
 
 const opcionesEstado = ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'No aplica'];
 const opcionesMateriales = ['Acero Inox', 'Fundicion', 'Plastico', 'Otros'];
@@ -517,6 +518,7 @@ const PaginationNav = ({ currentPage, onPageChange, errors }) => {
 
 // ── AdjuntoArchivo — solo imágenes PNG/JPG ────────────────────────────────
 const AdjuntoArchivo = ({ campo, form, onFileChange, onRemove, disabled }) => {
+  console.log('formmmmmmmm', form);
   const nombreArchivo = form[campo]?.nombreArchivo;
   const tieneArchivoNuevo = !!form[campo]?.archivo;
 
@@ -562,7 +564,7 @@ const AdjuntoArchivo = ({ campo, form, onFileChange, onRemove, disabled }) => {
         <div className="cal-adjunto-existente">
           <i className="bi bi-image cal-adjunto-existente-icon"></i>
           <a
-            href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${nombreArchivo}`}
+            href={`${import.meta.env.VITE_API_URL}/uploads/clientes/${form.cliente_id}/maquinas/${form.maquina_id}/calibraciones/${form.id}/${nombreArchivo}`}
             target="_blank"
             rel="noopener noreferrer"
             className="cal-adjunto-btn-ver"
@@ -653,7 +655,7 @@ const AdjuntoArchivoPdf = ({
         <div className="cal-adjunto-existente">
           <i className="bi bi-file-pdf cal-adjunto-existente-icon"></i>
           <a
-            href={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${nombreArchivo}`}
+            href={`${import.meta.env.VITE_API_URL}/uploads/clientes/${form.cliente_id}/maquinas/${form.maquina_id}/calibraciones/${form.id}/${nombreArchivo}`}
             target="_blank"
             rel="noopener noreferrer"
             className="cal-adjunto-btn-ver"
@@ -697,6 +699,10 @@ export const ModalCalibraciones = ({
   ingenieros,
   onSaved,
 }) => {
+  const { cliente, cliente_id } = useParams();
+  console.log('Cliente id:', cliente_id);
+
+
   const [form, setForm] = useState({ ...emptyCalibracion });
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -796,9 +802,10 @@ export const ModalCalibraciones = ({
         setForm({
           ...parsedCalibracion,
           fecha: calibracion.fecha ? calibracion.fecha.split('T')[0] : '',
+          cliente_id: cliente_id 
         });
       } else {
-        setForm({ ...emptyCalibracion, maquina_id: calibracion.maquina_id });
+        setForm({ ...emptyCalibracion, maquina_id: calibracion.maquina_id, cliente_id: cliente_id });
       }
     }
   }, [calibracion]);
@@ -877,7 +884,11 @@ export const ModalCalibraciones = ({
 
     const inicial = esperaPdf ? 'informePastilla' : campo;
 
-    const nombreUnico = `${inicial}_${Date.now()}_${file.name}`;
+    // const nombreUnico = `${inicial}_${Date.now()}_${file.name}`;
+    const ext = file.name.includes('.') 
+      ? file.name.substring(file.name.lastIndexOf('.') + 1)
+      : '';
+    const nombreUnico = `${inicial}_${Date.now()}${ext ? `.${ext}` : ''}`;
 
     // Imagen de portada del informe
     if (campo === 'imagen') {
@@ -941,7 +952,7 @@ export const ModalCalibraciones = ({
   };
 
   // ── Upload de archivos ────────────────────────────────────────────────────
-  const uploadFiles = async () => {
+  const uploadFiles = async (resp) => {
     const archivosParaSubir = [];
 
     // Imágenes de componentes
@@ -983,9 +994,12 @@ export const ModalCalibraciones = ({
       });
 
     if (archivosParaSubir.length === 0) return true;
-
+    
     for (const item of archivosParaSubir) {
       const formData = new FormData();
+      formData.append('cliente_id', cliente_id);
+      formData.append('calibracion_id', resp.data.id);  // ---AGREGO INFO PARA GENERAR PATH DINAMICO EN BACK SEGUN MAQUINA Y CALIBRACION---
+      formData.append('maquina_id', resp.data.maquina_id);
       formData.append('campo', item.campo);
       formData.append('nombreArchivo', item.nombreArchivo);
       formData.append('file', item.archivo);
@@ -1048,8 +1062,7 @@ export const ModalCalibraciones = ({
       setLoading(true);
       setMsg('Procesando...');
 
-      await uploadFiles();
-
+      
       const formToSend = { ...form };
 
       camposEstado.forEach(({ campo }) => {
@@ -1082,8 +1095,11 @@ export const ModalCalibraciones = ({
       } else {
         setMsg('Creando calibración...');
         resp = await addCalibraciones(formToSend);
-      }
+        console.log('Respuesta creación', resp);
+        
 
+      }
+      await uploadFiles(resp); // Subir archivos después de obtener el ID de la nueva calibración
       setMsg(resp.message || 'Calibración guardada exitosamente');
       await new Promise((res) => setTimeout(res, 1500));
       onSaved();
@@ -1181,7 +1197,8 @@ export const ModalCalibraciones = ({
               {form.imagen && !form.imagenArchivo && (
                 <div className="mb-3">
                   <img
-                    src={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${form.imagen}`}
+                    // src={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${form.imagen}`}
+                     href={`${import.meta.env.VITE_API_URL}/uploads/clientes/${form.cliente_id}/maquinas/${form.maquina_id}/calibraciones/${form.id}/${form.imagen}`}
                     alt="Imagen actual"
                     className="cal-imagen-preview"
                   />
