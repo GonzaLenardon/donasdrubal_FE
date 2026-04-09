@@ -14,6 +14,7 @@ import DashboardLayout from './components/DashboardLayout.jsx';
 import Dash from './components/Dash.jsx';
 import MuestrasPozos from './components/MuestrasPozos.jsx';
 import Alertas from './components/Alertas.jsx';
+import DashboardUser from './components/DashboardUser.jsx';
 
 function App() {
   return (
@@ -39,14 +40,15 @@ function App() {
           }
         >
           {/* Ruta por defecto */}
-          <Route index element={<Dash />} />
+          {/*  <Route index element={<Dash />} /> */}
+
+          <Route index element={<DashboardUser />} />
 
           {/* Secciones */}
           <Route path="user" element={<Users />} />
           <Route path="maquinas" element={<Maquinas />} />
           <Route path="varios" element={<Varios />} />
           <Route path="cliente" element={<Clientes />} />
-
           <Route path="campañas" element={<Alertas />} />
 
           {/* Detalles */}
