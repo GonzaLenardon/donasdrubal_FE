@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { allServices } from '../api/dashUser';
 import { allCliente } from '../api/clientes';
-import { Link } from 'react-router-dom';
+import { useCliente } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ const calcGlobalMetrics = (clientes) => {
     doneCal += m.doneCal;
     totalAgua += m.totalAgua;
     doneAgua += m.doneAgua;
-    rows.push({ id: c.id, nombre: c.razon_social, ...m });
+    rows.push({ id: c.id, razon_social: c.razon_social, ...m });
   });
 
   return {
@@ -176,6 +177,9 @@ const DashboardUser = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [clienteIds, setClienteIds] = useState([]);
+  const { setSelectedCliente } = useCliente();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
@@ -231,6 +235,11 @@ const DashboardUser = () => {
 
   const m = calcGlobalMetrics(clientes);
   console.log('ddd', m);
+
+  const handleCliente = (row) => {
+    navigate(`/cliente/${row.id}/detalles`);
+    setSelectedCliente(row);
+  };
 
   return (
     <div className="p-3">
@@ -308,7 +317,7 @@ const DashboardUser = () => {
                 <th style={{ width: '5%' }}>Pozos</th>
                 <th style={{ width: '15%' }}>Agua</th>
                 <th style={{ width: '15%' }}>Capacitaciones</th>
-                <th style={{ width: '15%' }}>Estado</th>
+                {/*  <th style={{ width: '15%' }}>Estado</th> */}
               </tr>
             </thead>
             <tbody>
@@ -322,12 +331,12 @@ const DashboardUser = () => {
                 m.rows.map((row) => (
                   <tr key={row.id}>
                     <td className="fw-medium">
-                      <Link
-                        to={`/cliente/${row.id}/detalles`}
-                        className="text-decoration-none text-dark"
+                      <span
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handleCliente(row)}
                       >
-                        {row.nombre}
-                      </Link>
+                        {row.razon_social}
+                      </span>
                     </td>
 
                     <td className="">
@@ -369,9 +378,9 @@ const DashboardUser = () => {
                     <td>
                       <small className="text-muted">—</small>
                     </td>
-                    <td>
+                    {/* <td>
                       <EstadoBadge estado={row.estado} />
-                    </td>
+                    </td> */}
                   </tr>
                 ))
               )}

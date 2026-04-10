@@ -2092,15 +2092,15 @@ body {
   overflow: hidden;
 }
 
-.login-layout {
+/* .login-layout {
   display: flex;
   flex: 1;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-}
+} */
 
-.login-content-wrapper {
+/* .login-content-wrapper {
   display: flex;
   flex: 1;
   justify-content: center;
@@ -2108,7 +2108,7 @@ body {
   padding: 1.25rem 1.5rem;
   height: 100%;
   overflow: hidden;
-}
+} */
 
 /* Columna izquierda */
 .login-left-column {
@@ -2527,10 +2527,10 @@ textarea:focus-visible {
   }
 
   /* Login responsive */
-  .login-content-wrapper {
+  /*   .login-content-wrapper {
     flex-direction: column;
     padding: 1rem;
-  }
+  } */
 
   .login-left-column {
     max-width: 100%;

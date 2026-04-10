@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import img from '../assets/imagen.png';
 import { login } from '../api/users';
 import { useNavigate } from 'react-router-dom';
 import Spinner from './Spinner';
@@ -14,35 +13,19 @@ export const Login = () => {
   const getlogin = async () => {
     try {
       const resp = await login(user);
-      console.log('Login exitoso', resp);
 
-      // El token ya está en la cookie, solo guardar info del usuario
       localStorage.setItem(
         'user',
-        JSON.stringify({
-          id: resp.id,
-          email: resp.email,
-          rol: resp.rol,
-        })
+        JSON.stringify({ id: resp.id, email: resp.email, rol: resp.rol }),
       );
 
       setLoading(true);
       setMsg(`Hola ${resp.email}`);
-
-      await new Promise((resolve) => {
-        setTimeout(resolve, 3000);
-      });
-
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       setLoading(false);
-      setMsg();
-
-      // Redirigir
-      /*  navigate('/dashboard'); */
-      navigate('/', { replace: true }); // 👈 Redirigir
+      setMsg('');
+      navigate('/', { replace: true });
     } catch (error) {
-      console.error('Error en login');
-
-      // Mostrar el mensaje del backend
       const mensaje =
         error.response?.data?.mensaje || 'Error al iniciar sesión';
       alert(mensaje);
@@ -61,89 +44,110 @@ export const Login = () => {
   return (
     <>
       <div className="login-container">
-        <div className="login-layout">
-          <div className="login-content-wrapper">
-            {/* COLUMNA IZQUIERDA - INFO E IMAGEN */}
-            <div className="login-left-column">
-              <div className="login-image-container">
-                <img src={img} alt="Wellness" className="login-image" />
-              </div>
-              <h1 className="login-title">Bienvenidos a Don Asdrúbal</h1>
-              <p className="login-description">
-                Líderes en la Región en asesoramiento en pulverizaciones
-                agrícolas - Cooperando para una producción sustentable.
-              </p>
+        {/* ── Imagen fullscreen de fondo ── */}
+        <div className="login-image-container"></div>
 
-              <footer className="login-footer">
-                <p className="login-footer-text">© 2026 Derechos Reservados.</p>
-              </footer>
+        {/* ── Contenido sobre la imagen ── */}
+        <div className="login-layout">
+          {/* Textos izquierda */}
+          <div className="login-left-column">
+            <div className="login-left-badge">
+              <span className="login-left-badge-dot" />
+              <p className="login-left-badge-text">Plataforma Agrícola</p>
             </div>
 
-            {/* COLUMNA DERECHA - FORMULARIO */}
-            <div className="login-right-column">
-              {/* TABS */}
-              <div className="login-tabs-wrapper">
-                <div className="login-tabs">
-                  <button
-                    className={`login-tab ${
-                      activeTab === 'signin' ? 'login-tab-active' : ''
-                    }`}
-                    onClick={() => setActiveTab('signin')}
-                  >
-                    <p className="login-tab-text">Sign In</p>
-                  </button>
-                  <button
-                    className={`login-tab ${
-                      activeTab === 'signup' ? 'login-tab-active' : ''
-                    }`}
-                    onClick={() => setActiveTab('signup')}
-                  >
-                    <p className="login-tab-text">Sign Up</p>
-                  </button>
-                </div>
+            <h1 className="login-title">
+              Bienvenidos a<br />
+              Don Asdrúbal
+            </h1>
+
+            <p className="login-description">
+              Líderes en la Región en asesoramiento en pulverizaciones agrícolas
+              — Cooperando para una producción sustentable.
+            </p>
+
+            <div className="login-stats">
+              <div>
+                <p className="login-stat-value">+500</p>
+                <p className="login-stat-label">Clientes</p>
               </div>
-
-              {/* INPUTS */}
-              <div className="login-input-wrapper">
-                <label className="login-label">
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    className="login-input"
-                    value={user.email}
-                    onChange={handeleUser}
-                  />
-                </label>
+              <div>
+                <p className="login-stat-value">+12</p>
+                <p className="login-stat-label">Años</p>
               </div>
-
-              <div className="login-input-wrapper">
-                <label className="login-label">
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    className="login-input"
-                    value={user.password}
-                    onChange={handeleUser}
-                    onKeyPress={(e) => e.key === 'Enter' && getlogin()}
-                  />
-                </label>
+              <div>
+                <p className="login-stat-value">100%</p>
+                <p className="login-stat-label">Trazable</p>
               </div>
+            </div>
 
-              <p className="login-forgot-password">Forgot password?</p>
+            <footer className="login-footer">
+              <p className="login-footer-text">© 2026 Derechos Reservados.</p>
+            </footer>
+          </div>
 
-              {/* BOTÓN */}
-              <div className="login-button-wrapper">
-                <button className="login-button" onClick={getlogin}>
-                  <span className="login-button-text">Sign In</span>
+          {/* Formulario derecha — fundido */}
+          <div className="login-right-column">
+            <h2 className="login-heading">Iniciar sesión</h2>
+            <p className="login-subheading">
+              Ingresá tus credenciales para continuar
+            </p>
+
+            <div className="login-tabs-wrapper">
+              <div className="login-tabs">
+                <button
+                  className={`login-tab ${activeTab === 'signin' ? 'login-tab-active' : ''}`}
+                  onClick={() => setActiveTab('signin')}
+                >
+                  <p>Sign In</p>
+                </button>
+                <button
+                  className={`login-tab ${activeTab === 'signup' ? 'login-tab-active' : ''}`}
+                  onClick={() => setActiveTab('signup')}
+                >
+                  <p>Sign Up</p>
                 </button>
               </div>
-
-              <p className="login-signup-link">
-                Don't have an account? Sign up
-              </p>
             </div>
+
+            <div className="login-input-wrapper">
+              <label className="login-label">
+                <span className="login-label-text">Email</span>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="usuario@empresa.com"
+                  className="login-input"
+                  value={user.email}
+                  onChange={handeleUser}
+                />
+              </label>
+            </div>
+
+            <div className="login-input-wrapper">
+              <label className="login-label">
+                <span className="login-label-text">Contraseña</span>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="••••••••"
+                  className="login-input"
+                  value={user.password}
+                  onChange={handeleUser}
+                  onKeyDown={(e) => e.key === 'Enter' && getlogin()}
+                />
+              </label>
+            </div>
+
+            <p className="login-forgot-password">¿Olvidaste tu contraseña?</p>
+
+            <div className="login-button-wrapper">
+              <button className="login-button" onClick={getlogin}>
+                <span className="login-button-text">Ingresar</span>
+              </button>
+            </div>
+
+            <p className="login-signup-link">¿No tenés cuenta? Sign up</p>
           </div>
         </div>
       </div>

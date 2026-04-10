@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import Spinner from '../components/Spinner.jsx';
-import { addCalibraciones, upCalibraciones } from '../api/calibraciones.js';
-import { useParams } from "react-router-dom";
+import {
+  addCalibraciones,
+  closeCalibraciones,
+  upCalibraciones,
+} from '../api/calibraciones.js';
+import { useParams } from 'react-router-dom';
 
 const opcionesEstado = ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'No aplica'];
 const opcionesMateriales = ['Acero Inox', 'Fundicion', 'Plastico', 'Otros'];
@@ -484,34 +488,51 @@ const SeccionesManager = ({ secciones = {}, onChange, disabled }) => {
   );
 };
 
-const PaginationNav = ({ currentPage, onPageChange, errors }) => {
+const PaginationNav = ({
+  currentPage,
+  onPageChange,
+  errors,
+  setShowCerrar,
+}) => {
   const pages = [
     { number: 1, title: 'Datos Básicos', icon: 'bi-info-circle' },
     { number: 2, title: 'Estados y Componentes', icon: 'bi-clipboard-check' },
     { number: 3, title: 'Presiones y Observaciones', icon: 'bi-speedometer2' },
   ];
   return (
-    <div className="d-flex justify-content-center gap-2 mb-4 flex-wrap">
-      {pages.map((page) => (
-        <button
-          key={page.number}
-          type="button"
-          className={`btn ${currentPage === page.number ? 'btn-success' : 'btn-outline-secondary'} btn-sm position-relative`}
-          onClick={() => onPageChange(page.number)}
-          style={{
-            minWidth: '160px',
-            fontWeight: currentPage === page.number ? 600 : 400,
-          }}
-        >
-          <i className={`${page.icon} me-2`}></i>
-          {page.title}
-          {errors[`page${page.number}`] && (
-            <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-              !
-            </span>
-          )}
-        </button>
-      ))}
+    <div className="d-flex justify-content-center align-items-center position-relative mb-4">
+      {/* Botones centrados respecto a toda la barra */}
+      <div className="d-flex justify-content-center gap-2 flex-wrap">
+        {pages.map((page) => (
+          <button
+            key={page.number}
+            type="button"
+            className={`btn ${currentPage === page.number ? 'btn-success' : 'btn-outline-secondary'} btn-sm position-relative`}
+            onClick={() => onPageChange(page.number)}
+            style={{
+              minWidth: '160px',
+              fontWeight: currentPage === page.number ? 600 : 400,
+            }}
+          >
+            <i className={`${page.icon} me-2`}></i>
+            {page.title}
+            {errors[`page${page.number}`] && (
+              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                !
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Cerrar anclado a la derecha */}
+      <button
+        type="button"
+        className="btn btn-danger btn-sm position-absolute end-0"
+        onClick={() => setShowCerrar(true)}
+      >
+        Cerrar
+      </button>
     </div>
   );
 };
@@ -700,8 +721,6 @@ export const ModalCalibraciones = ({
   onSaved,
 }) => {
   const { cliente, cliente_id } = useParams();
-  console.log('Cliente id:', cliente_id);
-
 
   const [form, setForm] = useState({ ...emptyCalibracion });
   const [loading, setLoading] = useState(false);
@@ -710,6 +729,10 @@ export const ModalCalibraciones = ({
   const [errors, setErrors] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [fileErrors, setFileErrors] = useState({});
+  const [showCerrar, setShowCerrar] = useState(false);
+  const [isCloseCalibracion, setIsCloseCalibracion] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [closeSuccess, setCloseSuccess] = useState(false);
 
   const camposEstado = [
     { campo: 'estado_maquina', label: 'Estado Máquina', icon: 'bi-gear-fill' },
@@ -802,16 +825,21 @@ export const ModalCalibraciones = ({
         setForm({
           ...parsedCalibracion,
           fecha: calibracion.fecha ? calibracion.fecha.split('T')[0] : '',
-          cliente_id: cliente_id 
+          cliente_id: cliente_id,
         });
       } else {
-        setForm({ ...emptyCalibracion, maquina_id: calibracion.maquina_id, cliente_id: cliente_id });
+        setForm({
+          ...emptyCalibracion,
+          maquina_id: calibracion.maquina_id,
+          cliente_id: cliente_id,
+        });
       }
     }
   }, [calibracion]);
 
   useEffect(() => {
     console.log('SetFormmmmmm', form);
+    console.log('CALI', calibracion);
   }, [form]);
 
   if (!calibracion) return null;
@@ -885,7 +913,7 @@ export const ModalCalibraciones = ({
     const inicial = esperaPdf ? 'informePastilla' : campo;
 
     // const nombreUnico = `${inicial}_${Date.now()}_${file.name}`;
-    const ext = file.name.includes('.') 
+    const ext = file.name.includes('.')
       ? file.name.substring(file.name.lastIndexOf('.') + 1)
       : '';
     const nombreUnico = `${inicial}_${Date.now()}${ext ? `.${ext}` : ''}`;
@@ -994,11 +1022,11 @@ export const ModalCalibraciones = ({
       });
 
     if (archivosParaSubir.length === 0) return true;
-    
+
     for (const item of archivosParaSubir) {
       const formData = new FormData();
       formData.append('cliente_id', cliente_id);
-      formData.append('calibracion_id', resp.data.id);  // ---AGREGO INFO PARA GENERAR PATH DINAMICO EN BACK SEGUN MAQUINA Y CALIBRACION---
+      formData.append('calibracion_id', resp.data.id); // ---AGREGO INFO PARA GENERAR PATH DINAMICO EN BACK SEGUN MAQUINA Y CALIBRACION---
       formData.append('maquina_id', resp.data.maquina_id);
       formData.append('campo', item.campo);
       formData.append('nombreArchivo', item.nombreArchivo);
@@ -1062,7 +1090,6 @@ export const ModalCalibraciones = ({
       setLoading(true);
       setMsg('Procesando...');
 
-      
       const formToSend = { ...form };
 
       camposEstado.forEach(({ campo }) => {
@@ -1096,8 +1123,6 @@ export const ModalCalibraciones = ({
         setMsg('Creando calibración...');
         resp = await addCalibraciones(formToSend);
         console.log('Respuesta creación', resp);
-        
-
       }
       await uploadFiles(resp); // Subir archivos después de obtener el ID de la nueva calibración
       setMsg(resp.message || 'Calibración guardada exitosamente');
@@ -1112,6 +1137,29 @@ export const ModalCalibraciones = ({
     } finally {
       setLoading(false);
       setIsSubmitting(false);
+    }
+  };
+
+  // ── Cerrar Calibracion ────────────────────────────────────────────────────────────────
+  const handleCerrarCalibracion = async () => {
+    try {
+      setIsClosing(true);
+
+      const resp = await closeCalibraciones(calibracion.id);
+      console.log(resp.message);
+
+      setCloseSuccess(true);
+
+      // cerrar modal después de mostrar éxito
+      setTimeout(() => {
+        setShowCerrar(false);
+        setCloseSuccess(false);
+      }, 1500);
+    } catch (error) {
+      console.error('Error al cerrar:', error);
+    } finally {
+      setIsClosing(false);
+      onClose();
     }
   };
 
@@ -1199,38 +1247,36 @@ export const ModalCalibraciones = ({
                   <i className="bi bi-image cal-adjunto-existente-icon"></i>
                   <a
                     // src={`${import.meta.env.VITE_API_URL}/uploads/calibraciones/${form.imagen}`}
-                     href={`${import.meta.env.VITE_API_URL}/uploads/clientes/${form.cliente_id}/maquinas/${form.maquina_id}/calibraciones/${form.id}/${form.imagen}`}
+                    href={`${import.meta.env.VITE_API_URL}/uploads/clientes/${form.cliente_id}/maquinas/${form.maquina_id}/calibraciones/${form.id}/${form.imagen}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="cal-adjunto-btn-ver"
-
                   >
                     <i className="bi bi-eye me-1"></i>Ver
                   </a>
-                 
-                    <label
-                      className={`cal-adjunto-btn-reemplazar ${isSubmitting ? 'disabled' : ''}`}
-                    >
-                      <i className="bi bi-arrow-repeat me-1"></i>Reemplazar
-                      <input
-                        type="file"
-                        className="d-none"
-                        onChange={(e) =>
-                          handleFileChange('imagen', e.target.files[0])
-                        }
-                        disabled={isSubmitting}
-                        accept=".png,.jpg,.jpeg,image/png,image/jpeg"
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      className="cal-adjunto-btn-quitar"
-                      onClick={() => handleRemoveFile('imagen')}
+
+                  <label
+                    className={`cal-adjunto-btn-reemplazar ${isSubmitting ? 'disabled' : ''}`}
+                  >
+                    <i className="bi bi-arrow-repeat me-1"></i>Reemplazar
+                    <input
+                      type="file"
+                      className="d-none"
+                      onChange={(e) =>
+                        handleFileChange('imagen', e.target.files[0])
+                      }
                       disabled={isSubmitting}
-                    >
-                      <i className="bi bi-trash me-1"></i>Quitar
-                    </button>
-                  
+                      accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="cal-adjunto-btn-quitar"
+                    onClick={() => handleRemoveFile('imagen')}
+                    disabled={isSubmitting}
+                  >
+                    <i className="bi bi-trash me-1"></i>Quitar
+                  </button>
                 </div>
               )}
 
@@ -1768,6 +1814,7 @@ export const ModalCalibraciones = ({
               totalPages={3}
               onPageChange={handlePageChange}
               errors={errors}
+              setShowCerrar={setShowCerrar}
             />
             {renderPageContent()}
           </div>
@@ -1821,6 +1868,66 @@ export const ModalCalibraciones = ({
           </div>
         </div>
       </div>
+
+      {showCerrar && (
+        <div className="modal-overlay-logout">
+          <div
+            className="modal-card-logout"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-icon-logout">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
+            </div>
+
+            <h3 className="modal-title-logout">
+              ¿Deseas cerrar la calibración?
+            </h3>
+
+            <p className="modal-text-logout">
+              Estás a punto de cerrar la calibración. Asegúrate de haber
+              guardado toda la información antes de continuar.
+            </p>
+
+            <div className="modal-buttons-logout">
+              <button
+                className="btn-logout-cancel"
+                onClick={() => setShowCerrar(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-logout-confirm"
+                onClick={handleCerrarCalibracion}
+                disabled={isClosing}
+              >
+                {isClosing ? (
+                  <>
+                    <span className="spinner-logout"></span>
+                    Cerrando...
+                  </>
+                ) : closeSuccess ? (
+                  '✔ Cerrado'
+                ) : (
+                  'Cerrar'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Spinner msg={msg} loading={loading} />
     </>
