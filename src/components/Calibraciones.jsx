@@ -243,7 +243,7 @@ export const Calibraciones = () => {
     );
   }; */
 
-  const BtnArchivo = ({archivo }) => {
+  const BtnArchivo = ({ archivo }) => {
     if (!archivo?.nombreArchivo)
       return <span className="text-white-50 fst-italic">—</span>;
 
@@ -351,8 +351,15 @@ export const Calibraciones = () => {
                     year: 'numeric',
                   });
                   const isOpen = openIndex === i;
-                  const estadoMaquinaData = parseEstado(cal.id, cal.estado_maquina);
-                  console.log('Estado Máquina => ', cal.estado_maquina, estadoMaquinaData);
+                  const estadoMaquinaData = parseEstado(
+                    cal.id,
+                    cal.estado_maquina,
+                  );
+                  console.log(
+                    'Estado Máquina => ',
+                    cal.estado_maquina,
+                    estadoMaquinaData,
+                  );
 
                   const ingResponsable = ingenieros.find(
                     (i) => i.id === cal.responsable_id,
@@ -389,7 +396,10 @@ export const Calibraciones = () => {
                           {/* Columna Izquierda - Calibración */}
                           <div className="col-12 col-md-3">
                             <h5 className="fw-bold text-white mb-1 calibracion-nombre">
-                              Calibración #{i + 1}
+                              Calibración #{i + 1}{' '}
+                              {cal.estado === 'CERRADO' && (
+                                <span className="badge bg-danger">CERRADO</span>
+                              )}
                             </h5>
                             <span
                               className="badge calibracion-estado-badge"
@@ -483,16 +493,18 @@ export const Calibraciones = () => {
                             {isOpen ? 'Ocultar' : 'Ver Detalles'}
                           </button>
 
-                          <button
-                            className="btn btn-sm flex-fill calibracion-btn-editar"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditar(cal);
-                            }}
-                          >
-                            <i className="bi bi-pencil me-1"></i>
-                            Editar
-                          </button>
+                          {cal.estado !== 'CERRADO' && (
+                            <button
+                              className="btn btn-sm flex-fill calibracion-btn-editar"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditar(cal);
+                              }}
+                            >
+                              <i className="bi bi-pencil me-1"></i>
+                              Editar
+                            </button>
+                          )}
 
                           <button
                             className="btn btn-sm flex-fill calibracion-btn-editar"
@@ -658,8 +670,15 @@ export const Calibraciones = () => {
                                   if (formateo[key] === 'Estado General')
                                     return null;
 
-                                  const estadoData = parseEstado(cal.id, cal[key]);
-                                  console.log('estadoData => ', key, estadoData);
+                                  const estadoData = parseEstado(
+                                    cal.id,
+                                    cal[key],
+                                  );
+                                  console.log(
+                                    'estadoData => ',
+                                    key,
+                                    estadoData,
+                                  );
                                   if (!estadoData.estado) return null;
 
                                   const isFiltro =
@@ -993,7 +1012,8 @@ export const Calibraciones = () => {
                                         <BtnArchivo
                                           archivo={{
                                             path: estadoData.path,
-                                            nombreArchivo: estadoData.nombreArchivo
+                                            nombreArchivo:
+                                              estadoData.nombreArchivo,
                                           }}
                                         />
                                       </td>
@@ -1222,7 +1242,8 @@ export const Calibraciones = () => {
                                         <BtnArchivo
                                           archivo={{
                                             path: `/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/`,
-                                            nombreArchivo: presionUnimap.nombreArchivo
+                                            nombreArchivo:
+                                              presionUnimap.nombreArchivo,
                                           }}
                                         />
                                       </div>
@@ -1258,8 +1279,9 @@ export const Calibraciones = () => {
                                         </p>
                                         <BtnArchivo
                                           archivo={{
-                                            path:`/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/`,
-                                            nombreArchivo: presionComputadora.nombreArchivo
+                                            path: `/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/`,
+                                            nombreArchivo:
+                                              presionComputadora.nombreArchivo,
                                           }}
                                         />
                                       </div>
@@ -1296,7 +1318,8 @@ export const Calibraciones = () => {
                                         <BtnArchivo
                                           archivo={{
                                             path: `/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/`,
-                                            nombreArchivo: presionManometro.nombreArchivo
+                                            nombreArchivo:
+                                              presionManometro.nombreArchivo,
                                           }}
                                         />
                                       </div>

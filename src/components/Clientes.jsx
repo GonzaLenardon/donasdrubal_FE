@@ -340,7 +340,7 @@ const Clientes = () => {
 
           {/* TABLA */}
           <div className="container-table rounded shadow-lg">
-            <div className="table-wrapper">
+            <div className="table-responsive">
               <table className="table mb-0">
                 <thead>
                   <tr>

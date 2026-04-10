@@ -20,3 +20,9 @@ export const upCalibraciones = async (id, maquina) => {
 
   return res.data;
 };
+
+export const closeCalibraciones = async (id) => {
+  const res = await instance.put(`/calibraciones/close/${id}`);
+
+  return res.data;
+};

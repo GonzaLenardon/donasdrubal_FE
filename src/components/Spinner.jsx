@@ -7,11 +7,11 @@ const Spinner = ({ loading, msg }) => {
       style={{ backgroundColor: 'rgba(0, 0, 0,.9)', zIndex: 9999 }}
     >
       <div
-        className="spinner-border text-primary"
+        className="spinner-border text-success"
         role="status"
         style={{ width: '3rem', height: '3rem' }}
       />
-      <span className="text-primary fs-3 fw-bold mt-2">{msg}</span>
+      <span className="text-success fs-3 fw-bold mt-2">{msg}</span>
     </div>
   );
 };
