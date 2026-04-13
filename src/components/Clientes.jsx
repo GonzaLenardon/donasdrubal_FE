@@ -340,132 +340,131 @@ const Clientes = () => {
 
           {/* TABLA */}
           <div className="container-table rounded shadow-lg">
-            <div className="table-responsive">
-              <table className="table mb-0">
-                <thead>
-                  <tr>
-                    <th>
-                      <i className="bi bi-person-badge"></i>Nombre
-                    </th>
-                    <th>
-                      <i className="bi bi-person-badge"></i>Cuit
-                    </th>
-                    <th>
-                      <i className="bi bi-geo-alt"></i>Domicilio
-                    </th>
-                    <th>
-                      <i className="bi bi-envelope-at"></i>Email
-                    </th>
-                    <th>
-                      <i className="bi bi-telephone"></i>Teléfono
-                    </th>
-                    <th>
-                      <i className="bi bi-people"></i>Ingenieros
-                    </th>
-                    <th>
-                      <i className="bi bi-person-badge"></i>Tipo
-                    </th>
-                    <th>
-                      <i className="bi bi-toggle-on"></i>Estado
-                    </th>
-                    <th className="text-center">
-                      <i className="bi bi-gear"></i>Acciones
-                    </th>
-                  </tr>
-                </thead>
+            <table
+              className="table mb-0"
+              style={{ tableLayout: 'fixed', width: '100%' }}
+            >
+              <thead>
+                <tr>
+                  <th style={{ width: '12%' }}>
+                    <i className="bi bi-person-badge me-1"></i>Nombre
+                  </th>
+                  <th style={{ width: '10%' }}>
+                    <i className="bi bi-person-badge me-1"></i>Cuit
+                  </th>
+                  {/*  <th style={{ width: '15%' }}>
+                    <i className="bi bi-geo-alt me-1"></i>Domicilio
+                  </th> */}
+                  <th style={{ width: '15%' }}>
+                    <i className="bi bi-envelope-at me-1"></i>Email
+                  </th>
+                  <th style={{ width: '10%' }}>
+                    <i className="bi bi-telephone me-1"></i>Teléfono
+                  </th>
+                  <th style={{ width: '15%' }}>
+                    <i className="bi bi-people me-1"></i>Ingenieros
+                  </th>
+                  <th style={{ width: '4%' }}>Tipo</th>
+                  <th style={{ width: '6%' }}>Estado</th>
+                  <th className="text-center" style={{ width: '5%' }}>
+                    <i className="bi bi-gear"></i>
+                  </th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {filteredClientes.map((cliente) => (
-                    <tr
-                      key={cliente.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        modalUpCliente(cliente);
-                        setOnlyView(true);
-                      }}
-                    >
-                      <td>
-                        <span className="table-text">
-                          {cliente.razon_social}
-                        </span>
-                      </td>
+              <tbody>
+                {filteredClientes.map((cliente) => (
+                  <tr
+                    key={cliente.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      modalUpCliente(cliente);
+                      setOnlyView(true);
+                    }}
+                  >
+                    <td className="td-truncate">
+                      <span className="table-text">{cliente.razon_social}</span>
+                    </td>
 
-                      <td>
-                        <span className="table-text">{cliente.cuil_cuit}</span>
-                      </td>
+                    <td>
+                      <span className="table-text">{cliente.cuil_cuit}</span>
+                    </td>
+                    {/* 
+                    <td className="td-truncate">
+                      <span className="table-text">
+                        {cliente.direccion_fiscal}
+                      </span>
+                    </td>
+ */}
+                    <td className="td-truncate">
+                      <span className="table-text">{cliente.email}</span>
+                    </td>
 
-                      <td>
-                        <span className="table-text">
-                          {cliente.direccion_fiscal}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="table-text">{cliente.email}</span>
-                      </td>
-                      <td>
-                        <span className="table-text">{cliente.telefono}</span>
-                      </td>
-                      <td>
-                        {cliente.ingenieros && cliente.ingenieros.length > 0 ? (
-                          <div className="table-badges-container">
-                            {cliente.ingenieros.map((ing) => (
-                              <span
-                                key={ing.user_id}
-                                className={
-                                  ing.es_principal
-                                    ? 'table-badge-principal'
-                                    : 'table-badge-secondary'
-                                }
-                              >
-                                {ing.es_principal && (
-                                  <i className="bi bi-star-fill"></i>
-                                )}
-                                {ing.nombre}
-                              </span>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="table-text-muted">Sin asignar</span>
-                        )}
-                      </td>
+                    <td>
+                      <span className="table-text">{cliente.telefono}</span>
+                    </td>
 
-                      <td className="text-center">
-                        <span className="table-text">
-                          {cliente.tipoCliente?.tipoClientes}
-                        </span>
-                      </td>
-
-                      <td className="text-center ">
-                        <span className="table-text">{cliente.estado}</span>
-                      </td>
-                      <td>
-                        <div className="table-actions">
-                          <button
-                            className="table-btn table-btn-edit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              modalUpCliente(cliente);
-                              setOnlyView(false);
-                            }}
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                          <button
-                            className="table-btn table-btn-view"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleVer(cliente);
-                            }}
-                          >
-                            <i className="bi bi-eye"></i>
-                          </button>
+                    <td>
+                      {cliente.ingenieros && cliente.ingenieros.length > 0 ? (
+                        <div className="table-badges-container">
+                          {cliente.ingenieros.map((ing) => (
+                            <span
+                              key={ing.user_id}
+                              className={
+                                ing.es_principal
+                                  ? 'table-badge-principal'
+                                  : 'table-badge-secondary'
+                              }
+                            >
+                              {ing.es_principal && (
+                                <i className="bi bi-star-fill"></i>
+                              )}
+                              {ing.nombre}
+                            </span>
+                          ))}
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                      ) : (
+                        <span className="table-text-muted">Sin asignar</span>
+                      )}
+                    </td>
+
+                    <td className="text-center">
+                      <span className="table-text">
+                        {cliente.tipoCliente?.tipoClientes}
+                      </span>
+                    </td>
+
+                    <td className="">
+                      <span className="table-text">{cliente.estado}</span>
+                    </td>
+
+                    <td>
+                      <div className="table-actions">
+                        <button
+                          className="table-btn table-btn-edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            modalUpCliente(cliente);
+                            setOnlyView(false);
+                          }}
+                        >
+                          <i className="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          className="table-btn table-btn-view"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVer(cliente);
+                          }}
+                        >
+                          <i className="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

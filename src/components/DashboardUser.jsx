@@ -59,11 +59,18 @@ const calcGlobalMetrics = (clientes) => {
   clientes.forEach((c) => {
     const m = calcClienteMetrics(c);
 
+    console.log('Que se recibe ', c);
+
     totalCal += m.totalCal;
     doneCal += m.doneCal;
     totalAgua += m.totalAgua;
     doneAgua += m.doneAgua;
-    rows.push({ id: c.id, razon_social: c.razon_social, ...m });
+    rows.push({
+      id: c.id,
+      razon_social: c.razon_social,
+      litros_estimados: c.litros_estimados,
+      ...m,
+    });
   });
 
   return {
@@ -317,7 +324,7 @@ const DashboardUser = () => {
                 <th style={{ width: '5%' }}>Pozos</th>
                 <th style={{ width: '15%' }}>Agua</th>
                 <th style={{ width: '15%' }}>Capacitaciones</th>
-                {/*  <th style={{ width: '15%' }}>Estado</th> */}
+                <th style={{ width: '15%' }}>Lts.Estimados</th>
               </tr>
             </thead>
             <tbody>
@@ -378,9 +385,12 @@ const DashboardUser = () => {
                     <td>
                       <small className="text-muted">—</small>
                     </td>
+
                     {/* <td>
                       <EstadoBadge estado={row.estado} />
                     </td> */}
+
+                    <td>{row?.litros_estimados || 'ququququ'}</td>
                   </tr>
                 ))
               )}

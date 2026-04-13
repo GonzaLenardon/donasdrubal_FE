@@ -526,13 +526,13 @@ const PaginationNav = ({
       </div>
 
       {/* Cerrar anclado a la derecha */}
-      <button
+      {/*    <button
         type="button"
         className="btn btn-danger btn-sm position-absolute end-0"
         onClick={() => setShowCerrar(true)}
       >
         Cerrar
-      </button>
+      </button> */}
     </div>
   );
 };
@@ -1819,8 +1819,18 @@ export const ModalCalibraciones = ({
             {renderPageContent()}
           </div>
 
-          <div className="modal-footer px-4">
-            <div className="d-flex gap-2">
+          <div className="modal-footer px-4 ">
+            <div className="d-flex gap-2 p-2 rounded">
+              <button
+                type="button"
+                className="btn btn-danger "
+                onClick={() => setShowCerrar(true)}
+              >
+                Finalizar Calibración
+              </button>
+            </div>
+
+            <div className="d-flex gap-2 p-2 rounded">
               {currentPage > 1 && (
                 <button
                   type="button"
