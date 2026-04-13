@@ -425,7 +425,8 @@ const MuestrasPozos = () => {
                                 e.stopPropagation();
                                 setShowViewer(true);
                                 setViewerUrl(
-                                  `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` + m.informe,
+                                  `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` +
+                                    m.informe,
                                 );
                               }}
 
@@ -448,16 +449,23 @@ const MuestrasPozos = () => {
 
                             {/* Acciones */}
                             <td className="text-center py-2 px-3">
-                              <div className="d-flex gap-2 justify-content-center">
-                                <button
-                                  className="btn btn-sm maquina-btn-editar"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEditarMuestra(m);
-                                  }}
-                                >
-                                  <i className="bi bi-pencil"></i>
-                                </button>
+                              <div className="d-flex gap-2 justify-content-center align-items-center">
+                                {m.estado !== 'CERRADO' ? (
+                                  <button
+                                    className="btn btn-sm maquina-btn-editar"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEditarMuestra(m);
+                                    }}
+                                    disabled={m.estado === 'CERRADO'}
+                                  >
+                                    <i className="bi bi-pencil"></i>
+                                  </button>
+                                ) : (
+                                  <span className="badge bg-danger">
+                                    CERRADO
+                                  </span>
+                                )}
 
                                 <button
                                   className="btn btn-sm muestrasPdf"

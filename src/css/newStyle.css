@@ -255,8 +255,8 @@
 .modal-container {
   background: var(--color-white);
   border-radius: 20px;
-  max-width: 600px;
-  width: 90%;
+  max-width: 700px;
+  width: 99%;
   max-height: 95vh;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -288,6 +288,12 @@
     transparent 70%
   );
   pointer-events: none;
+}
+
+.modal-seccion {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: red;
 }
 
 .modal-icon {
@@ -356,11 +362,11 @@
 .modal-footer {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 1.5rem 0rem;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 1rem;
   border-top: 1px solid var(--color-gray-200);
-  /*   background: var(--color-gray-50); */
+  background: #e3ebe3;
 
   border-radius: 0 0 20px 20px;
 }
@@ -726,7 +732,7 @@
 .form-control {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #edf5ec;
+  background: #fafafa;
   border: 2px solid var(--color-gray-200);
   border-radius: 10px;
   color: var(--color-gray-700);
@@ -1337,6 +1343,13 @@ small.text-muted {
   transition: transform 0.2s ease;
 }
 
+.td-truncate {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* =========================================
    📊 TABLA - ESTADO VACÍO
 ========================================= */
@@ -1461,4 +1474,132 @@ small.text-muted {
   .modal-body {
     overflow: visible;
   }
+}
+
+/* =======================================
+          MODAL MUESTRAS
+  ======================================== */
+
+/* Modal wide */
+.modal-container--wide {
+  width: 90vw;
+  max-width: 880px;
+}
+
+/* Body grid 2 columnas sin scroll */
+.modal-body-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Sección genérica */
+.form-section {
+  background: rgba(159, 170, 163, 0.692);
+  border: 1px solid rgba(27, 89, 49, 0.12);
+  border-radius: 8px;
+  padding: 14px 16px;
+  height: 100%;
+}
+
+/* Sección full width */
+.form-section--full {
+  grid-column: 1 / -1;
+}
+
+.form-section__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(30, 46, 36, 0.897);
+  border-bottom: 1px solid rgba(27, 89, 49, 0.15);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+/* Labels */
+.form-label--sm {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* Hint debajo del input */
+.form-hint {
+  display: block;
+  text-align: right;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(27, 100, 15, 0.85);
+  margin-top: 2px;
+}
+
+/* Dropzone de archivo */
+.file-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 2px dashed rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  background: #edf5ec;
+  padding: 20px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  min-height: 90px;
+}
+.file-dropzone:hover {
+  background: #c8dbc6;
+}
+.file-dropzone__icon {
+  font-size: 2rem;
+  color: rgba(20, 59, 4, 0.85);
+}
+.file-dropzone__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(20, 59, 4, 0.85);
+}
+
+/* Card preview de archivo */
+.file-preview-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.file-preview-card__img {
+  max-height: 120px;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Botón Finalizar Muestra */
+.btn-finalizar {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  background-color: #a32d2d;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+.btn-finalizar:hover:not(:disabled) {
+  background-color: #7a1f1f;
+}
+.btn-finalizar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }

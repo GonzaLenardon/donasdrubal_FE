@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { addMuestraPozo, upMuestraPozo } from '../api/muestrasAgua';
+import {
+  addMuestraPozo,
+  closeMuestra,
+  upMuestraPozo,
+} from '../api/muestrasAgua';
 import Spinner from './Spinner';
 import ModalImpresion from './ModalImpresion';
-import { useParams } from "react-router-dom";
+import { useParams } from 'react-router-dom';
 
 const ModalMuestrasPozos = ({
   isOpen,
@@ -13,7 +17,6 @@ const ModalMuestrasPozos = ({
 }) => {
   const { cliente, cliente_id } = useParams();
 
-  
   const [formData, setFormData] = useState({
     ph: '',
     dureza: '',
@@ -23,9 +26,8 @@ const ModalMuestrasPozos = ({
     dosis: '',
     fecha_muestra: '',
     fecha_analisis: '',
-    // Archivo — mismo patron que ModalPozos / ModalCalibraciones
-    informe: '', // nombreUnico guardado en DB
-    informeFile: null, // File object temporal, NO se envia al backend
+    informe: '',
+    informeFile: null,
   });
 
   const [errors, setErrors] = useState({});
@@ -33,15 +35,17 @@ const ModalMuestrasPozos = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
-  // VISOR DE INFORME
   const [showViewer, setShowViewer] = useState(false);
   const [viewerUrl, setViewerUrl] = useState('');
+  const [showFinalizarModal, setShowFinalizarModal] = useState(false);
+
   const rangos = {
     ph: { min: 0, max: 50 },
     dureza: { min: 0, max: 1500 },
     salinidad: { min: 0, max: 3000 },
     alcalinidad: { min: 0, max: 1000 },
   };
+
   const TIPOS_PDF_PERMITIDOS = ['application/pdf'];
   const EXTENSION_PDF_REGEX = /\.pdf$/i;
 
@@ -75,25 +79,24 @@ const ModalMuestrasPozos = ({
       informeFile: null,
     });
     setErrors({});
+    setFileErrors(null);
   };
 
   // ── Handlers ──────────────────────────────────────────────────────────────
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name])
+    if (errors[name]) {
       setErrors((prev) => {
-        const n = { ...prev };
-        delete n[name];
-        return n;
+        const next = { ...prev };
+        delete next[name];
+        return next;
       });
+    }
   };
 
-  // Mismo patron que ModalPozos / ModalCalibraciones
   const handleFileChange = (campo, file) => {
     if (!file) return;
-
     if (
       !TIPOS_PDF_PERMITIDOS.includes(file.type) ||
       !EXTENSION_PDF_REGEX.test(file.name)
@@ -101,15 +104,15 @@ const ModalMuestrasPozos = ({
       setFileErrors('Solo se permiten archivos PDF.');
       return;
     }
-    const ext = file.name.includes('.') 
+    const ext = file.name.includes('.')
       ? file.name.substring(file.name.lastIndexOf('.') + 1)
       : '';
-    // const nombreUnico = campo + '_' + Date.now() + '_' + file.name;
     const nombreUnico = `${campo}_${Date.now()}${ext ? `.${ext}` : ''}`;
+    setFileErrors(null);
     setFormData((prev) => ({
       ...prev,
-      informe: nombreUnico, // nombre que se guarda en DB
-      informeFile: file, // File object para subir
+      informe: nombreUnico,
+      informeFile: file,
     }));
   };
 
@@ -117,8 +120,12 @@ const ModalMuestrasPozos = ({
     setFormData((prev) => ({ ...prev, informe: '', informeFile: null }));
   };
 
-  // ── Upload separado (mismo patron uploadFile de ModalPozos) ───────────────
+  const handleOpenViewer = (url) => {
+    setViewerUrl(url);
+    setShowViewer(true);
+  };
 
+  // ── Upload ────────────────────────────────────────────────────────────────
   const uploadFile = async (resp) => {
     if (!formData.informeFile) return true;
     const fd = new FormData();
@@ -138,8 +145,7 @@ const ModalMuestrasPozos = ({
     return true;
   };
 
-  // ── Validacion ─────────────────────────────────────────────────────────────
-
+  // ── Validación ─────────────────────────────────────────────────────────────
   const validateForm = () => {
     const newErrors = {};
     if (
@@ -148,36 +154,29 @@ const ModalMuestrasPozos = ({
     )
       newErrors.ph = 'pH debe estar entre 0 y 14';
     if (formData.dureza && (isNaN(formData.dureza) || formData.dureza < 0))
-      newErrors.dureza = 'Dureza debe ser un numero positivo';
+      newErrors.dureza = 'Dureza debe ser un número positivo';
     if (
       formData.alcalinidad &&
       (isNaN(formData.alcalinidad) || formData.alcalinidad < 0)
     )
-      newErrors.alcalinidad = 'Alcalinidad debe ser un numero positivo';
+      newErrors.alcalinidad = 'Alcalinidad debe ser un número positivo';
     if (
       formData.salinidad &&
       (isNaN(formData.salinidad) || formData.salinidad < 0)
     )
-      newErrors.salinidad = 'Salinidad debe ser un numero positivo';
+      newErrors.salinidad = 'Salinidad debe ser un número positivo';
     if (
       formData.fuerza_ionica &&
       (isNaN(formData.fuerza_ionica) || formData.fuerza_ionica < 0)
     )
-      newErrors.fuerza_ionica = 'Fuerza ionica debe ser un numero positivo';
+      newErrors.fuerza_ionica = 'Fuerza iónica debe ser un número positivo';
     if (!formData.fecha_muestra)
       newErrors.fecha_muestra = 'La fecha de muestra es requerida';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Abrir visor
-  const handleOpenViewer = (url) => {
-    setViewerUrl(url);
-    setShowViewer(true);
-  };
-
-  // ── Submit ────────────────────────────────────────────────────────────────
-
+  // ── Submit guardar ────────────────────────────────────────────────────────
   const handleSubmit = async () => {
     if (!validateForm()) return;
     setIsSubmitting(true);
@@ -185,7 +184,6 @@ const ModalMuestrasPozos = ({
     setMsg('Procesando...');
 
     try {
-      // 2. Armar payload JSON (sin el File object)
       const { informeFile, ...dataToSend } = formData;
       dataToSend.ph = formData.ph ? parseFloat(formData.ph) : null;
       dataToSend.dureza = formData.dureza ? parseFloat(formData.dureza) : null;
@@ -201,7 +199,6 @@ const ModalMuestrasPozos = ({
       dataToSend.dosis = formData.dosis || null;
       dataToSend.fecha_analisis = formData.fecha_analisis || null;
 
-      // 3. Guardar muestra
       let resp;
       if (dataToSend.id) {
         setMsg('Actualizando muestra...');
@@ -210,9 +207,8 @@ const ModalMuestrasPozos = ({
         setMsg('Guardando muestra...');
         resp = await addMuestraPozo(dataToSend);
       }
-      // 4. Subir archivo si hay uno nuevo seleccionado
-      await uploadFile(resp);    
 
+      await uploadFile(resp);
       setMsg(resp?.message || 'Muestra guardada correctamente');
       await new Promise((r) => setTimeout(r, 1000));
       if (onSaved) onSaved();
@@ -231,12 +227,27 @@ const ModalMuestrasPozos = ({
     }
   };
 
+  // ── Finalizar muestra ─────────────────────────────────────────────────────
+  const handleFinalizarMuestra = () => {
+    // Lo implementás vos — acá va tu lógica de finalización
+
+    try {
+      const resp = closeMuestra(muestra.id);
+
+      console.log('Respuesta de cierre Muestra', resp);
+      handleClose();
+    } catch (error) {
+      console.error('Error al finalizar:', error);
+    }
+  };
+
   const handleClose = () => {
     resetForm();
+    setShowFinalizarModal(false);
     onClose();
   };
 
-  // useMemo ANTES del early return — regla de hooks: nunca hooks despues de return condicional
+  // ── Derivados — SIEMPRE antes del early return ────────────────────────────
   const previewUrl = React.useMemo(() => {
     if (!formData.informeFile) return null;
     return URL.createObjectURL(formData.informeFile);
@@ -245,9 +256,7 @@ const ModalMuestrasPozos = ({
   const getValorIndicador = (valor, campo) => {
     if (!valor) return null;
     const val = parseFloat(valor);
-
     const rango = rangos[campo];
-
     if (!rango) return null;
     if (val < rango.min || val > rango.max)
       return {
@@ -255,14 +264,22 @@ const ModalMuestrasPozos = ({
         icon: 'bi-exclamation-triangle-fill',
         color: 'danger',
       };
-    return {
-      status: 'ok',
-      icon: 'bi-check-circle-fill',
-      color: 'success',
-    };
+    return { status: 'ok', icon: 'bi-check-circle-fill', color: 'success' };
   };
 
+  // isFormComplete como variable derivada — se recalcula en cada render reactivamente
+  const isFormComplete =
+    !!formData.fecha_muestra &&
+    !!formData.ph &&
+    !!formData.dureza &&
+    !!formData.alcalinidad &&
+    !!formData.salinidad &&
+    !!formData.fuerza_ionica &&
+    !!(formData.informe || formData.informeFile);
+
+  // ── Early return — SIEMPRE después de todos los hooks ────────────────────
   if (!isOpen) return null;
+
   const tieneArchivoNuevo = !!formData.informeFile;
   const tieneArchivoGuardado = !!formData.informe && !formData.informeFile;
   const esImagen = formData.informeFile
@@ -276,7 +293,10 @@ const ModalMuestrasPozos = ({
   return (
     <>
       <div className="modal-overlay">
-        <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="modal-container modal-container--wide"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Header */}
           <div className="modal-header">
             <div className="d-flex align-items-center gap-3">
@@ -300,35 +320,32 @@ const ModalMuestrasPozos = ({
           </div>
 
           {/* Body */}
-          <div className="p-4" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+          <div className="modal-body-grid p-3">
             {errors.submit && (
-              <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
+              <div
+                className="alert alert-danger d-flex align-items-center gap-2 mb-0"
+                style={{ gridColumn: '1 / -1' }}
+              >
                 <i className="bi bi-exclamation-triangle-fill"></i>
                 {errors.submit}
               </div>
             )}
 
             {/* Fechas */}
-            <div className="p-3 rounded mb-4">
-              <h6
-                className="fw-semibold mb-3 pb-2"
-                style={{ borderBottom: '2px solid rgba(34,197,94,0.35)' }}
-              >
+            <div className="form-section">
+              <h6 className="form-section__title">
                 <i className="bi bi-calendar3 me-2"></i>Fechas
               </h6>
               <div className="row g-3">
-                <div className="col-md-6">
-                  <label
-                    className="form-label fw-semibold d-flex align-items-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    Fecha de Muestra <span className="text-danger ms-1">*</span>
+                <div className="col-6">
+                  <label className="form-label form-label--sm">
+                    Fecha de Muestra <span className="text-danger">*</span>
                   </label>
                   <input
                     type="date"
                     name="fecha_muestra"
                     className={
-                      'form-control' +
+                      'form-control form-control-sm' +
                       (errors.fecha_muestra ? ' is-invalid' : '')
                     }
                     value={formData.fecha_muestra}
@@ -342,17 +359,14 @@ const ModalMuestrasPozos = ({
                     </div>
                   )}
                 </div>
-                <div className="col-md-6">
-                  <label
-                    className="form-label fw-semibold"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    Fecha de Analisis
+                <div className="col-6">
+                  <label className="form-label form-label--sm">
+                    Fecha de Análisis
                   </label>
                   <input
                     type="date"
                     name="fecha_analisis"
-                    className="form-control"
+                    className="form-control form-control-sm"
                     value={formData.fecha_analisis}
                     onChange={handleChange}
                     disabled={isSubmitting}
@@ -361,60 +375,230 @@ const ModalMuestrasPozos = ({
               </div>
             </div>
 
-            {/* Parametros Quimicos */}
-            <div className="p-3 rounded mb-4">
-              <h6
-                className="fw-semibold mb-3 pb-2"
-                style={{ borderBottom: '2px solid rgba(102,126,234,0.3)' }}
-              >
-                <i className="bi bi-droplet-half me-2"></i>Parametros Quimicos
+            {/* Informe adjunto */}
+            <div className="form-section">
+              <h6 className="form-section__title">
+                <i className="bi bi-paperclip me-2"></i>Informe adjunto
+                <small className="fw-normal ms-2 text-secondary">(PDF)</small>
+              </h6>
+
+              {/* Estado A: sin archivo */}
+              {!formData.informe && !formData.informeFile && (
+                <>
+                  <label
+                    className="file-dropzone"
+                    style={{ cursor: isSubmitting ? 'not-allowed' : 'pointer' }}
+                  >
+                    <i className="bi bi-cloud-upload file-dropzone__icon"></i>
+                    <span className="file-dropzone__label">
+                      Clic para adjuntar el informe .PDF
+                    </span>
+                    <input
+                      type="file"
+                      className="d-none"
+                      accept=".pdf,application/pdf"
+                      onChange={(e) =>
+                        handleFileChange('muestra', e.target.files[0])
+                      }
+                      disabled={isSubmitting}
+                    />
+                  </label>
+                  {fileErrors && (
+                    <p className="cal-file-error mt-2 mb-0">
+                      <i className="bi bi-exclamation-triangle me-1"></i>
+                      {fileErrors}
+                    </p>
+                  )}
+                </>
+              )}
+
+              {/* Estado B: archivo nuevo pendiente */}
+              {tieneArchivoNuevo && (
+                <div className="file-preview-card">
+                  {esImagen && (
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
+                      className="file-preview-card__img"
+                    />
+                  )}
+                  <div className="d-flex align-items-center gap-2 flex-wrap">
+                    <i
+                      className={
+                        'bi fs-5 ' +
+                        (esPdf
+                          ? 'bi-file-earmark-pdf-fill text-danger'
+                          : 'bi-image-fill text-info')
+                      }
+                    ></i>
+                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                      <p
+                        className="mb-0 fw-semibold text-truncate"
+                        style={{ fontSize: '0.85rem' }}
+                      >
+                        {formData.informeFile.name}
+                      </p>
+                      <small className="text-secondary">
+                        {(formData.informeFile.size / 1024).toFixed(1)} KB
+                      </small>
+                    </div>
+                    <span
+                      className="badge bg-warning text-dark"
+                      style={{ fontSize: '0.7rem' }}
+                    >
+                      <i className="bi bi-clock me-1"></i>Pendiente de guardar
+                    </span>
+                    <label
+                      className="btn btn-sm btn-outline-secondary mb-0"
+                      style={{
+                        fontSize: '0.75rem',
+                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                      }}
+                      title="Reemplazar"
+                    >
+                      <i className="bi bi-arrow-repeat"></i>
+                      <input
+                        type="file"
+                        className="d-none"
+                        accept=".pdf,application/pdf"
+                        onChange={(e) =>
+                          handleFileChange('muestra', e.target.files[0])
+                        }
+                        disabled={isSubmitting}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-danger"
+                      style={{ fontSize: '0.75rem' }}
+                      onClick={handleRemoveFile}
+                      disabled={isSubmitting}
+                      title="Quitar"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Estado C: archivo guardado en DB */}
+              {tieneArchivoGuardado && (
+                <div className="file-preview-card">
+                  {esImagen && (
+                    <img
+                      src={'/uploads/muestrasagua/' + formData.informe}
+                      alt="Informe"
+                      className="file-preview-card__img"
+                    />
+                  )}
+                  <div className="d-flex align-items-center gap-2 flex-wrap">
+                    <i
+                      className={
+                        'bi fs-5 ' +
+                        (esPdf
+                          ? 'bi-file-earmark-pdf-fill text-danger'
+                          : 'bi-image-fill text-info')
+                      }
+                    ></i>
+                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                      <p
+                        className="mb-0 fw-semibold text-truncate"
+                        style={{ fontSize: '0.85rem' }}
+                      >
+                        {formData.informe}
+                      </p>
+                      <small className="text-secondary">
+                        Informe guardado en servidor
+                      </small>
+                    </div>
+                    <span
+                      className="badge bg-success"
+                      style={{ fontSize: '0.7rem' }}
+                    >
+                      <i className="bi bi-check-circle me-1"></i>Guardado
+                    </span>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-info"
+                      style={{ fontSize: '0.75rem' }}
+                      title="Ver informe"
+                      onClick={() =>
+                        handleOpenViewer(
+                          '/uploads/muestrasagua/' + formData.informe,
+                        )
+                      }
+                    >
+                      <i className="bi bi-eye"></i>
+                    </button>
+                    <label
+                      className="btn btn-sm btn-outline-warning mb-0"
+                      style={{
+                        fontSize: '0.75rem',
+                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                      }}
+                      title="Reemplazar"
+                    >
+                      <i className="bi bi-arrow-repeat"></i>
+                      <input
+                        type="file"
+                        className="d-none"
+                        accept=".pdf,application/pdf"
+                        onChange={(e) =>
+                          handleFileChange('muestra', e.target.files[0])
+                        }
+                        disabled={isSubmitting}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-danger"
+                      style={{ fontSize: '0.75rem' }}
+                      onClick={handleRemoveFile}
+                      disabled={isSubmitting}
+                      title="Quitar"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Parámetros Químicos */}
+            <div className="form-section form-section--full">
+              <h6 className="form-section__title">
+                <i className="bi bi-droplet-half me-2"></i>Parámetros Químicos
               </h6>
               <div className="row g-3">
                 {/* pH */}
-                <div className="col-md-4">
-                  <label
-                    className="form-label fw-semibold d-flex justify-content-between align-items-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
+                <div className="col">
+                  <label className="form-label form-label--sm d-flex justify-content-between align-items-center">
                     <span>pH</span>
                     {formData.ph && getValorIndicador(formData.ph, 'ph') && (
-                      <>
-                        <i
-                          className={
-                            'bi ' +
-                            getValorIndicador(formData.ph, 'ph').icon +
-                            ' text-' +
-                            getValorIndicador(formData.ph, 'ph').color
-                          }
-                        ></i>
-                      </>
+                      <i
+                        className={
+                          'bi ' +
+                          getValorIndicador(formData.ph, 'ph').icon +
+                          ' text-' +
+                          getValorIndicador(formData.ph, 'ph').color
+                        }
+                      ></i>
                     )}
                   </label>
-
                   <input
                     type="number"
                     step="0.1"
                     name="ph"
                     className={
-                      'form-control' + (errors.ph ? ' is-invalid' : '')
+                      'form-control form-control-sm' +
+                      (errors.ph ? ' is-invalid' : '')
                     }
                     placeholder={rangos['ph'].min + ' - ' + rangos['ph'].max}
                     value={formData.ph}
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
-
-                  <small
-                    className="d-flex justify-content-end"
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: '700',
-                      color: 'rgba(27, 100, 15, 0.91)',
-                    }}
-                  >
-                    Max {rangos['ph'].max}
-                  </small>
-
+                  <small className="form-hint">Máx {rangos['ph'].max}</small>
                   {errors.ph && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -424,11 +608,8 @@ const ModalMuestrasPozos = ({
                 </div>
 
                 {/* Dureza */}
-                <div className="col-md-4">
-                  <label
-                    className="form-label fw-semibold d-flex justify-content-between align-items-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
+                <div className="col">
+                  <label className="form-label form-label--sm d-flex justify-content-between align-items-center">
                     <span>Dureza (mg/L)</span>
                     {formData.dureza &&
                       getValorIndicador(formData.dureza, 'dureza') && (
@@ -447,7 +628,8 @@ const ModalMuestrasPozos = ({
                     step="0.1"
                     name="dureza"
                     className={
-                      'form-control' + (errors.dureza ? ' is-invalid' : '')
+                      'form-control form-control-sm' +
+                      (errors.dureza ? ' is-invalid' : '')
                     }
                     placeholder={
                       rangos['dureza'].min + ' - ' + rangos['dureza'].max
@@ -456,18 +638,9 @@ const ModalMuestrasPozos = ({
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
-
-                  <small
-                    className="d-flex justify-content-end"
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: '700',
-                      color: 'rgba(27, 100, 15, 0.91)',
-                    }}
-                  >
-                    Max {rangos['dureza'].max}
+                  <small className="form-hint">
+                    Máx {rangos['dureza'].max}
                   </small>
-
                   {errors.dureza && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -477,11 +650,8 @@ const ModalMuestrasPozos = ({
                 </div>
 
                 {/* Alcalinidad */}
-                <div className="col-md-4">
-                  <label
-                    className="form-label fw-semibold d-flex justify-content-between align-items-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
+                <div className="col">
+                  <label className="form-label form-label--sm d-flex justify-content-between align-items-center">
                     <span>Alcalinidad (mg/L)</span>
                     {formData.alcalinidad &&
                       getValorIndicador(
@@ -509,7 +679,8 @@ const ModalMuestrasPozos = ({
                     step="0.1"
                     name="alcalinidad"
                     className={
-                      'form-control' + (errors.alcalinidad ? ' is-invalid' : '')
+                      'form-control form-control-sm' +
+                      (errors.alcalinidad ? ' is-invalid' : '')
                     }
                     placeholder={
                       rangos['alcalinidad'].min +
@@ -520,18 +691,9 @@ const ModalMuestrasPozos = ({
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
-
-                  <small
-                    className="d-flex justify-content-end"
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: '700',
-                      color: 'rgba(27, 100, 15, 0.91)',
-                    }}
-                  >
-                    Max {rangos['alcalinidad'].max}
+                  <small className="form-hint">
+                    Máx {rangos['alcalinidad'].max}
                   </small>
-
                   {errors.alcalinidad && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -541,11 +703,8 @@ const ModalMuestrasPozos = ({
                 </div>
 
                 {/* Salinidad */}
-                <div className="col-md-4">
-                  <label
-                    className="form-label fw-semibold d-flex justify-content-between align-items-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
+                <div className="col">
+                  <label className="form-label form-label--sm d-flex justify-content-between align-items-center">
                     <span>Salinidad (mg/L)</span>
                     {formData.salinidad &&
                       getValorIndicador(formData.salinidad, 'salinidad') && (
@@ -566,7 +725,8 @@ const ModalMuestrasPozos = ({
                     step="0.1"
                     name="salinidad"
                     className={
-                      'form-control' + (errors.salinidad ? ' is-invalid' : '')
+                      'form-control form-control-sm' +
+                      (errors.salinidad ? ' is-invalid' : '')
                     }
                     placeholder={
                       rangos['salinidad'].min + ' - ' + rangos['salinidad'].max
@@ -575,18 +735,9 @@ const ModalMuestrasPozos = ({
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
-
-                  <small
-                    className="d-flex justify-content-end"
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: '700',
-                      color: 'rgba(27, 100, 15, 0.91)',
-                    }}
-                  >
-                    Max {rangos['salinidad'].max}
+                  <small className="form-hint">
+                    Máx {rangos['salinidad'].max}
                   </small>
-
                   {errors.salinidad && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -595,20 +746,17 @@ const ModalMuestrasPozos = ({
                   )}
                 </div>
 
-                {/* Fuerza Ionica */}
-                <div className="col-md-4">
-                  <label
-                    className="form-label fw-semibold"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    Fuerza Ionica
+                {/* Fuerza Iónica */}
+                <div className="col">
+                  <label className="form-label form-label--sm">
+                    Fuerza Iónica
                   </label>
                   <input
                     type="number"
                     step="0.001"
                     name="fuerza_ionica"
                     className={
-                      'form-control' +
+                      'form-control form-control-sm' +
                       (errors.fuerza_ionica ? ' is-invalid' : '')
                     }
                     placeholder="0.000"
@@ -616,20 +764,13 @@ const ModalMuestrasPozos = ({
                     onChange={handleChange}
                     disabled={isSubmitting}
                   />
-
                   {formData.fuerza_ionica &&
                     getValorIndicador(
                       formData.fuerza_ionica,
                       'fuerza_ionica',
                     ) && (
-                      <small
-                        style={{
-                          fontSize: '0.7rem',
-                          fontWeight: '700',
-                          color: 'rgba(27, 100, 15, 0.91)',
-                        }}
-                      >
-                        Max{' '}
+                      <small className="form-hint">
+                        Máx{' '}
                         {
                           getValorIndicador(
                             formData.fuerza_ionica,
@@ -638,7 +779,6 @@ const ModalMuestrasPozos = ({
                         }
                       </small>
                     )}
-
                   {errors.fuerza_ionica && (
                     <div className="invalid-feedback">
                       <i className="bi bi-exclamation-circle me-1"></i>
@@ -648,272 +788,29 @@ const ModalMuestrasPozos = ({
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Informe adjunto */}
-            <div className="p-3 rounded mb-4">
-              <h6
-                className="fw-semibold mb-3 pb-2"
-                style={{ borderBottom: '2px solid rgba(34,197,94,0.35)' }}
+          {/* Footer */}
+          {!onlyView && (
+            <div className="modal-footer modal-footer--space-between">
+              {/* Izquierda: Finalizar */}
+              <button
+                type="button"
+                className="btn-finalizar"
+                onClick={() => setShowFinalizarModal(true)}
+                disabled={!isFormComplete || isSubmitting}
+                title={
+                  !isFormComplete
+                    ? 'Completá todos los campos y adjuntá el PDF para finalizar'
+                    : 'Finalizar y cerrar la muestra'
+                }
               >
-                <i className="bi bi-paperclip me-2"></i>Informe adjunto
-                <small className="text-50 fw-normal ms-2">(PDF)</small>
-              </h6>
+                <i className="bi bi-check-circle-fill me-2"></i>
+                Finalizar Muestra
+              </button>
 
-              {/* Estado A: sin archivo */}
-              {!formData.informe && !formData.informeFile && (
-                <>
-                  <label
-                    className="d-flex flex-column align-items-center justify-content-center gap-2 rounded w-100 p-4"
-                    style={{
-                      cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                      border: '2px dashed rgba(255, 255, 255, 0.89)',
-                      background: '#edf5ec',
-                      transition: 'background 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSubmitting)
-                        e.currentTarget.style.background = '#9caca89f';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#edf5ec';
-                    }}
-                  >
-                    <i
-                      className="bi bi-cloud-upload"
-                      style={{
-                        fontSize: '2.5rem',
-                        fontWeight: 'bolder',
-                        color: 'rgba(20, 59, 4, 0.85)',
-                      }}
-                    ></i>
-                    <span
-                      style={{
-                        fontSize: '0.85rem',
-                        fontWeight: '600',
-                        color: 'rgba(20, 59, 4, 0.85)',
-                      }}
-                    >
-                      Hace clic para adjuntar el informe .PDF
-                    </span>
-
-                    <input
-                      type="file"
-                      className="d-none"
-                      accept=".pdf,application/pdf"
-                      onChange={(e) =>
-                        handleFileChange('muestra', e.target.files[0])
-                      }
-                      disabled={isSubmitting}
-                    />
-                  </label>
-
-                  {fileErrors && (
-                    <p className="cal-file-error">
-                      <i className="bi bi-exclamation-triangle me-1"></i>
-                      {fileErrors}
-                    </p>
-                  )}
-                </>
-              )}
-
-              {/* Estado B: archivo nuevo seleccionado (pendiente de guardar) */}
-              {tieneArchivoNuevo && (
-                <div
-                  className="rounded p-3"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                  }}
-                >
-                  {esImagen && (
-                    <img
-                      src={previewUrl}
-                      alt="Preview"
-                      className="rounded mb-2 d-block"
-                      style={{
-                        maxHeight: '160px',
-                        maxWidth: '100%',
-                        objectFit: 'contain',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                      }}
-                    />
-                  )}
-                  <div className="d-flex align-items-center gap-2 flex-wrap">
-                    <i
-                      className={
-                        'bi fs-5 ' +
-                        (esPdf
-                          ? 'bi-file-earmark-pdf-fill text-danger'
-                          : 'bi-image-fill text-info')
-                      }
-                    ></i>
-                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                      <p
-                        className="mb-0  fw-semibold text-truncate"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {formData.informeFile.name}
-                      </p>
-                      <small className="text-50">
-                        {(formData.informeFile.size / 1024).toFixed(1)} KB
-                      </small>
-                    </div>
-                    <span
-                      className="badge bg-warning text-dark"
-                      style={{ fontSize: '0.7rem' }}
-                    >
-                      <i className="bi bi-clock me-1"></i>Pendiente de guardar
-                    </span>
-                    {/* Reemplazar */}
-                    <label
-                      className="btn btn-sm btn-outline-secondary mb-0"
-                      style={{
-                        fontSize: '0.75rem',
-                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                      }}
-                      title="Reemplazar"
-                    >
-                      <i className="bi bi-arrow-repeat"></i>
-                      <input
-                        type="file"
-                        className="d-none"
-                        accept=".pdf,application/pdf"
-                        onChange={(e) =>
-                          handleFileChange('muestra', e.target.files[0])
-                        }
-                        disabled={isSubmitting}
-                      />
-                    </label>
-                    {/* Quitar */}
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger"
-                      style={{ fontSize: '0.75rem' }}
-                      onClick={handleRemoveFile}
-                      disabled={isSubmitting}
-                      title="Quitar"
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Estado C: archivo existente guardado en DB */}
-              {tieneArchivoGuardado && (
-                <div
-                  className="rounded p-3"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                  }}
-                >
-                  {esImagen && (
-                    <img
-                      src={'/uploads/muestrasagua/' + formData.informe}
-                      alt="Informe"
-                      className="rounded mb-2 d-block"
-                      style={{
-                        maxHeight: '160px',
-                        maxWidth: '100%',
-                        objectFit: 'contain',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                      }}
-                    />
-                  )}
-                  <div className="d-flex align-items-center gap-2 flex-wrap">
-                    <i
-                      className={
-                        'bi fs-5 ' +
-                        (esPdf
-                          ? 'bi-file-earmark-pdf-fill text-danger'
-                          : 'bi-image-fill text-info')
-                      }
-                    ></i>
-                    <div className="flex-grow-1" style={{ minWidth: 0 }}>
-                      <p
-                        className="mb-0  fw-semibold text-truncate"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {formData.informe}
-                      </p>
-                      <small className="text-50">
-                        Informe guardado en servidor
-                      </small>
-                    </div>
-                    <span
-                      className="badge bg-success"
-                      style={{ fontSize: '0.7rem' }}
-                    >
-                      <i className="bi bi-check-circle me-1"></i>Guardado
-                    </span>
-                    {/* Ver */}
-                    {/*   <a
-                      href={
-                        apiUrl + '/uploads/muestrasAgua/' + formData.informe
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn btn-sm btn-outline-info"
-                      style={{ fontSize: '0.75rem' }}
-                      title="Ver informe"
-                    >
-                      <i className="bi bi-eye"></i>
-                    </a> */}
-
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-info"
-                      style={{ fontSize: '0.75rem' }}
-                      title="Ver informe"
-                      onClick={() =>
-                        handleOpenViewer(
-                          '/uploads/muestrasagua/' + formData.informe,
-                        )
-                      }
-                    >
-                      <i className="bi bi-eye"></i>
-                    </button>
-
-                    {/* Reemplazar */}
-                    <label
-                      className="btn btn-sm btn-outline-warning mb-0"
-                      style={{
-                        fontSize: '0.75rem',
-                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                      }}
-                      title="Reemplazar"
-                    >
-                      <i className="bi bi-arrow-repeat"></i>
-                      <input
-                        type="file"
-                        className="d-none"
-                        accept=".pdf,application/pdf"
-                        onChange={(e) =>
-                          handleFileChange('muestra', e.target.files[0])
-                        }
-                        disabled={isSubmitting}
-                      />
-                    </label>
-                    {/* Quitar */}
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-danger"
-                      style={{ fontSize: '0.75rem' }}
-                      onClick={handleRemoveFile}
-                      disabled={isSubmitting}
-                      title="Quitar"
-                    >
-                      <i className="bi bi-trash"></i>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Botones */}
-            {!onlyView && (
-              <div className="modal-footer">
+              {/* Derecha: Cancelar + Guardar */}
+              <div className="d-flex gap-2">
                 <button
                   type="button"
                   className="btn-cancel"
@@ -945,81 +842,65 @@ const ModalMuestrasPozos = ({
                   )}
                 </button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
-      <Spinner loading={loading} msg={msg} />
-
-      {showViewer && (
-        /*    <div className="modal-overlay">
+      {/* Modal confirmación — Finalizar Muestra */}
+      {showFinalizarModal && (
+        <div className="modal-overlay-logout">
           <div
-            className="modal-container"
-            style={{ maxWidth: '1000px' }}
+            className="modal-card-logout"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-header">
-              <h5 className="fw-bold text-white mb-0">
-                Vista previa del informe
-              </h5>
-              <button
-                className="btn btn-sm"
-                onClick={() => setShowViewer(false)}
+            <div className="modal-icon-logout">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
               >
-                <i className="bi bi-x-lg"></i>
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
             </div>
 
-            <div
-              className="p-3"
-              style={{ maxHeight: '75vh', overflow: 'auto' }}
-            >
-              {viewerUrl?.toLowerCase().endsWith('.pdf') ? (
-                <iframe
-                  src={viewerUrl}
-                  title="PDF Viewer"
-                  style={{
-                    width: '100%',
-                    height: '75vh',
-                    border: 'none',
-                    borderRadius: '8px',
-                  }}
-                />
-              ) : (
-                <img
-                  src={viewerUrl}
-                  alt="Informe"
-                  style={{
-                    maxWidth: '100%',
-                    maxHeight: '75vh',
-                    objectFit: 'contain',
-                    display: 'block',
-                    margin: '0 auto',
-                  }}
-                />
-              )}
-            </div>
+            <h3 className="modal-title-logout">¿Finalizar la muestra?</h3>
 
-            <div className="modalx-footer">
+            <p className="modal-text-logout">
+              Estás a punto de finalizar esta muestra de agua. Una vez
+              finalizada no podrá ser modificada. Asegurate de que todos los
+              datos sean correctos antes de continuar.
+            </p>
+
+            <div className="modal-buttons-logout">
               <button
-                className="btnx-cancelar"
-                onClick={() => setShowViewer(false)}
+                className="btn-logout-cancel"
+                onClick={() => setShowFinalizarModal(false)}
               >
-                <i className="bi bi-x-circle me-2"></i>
-                Cerrar
+                Cancelar
               </button>
-
-              <button className="btnx-guardar" onClick={handlePrint}>
-                <i className="bi bi-printer me-2"></i>
-                Imprimir
+              <button
+                className="btn-logout-confirm"
+                onClick={() => {
+                  setShowFinalizarModal(false);
+                  handleFinalizarMuestra();
+                }}
+              >
+                Finalizar
               </button>
             </div>
           </div>
-        </div> */
-
-        <ModalImpresion setShowViewer={setShowViewer} viewerUrl={viewerUrl} />
+        </div>
       )}
+
+      <Spinner loading={loading} msg={msg} />
     </>
   );
 };
