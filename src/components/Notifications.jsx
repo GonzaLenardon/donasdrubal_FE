@@ -6,6 +6,7 @@ import {
   createNotificacion,
   getNotificacionesEnviadas,
   getNotificacionesRecibidas,
+  updateNotificacion,
 } from '../api/notificaciones.js';
 
 const TAB_RECIBIDAS = 'recibidas';
@@ -116,18 +117,28 @@ const normalizeAlertList = (lista, destinatariosMap) =>
         new Date(a.fecha_creacion || a.createdAt || 0),
     );
 
+const prettyValue = (value) => {
+  if (value === null || value === undefined || value === '') return 'Sin datos';
+  if (typeof value === 'boolean') return value ? 'Si' : 'No';
+  if (typeof value === 'object') return JSON.stringify(value, null, 2);
+  return String(value);
+};
+
 const Notifications = () => {
   const sessionUser = useMemo(() => getSessionUser(), []);
   const sessionUserId = String(sessionUser?.id || '');
 
   const [tab, setTab] = useState(TAB_RECIBIDAS);
   const [modal, setModal] = useState(false);
+  const [detailModal, setDetailModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState(initialForm);
+  const [selectedNotification, setSelectedNotification] = useState(null);
+  const [editingNotificationId, setEditingNotificationId] = useState(null);
   const [recibidasApi, setRecibidasApi] = useState([]);
   const [enviadasApi, setEnviadasApi] = useState([]);
   const [users, setUsers] = useState([]);
@@ -276,6 +287,7 @@ const Notifications = () => {
     const defaultUserId = toArray(users)[0]?.id ? String(toArray(users)[0].id) : '';
     const defaultDestinatarioId = destinatarios[0]?.id || '';
 
+    setEditingNotificationId(null);
     setForm({
       ...initialForm,
       usuario_to_id: defaultDestinatarioId,
@@ -287,8 +299,56 @@ const Notifications = () => {
 
   const closeModal = () => {
     setModal(false);
+    setEditingNotificationId(null);
     setForm(initialForm);
     setErrors({});
+  };
+
+  const openDetailModal = (notification) => {
+    setSelectedNotification(notification);
+    setDetailModal(true);
+  };
+
+  const closeDetailModal = () => {
+    setSelectedNotification(null);
+    setDetailModal(false);
+  };
+
+  const toDateTimeLocal = (value) => {
+    if (!value) return '';
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60000);
+    return localDate.toISOString().slice(0, 16);
+  };
+
+  const openEditModal = (notification) => {
+    setEditingNotificationId(notification.id);
+    setForm({
+      usuario_to_id: notification.toId || '',
+      entidad_tipo: notification.entidad_tipo || 'user',
+      entidad_id:
+        notification.entidad_id !== null && notification.entidad_id !== undefined
+          ? String(notification.entidad_id)
+          : notification.toId || '',
+      tipo_alerta: notification.tipo_alerta || 'mensaje_recibido',
+      categoria: notification.categoria || 'sistema',
+      estado: notification.estado || 'PENDIENTE',
+      prioridad: notification.prioridad || 'NORMAL',
+      titulo: notification.titulo || '',
+      mensaje: notification.mensaje || '',
+      fecha_alerta: toDateTimeLocal(notification.fecha_alerta),
+      fecha_evento: toDateTimeLocal(notification.fecha_evento),
+      fecha_vencimiento: toDateTimeLocal(notification.fecha_vencimiento),
+      requiere_accion: Boolean(notification.requiere_accion),
+      accion_texto: notification.accion_texto || '',
+      url_accion: notification.url_accion || '',
+    });
+    setErrors({});
+    setModal(true);
   };
 
   const handleForm = (event) => {
@@ -340,16 +400,18 @@ const Notifications = () => {
     try {
       setSaving(true);
       setLoading(true);
-      setMsg('Creando notificacion...');
+      setMsg(
+        editingNotificationId ? 'Actualizando notificacion...' : 'Creando notificacion...',
+      );
 
-      await createNotificacion({
+      const payload = {
         usuario_from_id: Number(sessionUserId),
         usuario_to_id: Number(form.usuario_to_id),
-        entidad_tipo: 'user',
+        entidad_tipo: form.entidad_tipo || 'user',
         entidad_id: Number(form.entidad_id),
-        tipo_alerta: 'mensaje_recibido',
-        categoria: 'sistema',
-        estado: 'PENDIENTE',
+        tipo_alerta: form.tipo_alerta || 'mensaje_recibido',
+        categoria: form.categoria || 'sistema',
+        estado: form.estado || 'PENDIENTE',
         prioridad: form.prioridad,
         titulo: form.titulo.trim(),
         mensaje: form.mensaje.trim(),
@@ -361,17 +423,23 @@ const Notifications = () => {
         url_accion: form.requiere_accion ? form.url_accion.trim() : null,
         observaciones: null,
         metadata: null,
-      });
+      };
+
+      if (editingNotificationId) {
+        await updateNotificacion(editingNotificationId, payload);
+      } else {
+        await createNotificacion(payload);
+      }
 
       await loadData();
       closeModal();
     } catch (error) {
-      console.error('Error al crear notificacion', error);
+      console.error('Error al guardar notificacion', error);
       setErrors((prev) => ({
         ...prev,
         submit:
           error.response?.data?.mensaje ||
-          'No se pudo crear la notificacion.',
+          'No se pudo guardar la notificacion.',
       }));
     } finally {
       setLoading(false);
@@ -461,13 +529,14 @@ const Notifications = () => {
                   <th style={{ width: '8%' }}>Prioridad</th>
                   <th style={{ width: '8%' }}>Estado</th>
                   <th style={{ width: '14%' }}>Fecha</th>
-                  <th style={{ width: '20%' }}>Mensaje</th>
+                  <th style={{ width: '14%' }}>Mensaje</th>
+                  <th style={{ width: '6%' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredList.length === 0 ? (
                   <tr>
-                    <td colSpan="8">
+                    <td colSpan="9">
                       <div className="notifications-empty">
                         No hay notificaciones para mostrar.
                       </div>
@@ -522,6 +591,32 @@ const Notifications = () => {
                           </small>
                         )}
                       </td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            type="button"
+                            className="table-btn table-btn-edit"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openEditModal(item);
+                            }}
+                            title="Editar notificacion"
+                          >
+                            <i className="bi bi-pencil-square"></i>
+                          </button>
+                          <button
+                            type="button"
+                            className="table-btn table-btn-view"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openDetailModal(item);
+                            }}
+                            title="Ver detalle"
+                          >
+                            <i className="bi bi-eye"></i>
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -544,9 +639,13 @@ const Notifications = () => {
                   <i className="bi bi-bell-fill"></i>
                 </div>
                 <div>
-                  <h3 className="modal-title mb-1">Nueva Notificacion</h3>
+                  <h3 className="modal-title mb-1">
+                    {editingNotificationId ? 'Editar Notificacion' : 'Nueva Notificacion'}
+                  </h3>
                   <p className="modal-subtitle mb-0">
-                    Crea una notificacion dirigida a un cliente o a un ingeniero.
+                    {editingNotificationId
+                      ? 'Actualiza la informacion principal de la notificacion.'
+                      : 'Crea una notificacion dirigida a un cliente o a un ingeniero.'}
                   </p>
                 </div>
               </div>
@@ -720,9 +819,173 @@ const Notifications = () => {
                   ) : (
                     <>
                       <i className="bi bi-check-circle me-2"></i>
-                      Crear Notificacion
+                      {editingNotificationId ? 'Guardar Cambios' : 'Crear Notificacion'}
                     </>
                   )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {detailModal && selectedNotification && (
+        <div className="modal-overlay" onClick={closeDetailModal}>
+          <div
+            className="modal-container"
+            onClick={(event) => event.stopPropagation()}
+            style={{ maxWidth: '980px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}
+          >
+            <div className="modal-header">
+              <div className="d-flex align-items-center gap-3">
+                <div className="modal-icon">
+                  <i className="bi bi-eye-fill"></i>
+                </div>
+                <div>
+                  <h3 className="modal-title mb-1">Detalle de Notificacion</h3>
+                  <p className="modal-subtitle mb-0">
+                    Informacion completa relacionada a la alerta seleccionada.
+                  </p>
+                </div>
+              </div>
+              <button className="modal-close-btn" onClick={closeDetailModal}>
+                <i className="bi bi-x-lg"></i>
+              </button>
+            </div>
+
+            <div className="modal-body" style={{ maxHeight: '70vh' }}>
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label className="form-label">Titulo</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.titulo)}
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <label className="form-label">ID</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.id)}
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <label className="form-label">Tipo alerta</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.tipo_alerta)}
+                  </div>
+                </div>
+
+                <div className="col-md-4">
+                  <label className="form-label">Remitente</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.remitente)}
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Destinatario</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.destinatario)}
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Entidad</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.entidad_tipo)} / #
+                    {prettyValue(selectedNotification.entidad_id)}
+                  </div>
+                </div>
+
+                <div className="col-md-3">
+                  <label className="form-label">Categoria</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.categoria)}
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <label className="form-label">Prioridad</label>
+                  <div className="notifications-detail-value">
+                    <span className={priorityClass(selectedNotification.prioridad)}>
+                      {prettyValue(selectedNotification.prioridad)}
+                    </span>
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <label className="form-label">Estado</label>
+                  <div className="notifications-detail-value">
+                    <span className={stateClass(selectedNotification.estado)}>
+                      {prettyValue(selectedNotification.estado)}
+                    </span>
+                  </div>
+                </div>
+                <div className="col-md-3">
+                  <label className="form-label">Requiere accion</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.requiere_accion)}
+                  </div>
+                </div>
+
+                <div className="col-md-4">
+                  <label className="form-label">Fecha creacion</label>
+                  <div className="notifications-detail-value">
+                    {formatDate(selectedNotification.fecha_creacion || selectedNotification.createdAt)}
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Fecha alerta</label>
+                  <div className="notifications-detail-value">
+                    {formatDate(selectedNotification.fecha_alerta)}
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Fecha evento</label>
+                  <div className="notifications-detail-value">
+                    {formatDate(selectedNotification.fecha_evento)}
+                  </div>
+                </div>
+
+                <div className="col-md-4">
+                  <label className="form-label">Fecha vencimiento</label>
+                  <div className="notifications-detail-value">
+                    {formatDate(selectedNotification.fecha_vencimiento)}
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">Texto accion</label>
+                  <div className="notifications-detail-value">
+                    {prettyValue(selectedNotification.accion_texto)}
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <label className="form-label">URL accion</label>
+                  <div className="notifications-detail-value notifications-detail-break">
+                    {prettyValue(selectedNotification.url_accion)}
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label">Mensaje</label>
+                  <div className="notifications-detail-value notifications-detail-pre">
+                    {prettyValue(selectedNotification.mensaje)}
+                  </div>
+                </div>
+
+                <div className="col-md-6">
+                  <label className="form-label">Observaciones</label>
+                  <div className="notifications-detail-value notifications-detail-pre">
+                    {prettyValue(selectedNotification.observaciones)}
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label">Metadata</label>
+                  <div className="notifications-detail-value notifications-detail-pre">
+                    {prettyValue(selectedNotification.metadata)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-footer mt-4">
+                <button className="btn-cancel" onClick={closeDetailModal}>
+                  <i className="bi bi-x-circle me-2"></i>
+                  Cerrar
                 </button>
               </div>
             </div>
