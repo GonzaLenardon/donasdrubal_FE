@@ -14,6 +14,11 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   const basicSelectores = [
     { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
     {
+      title: 'Notificaciones',
+      path: '/notificaciones',
+      icon: 'bi-bell-fill',
+    },
+    {
       title: 'Configuración',
       icon: 'bi-gear-fill',
       children: [

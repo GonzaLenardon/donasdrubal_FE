@@ -15,6 +15,7 @@ import Dash from './components/Dash.jsx';
 import MuestrasPozos from './components/MuestrasPozos.jsx';
 import Alertas from './components/Alertas.jsx';
 import DashboardUser from './components/DashboardUser.jsx';
+import Notifications from './components/Notifications.jsx';
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path="maquinas" element={<Maquinas />} />
           <Route path="varios" element={<Varios />} />
           <Route path="cliente" element={<Clientes />} />
+          <Route path="notificaciones" element={<Notifications />} />
           <Route path="campañas" element={<Alertas />} />
 
           {/* Detalles */}
