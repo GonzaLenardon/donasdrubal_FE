@@ -194,15 +194,19 @@ const JornadasTable = () => {
                       {/* Acciones */}
                       <td>
                         <div className="table-actions">
-                          <button
-                            className="table-btn table-btn-edit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditarJornada(m);
-                            }}
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
+                          {m.estado === 'CERRADO' ? (
+                            <span className="badge bg-danger">CERRADO</span>
+                          ) : (
+                            <button
+                              className="table-btn table-btn-edit"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditarJornada(m);
+                              }}
+                            >
+                              <i className="bi bi-pencil"></i>
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

@@ -792,7 +792,7 @@ const ModalMuestrasPozos = ({
 
           {/* Footer */}
           {!onlyView && (
-            <div className="modal-footer modal-footer--space-between">
+            <div className="modal-footer ">
               {/* Izquierda: Finalizar */}
               <button
                 type="button"

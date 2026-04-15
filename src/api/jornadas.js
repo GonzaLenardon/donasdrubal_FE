@@ -8,12 +8,9 @@ export const clienteJornadas = async (cliente) => {
 
 export const upJornadas = async (jornada) => {
   const { id, cliente_id, ...jornadaAcutalizar } = jornada;
-
-  console.log('upJornadas: jornadaActualizar', jornadaAcutalizar);
-
   const res = await instance.put(
     `/cliente/${cliente_id}/jornadas/${id}`,
-    jornadaAcutalizar
+    jornadaAcutalizar,
   );
   return res.data;
 };
@@ -21,8 +18,14 @@ export const upJornadas = async (jornada) => {
 export const addJornadas = async (jornada) => {
   const { cliente_id, ...newJornada } = jornada;
 
-  const res = await instance.post(`/cliente/${cliente_id}/jornadas`, 
+  const res = await instance.post(
+    `/cliente/${cliente_id}/jornadas`,
     newJornada,
   );
+  return res.data;
+};
+
+export const closeJornada = async (id) => {
+  const res = await instance.put(`/jornadas/close/${id}`);
   return res.data;
 };
