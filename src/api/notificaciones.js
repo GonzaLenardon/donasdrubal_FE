@@ -21,3 +21,8 @@ export const createNotificacion = async (payload) => {
   const resp = await instance.post('/alertas', payload);
   return resp.data;
 };
+
+export const updateNotificacion = async (id, payload) => {
+  const resp = await instance.put(`/alertas/${id}`, payload);
+  return resp.data;
+};
