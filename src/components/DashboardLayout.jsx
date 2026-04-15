@@ -14,6 +14,7 @@ const breadcrumbNames = {
   detalles: 'Dashborad',
   cliente: 'Clientes',
   clientes: 'Clientes',
+  notificaciones: 'Notificaciones',
   pozos: 'Pozos',
   jornadas: 'Jornadas',
   reportes: 'Reportes',
