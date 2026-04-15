@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { addJornadas, upJornadas } from '../api/jornadas';
+import { addJornadas, upJornadas, closeJornada } from '../api/jornadas';
 import Spinner from './Spinner';
 
 const emptyJornada = {
@@ -10,11 +10,10 @@ const emptyJornada = {
 };
 
 const ESTADOS_JORNADA = [
-  { value: 'Pendiente', label: 'Pendiente' },
-  { value: 'Alertado', label: 'Alertado' },
-  { value: 'Vencido', label: 'Vencido' },
-  { value: 'Completado', label: 'Completado' },
-  { value: 'Cancelado', label: 'Cancelado' },
+  { value: 'PENDIENTE', label: 'Pendiente' },
+  { value: 'ALERTADO', label: 'Alertado' },
+  { value: 'VENCIDO', label: 'Vencido' },
+  { value: 'COMPLETADO', label: 'Cancelado' },
 ];
 
 const MOTIVOS_JORNADA = [
@@ -25,31 +24,24 @@ const MOTIVOS_JORNADA = [
 
 const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   const [formData, setFormData] = useState({ ...emptyJornada });
-
   const [errors, setErrors] = useState({});
-
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
+  const [showCerrarModal, setShowCerrarModal] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
     if (jornada) {
-      // crea objeto vacio -> completa con datos de jornada
       setFormData({
         ...emptyJornada,
         ...jornada,
         fecha_jornada: jornada.fecha_jornada?.split('T')[0] || '',
       });
     } else {
-      // Modo crear
       resetForm();
     }
   }, [jornada, isOpen]);
-
-  useEffect(() => {
-    console.log('Form Data', formData);
-  }, [formData]);
 
   const resetForm = () => {
     setFormData({ ...emptyJornada });
@@ -58,65 +50,41 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Limpiar error del campo al escribir
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.fecha_jornada) {
       newErrors.fecha_jornada = 'La fecha de jornada es requerida';
     }
-
-    // if (!formData.observaciones.trim()) {
-    //   newErrors.observaciones = 'Las observaciones son requeridas';
-    // }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
     setLoading(true);
 
     try {
-      // Convertir latitud y longitud a números
       const dataToSend = {
         ...formData,
         cliente_id: parseInt(formData.cliente_id),
       };
 
-      console.log('Datos a enviar:', dataToSend);
-
       let resp;
       if (dataToSend.id) resp = await upJornadas(dataToSend);
       else resp = await addJornadas(dataToSend);
 
-      console.log('Response', resp);
       setMsg(resp.message);
-
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Notificar éxito
-      if (onSaved) {
-        onSaved();
-      }
-
-      // Cerrar modal
+      if (onSaved) onSaved();
       handleClose();
     } catch (error) {
       console.error('Error al guardar:', error);
@@ -128,10 +96,29 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
     }
   };
 
+  // La lógica de cerrar jornada la implementás vos acá
+  const handleCerrarJornada = async () => {
+    try {
+      const resp = await closeJornada(jornada.id);
+
+      console.log('Respuesta de cierre Muestra', resp);
+
+      handleClose();
+    } catch (error) {
+      console.error('Error al finalizar:', error);
+    }
+  };
+
   const handleClose = () => {
     resetForm();
+    setShowCerrarModal(false);
     onClose();
   };
+
+  // isFormComplete — se habilita el botón Cerrar solo si la jornada
+  // tiene fecha y estado cargados (ajustá los campos según tu criterio)
+  const isFormComplete =
+    !!formData.fecha_jornada && !!formData.motivo && !!formData.estado;
 
   if (!isOpen) return null;
 
@@ -163,7 +150,6 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
 
           {/* Body */}
           <div className="modal-body-pozos">
-            {/* Error general */}
             {errors.submit && (
               <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
                 <i className="bi bi-exclamation-triangle-fill"></i>
@@ -173,16 +159,14 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
 
             {/* Fecha Jornada */}
             <div className="form-group">
-              <label htmlFor="nombre" className="form-label">
+              <label htmlFor="fecha_jornada" className="form-label">
                 <i className="bi bi-pencil-fill me-2"></i>
                 Fecha de la jornada
               </label>
               <input
                 type="date"
                 name="fecha_jornada"
-                className={`form-control ${
-                  errors.fecha_jornada ? 'is-invalid' : ''
-                }`}
+                className={`form-control ${errors.fecha_jornada ? 'is-invalid' : ''}`}
                 style={{
                   background: 'rgba(0, 0, 0, 0.2)',
                   border: '2px solid rgba(255, 255, 255, 0.1)',
@@ -234,7 +218,6 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                 onChange={handleChange}
               >
                 <option value="">Seleccione un estado</option>
-
                 {ESTADOS_JORNADA.map((estado) => (
                   <option key={estado.value} value={estado.value}>
                     {estado.label}
@@ -253,9 +236,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                 type="text"
                 id="observaciones"
                 name="observaciones"
-                className={`form-control ${
-                  errors.observaciones ? 'is-invalid' : ''
-                }`}
+                className={`form-control ${errors.observaciones ? 'is-invalid' : ''}`}
                 placeholder="Deje aqui algun comentario sobre la jornada..."
                 value={formData.observaciones}
                 onChange={handleChange}
@@ -269,43 +250,115 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
               )}
             </div>
 
-            {/* Botones */}
-            <div className="modal-footer">
+            {/* Footer */}
+            <div className="modal-footer modal-footer--space-between">
+              {/* Izquierda: Cerrar Jornada */}
               <button
                 type="button"
-                className="btn-cancel"
-                onClick={handleClose}
-                disabled={isSubmitting}
+                className="btn-finalizar"
+                onClick={() => setShowCerrarModal(true)}
+                disabled={!isFormComplete || isSubmitting}
+                title={
+                  !isFormComplete
+                    ? 'Completá fecha, motivo y estado para finalizar la jornada'
+                    : 'Finalizar la jornada'
+                }
               >
-                <i className="bi bi-x-circle me-2"></i>
-                Cancelar
+                <i className="bi bi-check-circle-fill me-2"></i>
+                Finalizar Jornada
               </button>
-              <button
-                type="button"
-                className="btn-save"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-check-circle me-2"></i>
-                    {formData.id ? 'Actualizar' : 'Crear Jornada'}
-                  </>
-                )}
-              </button>
+
+              {/* Derecha: Cancelar + Guardar */}
+              <div className="d-flex gap-2">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={handleClose}
+                  disabled={isSubmitting}
+                >
+                  <i className="bi bi-x-circle me-2"></i>
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  className="btn-save"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Guardando...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle me-2"></i>
+                      {formData.id ? 'Actualizar' : 'Crear Jornada'}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Modal confirmación — Cerrar Jornada */}
+      {showCerrarModal && (
+        <div className="modal-overlay-logout">
+          <div
+            className="modal-card-logout"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-icon-logout">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+
+            <h3 className="modal-title-logout">¿Finalizar la jornada?</h3>
+
+            <p className="modal-text-logout">
+              Estás a punto de finalizar esta jornada. Una vez finalizada no
+              podrá ser modificada. Asegurate de que todos los datos sean
+              correctos antes de continuar.
+            </p>
+
+            <div className="modal-buttons-logout">
+              <button
+                className="btn-logout-cancel"
+                onClick={() => setShowCerrarModal(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn-logout-confirm"
+                onClick={() => {
+                  setShowCerrarModal(false);
+                  handleCerrarJornada();
+                }}
+              >
+                Finalizar Jornada
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Spinner loading={loading} msg={msg} />
     </>

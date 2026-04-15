@@ -41,7 +41,7 @@ const Jornadas = ({ cliente_id }) => {
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h2 className="fw-bold text-white mb-1 pozos-title">
-                Gestión de Jornadas ccccc
+                Gestión de Jornadas
               </h2>
               <p className="text-white-50 mb-0 pozos-subtitle">
                 {jornadas.length} jornadas registradas

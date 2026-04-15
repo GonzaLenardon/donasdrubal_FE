@@ -8,33 +8,39 @@ import { useNavigate } from 'react-router-dom';
 
 const calcClienteMetrics = (cliente) => {
   let totalCal = 0,
-    doneCal = 0;
-  let totalAgua = 0,
-    doneAgua = 0;
+    doneCal = 0,
+    totalAgua = 0,
+    doneAgua = 0,
+    totalJornada = 0,
+    doneJornada = 0;
 
   cliente.maquinas?.forEach((m) => {
     m.calibracionesmaquina?.forEach((cal) => {
       totalCal++;
-      if (!cal.alerta) doneCal++;
+      if (cal.estado === 'CERRADO') doneCal++;
     });
   });
 
   cliente.pozos?.forEach((p) => {
     p.muestrasAgua?.forEach((muestra) => {
       totalAgua++;
-      if (!muestra.alerta) doneAgua++;
+      if (muestra.estado === 'CERRADO') doneAgua++;
     });
+  });
+
+  cliente.jornadas?.forEach((j) => {
+    totalJornada++;
+    if (j.estado === 'CERRADO') doneJornada++;
   });
 
   const calPct = totalCal > 0 ? Math.round((doneCal / totalCal) * 100) : 0;
   const aguaPct = totalAgua > 0 ? Math.round((doneAgua / totalAgua) * 100) : 0;
+  const jornadaPct =
+    totalJornada > 0 ? Math.round((doneJornada / totalJornada) * 100) : 0;
 
   let estado = 'sin';
   if (calPct === 100 && aguaPct === 100) estado = 'completo';
   else if (calPct > 0 || aguaPct > 0) estado = 'proceso';
-
-  const totalMaquinas = cliente.maquinas?.length ?? 0;
-  const totalPozos = cliente.pozos?.length ?? 0;
 
   return {
     totalCal,
@@ -43,32 +49,45 @@ const calcClienteMetrics = (cliente) => {
     totalAgua,
     doneAgua,
     aguaPct,
+    totalJornada,
+    doneJornada,
+    jornadaPct,
     estado,
-    totalMaquinas,
-    totalPozos,
+    totalMaquinas: cliente.maquinas?.length ?? 0,
+    totalPozos: cliente.pozos?.length ?? 0,
   };
 };
 
 const calcGlobalMetrics = (clientes) => {
+  console.log('CLICLCICLCICLICLICICLCICLCICI', clientes);
+
   let totalCal = 0,
     doneCal = 0;
   let totalAgua = 0,
     doneAgua = 0;
+  // ── Jornadas acumuladas en este scope ──
+  let totalJornada = 0,
+    doneJornada = 0;
+
   const rows = [];
 
   clientes.forEach((c) => {
     const m = calcClienteMetrics(c);
 
-    console.log('Que se recibe ', c);
-
     totalCal += m.totalCal;
     doneCal += m.doneCal;
     totalAgua += m.totalAgua;
     doneAgua += m.doneAgua;
+    totalJornada += m.totalJornada;
+    doneJornada += m.doneJornada;
+
     rows.push({
       id: c.id,
       razon_social: c.razon_social,
       litros_estimados: c.litros_estimados,
+      cuil_cuit: c.cuil_cuit,
+      direccion: c.direccion,
+      telefono: c.telefono,
       ...m,
     });
   });
@@ -80,6 +99,10 @@ const calcGlobalMetrics = (clientes) => {
     totalAgua,
     doneAgua,
     aguaPct: totalAgua > 0 ? Math.round((doneAgua / totalAgua) * 100) : 0,
+    totalJornada,
+    doneJornada,
+    jornadaPct:
+      totalJornada > 0 ? Math.round((doneJornada / totalJornada) * 100) : 0,
     rows,
     sin: rows.filter((r) => r.estado === 'sin').length,
     proceso: rows.filter((r) => r.estado === 'proceso').length,
@@ -185,24 +208,20 @@ const DashboardUser = () => {
   const [error, setError] = useState(null);
   const [clienteIds, setClienteIds] = useState([]);
   const { setSelectedCliente } = useCliente();
-
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
+    setSelectedCliente(null); // Limpiar cliente seleccionado al entrar al dashboard
   }, []);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-
-      // 1. Traer clientes del user logueado
       const clientesRes = await allCliente();
       const ids = clientesRes.data.map((c) => c.id);
       setClienteIds(ids);
-
-      // 2. Usar los ids para traer los servicios
       const serviciosRes = await allServices(ids);
       setClientes(serviciosRes.data?.data ?? serviciosRes.data ?? []);
     } catch (err) {
@@ -241,11 +260,11 @@ const DashboardUser = () => {
   }
 
   const m = calcGlobalMetrics(clientes);
-  console.log('ddd', m);
 
   const handleCliente = (row) => {
-    navigate(`/cliente/${row.id}/detalles`);
+    console.log('ROWWWWWWWWWWWWWW', row);
     setSelectedCliente(row);
+    navigate(`/cliente/${row.id}/detalles`);
   };
 
   return (
@@ -273,14 +292,15 @@ const DashboardUser = () => {
             pendiente={`Pendientes: ${m.totalAgua - m.doneAgua}`}
           />
         </div>
+        {/* ── Jornadas (reemplaza Capacitaciones) ── */}
         <div className="col-12 col-md-4">
           <ResumenCard
             icon="🎓"
-            title="Capacitaciones"
-            done={null}
-            total={null}
-            pct={0}
-            pendiente="Próximamente"
+            title="Jornadas"
+            done={m.doneJornada}
+            total={m.totalJornada}
+            pct={m.jornadaPct}
+            pendiente={`Pendientes: ${m.totalJornada - m.doneJornada}`}
           />
         </div>
       </div>
@@ -319,18 +339,18 @@ const DashboardUser = () => {
             <thead className="table-light">
               <tr>
                 <th style={{ width: '15%' }}>Cliente</th>
-                <th style={{ width: '5%' }}>Maquinas</th>
+                <th style={{ width: '5%' }}>Máquinas</th>
                 <th style={{ width: '15%' }}>Calibraciones</th>
                 <th style={{ width: '5%' }}>Pozos</th>
                 <th style={{ width: '15%' }}>Agua</th>
-                <th style={{ width: '15%' }}>Capacitaciones</th>
-                <th style={{ width: '15%' }}>Lts.Estimados</th>
+                <th style={{ width: '15%' }}>Jornadas</th>
+                <th style={{ width: '15%' }}>Lts. Estimados</th>
               </tr>
             </thead>
             <tbody>
               {m.rows.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center text-muted py-4">
+                  <td colSpan={7} className="text-center text-muted py-4">
                     Sin clientes registrados
                   </td>
                 </tr>
@@ -345,36 +365,29 @@ const DashboardUser = () => {
                         {row.razon_social}
                       </span>
                     </td>
-
-                    <td className="">
+                    <td>
                       <span
-                        class="badge rounded bg-info text-dark"
-                        style={{
-                          fontSize: '0.9rem',
-                        }}
+                        className="badge rounded bg-info text-dark"
+                        style={{ fontSize: '0.9rem' }}
                       >
                         {row.totalMaquinas}
                       </span>
                     </td>
-
-                    <td className="">
+                    <td>
                       <MiniBar
                         done={row.doneCal}
                         total={row.totalCal}
                         pct={row.calPct}
                       />
                     </td>
-                    <td className="">
+                    <td>
                       <span
-                        class="badge rounded bg-info text-dark "
-                        style={{
-                          fontSize: '0.9rem',
-                        }}
+                        className="badge rounded bg-info text-dark"
+                        style={{ fontSize: '0.9rem' }}
                       >
                         {row.totalPozos}
                       </span>
                     </td>
-
                     <td>
                       <MiniBar
                         done={row.doneAgua}
@@ -383,14 +396,13 @@ const DashboardUser = () => {
                       />
                     </td>
                     <td>
-                      <small className="text-muted">—</small>
+                      <MiniBar
+                        done={row.doneJornada}
+                        total={row.totalJornada}
+                        pct={row.jornadaPct}
+                      />
                     </td>
-
-                    {/* <td>
-                      <EstadoBadge estado={row.estado} />
-                    </td> */}
-
-                    <td>{row?.litros_estimados || 'ququququ'}</td>
+                    <td>{row?.litros_estimados ?? '—'}</td>
                   </tr>
                 ))
               )}
@@ -399,7 +411,7 @@ const DashboardUser = () => {
         </div>
       </div>
 
-      {/* ── Alertas (placeholder) ── */}
+      {/* ── Alertas ── */}
       <h6 className="fw-medium mb-3">Alertas / Notificaciones</h6>
       <div
         className="alert alert-secondary d-flex align-items-center gap-2 mb-0"
