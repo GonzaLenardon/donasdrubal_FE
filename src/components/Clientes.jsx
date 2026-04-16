@@ -326,8 +326,11 @@ const Clientes = () => {
           </div>
 
           {/* TABLA */}
-          <div className="container-table rounded shadow-lg">
-            <div style={{ marginBottom: '15px' }}>
+          <div
+            className="container-table rounded shadow-lg mb-2"
+            style={{ background: '#1c4f1b36' }}
+          >
+            <div>
               <input
                 type="text"
                 className="form-control"

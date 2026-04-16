@@ -837,11 +837,6 @@ export const ModalCalibraciones = ({
     }
   }, [calibracion]);
 
-  useEffect(() => {
-    console.log('SetFormmmmmm', form);
-    console.log('CALI', calibracion);
-  }, [form]);
-
   if (!calibracion) return null;
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -1117,12 +1112,11 @@ export const ModalCalibraciones = ({
       if (form.id) {
         setMsg('Actualizando calibración...');
         const { id, ...formSinId } = formToSend;
-        console.log('FomttoSend', formToSend);
+
         resp = await upCalibraciones(id, formSinId);
       } else {
         setMsg('Creando calibración...');
         resp = await addCalibraciones(formToSend);
-        console.log('Respuesta creación', resp);
       }
       await uploadFiles(resp); // Subir archivos después de obtener el ID de la nueva calibración
       setMsg(resp.message || 'Calibración guardada exitosamente');
@@ -1147,18 +1141,22 @@ export const ModalCalibraciones = ({
 
       const resp = await closeCalibraciones(calibracion.id);
       console.log(resp.message);
-
+      setShowCerrar(false);
+      setCloseSuccess(false);
       setCloseSuccess(true);
+      setLoading(true);
 
-      // cerrar modal después de mostrar éxito
-      setTimeout(() => {
-        setShowCerrar(false);
-        setCloseSuccess(false);
-      }, 1500);
+      setMsg('Calibracion finalizada exitosamente');
+
+      await new Promise((r) => setTimeout(r, 1500));
+      if (onSaved) onSaved();
     } catch (error) {
       console.error('Error al cerrar:', error);
+      setMsg('Error al finalizar Calibracion');
+      await new Promise((r) => setTimeout(r, 3000));
     } finally {
       setIsClosing(false);
+      setLoading(false);
       onClose();
     }
   };
@@ -1903,12 +1901,13 @@ export const ModalCalibraciones = ({
             </div>
 
             <h3 className="modal-title-logout">
-              ¿Deseas cerrar la calibración?
+              ¿Deseas finalizar la calibración?
             </h3>
 
             <p className="modal-text-logout">
-              Estás a punto de cerrar la calibración. Asegúrate de haber
-              guardado toda la información antes de continuar.
+              Estás a punto de cerrar esta <strong>calibración</strong>.
+              Asegúrate de haber guardado toda la información antes de
+              continuar.
             </p>
 
             <div className="modal-buttons-logout">
@@ -1931,7 +1930,7 @@ export const ModalCalibraciones = ({
                 ) : closeSuccess ? (
                   '✔ Cerrado'
                 ) : (
-                  'Cerrar'
+                  'Finalizar'
                 )}
               </button>
             </div>

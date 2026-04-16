@@ -228,16 +228,27 @@ const ModalMuestrasPozos = ({
   };
 
   // ── Finalizar muestra ─────────────────────────────────────────────────────
-  const handleFinalizarMuestra = () => {
+  const handleFinalizarMuestra = async () => {
     // Lo implementás vos — acá va tu lógica de finalización
 
     try {
-      const resp = closeMuestra(muestra.id);
+      setLoading(true);
+
+      const resp = await closeMuestra(muestra.id);
 
       console.log('Respuesta de cierre Muestra', resp);
+      setMsg('Muestra finalizada correctamente');
+      if (onSaved) onSaved();
+      await new Promise((r) => setTimeout(r, 2000));
+      console.log('Paso x aca ?');
       handleClose();
     } catch (error) {
       console.error('Error al finalizar:', error);
+      setMsg('Error al finalizar Muestra');
+      await new Promise((r) => setTimeout(r, 3000));
+    } finally {
+      setMsg('');
+      setLoading(false);
     }
   };
 
@@ -871,12 +882,14 @@ const ModalMuestrasPozos = ({
               </svg>
             </div>
 
-            <h3 className="modal-title-logout">¿Finalizar la muestra?</h3>
+            <h3 className="modal-title-logout">
+              ¿Deseas finalizar la Muestra?
+            </h3>
 
             <p className="modal-text-logout">
-              Estás a punto de finalizar esta muestra de agua. Una vez
-              finalizada no podrá ser modificada. Asegurate de que todos los
-              datos sean correctos antes de continuar.
+              Estás a punto de finalizar esta <strong>muestra de agua </strong>.
+              Una vez finalizada no podrá ser modificada. Asegurate de que todos
+              los datos sean correctos antes de continuar.
             </p>
 
             <div className="modal-buttons-logout">

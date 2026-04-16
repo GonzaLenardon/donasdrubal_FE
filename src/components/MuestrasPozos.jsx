@@ -306,7 +306,14 @@ const MuestrasPozos = () => {
                       <tr>
                         <th>
                           <i className="bi bi-calendar-event me-2"></i>Fecha
+                          muestras
                         </th>
+
+                        <th>
+                          <i className="bi bi-calendar-event me-2"></i>Fecha
+                          analisis
+                        </th>
+
                         <th>
                           <i className="bi bi-droplet me-2"></i>pH
                         </th>
@@ -343,7 +350,7 @@ const MuestrasPozos = () => {
                         </th>
 
                         <th
-                          className="text-white fw-semibold py-2 px-3"
+                          className="text-white fw-semibold py-2"
                           style={{ fontSize: '0.875rem' }}
                         >
                           <i className="bi bi-prescription2 me-2"></i>Informe
@@ -365,14 +372,20 @@ const MuestrasPozos = () => {
                         const al = getValorColor(m.alcalinidad, 0, 500);
                         const sa = getValorColor(m.salinidad, 0, 1000);
 
+                        const isClose = m.estado === 'CERRADO';
+
                         return (
                           <tr
                             key={m.id}
-                            style={{ cursor: 'pointer' }}
+                            style={{
+                              cursor: isClose ? 'not-allowed' : 'pointer',
+                            }}
                             onClick={() => {
-                              setMuestraEdit(m);
-                              setOnlyView(true);
-                              setIsOpen(true);
+                              if (m.estado !== 'CERRADO') {
+                                setMuestraEdit(m);
+                                setOnlyView(true);
+                                setIsOpen(true);
+                              }
                             }}
                           >
                             {/* Fecha */}
@@ -382,6 +395,15 @@ const MuestrasPozos = () => {
                                 style={{ fontSize: '0.85rem' }}
                               >
                                 {formatFecha(m.fecha_muestra)}
+                              </span>
+                            </td>
+
+                            <td className="py-2 px-3">
+                              <span
+                                className="fw-semibold"
+                                style={{ fontSize: '0.85rem' }}
+                              >
+                                {formatFecha(m.fecha_analisis)}
                               </span>
                             </td>
 
@@ -419,32 +441,27 @@ const MuestrasPozos = () => {
                               <span>{m.dosis || '-'}</span>
                             </td>
 
-                            <td
-                              className="text-center py-2 px-3"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setShowViewer(true);
-                                setViewerUrl(
-                                  `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` +
-                                    m.informe,
-                                );
-                              }}
-
-                              /* apiUrl + '/uploads/muestrasAgua/' + formData.informe, */
-                            >
-                              <span
-                                className="rounded px-2 py-1"
-                                style={{
-                                  background: '#18830cb2',
-                                  color: '#f4efef',
-                                  fontWeight: 600,
-                                  fontSize: '0.75rem',
-                                  display: 'inline-block',
-                                  lineHeight: 1.2,
-                                }}
-                              >
-                                {m.informe ? 'si' : ''}
-                              </span>
+                            <td className="text-center">
+                              {m.informe ? (
+                                <button
+                                  className="btn btn-sm"
+                                  style={{
+                                    color: '#254154',
+                                    fontSize: '1.5rem',
+                                    padding: '0px',
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowViewer(true);
+                                    setViewerUrl(
+                                      `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` +
+                                        m.informe,
+                                    );
+                                  }}
+                                >
+                                  <i className="bi bi-file-earmark-arrow-down"></i>
+                                </button>
+                              ) : null}
                             </td>
 
                             {/* Acciones */}

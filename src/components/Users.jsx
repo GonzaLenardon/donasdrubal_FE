@@ -14,6 +14,7 @@ const Users = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     getUsers();
@@ -168,197 +169,130 @@ const Users = () => {
     setErrors({});
   };
 
+  const filteredUsers = userList.filter(
+    (user) =>
+      user.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   return (
     <>
-      <div className="pozos-wrapper">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h2
-              className="fw-bold text-success mb-1"
-              style={{ fontSize: '2rem' }}
-            >
-              Usuarios
-            </h2>
-            <p className="text-white-50 mb-0" style={{ fontSize: '0.875rem' }}>
-              {userList.length} Usuarios registrados
-            </p>
+      <div className="container_seccion">
+        <div style={{ margin: '0 auto' }}>
+          {/* HEADER */}
+          <div className="header">
+            <div>
+              <h2 className="title">Usuarios</h2>
+              <p className="subtitle">{userList.length} Usuarios registrados</p>
+            </div>
+            <button className="btn-primary" onClick={modalNewUser}>
+              <i className="bi bi-plus-lg"></i>
+              Nuevo Usuario
+            </button>
           </div>
 
-          <button
-            className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
-            onClick={modalNewUser}
+          {/* BUSCADOR */}
+          <div
+            className="container-table rounded shadow-lg mb-2"
+            style={{ background: '#1c4f1b36' }}
           >
-            <i className="bi bi-plus-lg"></i>
-            Nuevo Usuario
-          </button>
-        </div>
+            <div>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="🔍 Buscar usuario..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
 
-        <div
-          className="rounded shadow-lg"
-          style={{
-            background: 'linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ overflowX: 'auto' }}>
+          {/* TABLA */}
+          <div className="container-table rounded shadow-lg">
             <table
-              className="table table-hover mb-0"
-              style={{
-                '--bs-table-bg': 'transparent',
-                '--bs-table-accent-bg': 'transparent',
-                '--bs-table-striped-bg': 'transparent',
-                '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
-                '--bs-table-color': '#ffffff',
-                '--bs-table-border-color': 'rgba(255,255,255,0.15)',
-              }}
+              className="table mb-0"
+              style={{ tableLayout: 'fixed', width: '100%' }}
             >
               <thead>
-                <tr
-                  style={{
-                    background:
-                      'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
-                    borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
-                  }}
-                >
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-person-fill me-2"></i>
-                    Nombre
+                <tr>
+                  <th style={{ width: '25%' }}>
+                    <i className="bi bi-person-fill me-1"></i>Nombre
                   </th>
-
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-shield-check me-2"></i>
-                    Rol
+                  <th style={{ width: '15%' }}>
+                    <i className="bi bi-shield-check me-1"></i>Rol
                   </th>
-
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-envelope-at me-2"></i>
-                    Email
+                  <th style={{ width: '30%' }}>
+                    <i className="bi bi-envelope-at me-1"></i>Email
                   </th>
-
-                  <th
-                    className="text-white fw-semibold py-2 px-3"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-telephone me-2"></i>
-                    Teléfono
+                  <th style={{ width: '20%' }}>
+                    <i className="bi bi-telephone me-1"></i>Teléfono
                   </th>
-
-                  <th
-                    className="text-white fw-semibold py-2 px-3 text-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-gear me-2"></i>
-                    Acciones
+                  <th className="text-center" style={{ width: '10%' }}>
+                    <i className="bi bi-gear"></i>
                   </th>
                 </tr>
               </thead>
-
               <tbody>
-                {userList.map((user) => (
-                  <tr
-                    key={user.id}
-                    style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                      transition: 'background 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        'rgba(102, 126, 234, 0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <td className="py-2 px-3">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {user.nombre}
-                      </span>
-                    </td>
-
-                    <td className="py-2 px-3">
-                      <span
-                        className="badge bg-primary text-white px-2 py-1"
-                        style={{ fontSize: '0.75rem' }}
-                      >
-                        {user.roles[0].nombre}
-                      </span>
-                    </td>
-
-                    <td className="py-2 px-3">
-                      <span
-                        className="text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {user.email}
-                      </span>
-                    </td>
-
-                    <td className="py-2 px-3">
-                      <span
-                        className="text-white"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {user.telefono}
-                      </span>
-                    </td>
-
-                    <td className="py-2 px-3">
-                      <div className="d-flex gap-2 justify-content-center">
-                        <button
-                          className="btn btn-sm"
-                          style={{
-                            background: 'rgba(102, 126, 234, 0.2)',
-                            color: '#93c5fd',
-                            border: '1px solid rgba(102, 126, 234, 0.3)',
-                            padding: '0.3rem 0.8rem',
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            modalUpUser(user);
-                          }}
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                      </div>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center text-muted py-4">
+                      Sin usuarios registrados
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredUsers.map((user) => (
+                    <tr key={user.id}>
+                      <td className="td-truncate">
+                        <span className="table-text">{user.nombre}</span>
+                      </td>
+                      <td>
+                        <span className="table-badge-secondary">
+                          {user.roles[0]?.nombre}
+                        </span>
+                      </td>
+                      <td className="td-truncate">
+                        <span className="table-text">{user.email}</span>
+                      </td>
+                      <td>
+                        <span className="table-text">{user.telefono}</span>
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            className="table-btn table-btn-edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              modalUpUser(user);
+                            }}
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
-
-        <Spinner loading={loading} msg={msg} />
       </div>
 
-      {/* Modal con diseño optimizado */}
+      {/* MODAL FORMULARIO */}
       {modal && (
-        <div className="modal-overlay" onClick={modalClose}>
+        <div className="modal-overlay">
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className="modal-header-pozos">
+            <div className="modal-header">
               <div className="d-flex align-items-center gap-3">
-                <div className="modal-icon-container">
+                <div className="modal-icon">
                   <i className="bi bi-person-circle"></i>
                 </div>
                 <div>
-                  <h3 className="modal-title-pozos mb-1">
+                  <h3 className="modal-title mb-1">
                     {isUpdate ? 'Actualizar Usuario' : 'Nuevo Usuario'}
                   </h3>
-                  <p className="modal-subtitle-pozos mb-0">
+                  <p className="modal-subtitle mb-0">
                     {isUpdate
                       ? 'Modifica la información del usuario'
                       : 'Completa los datos del nuevo usuario'}
@@ -372,7 +306,6 @@ const Users = () => {
 
             {/* Body */}
             <div className="modal-body-pozos">
-              {/* Error general */}
               {errors.submit && (
                 <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
                   <i className="bi bi-exclamation-triangle-fill"></i>
@@ -383,16 +316,13 @@ const Users = () => {
               {/* Nombre */}
               <div className="form-group">
                 <label htmlFor="nombre" className="form-label">
-                  <i className="bi bi-person-fill me-2"></i>
-                  Nombre
+                  <i className="bi bi-person-fill me-2"></i>Nombre
                 </label>
                 <input
                   type="text"
                   id="nombre"
                   name="nombre"
-                  className={`form-control ${
-                    errors.nombre ? 'is-invalid' : ''
-                  }`}
+                  className={`form-control ${errors.nombre ? 'is-invalid' : ''}`}
                   placeholder="Ingrese nombre completo"
                   value={newUser?.nombre || ''}
                   onChange={handleUser}
@@ -409,15 +339,12 @@ const Users = () => {
               {/* Rol */}
               <div className="form-group">
                 <label htmlFor="role_id" className="form-label">
-                  <i className="bi bi-shield-check me-2"></i>
-                  Rol
+                  <i className="bi bi-shield-check me-2"></i>Rol
                 </label>
                 <select
                   id="role_id"
                   name="role_id"
-                  className={`form-control ${
-                    errors.role_id ? 'is-invalid' : ''
-                  }`}
+                  className={`form-control ${errors.role_id ? 'is-invalid' : ''}`}
                   value={newUser?.role_id || ''}
                   onChange={handleUser}
                   disabled={isSubmitting}
@@ -440,8 +367,7 @@ const Users = () => {
               {/* Email */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
-                  <i className="bi bi-envelope-fill me-2"></i>
-                  Email
+                  <i className="bi bi-envelope-fill me-2"></i>Email
                 </label>
                 <input
                   type="email"
@@ -464,16 +390,13 @@ const Users = () => {
               {/* Teléfono */}
               <div className="form-group">
                 <label htmlFor="telefono" className="form-label">
-                  <i className="bi bi-telephone-fill me-2"></i>
-                  Teléfono
+                  <i className="bi bi-telephone-fill me-2"></i>Teléfono
                 </label>
                 <input
                   type="text"
                   id="telefono"
                   name="telefono"
-                  className={`form-control ${
-                    errors.telefono ? 'is-invalid' : ''
-                  }`}
+                  className={`form-control ${errors.telefono ? 'is-invalid' : ''}`}
                   placeholder="+54 9 11 XXXX-XXXX"
                   value={newUser?.telefono || ''}
                   onChange={handleUser}
@@ -487,20 +410,19 @@ const Users = () => {
                 )}
               </div>
 
-              {/* Botones */}
-              <div className="modal-footer-pozos">
+              {/* Footer */}
+              <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn-cancelar-pozos"
+                  className="btn-cancel"
                   onClick={modalClose}
                   disabled={isSubmitting}
                 >
-                  <i className="bi bi-x-circle me-2"></i>
-                  Cancelar
+                  <i className="bi bi-x-circle me-2"></i>Cancelar
                 </button>
                 <button
                   type="button"
-                  className="btn-guardar-pozos"
+                  className="btn-save"
                   onClick={isUpdate ? updateUser : insertUser}
                   disabled={isSubmitting}
                 >
@@ -525,6 +447,8 @@ const Users = () => {
           </div>
         </div>
       )}
+
+      <Spinner loading={loading} msg={msg} />
 
       <ToastContainer
         position="top-right"

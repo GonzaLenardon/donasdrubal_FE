@@ -55,8 +55,9 @@
 }
 
 .subtitle {
-  font-size: 0.875rem;
-  color: rgba(77, 181, 8, 0.502);
+  font-size: 0.95rem;
+  color: rgba(48, 98, 15, 0.502);
+  font-weight: bold;
   margin: 0.25rem 0 0 0;
 }
 
@@ -1616,7 +1617,11 @@ small.text-muted {
 }
 
 .notifications-kpi-card {
-  background: linear-gradient(135deg, rgba(34, 94, 58, 0.96) 0%, rgba(54, 129, 80, 0.96) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(34, 94, 58, 0.96) 0%,
+    rgba(54, 129, 80, 0.96) 100%
+  );
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 18px;
   padding: 18px 20px;
