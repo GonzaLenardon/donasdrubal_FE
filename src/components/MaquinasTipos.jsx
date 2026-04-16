@@ -16,6 +16,7 @@ const MaquinaTipo = () => {
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -134,175 +135,116 @@ const MaquinaTipo = () => {
   const formatFecha = (fecha) =>
     fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-';
 
+  const filteredMaquinaTipos = maquinaTipoList.filter(
+    (m) =>
+      m.tipo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.marca?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.modelo?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   return (
     <>
-      <div className="pozos-wrapper">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h2
-              className="fw-bold text-success mb-1"
-              style={{ fontSize: '2rem' }}
-            >
-              Tipos Maquinas
-            </h2>
-            <p className="text-white-50 mb-0" style={{ fontSize: '0.875rem' }}>
-              {maquinaTipoList.length} Maquinas registradas
-            </p>
+      <div className="container_seccion">
+        <div style={{ margin: '0 auto' }}>
+          {/* HEADER */}
+          <div className="header">
+            <div>
+              <h2 className="title">Tipos de Máquinas</h2>
+              <p className="subtitle">
+                {maquinaTipoList.length} Tipos de máquinas registrados
+              </p>
+            </div>
+            <button className="btn-primary" onClick={modalNewMaquinaTipo}>
+              <i className="bi bi-plus-lg"></i>
+              Nuevo Tipo Máquina
+            </button>
           </div>
 
-          <button
-            className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
-            onClick={modalNewMaquinaTipo}
-          >
-            <i className="bi bi-plus-lg"></i>
-            Nuevo Tipo Maquina
-          </button>
-        </div>
+          {/* BUSCADOR */}
 
-        <div
-          className="rounded shadow-lg"
-          style={{
-            background: 'linear-gradient(145deg, #4a5d7c 0%, #3d4d69 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ overflowX: 'auto' }}>
+          <div
+            className="container-table rounded shadow-lg mb-2"
+            style={{ background: '#1c4f1b36' }}
+          >
+            <div>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="🔍 Buscar tipo de máquina..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* TABLA */}
+          <div className="container-table rounded shadow-lg">
             <table
-              className="table table-hover mb-0"
-              style={{
-                '--bs-table-bg': 'transparent',
-                '--bs-table-accent-bg': 'transparent',
-                '--bs-table-striped-bg': 'transparent',
-                '--bs-table-hover-bg': 'rgba(102, 126, 234, 0.1)',
-                '--bs-table-color': '#ffffff',
-                '--bs-table-border-color': 'rgba(255,255,255,0.15)',
-              }}
+              className="table mb-0"
+              style={{ tableLayout: 'fixed', width: '100%' }}
             >
               <thead>
-                <tr
-                  style={{
-                    background:
-                      'linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%)',
-                    borderBottom: '2px solid rgba(102, 126, 234, 0.3)',
-                  }}
-                >
-                  <th
-                    className="text-white fw-semibold py-3 px-4"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-tag me-2"></i>
-                    Tipo
+                <tr>
+                  <th style={{ width: '20%' }}>
+                    <i className="bi bi-tag me-1"></i>Tipo
                   </th>
-
-                  <th
-                    className="text-white fw-semibold py-3 px-4"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-award me-2"></i>
-                    Marca
+                  <th style={{ width: '20%' }}>
+                    <i className="bi bi-award me-1"></i>Marca
                   </th>
-
-                  <th
-                    className="text-white fw-semibold py-3 px-4"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-box-seam me-2"></i>
-                    Modelo
+                  <th style={{ width: '20%' }}>
+                    <i className="bi bi-box-seam me-1"></i>Modelo
                   </th>
-
-                  <th
-                    className="text-white fw-semibold py-3 px-4"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-calendar-event me-2"></i>
-                    Fecha Fabricación
+                  <th style={{ width: '20%' }}>
+                    <i className="bi bi-calendar-event me-1"></i>Fecha
+                    Fabricación
                   </th>
-
-                  <th
-                    className="text-white fw-semibold py-3 px-4 text-center"
-                    style={{ fontSize: '0.875rem' }}
-                  >
-                    <i className="bi bi-gear me-2"></i>
-                    Acciones
+                  <th className="text-center" style={{ width: '10%' }}>
+                    <i className="bi bi-gear"></i>
                   </th>
                 </tr>
               </thead>
-
               <tbody>
-                {maquinaTipoList.map((maquina_tipo) => (
-                  <tr
-                    key={maquina_tipo.id}
-                    style={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                      transition: 'background 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background =
-                        'rgba(102, 126, 234, 0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent';
-                    }}
-                  >
-                    <td className="py-3 px-4">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
-                      >
-                        {maquina_tipo.tipo}
-                      </span>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
-                      >
-                        {maquina_tipo.marca}
-                      </span>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
-                      >
-                        {maquina_tipo.modelo}
-                      </span>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <span
-                        className="fw-semibold text-white"
-                        style={{ fontSize: '0.9rem' }}
-                      >
-                        {formatFecha(maquina_tipo.fecha_fabricacion)}
-                      </span>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <div className="d-flex gap-2 justify-content-center">
-                        <button
-                          className="btn btn-sm"
-                          style={{
-                            background: 'rgba(102, 126, 234, 0.2)',
-                            color: '#93c5fd',
-                            border: '1px solid rgba(102, 126, 234, 0.3)',
-                            padding: '0.4rem 1rem',
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            modalUpMaquinaTipo(maquina_tipo);
-                          }}
-                        >
-                          <i className="bi bi-pencil me-1"></i>
-                          Editar
-                        </button>
-                      </div>
+                {filteredMaquinaTipos.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center text-muted py-4">
+                      Sin tipos de máquinas registrados
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredMaquinaTipos.map((maquina_tipo) => (
+                    <tr key={maquina_tipo.id}>
+                      <td>
+                        <span className="table-text">{maquina_tipo.tipo}</span>
+                      </td>
+                      <td>
+                        <span className="table-text">{maquina_tipo.marca}</span>
+                      </td>
+                      <td>
+                        <span className="table-text">
+                          {maquina_tipo.modelo}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="table-text">
+                          {formatFecha(maquina_tipo.fecha_fabricacion)}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            className="table-btn table-btn-edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              modalUpMaquinaTipo(maquina_tipo);
+                            }}
+                          >
+                            <i className="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -311,23 +253,23 @@ const MaquinaTipo = () => {
 
       <Spinner loading={loading} msg={msg} />
 
-      {/* Modal con el nuevo estilo */}
+      {/* MODAL FORMULARIO */}
       {modal && (
         <div className="modal-overlay">
           <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div className="modal-header-pozos">
+            <div className="modal-header">
               <div className="d-flex align-items-center gap-3">
-                <div className="modal-icon-container">
+                <div className="modal-icon">
                   <i className="bi bi-gear-fill"></i>
                 </div>
                 <div>
-                  <h3 className="modal-title-pozos mb-1">
+                  <h3 className="modal-title mb-1">
                     {tipoMaquina?.id
                       ? 'Actualizar Tipo Máquina'
                       : 'Nuevo Tipo de Máquina'}
                   </h3>
-                  <p className="modal-subtitle-pozos mb-0">
+                  <p className="modal-subtitle mb-0">
                     {tipoMaquina?.id
                       ? 'Modifica la información del tipo de máquina'
                       : 'Completa los datos del nuevo tipo de máquina'}
@@ -341,7 +283,6 @@ const MaquinaTipo = () => {
 
             {/* Body */}
             <div className="modal-body-pozos">
-              {/* Error general */}
               {errors.submit && (
                 <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
                   <i className="bi bi-exclamation-triangle-fill"></i>
@@ -352,8 +293,7 @@ const MaquinaTipo = () => {
               {/* Tipo */}
               <div className="form-group">
                 <label htmlFor="tipo" className="form-label">
-                  <i className="bi bi-tag-fill me-2"></i>
-                  Tipo de Máquina
+                  <i className="bi bi-tag-fill me-2"></i>Tipo de Máquina
                 </label>
                 <select
                   id="tipo"
@@ -382,8 +322,7 @@ const MaquinaTipo = () => {
               {/* Marca */}
               <div className="form-group">
                 <label htmlFor="marca" className="form-label">
-                  <i className="bi bi-award-fill me-2"></i>
-                  Marca
+                  <i className="bi bi-award-fill me-2"></i>Marca
                 </label>
                 <input
                   type="text"
@@ -406,16 +345,13 @@ const MaquinaTipo = () => {
               {/* Modelo */}
               <div className="form-group">
                 <label htmlFor="modelo" className="form-label">
-                  <i className="bi bi-box-seam me-2"></i>
-                  Modelo
+                  <i className="bi bi-box-seam me-2"></i>Modelo
                 </label>
                 <input
                   type="text"
                   id="modelo"
                   name="modelo"
-                  className={`form-control ${
-                    errors.modelo ? 'is-invalid' : ''
-                  }`}
+                  className={`form-control ${errors.modelo ? 'is-invalid' : ''}`}
                   placeholder="Ej: 4730"
                   value={tipoMaquina?.modelo || ''}
                   onChange={handleCliente}
@@ -432,17 +368,14 @@ const MaquinaTipo = () => {
               {/* Fecha de Fabricación */}
               <div className="form-group">
                 <label htmlFor="fecha_fabricacion" className="form-label">
-                  <i className="bi bi-calendar-event me-2"></i>
-                  Fecha de Fabricación
+                  <i className="bi bi-calendar-event me-2"></i>Fecha de
+                  Fabricación
                 </label>
                 <input
                   type="date"
                   id="fecha_fabricacion"
                   name="fecha_fabricacion"
-                  className={`form-control ${
-                    errors.fecha_fabricacion ? 'is-invalid' : ''
-                  }`}
-                  placeholder="Ej: 2020 o 01/2020"
+                  className={`form-control ${errors.fecha_fabricacion ? 'is-invalid' : ''}`}
                   value={tipoMaquina?.fecha_fabricacion || ''}
                   onChange={handleCliente}
                   disabled={isSubmitting}
@@ -455,20 +388,19 @@ const MaquinaTipo = () => {
                 )}
               </div>
 
-              {/* Botones */}
+              {/* Footer */}
               <div className="modal-footer">
                 <button
                   type="button"
-                  className="btn-cancelar-pozos"
+                  className="btn-cancel"
                   onClick={modalClose}
                   disabled={isSubmitting}
                 >
-                  <i className="bi bi-x-circle me-2"></i>
-                  Cancelar
+                  <i className="bi bi-x-circle me-2"></i>Cancelar
                 </button>
                 <button
                   type="button"
-                  className="btn-guardar-pozos"
+                  className="btn-save"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                 >

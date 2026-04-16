@@ -99,13 +99,22 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   // La lógica de cerrar jornada la implementás vos acá
   const handleCerrarJornada = async () => {
     try {
+      setLoading(true);
       const resp = await closeJornada(jornada.id);
+      setMsg('Jornada finalizada exitosamente');
 
-      console.log('Respuesta de cierre Muestra', resp);
+      if (onSaved) onSaved();
+
+      await new Promise((r) => setTimeout(r, 1500));
 
       handleClose();
     } catch (error) {
       console.error('Error al finalizar:', error);
+      setMsg('Error al finalizar Jornada');
+      await new Promise((r) => setTimeout(r, 3000));
+    } finally {
+      setLoading(false);
+      setMsg('');
     }
   };
 
@@ -331,12 +340,14 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
               </svg>
             </div>
 
-            <h3 className="modal-title-logout">¿Finalizar la jornada?</h3>
+            <h3 className="modal-title-logout">
+              ¿Deseas finalizar la Jornada?
+            </h3>
 
             <p className="modal-text-logout">
-              Estás a punto de finalizar esta jornada. Una vez finalizada no
-              podrá ser modificada. Asegurate de que todos los datos sean
-              correctos antes de continuar.
+              Estás a punto de finalizar esta <strong>jornada </strong>. Una vez
+              finalizada no podrá ser modificada. Asegurate de que todos los
+              datos sean correctos antes de continuar.
             </p>
 
             <div className="modal-buttons-logout">
@@ -353,7 +364,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                   handleCerrarJornada();
                 }}
               >
-                Finalizar Jornada
+                Finalizar
               </button>
             </div>
           </div>

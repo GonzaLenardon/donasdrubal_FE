@@ -164,7 +164,7 @@ const JornadasTable = () => {
 
                 <tbody>
                   {jornadasFiltradas.map((m) => (
-                    <tr key={m.id} onClick={() => handleEditarJornada(m)}>
+                    <tr key={m.id} /* onClick={() => handleEditarJornada(m)} */>
                       {/* Fecha */}
                       <td>
                         <span className="table-text fw-semibold">
