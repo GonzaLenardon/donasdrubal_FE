@@ -126,7 +126,7 @@ const Users = () => {
   };
 
   const modalUpUser = (item) => {
-    const { id, roles, nombre, email, telefono } = item;
+    const { id, roles, nombre, email, telefono, password } = item;
     console.log('first', item);
     SetNewUser({
       id,
@@ -134,6 +134,7 @@ const Users = () => {
       nombre,
       email,
       telefono,
+      password,
     });
     setErrors({});
     setIsUpdate(true);
@@ -146,6 +147,7 @@ const Users = () => {
       role_id: '',
       email: '',
       telefono: '',
+      password: '',
     });
     setErrors({});
     setIsUpdate(false);
@@ -305,7 +307,7 @@ const Users = () => {
             </div>
 
             {/* Body */}
-            <div className="modal-body-pozos">
+            <div className="modal-user">
               {errors.submit && (
                 <div className="alert alert-danger d-flex align-items-center gap-2 mb-3">
                   <i className="bi bi-exclamation-triangle-fill"></i>
@@ -314,7 +316,7 @@ const Users = () => {
               )}
 
               {/* Nombre */}
-              <div className="form-group">
+              <div className="form-section">
                 <label htmlFor="nombre" className="form-label">
                   <i className="bi bi-person-fill me-2"></i>Nombre
                 </label>
@@ -337,7 +339,7 @@ const Users = () => {
               </div>
 
               {/* Rol */}
-              <div className="form-group">
+              <div className="form-section">
                 <label htmlFor="role_id" className="form-label">
                   <i className="bi bi-shield-check me-2"></i>Rol
                 </label>
@@ -365,7 +367,7 @@ const Users = () => {
               </div>
 
               {/* Email */}
-              <div className="form-group">
+              <div className="form-section">
                 <label htmlFor="email" className="form-label">
                   <i className="bi bi-envelope-fill me-2"></i>Email
                 </label>
@@ -388,7 +390,7 @@ const Users = () => {
               </div>
 
               {/* Teléfono */}
-              <div className="form-group">
+              <div className="form-section">
                 <label htmlFor="telefono" className="form-label">
                   <i className="bi bi-telephone-fill me-2"></i>Teléfono
                 </label>
@@ -410,39 +412,61 @@ const Users = () => {
                 )}
               </div>
 
-              {/* Footer */}
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn-cancel"
-                  onClick={modalClose}
+              <div className="form-section">
+                <label htmlFor="password" className="form-label">
+                  <i className="bi bi-password-fill me-2"></i>Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+                  placeholder="*********"
+                  value={newUser?.password || ''}
+                  onChange={handleUser}
                   disabled={isSubmitting}
-                >
-                  <i className="bi bi-x-circle me-2"></i>Cancelar
-                </button>
-                <button
-                  type="button"
-                  className="btn-save"
-                  onClick={isUpdate ? updateUser : insertUser}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span
-                        className="spinner-border spinner-border-sm me-2"
-                        role="status"
-                        aria-hidden="true"
-                      ></span>
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <i className="bi bi-check-circle me-2"></i>
-                      {isUpdate ? 'Actualizar' : 'Crear Usuario'}
-                    </>
-                  )}
-                </button>
+                />
+                {errors.password && (
+                  <div className="invalid-feedback">
+                    <i className="bi bi-exclamation-circle me-1"></i>
+                    {errors.password}
+                  </div>
+                )}
               </div>
+
+              {/* Footer */}
+            </div>
+            <div className="modal-footer modal-footer--full">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={modalClose}
+                disabled={isSubmitting}
+              >
+                <i className="bi bi-x-circle me-2"></i>Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn-save"
+                onClick={isUpdate ? updateUser : insertUser}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-circle me-2"></i>
+                    {isUpdate ? 'Actualizar' : 'Crear Usuario'}
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

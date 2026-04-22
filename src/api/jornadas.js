@@ -29,3 +29,8 @@ export const closeJornada = async (id) => {
   const res = await instance.put(`/jornadas/close/${id}`);
   return res.data;
 };
+
+export const openJornada = async (id) => {
+  const res = await instance.put(`/jornadas/open/${id}`);
+  return res.data;
+};

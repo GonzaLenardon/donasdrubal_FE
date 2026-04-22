@@ -23,3 +23,8 @@ export const closeMuestra = async (id) => {
   const res = await instance.put(`/muestras_agua/close/${id}`);
   return res.data;
 };
+
+export const openMuestra = async (id) => {
+  const res = await instance.put(`/muestras_agua/open/${id}`);
+  return res.data;
+};
