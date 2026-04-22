@@ -24,11 +24,11 @@ instance.interceptors.request.use(
   (error) => {
     console.error('❌ Error en request:', error);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor
-instance.interceptors.response.use(
+/* instance.interceptors.response.use(
   (response) => {
     if (import.meta.env.DEV) {
       console.log(`✅ ${response.status} - ${response.config.url}`);
@@ -39,7 +39,7 @@ instance.interceptors.response.use(
     // Token expirado o inválido
     if (error.response?.status === 401 && !isShowingSessionExpired) {
       isShowingSessionExpired = true;
-      console.log('🔒 Sesión expirada - Redirigiendo...');
+      console.log('🔒 Sesión expirada - Redirigiendo...', error.response);
 
       // Crear y mostrar spinner
       const spinnerOverlay = document.createElement('div');
@@ -51,13 +51,13 @@ instance.interceptors.response.use(
     style="background-color: rgba(0,0,0,.9); z-index:9999;"
   >
     <div 
-      class="spinner-border text-primary"
+      class="spinner-border text-success"
       role="status"
       style="width:3rem; height:3rem;"
     ></div>
 
-    <span class="text-primary fs-3 fw-bold mt-3">
-      Sesión expirada
+    <span class="text-success fs-3 fw-bold mt-3">
+      Datos incorrectos MMMMMM
     </span>
   </div>
 `;
@@ -65,6 +65,7 @@ instance.interceptors.response.use(
       document.body.appendChild(spinnerOverlay);
 
       // Esperar 4 segundos y redirigir
+
       setTimeout(() => {
         localStorage.clear();
         window.location.href = '/login';
@@ -82,7 +83,26 @@ instance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
+); */
+
+instance.interceptors.response.use(
+  (response) => {
+    console.log(`✅ ${response.status} - ${response.config.url}`);
+    return response;
+  },
+  (error) => {
+    const status = error.response?.status;
+    const isLoginRequest = error.config.url.includes('/login');
+
+    // SOLO sesión expirada global
+    if (status === 401 && !isLoginRequest) {
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+
+    return Promise.reject(error);
+  },
 );
 
 export default instance;

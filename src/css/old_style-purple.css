@@ -219,6 +219,7 @@ body {
 .sidebar-role {
   font-size: 12px;
   opacity: 0.7;
+  color: #007bff;
 }
 
 /* Menú */
@@ -2623,4 +2624,8 @@ textarea:focus-visible {
 
 .dashboard-content {
   margin-left: 0;
+}
+
+.modal-user {
+  background-color: red;
 }

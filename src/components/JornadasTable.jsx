@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { clienteJornadas } from '../api/jornadas';
+import { clienteJornadas, openJornada } from '../api/jornadas';
 import ModalJornadas from './ModalJornadas';
+import ModalFinalizarServicios from './ModalFinalizarServicios';
+import Spinner from './Spinner';
 
 const JornadasTable = () => {
   const { cliente_id } = useParams();
@@ -10,8 +12,12 @@ const JornadasTable = () => {
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
   const [loading, setLoading] = useState(true);
+  const [msg, setMsg] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [jornadaEdit, setJornadaEdit] = useState(null);
+  const [jornadaReabrir, setJornadaReabrir] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isAdmin = user?.rol === 'Administrador';
 
   useEffect(() => {
     getJornadas();
@@ -66,6 +72,25 @@ const JornadasTable = () => {
   const handleEditarJornada = (m) => {
     setJornadaEdit({ ...m });
     setIsOpen(true);
+  };
+
+  const handleReabrirJornada = async () => {
+    try {
+      setJornadaReabrir(null);
+      setLoading(true);
+      await openJornada(jornadaReabrir.id);
+      setMsg('Jornada abierta correctamente');
+      await new Promise((r) => setTimeout(r, 1500));
+
+      getJornadas();
+    } catch (error) {
+      console.error('Error al finalizar:', error);
+      setMsg('Error al abrir Jornada');
+      await new Promise((r) => setTimeout(r, 3000));
+    } finally {
+      setLoading(false);
+      setMsg('');
+    }
   };
 
   /* ================= RENDER ================= */
@@ -150,11 +175,12 @@ const JornadasTable = () => {
                     <th>
                       <i className="bi bi-chat-left-text"></i>Motivo
                     </th>
-                    <th>
-                      <i className="bi bi-flag-fill"></i>Estado
-                    </th>
+
                     <th>
                       <i className="bi bi-card-text"></i>Observaciones
+                    </th>
+                    <th>
+                      <i className="bi bi-flag-fill"></i>Estado
                     </th>
                     <th className="text-center">
                       <i className="bi bi-gear"></i>Acciones
@@ -163,54 +189,69 @@ const JornadasTable = () => {
                 </thead>
 
                 <tbody>
-                  {jornadasFiltradas.map((m) => (
-                    <tr key={m.id} /* onClick={() => handleEditarJornada(m)} */>
-                      {/* Fecha */}
-                      <td>
-                        <span className="table-text fw-semibold">
-                          {formatFecha(m.fecha_jornada)}
-                        </span>
-                      </td>
+                  {jornadasFiltradas.map((m) => {
+                    const isClosed = m.estado === 'CERRADO';
 
-                      {/* Motivo */}
-                      <td>
-                        <span className="table-text">{m.motivo || '-'}</span>
-                      </td>
+                    return (
+                      <tr
+                        key={m.id} /* onClick={() => handleEditarJornada(m)} */
+                      >
+                        {/* Fecha */}
+                        <td>
+                          <span className="table-text fw-semibold">
+                            {formatFecha(m.fecha_jornada)}
+                          </span>
+                        </td>
 
-                      {/* Estado */}
-                      <td>
-                        <span className="table-badge-info">
-                          {m.estado || '-'}
-                        </span>
-                      </td>
+                        {/* Motivo */}
+                        <td>
+                          <span className="table-text">{m.motivo || '-'}</span>
+                        </td>
 
-                      {/* Observaciones */}
-                      <td>
-                        <span className="table-text">
-                          {m.observaciones || '-'}
-                        </span>
-                      </td>
+                        {/* Estado */}
 
-                      {/* Acciones */}
-                      <td>
-                        <div className="table-actions">
-                          {m.estado === 'CERRADO' ? (
-                            <span className="badge bg-danger">CERRADO</span>
-                          ) : (
-                            <button
-                              className="table-btn table-btn-edit"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditarJornada(m);
-                              }}
-                            >
-                              <i className="bi bi-pencil"></i>
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                        {/* Observaciones */}
+                        <td>
+                          <span className="table-text">
+                            {m.observaciones || '-'}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className="table-badge-info">
+                            {m.estado || '-'}
+                          </span>
+                        </td>
+
+                        {/* Acciones */}
+                        <td>
+                          <div className="table-actions">
+                            {!isClosed && (
+                              <button
+                                className="table-btn table-btn-edit"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditarJornada(m);
+                                }}
+                              >
+                                <i className="bi bi-pencil"></i>
+                              </button>
+                            )}
+
+                            {isClosed && isAdmin && (
+                              <button
+                                className="btn btn-sm calibracion-botones text-warning"
+                                onClick={() => setJornadaReabrir(m)}
+                                title="Reabrir calibración"
+                              >
+                                <i className="bi bi-arrow-repeat"></i>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}
@@ -224,6 +265,16 @@ const JornadasTable = () => {
         jornada={jornadaEdit}
         onSaved={getJornadas}
       />
+      {jornadaReabrir && (
+        <ModalFinalizarServicios
+          handleFinalizar={handleReabrirJornada}
+          servicio="jornada"
+          setShowFinalizar={() => setJornadaReabrir(null)}
+          isReabrir={true}
+        />
+      )}
+
+      <Spinner msg={msg} loading={loading} />
     </div>
   );
 };

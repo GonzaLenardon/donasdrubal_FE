@@ -1497,8 +1497,8 @@ small.text-muted {
 
 /* Sección genérica */
 .form-section {
-  background: rgba(159, 170, 163, 0.692);
-  border: 1px solid rgba(27, 89, 49, 0.12);
+  /* background: rgba(196, 202, 198, 0.692); */
+  /*  border: 1px solid rgba(27, 89, 49, 0.12); */
   border-radius: 8px;
   padding: 14px 16px;
   height: 100%;
@@ -1798,4 +1798,19 @@ small.text-muted {
   .notifications-tab {
     flex: 1;
   }
+}
+
+.modal-user {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* ✅ correcto */
+  gap: 1.5rem; /* espacio entre columnas y filas */
+  margin: 0.5rem;
+  border-radius: 15px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: rgba(196, 202, 198, 0.692);
+}
+
+.modal-footer--full {
+  grid-column: 1 / -1;
 }

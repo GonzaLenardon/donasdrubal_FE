@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { login } from '../api/users';
 import { useNavigate } from 'react-router-dom';
 import Spinner from './Spinner';
+import { handleApiError } from '../utils/handleApiError';
 
 export const Login = () => {
   const [activeTab, setActiveTab] = useState('signin');
@@ -13,6 +14,7 @@ export const Login = () => {
   const getlogin = async () => {
     try {
       const resp = await login(user);
+      console.log('REspuesta Login', resp);
 
       localStorage.setItem(
         'user',
@@ -26,9 +28,17 @@ export const Login = () => {
       setMsg('');
       navigate('/', { replace: true });
     } catch (error) {
-      const mensaje =
-        error.response?.data?.mensaje || 'Error al iniciar sesión';
-      alert(mensaje);
+      console.log('Erororororoorororo', error);
+
+      const mensaje = handleApiError(error);
+      console.log('Daooooooooooooooooooooooooooooooo', mensaje);
+
+      setLoading(true);
+      setMsg(mensaje);
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+    } finally {
+      setMsg('');
+      setLoading(false);
     }
   };
 

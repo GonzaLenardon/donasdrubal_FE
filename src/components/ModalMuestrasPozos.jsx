@@ -7,6 +7,7 @@ import {
 import Spinner from './Spinner';
 import ModalImpresion from './ModalImpresion';
 import { useParams } from 'react-router-dom';
+import ModalFinalizarServicios from './ModalFinalizarServicios';
 
 const ModalMuestrasPozos = ({
   isOpen,
@@ -237,6 +238,7 @@ const ModalMuestrasPozos = ({
       const resp = await closeMuestra(muestra.id);
 
       console.log('Respuesta de cierre Muestra', resp);
+      setShowFinalizarModal(false);
       setMsg('Muestra finalizada correctamente');
       if (onSaved) onSaved();
       await new Promise((r) => setTimeout(r, 2000));
@@ -858,59 +860,13 @@ const ModalMuestrasPozos = ({
         </div>
       </div>
 
-      {/* Modal confirmación — Finalizar Muestra */}
       {showFinalizarModal && (
-        <div className="modal-overlay-logout">
-          <div
-            className="modal-card-logout"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-icon-logout">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-
-            <h3 className="modal-title-logout">
-              ¿Deseas finalizar la Muestra?
-            </h3>
-
-            <p className="modal-text-logout">
-              Estás a punto de finalizar esta <strong>muestra de agua </strong>.
-              Una vez finalizada no podrá ser modificada. Asegurate de que todos
-              los datos sean correctos antes de continuar.
-            </p>
-
-            <div className="modal-buttons-logout">
-              <button
-                className="btn-logout-cancel"
-                onClick={() => setShowFinalizarModal(false)}
-              >
-                Cancelar
-              </button>
-              <button
-                className="btn-logout-confirm"
-                onClick={() => {
-                  setShowFinalizarModal(false);
-                  handleFinalizarMuestra();
-                }}
-              >
-                Finalizar
-              </button>
-            </div>
-          </div>
-        </div>
+        <ModalFinalizarServicios
+          handleFinalizar={handleFinalizarMuestra}
+          servicio="muestra de agua"
+          setShowFinalizar={() => setShowFinalizarModal(false)}
+          isReabrir={false}
+        />
       )}
 
       <Spinner loading={loading} msg={msg} />

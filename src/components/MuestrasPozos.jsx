@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { muestraAguaPozoCliente } from '../api/muestrasAgua';
+import { muestraAguaPozoCliente, openMuestra } from '../api/muestrasAgua';
 import ModalMuestrasPozos from './ModalMuestrasPozos';
 import { useCliente } from '../context/UserContext';
 import generarPDF from '../utils/generarPdf';
@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import ModalImpresion from './ModalImpresion';
 import { apiGenerarInformeMuestras } from '../api/informes';
+import ModalFinalizarServicios from './ModalFinalizarServicios';
+import Spinner from './Spinner';
 
 const MuestrasPozos = () => {
   const { cliente_id, pozos_id } = useParams();
@@ -37,8 +39,10 @@ const MuestrasPozos = () => {
   const [muestraEdit, setMuestraEdit] = useState(null);
   const [showViewer, setShowViewer] = useState(false);
   const [viewerUrl, setViewerUrl] = useState('');
-
+  const [msg, setMsg] = useState('');
+  const [muestraReabrir, setMuestraReabrir] = useState(false);
   const { selectedPozo } = useCliente();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     getMuestras();
@@ -135,98 +139,33 @@ const MuestrasPozos = () => {
     }
   };
 
+  const handleOpenMuestras = async () => {
+    // Lo implementás vos — acá va tu lógica de finalización
+    const { id } = muestraReabrir;
+
+    try {
+      await openMuestra(id);
+      setMuestraReabrir(false);
+      setLoading(true);
+      setMsg('Muestra abierta correctamente');
+
+      await new Promise((r) => setTimeout(r, 1500));
+      getMuestras();
+    } catch (error) {
+      console.error('Error al abrir muestra:', error);
+      setMsg('Error al abrir muestra');
+      await new Promise((r) => setTimeout(r, 3000));
+    } finally {
+      setMsg('');
+      setLoading(false);
+    }
+  };
+
   /* ================= RENDER ================= */
 
   return (
     <div className="min-h-screen bg-gray-50 p-0">
       <div className="mx-auto">
-        {/* HEADER REDISEÑADO */}
-
-        {/*      <div className="info-cards-grid">
-        
-
-          <div className="info-card">
-            <div className="info-card-header">
-              <div className="info-card-icon">
-                <Building2 size={24} />
-              </div>
-              <h3 className="info-card-title">Información del Cliente</h3>
-            </div>
-            <div className="info-card-body-row">
-              <div className="info-item-horizontal">
-                <div className="info-item-icon">
-                  <Building size={20} />
-                </div>
-                <div className="info-item-content">
-                  <span className="info-item-label">Razón Social</span>
-                  <span className="info-item-value">
-                    {cliente?.razon_social || 'Sin razón social'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="info-item-horizontal">
-                <div className="info-item-icon">
-                  <Phone size={20} />
-                </div>
-                <div className="info-item-content">
-                  <span className="info-item-label">Teléfono</span>
-                  <span className="info-item-value">
-                    {cliente?.telefono || 'No especificado'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="info-item-horizontal">
-                <div className="info-item-icon">
-                  <MapPin size={20} />
-                </div>
-                <div className="info-item-content">
-                  <span className="info-item-label">Localidad</span>
-                  <span className="info-item-value">
-                    {cliente?.ciudad || 'No especificado'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-       
-          <div className="info-card">
-            <div className="info-card-header">
-              <div className="info-card-icon">
-                <Droplet size={24} />
-              </div>
-              <h3 className="info-card-title">Información del Pozo</h3>
-            </div>
-            <div className="info-card-body-row">
-              <div className="info-item-horizontal">
-                <div className="info-item-icon">
-                  <Droplet size={20} />
-                </div>
-                <div className="info-item-content">
-                  <span className="info-item-label">Nombre</span>
-                  <span className="info-item-value">
-                    {pozo?.nombre || 'Sin nombre'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="info-item-horizontal">
-                <div className="info-item-icon">
-                  <Building size={20} />
-                </div>
-                <div className="info-item-content">
-                  <span className="info-item-label">Establecimiento</span>
-                  <span className="info-item-value">
-                    {pozo?.establecimiento || 'No especificado'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
-
         <div className="muestras-pozos-wrapper">
           <div style={{ margin: '0 auto' }}>
             {/* HEADER */}
@@ -353,7 +292,15 @@ const MuestrasPozos = () => {
                           className="text-white fw-semibold py-2"
                           style={{ fontSize: '0.875rem' }}
                         >
-                          <i className="bi bi-prescription2 me-2"></i>Informe
+                          <i className="bi bi-activity me-2"></i>Estado
+                        </th>
+
+                        <th
+                          className="text-white fw-semibold py-2"
+                          style={{ fontSize: '0.875rem' }}
+                        >
+                          <i className="bi bi-file-earmark-bar-graph me-2"></i>
+                          Informe
                         </th>
 
                         <th
@@ -441,6 +388,12 @@ const MuestrasPozos = () => {
                               <span>{m.dosis || '-'}</span>
                             </td>
 
+                            <td className="py-2 px-3">
+                              <span className="table-badge-info">
+                                {m.estado || '-'}
+                              </span>
+                            </td>
+
                             <td className="text-center">
                               {m.informe ? (
                                 <button
@@ -467,7 +420,7 @@ const MuestrasPozos = () => {
                             {/* Acciones */}
                             <td className="text-center py-2 px-3">
                               <div className="d-flex gap-2 justify-content-center align-items-center">
-                                {m.estado !== 'CERRADO' ? (
+                                {m.estado !== 'CERRADO' && (
                                   <button
                                     className="btn btn-sm maquina-btn-editar"
                                     onClick={(e) => {
@@ -478,11 +431,21 @@ const MuestrasPozos = () => {
                                   >
                                     <i className="bi bi-pencil"></i>
                                   </button>
-                                ) : (
-                                  <span className="badge bg-danger">
-                                    CERRADO
-                                  </span>
                                 )}
+
+                                {m.estado === 'CERRADO' &&
+                                user.rol === 'Administrador' ? (
+                                  <button
+                                    className="btn btn-sm maquina-btn-reabrir"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setMuestraReabrir(m);
+                                    }}
+                                    title="CambiarEstado"
+                                  >
+                                    <i class="bi bi-arrow-repeat"></i>
+                                  </button>
+                                ) : null}
 
                                 <button
                                   className="btn btn-sm muestrasPdf"
@@ -515,11 +478,22 @@ const MuestrasPozos = () => {
             onlyView={onlyView}
           />
         </div>
+
+        {muestraReabrir && (
+          <ModalFinalizarServicios
+            handleFinalizar={handleOpenMuestras}
+            servicio="muestra de agua"
+            setShowFinalizar={() => setMuestraReabrir(false)}
+            isReabrir={true}
+          />
+        )}
       </div>
 
       {showViewer && (
         <ModalImpresion setShowViewer={setShowViewer} viewerUrl={viewerUrl} />
       )}
+
+      <Spinner msg={msg} loading={loading}></Spinner>
     </div>
   );
 };

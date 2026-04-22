@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { calibracionesMaquina } from '../api/calibraciones';
+import { calibracionesMaquina, openCalibraciones } from '../api/calibraciones';
 import { ModalCalibraciones } from './ModalCalibraciones';
 import { useCliente } from '../context/UserContext';
 import {
@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import ModalImpresion from './ModalImpresion';
 import { calibracionesPreview, calibracionInforme } from '../api/informes';
+import ModalFinalizarServicios from './ModalFinalizarServicios';
+import Spinner from './Spinner';
 
 export const Calibraciones = () => {
   const { maquina_id, cliente_id } = useParams();
@@ -25,11 +27,17 @@ export const Calibraciones = () => {
   const [calibracion, setCalibracion] = useState();
   const [openIndex, setOpenIndex] = useState(null);
   const [modalCalibraciones, setModalCalibraciones] = useState(false);
-  const { setSelectedMaquina, selectedMaquina } = useCliente();
+  const [isReabrir, setIsReabrir] = useState(false);
+  const [calibracionReabrir, setCalibracionReabrir] = useState(null);
+  const [msg, setMsg] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const { selectedMaquina, setSelectedMaquina } = useCliente();
   const [ingenieros, setIngenieros] = useState('');
 
   const [showViewer, setShowViewer] = useState(false);
   const [viewerUrl, setViewerUrl] = useState('');
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     allcalibraciones();
@@ -269,6 +277,29 @@ export const Calibraciones = () => {
     setModalCalibraciones(true);
   };
 
+  const handleReabrir = (cal) => {
+    setCalibracionReabrir(cal);
+  };
+
+  const handleConfirmarReabrir = async () => {
+    try {
+      setLoading(true);
+      setMsg('Reabriendo calibración...');
+      await openCalibraciones(calibracionReabrir.id);
+      setCalibracionReabrir(null);
+      setMsg('Calibración reabierta exitosamente');
+      await new Promise((r) => setTimeout(r, 1500));
+      await allcalibraciones();
+    } catch (error) {
+      console.error('Error al reabrir:', error);
+      setMsg('Error al reabrir calibración');
+      await new Promise((r) => setTimeout(r, 2000));
+    } finally {
+      setLoading(false);
+      setCalibracionReabrir(null);
+    }
+  };
+
   const generarInformeCalibracion = async (cal) => {
     const { id } = cal;
     try {
@@ -311,6 +342,7 @@ export const Calibraciones = () => {
           <div className="calibraciones-wrapper">
             <div style={{ margin: '0 auto' }}>
               {/* HEADER Y BOTÓN NUEVA CALIBRACIÓN */}
+
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="fw-bold text-white mb-1">Calibraciones</h2>
@@ -361,6 +393,9 @@ export const Calibraciones = () => {
                     estadoMaquinaData,
                   );
 
+                  const isCerrado = cal.estado === 'CERRADO';
+                  const isAdmin = user.rol === 'Administrador';
+
                   const ingResponsable = ingenieros.find(
                     (i) => i.id === cal.responsable_id,
                   );
@@ -391,18 +426,25 @@ export const Calibraciones = () => {
                       style={{ marginBottom: '1rem' }}
                     >
                       {/* HEADER DEL ACORDEÓN */}
-                      <div className="card_calibracion_header">
-                        <div className="row mb-3">
-                          {/* Columna Izquierda - Calibración */}
-                          <div className="col-12 col-md-3">
-                            <h5 className="fw-bold text-white mb-1 calibracion-nombre">
-                              Calibración #{i + 1}{' '}
-                              {cal.estado === 'CERRADO' && (
-                                <span className="badge bg-danger">CERRADO</span>
-                              )}
+
+                      <div className="d-flex card_calibracion align-items-strech p-3">
+                        {/* ================= CONTENIDO PRINCIPAL ================= */}
+                        <div className="flex-grow-1">
+                          {/* HEADER */}
+                          <div className="d-flex align-items-center gap-2 mb-3">
+                            <h5
+                              className="fw-bold text-white mb-0"
+                              style={{ fontSize: '1.1rem' }}
+                            >
+                              Calibración #{i + 1}
                             </h5>
+
+                            {cal.estado === 'CERRADO' && (
+                              <span className="badge bg-danger">CERRADO</span>
+                            )}
+
                             <span
-                              className="badge calibracion-estado-badge"
+                              className="badge"
                               style={{
                                 backgroundColor: getEstadoColor(
                                   estadoMaquinaData.estado,
@@ -416,11 +458,12 @@ export const Calibraciones = () => {
                             </span>
                           </div>
 
-                          {/* Columna Centro - Fecha y Responsable */}
-                          <div className="col-12 col-md-3 d-flex flex-column gap-2">
+                          {/* ================= FILA PRINCIPAL ================= */}
+                          <div className="d-flex flex-wrap gap-4 align-items-start">
+                            {/* Fecha */}
                             <div className="d-flex align-items-start gap-2">
                               <i className="bi bi-calendar-event calibracion-icon"></i>
-                              <div style={{ flex: 1 }}>
+                              <div>
                                 <p className="mb-0 text-white-50 calibracion-label">
                                   Fecha
                                 </p>
@@ -429,9 +472,11 @@ export const Calibraciones = () => {
                                 </p>
                               </div>
                             </div>
+
+                            {/* Responsable */}
                             <div className="d-flex align-items-start gap-2">
                               <i className="bi bi-person-fill calibracion-icon"></i>
-                              <div style={{ flex: 1 }}>
+                              <div>
                                 <p className="mb-0 text-white-50 calibracion-label">
                                   Responsable
                                 </p>
@@ -440,15 +485,14 @@ export const Calibraciones = () => {
                                 </p>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Columna Derecha - Observaciones Generales */}
-                          {cal.observaciones_generales && (
-                            <div className="col-12 col-md-6">
+                            {/* Observaciones (ahora al lado) */}
+                            {cal.observaciones_generales && (
                               <div
-                                className="p-3 h-100"
+                                className="p-3 flex-grow-1"
                                 style={{
-                                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                  minWidth: '250px',
+                                  backgroundColor: 'rgba(226, 230, 237, 0.98)',
                                   border: '1px solid rgba(59, 130, 246, 0.3)',
                                   borderRadius: '8px',
                                 }}
@@ -456,65 +500,84 @@ export const Calibraciones = () => {
                                 <p
                                   className="mb-1 fw-semibold"
                                   style={{
-                                    color: '#93c5fd',
-                                    fontSize: '0.875rem',
+                                    color: '#386133',
+                                    fontSize: '0.975rem',
                                   }}
                                 >
-                                  Observaciones Generales
+                                  Observaciones
                                 </p>
                                 <p
                                   className="mb-0"
                                   style={{
-                                    color: '#bfdbfe',
+                                    color: '#272e36',
                                     fontSize: '0.875rem',
                                   }}
                                 >
                                   {cal.observaciones_generales}
                                 </p>
                               </div>
-                            </div>
-                          )}
+                            )}
+                          </div>
+
+                          {/* ================= BOTÓN EXPANDIR ABAJO DERECHA ================= */}
                         </div>
 
-                        <hr className="calibracion-divider" />
-
-                        {/* Footer con Acciones */}
-                        <div className="d-flex gap-2 mt-3 pt-3 calibracion-actions">
-                          <button
-                            className="btn btn-sm flex-fill calibracion-btn-ver"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggle(i);
-                            }}
-                          >
-                            <i
-                              className={`bi ${isOpen ? 'bi-eye-slash' : 'bi-eye'} me-1`}
-                            ></i>
-                            {isOpen ? 'Ocultar' : 'Ver Detalles'}
-                          </button>
-
-                          {cal.estado !== 'CERRADO' && (
+                        {/* ================= BOTONES LATERALES ================= */}
+                        <div className="container-botones-calibracion">
+                          {!isCerrado && (
                             <button
-                              className="btn btn-sm flex-fill calibracion-btn-editar"
+                              className="btn btn-sm calibracion-botones text-success"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditar(cal);
                               }}
+                              title="Editar calibración"
                             >
-                              <i className="bi bi-pencil me-1"></i>
-                              Editar
+                              <i className="bi bi-pencil"></i>
+                            </button>
+                          )}
+
+                          {isCerrado && isAdmin && (
+                            <button
+                              className="btn btn-sm calibracion-botones text-warning"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleReabrir(cal);
+                              }}
+                              title="Reabrir calibración"
+                            >
+                              <i className="bi bi-arrow-repeat"></i>
                             </button>
                           )}
 
                           <button
-                            className="btn btn-sm flex-fill calibracion-btn-editar"
+                            className="btn btn-sm calibracion-botones text-danger"
                             onClick={(e) => {
                               e.stopPropagation();
                               generarInformeCalibracion(cal);
                             }}
+                            title="Generar informe PDF"
                           >
-                            <i className="bi bi-file-earmark-pdf"></i> Generar
-                            Informe
+                            <i className="bi bi-file-earmark-pdf-fill"></i>
+                          </button>
+
+                          {/* BOTÓN FIJO ABAJO */}
+                          <button
+                            className="btn btn-sm btn-link text-white p-0 mt-auto"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggle(i);
+                            }}
+                            title={
+                              isOpen
+                                ? 'Ocultar detalles adicionales'
+                                : 'Ver detalles adicionales'
+                            }
+                          >
+                            <i
+                              className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`}
+                              style={{ fontSize: '1.2rem' }}
+                            ></i>
                           </button>
                         </div>
                       </div>
@@ -1208,7 +1271,7 @@ export const Calibraciones = () => {
                               >
                                 <h6 className="fw-bold text-white mb-3">
                                   <i className="bi bi-speedometer2 me-2"></i>
-                                  Información de Presiones ccccccccc
+                                  Información de Presiones
                                 </h6>
 
                                 <div className="row g-3">
@@ -1412,7 +1475,6 @@ export const Calibraciones = () => {
           </div>
         </div>
       </div>
-
       {modalCalibraciones && (
         <ModalCalibraciones
           onClose={() => setModalCalibraciones(false)}
@@ -1421,6 +1483,16 @@ export const Calibraciones = () => {
           onSaved={() => allcalibraciones()}
         />
       )}
+      {calibracionReabrir && (
+        <ModalFinalizarServicios
+          handleFinalizar={handleConfirmarReabrir}
+          servicio="calibración"
+          setShowFinalizar={() => setCalibracionReabrir(null)}
+          isReabrir={true}
+        />
+      )}
+
+      <Spinner loading={loading} msg={msg} />
 
       {showViewer && (
         <ModalImpresion setShowViewer={setShowViewer} viewerUrl={viewerUrl} />
