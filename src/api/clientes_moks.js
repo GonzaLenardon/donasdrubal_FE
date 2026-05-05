@@ -95,7 +95,7 @@ export const getClienteAnalisisChart = async (clienteId) => {
 
 
 // ==================== GET CALIBRATION CHART ====================
-export const getClienteCalibracionChart = async (clienteId) => {
+export const getClienteCalibracionesChart = async (clienteId) => {
   await delay(700);
   
   console.log('🚜 Obteniendo gráfico de calibración para cliente:', clienteId);

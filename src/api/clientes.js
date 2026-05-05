@@ -41,6 +41,21 @@ export const getClienteServicesChart = async (cliente_id) => {
   return res.data.payload;
 };
 
+export const getClienteAnalisisChart = async (cliente_id) => {
+  const res = await instance.get(`/cliente/${cliente_id}/analisis-chart`);
+  return res.data.payload;
+};
+
+export const getClienteCalibracionesChart = async (cliente_id) => {
+  const res = await instance.get(`/cliente/${cliente_id}/calibraciones-chart`);
+  return res.data.payload;
+};
+
+export const getClienteJornadasChart = async (cliente_id) => {
+  const res = await instance.get(`/cliente/${cliente_id}/jornadas-chart`);
+  return res.data.payload;
+};
+
 export const getClienteMachinesChart = async (cliente_id) => {
   const res = await instance.get(`/cliente/${cliente_id}/machines-chart`);
   return res.data.payload;

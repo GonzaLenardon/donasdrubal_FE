@@ -19,14 +19,14 @@ import {
   getClienteServicesChart,
   getClienteMachinesChart,
   getClienteJornadasChart,
-  getClienteCalibracionChart,
+  getClienteCalibracionesChart,
   getClienteAnalisisChart,
   getClienteUpcomingServices,
-} from '../api/clientes_moks.js';
+} from '../api/clientes.js';
 // import {
 //   getClienteStats,
 //   getClienteServicesChart,
-//   getClienteCalibracionChart,
+//   getClienteCalibracionesChart,
 //   getClienteUpcomingServices,
 // } from '../api/clientes_moks_errorgranular.js';
 
@@ -317,7 +317,7 @@ const ClienteDashboard = ({ cliente }) => {
       setLoading(prev => ({ ...prev, calibracionChart: true }));
       setErrors(prev => ({ ...prev, calibracionChart: null }));
       
-      const calibracionChart = await getClienteCalibracionChart(cliente.id);
+      const calibracionChart = await getClienteCalibracionesChart(cliente.id);
       setData(prev => ({ ...prev, calibracionChart }));
     } catch (err) {
       console.error('Error fetching calibracion chart:', err);
@@ -410,8 +410,8 @@ const ClienteDashboard = ({ cliente }) => {
     {
       title: 'Jornadas Realizadas',
       value: data.stats?.jornadas?.total?.toString() || '0',
-      trendLabel: `${data.stats?.pozos?.nuevasJornadas || 0} nuevos ${data.stats?.jornadas?.periodo || 'este año'}`,
-      isPositive: (data.stats?.jornadas?.nuevos || 0) > 1,
+      trendLabel: `${data.stats?.jornadas?.nuevos || 0} nuevos ${data.stats?.jornadas?.periodo || 'este año'}`,
+      isPositive: (data.stats?.jornadas?.nuevos || 0) > 0,
       icon: GraduationCap,
       color: 'purple',
     },
