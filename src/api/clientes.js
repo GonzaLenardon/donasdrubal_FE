@@ -29,7 +29,7 @@ export const getCliente = async (cliente_id) => {
   return res.data;
 };
 
-
+/// DASHBORAD
 export const getClienteStats = async (cliente_id) => {
   const res = await instance.get(`/cliente/${cliente_id}/stats`);
   console.log('Respuesta de stats:', res);
@@ -38,6 +38,21 @@ export const getClienteStats = async (cliente_id) => {
 
 export const getClienteServicesChart = async (cliente_id) => {
   const res = await instance.get(`/cliente/${cliente_id}/services-chart`);
+  return res.data.payload;
+};
+
+export const getClienteAnalisisChart = async (cliente_id) => {
+  const res = await instance.get(`/cliente/${cliente_id}/analisis-chart`);
+  return res.data.payload;
+};
+
+export const getClienteCalibracionesChart = async (cliente_id) => {
+  const res = await instance.get(`/cliente/${cliente_id}/calibraciones-chart`);
+  return res.data.payload;
+};
+
+export const getClienteJornadasChart = async (cliente_id) => {
+  const res = await instance.get(`/cliente/${cliente_id}/jornadas-chart`);
   return res.data.payload;
 };
 

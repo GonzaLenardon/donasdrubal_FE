@@ -4,7 +4,7 @@ const url = import.meta.env.VITE_API_URL || 'https://apis.donasdrubal.com.ar';
 const instance = axios.create({
   baseURL: url,
   withCredentials: true,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -77,6 +77,56 @@ export const getClienteMachinesChart = async (clienteId) => {
   };
 };
 
+// ==================== GET ANALISIS AGUA CHART ====================
+export const getClienteAnalisisChart = async (clienteId) => {
+  await delay(700);
+  
+  console.log('🚜 Obteniendo gráfico de análisis de agua para cliente:', clienteId);
+  
+  return {
+    data: [
+      { name: 'Realizadas', value: 1, color: '#10b981' },
+      { name: 'En Proceso', value: 0, color: '#f59e0b' },
+      { name: 'Pendientes', value: 3, color: '#ef4444' }
+    ],
+    total: 3
+  };
+};
+
+
+// ==================== GET CALIBRATION CHART ====================
+export const getClienteCalibracionesChart = async (clienteId) => {
+  await delay(700);
+  
+  console.log('🚜 Obteniendo gráfico de calibración para cliente:', clienteId);
+  
+  return {
+    data: [
+      { name: 'Realizadas', value: 4, color: '#10b981' },
+      { name: 'En Proceso', value: 1, color: '#f59e0b' },
+      { name: 'Pendientes', value: 1, color: '#ef4444' }
+    ],
+    total: 6
+  };
+};
+
+
+// ==================== GET JORNADAS CHART ====================
+export const getClienteJornadasChart = async (clienteId) => {
+  await delay(700);
+  
+  console.log('🚜 Obteniendo gráfico de jornadas para cliente:', clienteId);
+  
+  return {
+    data: [
+      { name: 'Realizadas', value: 4, color: '#10b981' },
+      { name: 'En Proceso', value: 1, color: '#f59e0b' },
+      { name: 'Pendientes', value: 1, color: '#ef4444' }
+    ],
+    total: 6
+  };
+};
+
 // ==================== GET UPCOMING SERVICES ====================
 export const getClienteUpcomingServices = async (clienteId) => {
   await delay(900);
