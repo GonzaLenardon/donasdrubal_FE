@@ -1,8 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { allMaquinas } from '../api/maquinas';
+import React, { use, useEffect, useState } from 'react';
+import { allMaquinas, delMaquina } from '../api/maquinas';
 import { ModalMaquinas } from './ModalMaquinas';
 import { useNavigate } from 'react-router-dom';
 import { useCliente } from '../context/UserContext';
+import { calibracionesMaquina } from '../api/calibraciones';
+import ModalFinalizarServicios from './ModalFinalizarServicios';
+import ModalInformativo from './ModalInformativo';
+import Spinner from './Spinner';
+import ModalEliminar from './ModalEliminar';
 
 const Maquinas = ({ cliente_id }) => {
   const [maquinas, setMaquinas] = useState([]);
@@ -12,8 +17,14 @@ const Maquinas = ({ cliente_id }) => {
   const [modal, setModal] = useState(false);
   const [maquinaEdit, setMaquinaEdit] = useState({});
   const [onlyView, setOnlyView] = useState(false);
+  const [modoSeleccion, setModoSeleccion] = useState(false);
+  const [seleccionado, setSeleccionado] = useState(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showInformativo, setShowInformativo] = useState(false);
 
   const { setSelectedMaquina } = useCliente();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isAdmin = user?.rol === 'Administrador';
 
   useEffect(() => {
     getMaquinas();
@@ -23,27 +34,71 @@ const Maquinas = ({ cliente_id }) => {
     try {
       setLoading(true);
       const res = await allMaquinas(cliente_id);
-      console.log('dadadadada', res.data);
-      setMsg(res.data.mensaje);
       setMaquinas(res.data);
     } catch (error) {
-      setMsg(error.data.message);
+      setMsg(error?.response?.data?.message || 'Error cargando máquinas');
     } finally {
-      /* await new Promise((resolve) => setTimeout(resolve, 3000)); */
       setLoading(false);
-      setMsg('');
     }
-  };
-
-  const handleNuevaMaquina = () => {
-    setMaquinaEdit(null);
-    setModal(true);
   };
 
   const handleEditarMaquina = (maquina) => {
     setMaquinaEdit(maquina);
     setModal(true);
     setOnlyView(false);
+  };
+
+  const handleDelete = async () => {
+    try {
+      setShowConfirmDelete(false);
+      await delMaquina(seleccionado);
+      await getMaquinas();
+      setLoading(true);
+      setMsg('Maquina eliminada exitosamente');
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      setMsg('');
+    } catch (error) {
+      const status = error.response?.status;
+      console.log('LLLLLegggogo aca ');
+
+      if (status === 409) {
+        setShowInformativo(true);
+        return;
+      }
+
+      if (status === 404) {
+        alert('La máquina no existe');
+        return;
+      }
+
+      alert('Error inesperado ddd');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelarSeleccion = () => {
+    setModoSeleccion(false);
+    setSeleccionado(null);
+  };
+
+  /*  const toggleSeleccion = (id) => {
+    setSeleccionados((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }; */
+
+  const toggleSeleccion = (id) => {
+    setSeleccionado((prev) => (prev === id ? null : id));
+  };
+
+  useEffect(() => {
+    console.log('MMMMMMMMMMMMMMMMMMMMMMMMM', seleccionado);
+  }, [seleccionado]);
+
+  const toggleModoSeleccion = () => {
+    setModoSeleccion((prev) => !prev);
+    setSeleccionado(null);
   };
 
   return (
@@ -58,43 +113,78 @@ const Maquinas = ({ cliente_id }) => {
               {maquinas.length} máquinas registradas
             </p>
           </div>
-          <button
-            className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
-            onClick={() => {
-              setMaquinaEdit({ cliente_id: cliente_id });
-              setOnlyView(false);
-              setModal(true);
-            }}
-          >
-            <i className="bi bi-plus-lg"></i>
-            Nueva Máquina
-          </button>
+
+          {/* 🔹 Contenedor de botones */}
+          <div className="d-flex align-items-center gap-2">
+            {isAdmin && (
+              <button
+                type="button"
+                className={`btn btn-sm d-flex align-items-center gap-2 ${
+                  modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
+                }`}
+                style={{ opacity: modoSeleccion ? 1 : 0.65 }}
+                onClick={toggleModoSeleccion}
+              >
+                <i className="bi bi-trash3"></i>
+                {modoSeleccion ? 'Cancelar' : 'Seleccionar'}
+              </button>
+            )}
+
+            <button
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
+              onClick={() => {
+                setMaquinaEdit({ cliente_id: cliente_id });
+                setOnlyView(false);
+                setModal(true);
+              }}
+            >
+              <i className="bi bi-plus-lg"></i>
+              Nueva Máquina
+            </button>
+          </div>
         </div>
 
-        {/* MENSAJE */}
-        {msg && (
-          <div className="alert alert-info mb-4" role="alert">
-            {msg}
+        {modoSeleccion && seleccionado && (
+          <div
+            className="d-flex align-items-center justify-content-between mb-3 px-3 py-2 rounded"
+            style={{
+              background: 'rgba(239,68,68,0.12)',
+              border: '1px solid rgba(239,68,68,0.3)',
+            }}
+          >
+            <div className="d-flex align-items-center gap-2">
+              <i className="bi bi-ui-checks text-white-50"></i>
+
+              <span className="text-white-50" style={{ fontSize: '0.85rem' }}>
+                <span className="text-white fw-bold p-1">1</span>
+                Maquina seleccionada
+              </span>
+            </div>
+            <div className="d-flex gap-2">
+              <button
+                className="btn btn-sm btn-outline-light"
+                style={{ opacity: 0.5, fontSize: '0.8rem' }}
+                onClick={cancelarSeleccion}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-sm btn-danger d-flex align-items-center gap-2"
+                style={{ fontSize: '0.8rem' }}
+                onClick={() => setShowConfirmDelete(true)}
+              >
+                <i className="bi bi-trash3"></i>
+                Eliminar{' '}
+                {seleccionado.length > 0 ? `(${seleccionado.length})` : ''}
+              </button>
+            </div>
           </div>
         )}
 
         {/* TABLA */}
         <div className="container-table rounded shadow-lg">
           <div className="table-wrapper">
-            {loading ? (
-              <div className="text-center py-5">
-                <div
-                  className="spinner-border"
-                  style={{ color: 'var(--color-base)' }}
-                  role="status"
-                >
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-                <p className="mt-3" style={{ color: 'var(--color-gray-600)' }}>
-                  Cargando máquinas...
-                </p>
-              </div>
-            ) : maquinas.length === 0 ? (
+            {maquinas.length === 0 ? (
               <div className="p-5 text-center">
                 <i
                   className="bi bi-inbox"
@@ -109,7 +199,14 @@ const Maquinas = ({ cliente_id }) => {
                 <p className="mb-3" style={{ color: 'var(--color-gray-600)' }}>
                   Aún no hay máquinas registradas para este cliente
                 </p>
-                <button className="btn-primary" onClick={handleNuevaMaquina}>
+                <button
+                  className="btn-primary"
+                  onClick={() => {
+                    setMaquinaEdit({ cliente_id: cliente_id });
+                    setOnlyView(false);
+                    setModal(true);
+                  }}
+                >
                   <i className="bi bi-plus-lg me-2"></i>
                   Agregar primera máquina
                 </button>
@@ -118,6 +215,14 @@ const Maquinas = ({ cliente_id }) => {
               <table className="table mb-0">
                 <thead>
                   <tr>
+                    {modoSeleccion && (
+                      <th
+                        style={{
+                          padding: '0.85rem 0.5rem 0.85rem 1rem',
+                          width: '40px',
+                        }}
+                      ></th>
+                    )}
                     <th>
                       <i className="bi bi-award"></i>Marca
                     </th>
@@ -161,6 +266,23 @@ const Maquinas = ({ cliente_id }) => {
                         setOnlyView(true);
                       }}
                     >
+                      {modoSeleccion && (
+                        <td style={{ padding: '0.85rem 0.5rem 0.85rem 1rem' }}>
+                          <input
+                            type="checkbox"
+                            checked={seleccionado === maq.id}
+                            onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
+                            onChange={() => toggleSeleccion(maq.id)}
+                            style={{
+                              width: '15px',
+                              height: '15px',
+                              cursor: 'pointer',
+                              accentColor: '#ef4444',
+                            }}
+                          />
+                        </td>
+                      )}
+
                       {/* Marca */}
                       <td>
                         <span className="table-text fw-semibold">
@@ -259,7 +381,6 @@ const Maquinas = ({ cliente_id }) => {
           </div>
         </div>
       </div>
-
       {/* MODAL */}
       {modal && (
         <ModalMaquinas
@@ -273,6 +394,26 @@ const Maquinas = ({ cliente_id }) => {
           onlyView={onlyView}
         />
       )}
+
+      {showConfirmDelete && (
+        <ModalEliminar
+          handleEliminar={handleDelete}
+          onCancelar={() => setShowConfirmDelete(false)}
+          servicio="máquina"
+          /* detalle={`${maquinaSeleccionada?.tipo.marca} ${maquinaSeleccionada?.tipo.modelo}`} */
+          cantidad={1}
+        />
+      )}
+
+      {showInformativo && (
+        <ModalInformativo
+          onClose={() => setShowInformativo(false)}
+          tipo="Maquina"
+          dependencias="calibraciones"
+        />
+      )}
+
+      <Spinner loading={loading} msg={msg} />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import {
   upCalibraciones,
 } from '../api/calibraciones.js';
 import { useParams } from 'react-router-dom';
+import ModalFinalizarServicios from './ModalFinalizarServicios.jsx';
 
 const opcionesEstado = ['Malo', 'Regular', 'Bueno', 'Muy bueno', 'No aplica'];
 const opcionesMateriales = ['Acero Inox', 'Fundicion', 'Plastico', 'Otros'];
@@ -1878,6 +1879,16 @@ export const ModalCalibraciones = ({
       </div>
 
       {showCerrar && (
+        <ModalFinalizarServicios
+          handleFinalizar={handleCerrarCalibracion}
+          servicio="calibración"
+          setShowFinalizar={() => setShowCerrar(false)}
+          accion="finalizar"
+          cantidad={1}
+        />
+      )}
+
+      {/*   {showCerrar && (
         <div className="modal-overlay-logout">
           <div
             className="modal-card-logout"
@@ -1936,7 +1947,7 @@ export const ModalCalibraciones = ({
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       <Spinner msg={msg} loading={loading} />
     </>

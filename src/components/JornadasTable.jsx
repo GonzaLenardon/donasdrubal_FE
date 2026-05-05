@@ -270,7 +270,7 @@ const JornadasTable = () => {
           handleFinalizar={handleReabrirJornada}
           servicio="jornada"
           setShowFinalizar={() => setJornadaReabrir(null)}
-          isReabrir={true}
+          accion="reabrir"
         />
       )}
 

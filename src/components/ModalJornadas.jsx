@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { addJornadas, upJornadas, closeJornada } from '../api/jornadas';
 import Spinner from './Spinner';
+import ModalFinalizarServicios from './ModalFinalizarServicios';
 
 const emptyJornada = {
   fecha_jornada: '',
@@ -28,7 +29,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
-  const [showCerrarModal, setShowCerrarModal] = useState(false);
+  const [showCerrar, setShowCerrar] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -99,8 +100,9 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   // La lógica de cerrar jornada la implementás vos acá
   const handleCerrarJornada = async () => {
     try {
+      setShowCerrar(false);
       setLoading(true);
-      const resp = await closeJornada(jornada.id);
+      await closeJornada(jornada.id);
       setMsg('Jornada finalizada exitosamente');
 
       if (onSaved) onSaved();
@@ -120,7 +122,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
 
   const handleClose = () => {
     resetForm();
-    setShowCerrarModal(false);
+    setShowCerrar(false);
     onClose();
   };
 
@@ -265,7 +267,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
               <button
                 type="button"
                 className="btn-finalizar"
-                onClick={() => setShowCerrarModal(true)}
+                onClick={() => setShowCerrar(true)}
                 disabled={!isFormComplete || isSubmitting}
                 title={
                   !isFormComplete
@@ -316,8 +318,18 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
         </div>
       </div>
 
+      {showCerrar && (
+        <ModalFinalizarServicios
+          handleFinalizar={handleSubmit}
+          servicio="jornada"
+          setShowFinalizar={() => setShowCerrar(false)}
+          accion="finalizar"
+          cantidad={1}
+        />
+      )}
+
       {/* Modal confirmación — Cerrar Jornada */}
-      {showCerrarModal && (
+      {/*  {showCerrarModal && (
         <div className="modal-overlay-logout">
           <div
             className="modal-card-logout"
@@ -369,7 +381,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       <Spinner loading={loading} msg={msg} />
     </>

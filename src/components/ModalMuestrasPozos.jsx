@@ -8,6 +8,7 @@ import Spinner from './Spinner';
 import ModalImpresion from './ModalImpresion';
 import { useParams } from 'react-router-dom';
 import ModalFinalizarServicios from './ModalFinalizarServicios';
+import { formatFecha } from '../utils/formatFecha';
 
 const ModalMuestrasPozos = ({
   isOpen,
@@ -58,6 +59,7 @@ const ModalMuestrasPozos = ({
         ...muestra,
         fecha_muestra: muestra.fecha_muestra?.split('T')[0] || '',
         fecha_analisis: muestra.fecha_analisis?.split('T')[0] || '',
+
         informe: muestra.informe ?? '',
         informeFile: null,
       });
@@ -65,6 +67,11 @@ const ModalMuestrasPozos = ({
       resetForm();
     }
   }, [muestra, isOpen]);
+
+  useEffect(() => {
+    console.log('FFFFFFFFFFFFFFFFFFFFFFF', formData);
+    console.log(formatFecha(muestra?.fecha_muestra));
+  }, [formData]);
 
   const resetForm = () => {
     setFormData({
@@ -865,7 +872,7 @@ const ModalMuestrasPozos = ({
           handleFinalizar={handleFinalizarMuestra}
           servicio="muestra de agua"
           setShowFinalizar={() => setShowFinalizarModal(false)}
-          isReabrir={false}
+          accion="finalizar"
         />
       )}
 

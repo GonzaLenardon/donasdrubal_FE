@@ -14,7 +14,7 @@ export const addMaquinas = async (maquina) => {
   newMaquina.modelo ='-'; */
   const res = await instance.post(
     `/cliente/${cliente_id}/maquinas`,
-    newMaquina
+    newMaquina,
   );
   return res.data;
 };
@@ -24,12 +24,17 @@ export const updateMaquina = async (maquina) => {
 
   const res = await instance.put(
     `/cliente/${cliente_id}/maquinas/${id}`,
-    upMaquina
+    upMaquina,
   );
   return res.data;
 };
 
 export const getMaquina = async (maquina) => {
   const res = await instance.get(`/maquina/${maquina}`);
+  return res.data;
+};
+
+export const delMaquina = async (id) => {
+  const res = await instance.delete(`/maquinas/${id}`);
   return res.data;
 };
