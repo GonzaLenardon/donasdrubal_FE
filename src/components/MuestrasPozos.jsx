@@ -4,6 +4,7 @@ import { muestraAguaPozoCliente, openMuestra } from '../api/muestrasAgua';
 import ModalMuestrasPozos from './ModalMuestrasPozos';
 import { useCliente } from '../context/UserContext';
 import generarPDF from '../utils/generarPdf';
+import { formatFecha } from '../utils/formatFecha';
 
 import {
   Building2,
@@ -63,9 +64,6 @@ const MuestrasPozos = () => {
   };
 
   /* ================= HELPERS ================= */
-
-  const formatFecha = (fecha) =>
-    fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-';
 
   const getValorColor = (valor, min, max) => {
     // Sin dato
@@ -443,7 +441,7 @@ const MuestrasPozos = () => {
                                     }}
                                     title="CambiarEstado"
                                   >
-                                    <i class="bi bi-arrow-repeat"></i>
+                                    <i className="bi bi-arrow-repeat"></i>
                                   </button>
                                 ) : null}
 
@@ -484,7 +482,8 @@ const MuestrasPozos = () => {
             handleFinalizar={handleOpenMuestras}
             servicio="muestra de agua"
             setShowFinalizar={() => setMuestraReabrir(false)}
-            isReabrir={true}
+            accion="reabrir"
+            cantidad={1}
           />
         )}
       </div>

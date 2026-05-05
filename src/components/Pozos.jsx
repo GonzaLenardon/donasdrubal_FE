@@ -2,7 +2,6 @@ import { React, useEffect, useState } from 'react';
 import ModalPozos from './ModalPozos';
 import { clientePozos } from '../api/pozos';
 import { useNavigate } from 'react-router-dom';
-import { getStatusClass } from '../utils/statusMap';
 import { useCliente } from '../context/UserContext';
 import { apiGenerarInformeMultiplePozos } from '../api/informes';
 import generarPDF from '../utils/generarPdf';
@@ -33,7 +32,7 @@ const Pozos = ({ cliente_id }) => {
     }
   };
 
-  const handleInformes = (e, pozoIdNum) => {
+  const handleToggleInforme = (e, pozoIdNum) => {
     e.stopPropagation();
     setPozoId((prev) =>
       prev.includes(pozoIdNum)
@@ -94,28 +93,28 @@ const Pozos = ({ cliente_id }) => {
     <>
       <div className="pozos-wrapper">
         <div style={{ margin: '0 auto' }}>
-          {/* HEADER */}
+          {/* ── Header ── */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
               <h2 className="fw-bold text-white mb-1">Gestión de Pozos</h2>
-              <p className="text-white-50 mb-0">
+              <p className="text-white-50 mb-0" style={{ fontSize: '13px' }}>
                 {pozos.length} pozos registrados
               </p>
             </div>
             <button
-              className="btn text-white d-flex align-items-center gap-2 shadow-lg pozo-btn-nuevo"
+              className="pozo-btn-nuevo d-flex align-items-center gap-2"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedPozo({ cliente_id });
                 setIsOpen(true);
               }}
             >
-              <i className="bi bi-plus-lg"></i>
+              <i className="bi bi-plus-lg" style={{ fontSize: '13px' }}></i>
               Nuevo Pozo
             </button>
           </div>
 
-          {/* BARRA DE SELECCIÓN */}
+          {/* ── Barra de selección ── */}
           {pozoId.length > 0 && (
             <div className="pozos-selection-bar mb-4">
               <div className="d-flex align-items-center gap-3">
@@ -149,14 +148,14 @@ const Pozos = ({ cliente_id }) => {
             </div>
           )}
 
-          {/* GRID */}
-          <div className="pozos-container">
+          {/* ── Grid de cards ── */}
+          <div className="pozos-grid">
             {pozos.map((pozo) => {
               const isSelected = pozoId.includes(pozo.id);
               return (
                 <div
-                  className={`card_pozos ${isSelected ? 'card_pozos--selected' : ''}`}
                   key={pozo.id}
+                  className={`pcard ${isSelected ? 'pcard--selected' : ''}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedPozo(pozo);
@@ -164,100 +163,89 @@ const Pozos = ({ cliente_id }) => {
                     setOnlyView(true);
                   }}
                 >
-                  <div className="d-flex justify-content-between align-items-start mb-3">
-                    <div style={{ flex: 1 }}>
-                      <h5 className="fw-bold text-white mb-1 pozo-nombre">
-                        {pozo.nombre}
-                      </h5>
-                      <span
-                        className={`status-badge ${getStatusClass(pozo.estado)}`}
-                      >
-                        {pozo.estado || 'Desconocido'}
+                  {/* Top: nombre + checkbox */}
+                  <div className="pcard-top">
+                    <div>
+                      {isSelected && (
+                        <div className="pcard-sel-indicator">
+                          <i className="bi bi-check-circle-fill"></i>
+                          En informe
+                        </div>
+                      )}
+                      <p className="pcard-name">{pozo.nombre}</p>
+                      <p className="pcard-id">#{pozo.id}</p>
+                    </div>
+
+                    <label
+                      className="pcard-chk-label"
+                      onClick={(e) => e.stopPropagation()}
+                      title="Informe múltiple"
+                    >
+                      <input
+                        type="checkbox"
+                        className="pcard-chk-input"
+                        checked={isSelected}
+                        onChange={(e) => handleToggleInforme(e, pozo.id)}
+                      />
+                      <span className="pcard-chk-box">
+                        {isSelected && (
+                          <i className="bi bi-check-lg pcard-chk-icon"></i>
+                        )}
                       </span>
-                    </div>
-                    <div className="d-flex align-items-center gap-2">
-                      <label
-                        className={`pozo-checkbox-label ${isSelected ? 'pozo-checkbox-label--checked' : ''}`}
-                        onClick={(e) => e.stopPropagation()}
-                        title={
-                          isSelected
-                            ? 'Quitar del informe'
-                            : 'Agregar al informe'
-                        }
-                      >
-                        <input
-                          type="checkbox"
-                          className="pozo-checkbox-input"
-                          checked={isSelected}
-                          onChange={(e) => handleInformes(e, pozo.id)}
-                        />
-                        <span className="pozo-checkbox-custom">
-                          {isSelected && <i className="bi bi-check-lg"></i>}
-                        </span>
-                      </label>
-                      <div className="pozo-id-badge">
-                        <span className="fw-bold pozo-id-text">#{pozo.id}</span>
-                      </div>
-                    </div>
+                      <span className="pcard-chk-text">Informe</span>
+                    </label>
                   </div>
 
-                  {isSelected && (
-                    <div className="pozo-selected-indicator mb-2">
-                      <i className="bi bi-file-earmark-check"></i>
-                      Incluido en el informe
-                    </div>
-                  )}
-
-                  <hr className="pozo-divider" />
-
-                  <div className="d-flex flex-column gap-2">
-                    <div className="d-flex align-items-start gap-2">
-                      <i className="bi bi-building pozo-icon"></i>
-                      <div style={{ flex: 1 }}>
-                        <p className="mb-0 text-white-50 pozo-label">
-                          Establecimiento
-                        </p>
-                        <p className="mb-0 text-white fw-semibold pozo-value">
+                  {/* Datos del pozo */}
+                  <div className="pcard-data">
+                    <div className="pcard-row">
+                      <i className="bi bi-building pcard-row-icon"></i>
+                      <div>
+                        <span className="pcard-row-label">Establecimiento</span>
+                        <span className="pcard-row-val">
                           {pozo.establecimiento}
-                        </p>
+                        </span>
                       </div>
                     </div>
-                    <div className="d-flex align-items-start gap-2">
-                      <i className="bi bi-geo-alt-fill pozo-icon"></i>
-                      <div style={{ flex: 1 }}>
-                        <p className="mb-0 text-white-50 pozo-label">
-                          Coordenadas
-                        </p>
-                        <p className="mb-0 text-white pozo-coords">
+                    <div className="pcard-row">
+                      <i className="bi bi-geo-alt-fill pcard-row-icon"></i>
+                      <div>
+                        <span className="pcard-row-label">Coordenadas</span>
+                        <span className="pcard-row-val">
                           {pozo.latitud}, {pozo.longitud}
-                        </p>
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="d-flex gap-2 mt-3 pt-3 pozo-actions">
+                  <hr className="pcard-divider" />
+
+                  {/* Acciones */}
+                  <div className="pcard-actions">
                     <button
-                      className="btn btn-sm flex-fill pozo-btn-ver"
+                      className="pcard-icon-btn pozo-btn-ver"
+                      title="Ver muestras"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedPozo(pozo);
-                        const url = `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`;
-                        console.log('uuuuuuuuuurrrrrrrrrrrrrlllllllllll', url);
-                        navigate(url);
+                        navigate(
+                          `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`,
+                        );
                       }}
                     >
-                      <i className="bi bi-eye me-1"></i>Muestras
+                      <i className="bi bi-eye"></i>
                     </button>
                     <button
-                      className="btn btn-sm flex-fill pozo-btn-editar"
+                      className="pcard-icon-btn pozo-btn-editar"
+                      title="Editar pozo"
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedPozo(pozo);
-                        setIsOpen(true);
                         setOnlyView(false);
+                        setIsOpen(true);
                       }}
                     >
-                      <i className="bi bi-pencil me-1"></i>Editar
+                      <i className="bi bi-pencil"></i>
                     </button>
                   </div>
                 </div>
@@ -267,7 +255,7 @@ const Pozos = ({ cliente_id }) => {
         </div>
       </div>
 
-      {/* MODAL POZO */}
+      {/* ── Modal Pozo ── */}
       {selectedPozo && (
         <ModalPozos
           pozo={selectedPozo}
@@ -278,7 +266,7 @@ const Pozos = ({ cliente_id }) => {
         />
       )}
 
-      {/* MODAL CONCLUSIÓN */}
+      {/* ── Modal Conclusión ── */}
       {showConclusion && (
         <div className="modal-overlay" onClick={handleCerrarModalConclusion}>
           <div
@@ -305,8 +293,6 @@ const Pozos = ({ cliente_id }) => {
                 <i className="bi bi-x-lg"></i>
               </button>
             </div>
-
-            {/*  <div className="modal-conclusion-pozos-resumen"> */}
 
             <div className="modal-body">
               <div className="d-flex align-items-center gap-2 mb-2">
@@ -339,7 +325,7 @@ const Pozos = ({ cliente_id }) => {
               <textarea
                 id="conclusion"
                 name="conclusion"
-                className={`modal-conclusion-textarea ${errorConclusion ? 'modal-conclusion-textarea--error' : ''}`}
+                className={`modal-conclusion-textarea${errorConclusion ? ' modal-conclusion-textarea--error' : ''}`}
                 placeholder="Describí las conclusiones del análisis de calidad del agua para los pozos seleccionados..."
                 value={conclusion}
                 onChange={handleConclusion}

@@ -14,6 +14,7 @@ import './css/newStyle.css';
 import './css/clientesStyle.css';
 import './css/calibraciones.css';
 import './css/login.css';
+import './css/pozos.css';
 
 createRoot(document.getElementById('root')).render(
   <UserProvider>

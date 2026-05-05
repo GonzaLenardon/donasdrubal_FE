@@ -338,13 +338,24 @@ const DashboardUser = () => {
           <table className="table table-hover align-middle mb-0">
             <thead className="table-light">
               <tr>
-                <th style={{ width: '15%' }}>Cliente</th>
-                <th style={{ width: '5%' }}>Máquinas</th>
+                <th style={{ width: '16%' }}>Cliente</th>
+                <th className="text-end" style={{ width: '6%' }}>
+                  Máquinas
+                </th>
                 <th style={{ width: '15%' }}>Calibraciones</th>
-                <th style={{ width: '5%' }}>Pozos</th>
-                <th style={{ width: '15%' }}>Agua</th>
+                <th className="text-end" style={{ width: '6%' }}>
+                  Pozos
+                </th>
+                <th style={{ width: '15%' }}>Muestras de agua</th>
                 <th style={{ width: '15%' }}>Jornadas</th>
-                <th style={{ width: '15%' }}>Lts. Estimados</th>
+                <th
+                  style={{
+                    width: '10%',
+                    textAlign: 'center',
+                  }}
+                >
+                  Lts. Estimados
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -357,7 +368,7 @@ const DashboardUser = () => {
               ) : (
                 m.rows.map((row) => (
                   <tr key={row.id}>
-                    <td className="fw-medium">
+                    <td>
                       <span
                         style={{ cursor: 'pointer' }}
                         onClick={() => handleCliente(row)}
@@ -365,9 +376,9 @@ const DashboardUser = () => {
                         {row.razon_social}
                       </span>
                     </td>
-                    <td>
+                    <td className="text-end">
                       <span
-                        className="badge rounded bg-info text-dark"
+                        className="badge rounded bg-info text-dark "
                         style={{ fontSize: '0.9rem' }}
                       >
                         {row.totalMaquinas}
@@ -380,7 +391,7 @@ const DashboardUser = () => {
                         pct={row.calPct}
                       />
                     </td>
-                    <td>
+                    <td className="text-end">
                       <span
                         className="badge rounded bg-info text-dark"
                         style={{ fontSize: '0.9rem' }}
@@ -402,7 +413,9 @@ const DashboardUser = () => {
                         pct={row.jornadaPct}
                       />
                     </td>
-                    <td>{row?.litros_estimados ?? '—'}</td>
+                    <td className="text-center">
+                      {row?.litros_estimados ?? '—'}
+                    </td>
                   </tr>
                 ))
               )}

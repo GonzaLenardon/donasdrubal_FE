@@ -31,3 +31,10 @@ export const openCalibraciones = async (id) => {
   const res = await instance.put(`/calibraciones/open/${id}`);
   return res.data;
 };
+
+export const delCalibraciones = async (ids) => {
+  const res = await instance.delete('/calibraciones', {
+    data: { ids }, // 👈 importante
+  });
+  return res.data;
+};

@@ -1448,8 +1448,6 @@ body {
 }
 
 .clientes-wrapper,
-.pozos-wrapper,
-.maquinas-wrapper,
 .calibraciones-wrapper,
 .muestras-pozos-wrapper {
   background: linear-gradient(135deg, #2d5016 0%, #4a7c1f 100%);
@@ -1690,7 +1688,6 @@ body {
   transition: all 0.2s ease;
 }
 
-.pozo-btn-nuevo,
 .maquina-btn-nuevo,
 .jornada-btn-nuevo,
 .muestra-pozo-btn-nuevo,
