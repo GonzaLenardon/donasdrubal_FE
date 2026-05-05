@@ -29,7 +29,7 @@ export const getCliente = async (cliente_id) => {
   return res.data;
 };
 
-
+/// DASHBORAD
 export const getClienteStats = async (cliente_id) => {
   const res = await instance.get(`/cliente/${cliente_id}/stats`);
   console.log('Respuesta de stats:', res);

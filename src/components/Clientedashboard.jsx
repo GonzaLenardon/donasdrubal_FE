@@ -18,12 +18,15 @@ import {
   getClienteStats,
   getClienteServicesChart,
   getClienteMachinesChart,
+  getClienteJornadasChart,
+  getClienteCalibracionChart,
+  getClienteAnalisisChart,
   getClienteUpcomingServices,
-} from '../api/clientes.js';
+} from '../api/clientes_moks.js';
 // import {
 //   getClienteStats,
 //   getClienteServicesChart,
-//   getClienteMachinesChart,
+//   getClienteCalibracionChart,
 //   getClienteUpcomingServices,
 // } from '../api/clientes_moks_errorgranular.js';
 
@@ -234,13 +237,19 @@ const ClienteDashboard = ({ cliente }) => {
   const [loading, setLoading] = useState({
     stats: true,
     servicesChart: true,
-    machinesChart: true,
+    calibracionChart: true,
+    analisisChart: true,
+    jornadasChart: true,
+    machinesChart: true,    
     upcomingServices: true,
   });
 
   const [errors, setErrors] = useState({
     stats: null,
     servicesChart: null,
+    calibracionChart: null,
+    analisisChart: null,
+    jornadasChart: null,
     machinesChart: null,
     upcomingServices: null,
   });
@@ -248,7 +257,11 @@ const ClienteDashboard = ({ cliente }) => {
   const [data, setData] = useState({
     stats: null,
     servicesChart: null,
-    machinesChart: null,
+    calibracionChart: null,
+    calibracionChart: null,
+    analisisChart: null,
+    jornadasChart: null,
+    machinesChart: null,    
     upcomingServices: null,
   });
 
@@ -284,20 +297,63 @@ const ClienteDashboard = ({ cliente }) => {
     }
   };
 
-  const fetchMachinesChart = async () => {
+
+  const fetchAnalisisChart = async () => {
     try {
-      setLoading(prev => ({ ...prev, machinesChart: true }));
-      setErrors(prev => ({ ...prev, machinesChart: null }));
-      
-      const machinesChart = await getClienteMachinesChart(cliente.id);
-      setData(prev => ({ ...prev, machinesChart }));
+      setLoading(p => ({ ...p, analisisChart: true }));
+      setErrors(p => ({ ...p, analisisChart: null }));
+
+      const res = await getClienteAnalisisChart(cliente.id);
+      setData(p => ({ ...p, analisisChart: res }));
     } catch (err) {
-      console.error('Error fetching machines chart:', err);
-      setErrors(prev => ({ ...prev, machinesChart: err.message }));
+      setErrors(p => ({ ...p, analisisChart: err.message }));
     } finally {
-      setLoading(prev => ({ ...prev, machinesChart: false }));
+      setLoading(p => ({ ...p, analisisChart: false }));
+    }
+  };  
+
+  const fetchCalibracionChart = async () => {
+    try {
+      setLoading(prev => ({ ...prev, calibracionChart: true }));
+      setErrors(prev => ({ ...prev, calibracionChart: null }));
+      
+      const calibracionChart = await getClienteCalibracionChart(cliente.id);
+      setData(prev => ({ ...prev, calibracionChart }));
+    } catch (err) {
+      console.error('Error fetching calibracion chart:', err);
+      setErrors(prev => ({ ...prev, calibracionChart: err.message }));
+    } finally {
+      setLoading(prev => ({ ...prev, calibracionChart: false }));
     }
   };
+
+  const fetchJornadasChart = async () => {
+  try {
+    setLoading(p => ({ ...p, jornadasChart: true }));
+    setErrors(p => ({ ...p, jornadasChart: null }));
+
+    const res = await getClienteJornadasChart(cliente.id);
+    setData(p => ({ ...p, jornadasChart: res }));
+  } catch (err) {
+    setErrors(p => ({ ...p, jornadasChart: err.message }));
+  } finally {
+    setLoading(p => ({ ...p, jornadasChart: false }));
+  }
+};
+  const fetchMachinesChart = async () => {
+  try {
+    setLoading(p => ({ ...p, machinesChart: true }));
+    setErrors(p => ({ ...p, machinesChart: null }));
+
+    const res = await getClienteMachinesChart(cliente.id);
+    setData(p => ({ ...p, machinesChart: res }));
+  } catch (err) {
+    setErrors(p => ({ ...p, machinesChart: err.message }));
+  } finally {
+    setLoading(p => ({ ...p, machinesChart: false }));
+  }
+};
+
 
   const fetchUpcomingServices = async () => {
     try {
@@ -318,7 +374,10 @@ const ClienteDashboard = ({ cliente }) => {
   const fetchAllData = () => {
     fetchStats();
     fetchServicesChart();
-    fetchMachinesChart();
+    fetchAnalisisChart();
+    fetchCalibracionChart();
+    fetchJornadasChart();
+    fetchMachinesChart();    
     fetchUpcomingServices();
   };
 
@@ -369,8 +428,14 @@ const ClienteDashboard = ({ cliente }) => {
   const servicesChartData = data.servicesChart?.data || [];
   const servicesChartTotal = data.servicesChart?.total || 0;
 
-  const machinesChartData = data.machinesChart?.data || [];
-  const machinesChartTotal = data.machinesChart?.total || 0;
+  const analisisChartData = data.analisisChart?.data || [];
+  const analisisChartTotal = data.analisisChart?.total || 0;
+
+  const calibracionChartData = data.calibracionChart?.data || [];
+  const calibracionChartTotal = data.calibracionChart?.total || 0;
+
+  const jornadasChartData = data.jornadasChart?.data || [];
+  const jornadasChartTotal = data.jornadasChart?.total || 0;
 
   const calibracionServices = (data.upcomingServices?.calibracion || []).map(service => ({
     title: service.maquina || service.nombre,
@@ -440,42 +505,42 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
       </div>
 
       {/* ==================== CHARTS ROW ==================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart 1 - Servicios por Tipo */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Chart 1 - Analisis de Agua */}
         <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
           <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
-            Servicios por Tipo
+            Analisis de Agua
           </h3>
           
-          {loading.servicesChart ? (
+          {loading.analisisChart ? (
             <div className="flex items-center justify-center h-64">
               <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
             </div>
-          ) : errors.servicesChart ? (
+          ) : errors.analisisChart ? (
             <div className="flex flex-col items-center justify-center h-64 gap-4">
               <AlertCircle className="w-12 h-12 text-red-400" />
               <p className="text-sm text-red-600 dark:text-red-400 text-center">
-                {errors.servicesChart}
+                {errors.analisisChart}
               </p>
               <button
-                onClick={fetchServicesChart}
+                onClick={fetchAnalisisChart}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
               >
                 <RefreshCw size={16} />
                 Reintentar
               </button>
             </div>
-          ) : servicesChartData.length > 0 ? (
+          ) : analisisChartData.length > 0 ? (
             <>
               <div className="flex-grow">
                 <DonutChart
-                  data={servicesChartData}
-                  totalValue={servicesChartTotal.toString()}
+                  data={analisisChartData}
+                  totalValue={analisisChartTotal.toString()}
                   totalLabel="Total"
                 />
               </div>
               <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
-                {servicesChartData.map((item, idx) => (
+                {analisisChartData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2">
                     <span
                       className="w-3 h-3 rounded-full"
@@ -490,46 +555,46 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
             </>
           ) : (
             <div className="flex items-center justify-center h-64 text-gray-400">
-              Sin datos de servicios
+              Sin datos de Analisis de Agua
             </div>
           )}
         </div>
 
-        {/* Chart 2 - Estado de Máquinas */}
+        {/* Chart 2 - Calibraciones */}
         <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
           <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
-            Estado de Máquinas
+            Calibraciones
           </h3>
           
-          {loading.machinesChart ? (
+          {loading.calibracionChart ? (
             <div className="flex items-center justify-center h-64">
               <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
             </div>
-          ) : errors.machinesChart ? (
+          ) : errors.calibracionChart ? (
             <div className="flex flex-col items-center justify-center h-64 gap-4">
               <AlertCircle className="w-12 h-12 text-red-400" />
               <p className="text-sm text-red-600 dark:text-red-400 text-center">
-                {errors.machinesChart}
+                {errors.calibracionChart}
               </p>
               <button
-                onClick={fetchMachinesChart}
+                onClick={fetchCalibracionChart}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
               >
                 <RefreshCw size={16} />
                 Reintentar
               </button>
             </div>
-          ) : machinesChartData.length > 0 ? (
+          ) : calibracionChartData.length > 0 ? (
             <>
               <div className="flex-grow">
                 <DonutChart
-                  data={machinesChartData}
-                  totalValue={machinesChartTotal.toString()}
-                  totalLabel="Máquinas"
+                  data={calibracionChartData}
+                  totalValue={calibracionChartTotal.toString()}
+                  totalLabel="Calibraciones"
                 />
               </div>
               <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
-                {machinesChartData.map((item, idx) => (
+                {calibracionChartData.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2">
                     <span
                       className="w-3 h-3 rounded-full"
@@ -544,10 +609,67 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
             </>
           ) : (
             <div className="flex items-center justify-center h-64 text-gray-400">
-              Sin datos de máquinas
+              Sin datos de Calibraciones
             </div>
           )}
         </div>
+
+        {/* Chart 3 - Jornadas */}
+        <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
+          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
+            Jornadas
+          </h3>
+          
+          {loading.jornadasChart ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
+            </div>
+          ) : errors.jornadasChart ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <AlertCircle className="w-12 h-12 text-red-400" />
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                {errors.jornadasChart}
+              </p>
+              <button
+                onClick={fetchJornadasChart}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <RefreshCw size={16} />
+                Reintentar
+              </button>
+            </div>
+          ) : jornadasChartData.length > 0 ? (
+            <>
+              <div className="flex-grow">
+                <DonutChart
+                  data={jornadasChartData}
+                  totalValue={jornadasChartTotal.toString()}
+                  totalLabel="Jornadas"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
+                {jornadasChartData.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    ></span>
+                    <span className="text-text-light dark:text-text-dark">
+                      {item.name} ({item.value})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-400">
+              Sin datos de Jornadas
+            </div>
+          )}
+        </div>
+
+
+
       </div>
 
       {/* ==================== SERVICES ROW ==================== */}
