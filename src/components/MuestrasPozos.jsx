@@ -239,9 +239,8 @@ const MuestrasPozos = () => {
                 {isAdmin && (
                   <button
                     type="button"
-                    className={`btn btn-sm d-flex align-items-center gap-2 ${
-                      modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
-                    }`}
+                    className={`btn btn-sm d-flex align-items-center gap-2 ${modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
+                      }`}
                     style={{ opacity: modoSeleccion ? 1 : 0.65 }}
                     onClick={toggleModoSeleccion}
                   >
@@ -524,12 +523,45 @@ const MuestrasPozos = () => {
                               <span>{m.dosis || '-'}</span>
                             </td>
 
-                            <td className="py-2 px-3">
-                              <span className="table-badge-info">
-                                {m.estado || '-'}
-                              </span>
-                            </td>
+                            {/* ESTADO ABIERTO/CERRADO */}
+                            <td style={{ padding: '0.85rem 1rem' }}>
+                              {m.estado === 'CERRADO' && (
+                                <span
+                                  className="badge bg-danger"
+                                  style={{
+                                    fontSize: '0.72rem',
+                                    padding: '0.35rem 0.7rem',
+                                  }}
+                                >
+                                  CERRADO
+                                </span>
+                              )}
 
+                              {m.estado === 'PENDIENTE' && (
+                                <span
+                                  className="badge bg-success"
+                                  style={{
+                                    fontSize: '0.72rem',
+                                    padding: '0.35rem 0.7rem',
+                                  }}
+                                >
+                                  PENDIENTE
+                                </span>
+                              )}
+
+                              {m.estado === 'EN PROCESO' && (
+                                <span
+                                  className="badge bg-warning"
+                                  style={{
+                                    fontSize: '0.72rem',
+                                    padding: '0.35rem 0.7rem',
+                                  }}
+                                >
+                                  EN PROCESO
+                                </span>
+                              )}
+                            </td>
+                            
                             <td className="text-center">
                               {m.informe ? (
                                 <button
@@ -544,7 +576,7 @@ const MuestrasPozos = () => {
                                     setShowViewer(true);
                                     setViewerUrl(
                                       `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` +
-                                        m.informe,
+                                      m.informe,
                                     );
                                   }}
                                 >
@@ -570,7 +602,7 @@ const MuestrasPozos = () => {
                                 )}
 
                                 {m.estado === 'CERRADO' &&
-                                user.rol === 'Administrador' ? (
+                                  user.rol === 'Administrador' ? (
                                   <button
                                     className="btn btn-sm maquina-btn-reabrir"
                                     onClick={(e) => {

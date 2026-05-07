@@ -81,7 +81,7 @@ const stateClass = (value) => {
     return 'notif-pill notif-pill-success';
   }
   if (value === 'VENCIDO') return 'notif-pill notif-pill-danger';
-  if (value === 'PENDIENTE' || value === 'ACTIVA' || value === 'ALERTADO') {
+  if (value === 'PENDIENTE' || value === 'ACTIVA' || value === 'EN PROCESO') {
     return 'notif-pill notif-pill-warning';
   }
   return 'notif-pill notif-pill-muted';
@@ -228,7 +228,7 @@ const Notifications = () => {
       recibidas: recibidas.length,
       enviadas: enviadas.length,
       pendientes: recibidas.filter((item) =>
-        ['PENDIENTE', 'ACTIVA', 'ALERTADO'].includes(item.estado),
+        ['PENDIENTE', 'ACTIVA', 'EN PROCESO'].includes(item.estado),
       ).length,
       urgentes: alertasNormalizadas.filter((item) => item.prioridad === 'URGENTE')
         .length,
