@@ -1,10 +1,14 @@
 import { React, useEffect, useState } from 'react';
 import ModalPozos from './ModalPozos';
-import { clientePozos } from '../api/pozos';
+import { clientePozos, delPozo } from '../api/pozos'; // ← asegurate de exportar deletePozos
 import { useNavigate } from 'react-router-dom';
 import { useCliente } from '../context/UserContext';
 import { apiGenerarInformeMultiplePozos } from '../api/informes';
 import generarPDF from '../utils/generarPdf';
+import ModalEliminar from './ModalEliminar';
+import ModalInformativo from './ModalInformativo';
+import Spinner from './Spinner';
+import { Modal } from 'bootstrap';
 
 const Pozos = ({ cliente_id }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,9 +19,20 @@ const Pozos = ({ cliente_id }) => {
   const [showConclusion, setShowConclusion] = useState(false);
   const [errorConclusion, setErrorConclusion] = useState('');
   const [generando, setGenerando] = useState(false);
+  const [msg, setMsg] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showInformativo, setShowInformativo] = useState(false);
+
+  // ── Borrado ───────────────────────────────────────────────────────────────
+  const [pozoAEliminar, setPozoAEliminar] = useState(null);
+  const [showConfirmarDelete, setShowConfirmarDelete] = useState(false);
+  /*  const [showModalBloqueo, setShowModalBloqueo] = useState(false); */
 
   const navigate = useNavigate();
   const { setSelectedPozo, selectedPozo } = useCliente();
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isAdmin = user?.rol === 'Administrador';
 
   useEffect(() => {
     getPozos();
@@ -31,6 +46,8 @@ const Pozos = ({ cliente_id }) => {
       console.error('Error al traer pozos:', error);
     }
   };
+
+  // ── Informe múltiple ──────────────────────────────────────────────────────
 
   const handleToggleInforme = (e, pozoIdNum) => {
     e.stopPropagation();
@@ -89,6 +106,55 @@ const Pozos = ({ cliente_id }) => {
     }
   };
 
+  // ── Borrado ───────────────────────────────────────────────────────────────
+
+  /**
+   * Al clickear el ícono de basura en una card:
+   * - Si el pozo tiene muestras asociadas → muestra ModalInformativo (bloqueo)
+   * - Si no tiene muestras               → muestra ModalEliminar (confirmación)
+   *
+   * Nota: si tu API devuelve el conteo de muestras dentro del objeto pozo
+   * (ej: pozo.muestrasAgua o pozo.cantidad_muestras), usá eso directamente.
+   * Si no viene en el objeto, reemplazá por un fetch puntual acá.
+   */
+
+  const handleConfirmarBorrado = async () => {
+    try {
+      setShowConfirmarDelete(false);
+      await delPozo(pozoAEliminar.id);
+
+      setPozoAEliminar(null);
+
+      setLoading(true);
+
+      setMsg('Eliminando Pozo ...');
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setMsg('Pozo eliminado exitosamente');
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setMsg('');
+      await getPozos();
+    } catch (error) {
+      const status = error.response?.status;
+      console.log('LLLLLegggogo aca ');
+
+      if (status === 409) {
+        setShowInformativo(true);
+        return;
+      }
+
+      if (status === 404) {
+        alert('El pozo no existe');
+        return;
+      }
+
+      alert('Error inesperado');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
   return (
     <>
       <div className="pozos-wrapper">
@@ -114,7 +180,7 @@ const Pozos = ({ cliente_id }) => {
             </button>
           </div>
 
-          {/* ── Barra de selección ── */}
+          {/* ── Barra de selección informe ── */}
           {pozoId.length > 0 && (
             <div className="pozos-selection-bar mb-4">
               <div className="d-flex align-items-center gap-3">
@@ -163,7 +229,7 @@ const Pozos = ({ cliente_id }) => {
                     setOnlyView(true);
                   }}
                 >
-                  {/* Top: nombre + checkbox */}
+                  {/* Top: nombre + checkbox informe */}
                   <div className="pcard-top">
                     <div>
                       {isSelected && (
@@ -196,7 +262,7 @@ const Pozos = ({ cliente_id }) => {
                     </label>
                   </div>
 
-                  {/* Datos del pozo */}
+                  {/* Datos */}
                   <div className="pcard-data">
                     <div className="pcard-row">
                       <i className="bi bi-building pcard-row-icon"></i>
@@ -220,7 +286,7 @@ const Pozos = ({ cliente_id }) => {
 
                   <hr className="pcard-divider" />
 
-                  {/* Acciones */}
+                  {/* ── Acciones ── */}
                   <div className="pcard-actions">
                     <button
                       className="pcard-icon-btn pozo-btn-ver"
@@ -235,6 +301,7 @@ const Pozos = ({ cliente_id }) => {
                     >
                       <i className="bi bi-eye"></i>
                     </button>
+
                     <button
                       className="pcard-icon-btn pozo-btn-editar"
                       title="Editar pozo"
@@ -247,6 +314,21 @@ const Pozos = ({ cliente_id }) => {
                     >
                       <i className="bi bi-pencil"></i>
                     </button>
+
+                    {/* Eliminar — solo Admin */}
+                    {isAdmin && (
+                      <button
+                        className="pcard-icon-btn pozo-btn-eliminar"
+                        title="Eliminar pozo"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPozoAEliminar(pozo);
+                          setShowConfirmarDelete(true);
+                        }}
+                      >
+                        <i className="bi bi-trash3"></i>
+                      </button>
+                    )}
                   </div>
                 </div>
               );
@@ -380,6 +462,28 @@ const Pozos = ({ cliente_id }) => {
           </div>
         </div>
       )}
+
+      {/* ── Modal confirmación borrado ── */}
+      {showConfirmarDelete && (
+        <ModalEliminar
+          handleEliminar={handleConfirmarBorrado}
+          onCancelar={() => setShowConfirmarDelete(false)}
+          servicio="pozo"
+          /*  detalle={`${pozoAEliminar.nombre} — ${pozoAEliminar.establecimiento}`} */
+          cantidad={1}
+        />
+      )}
+
+      {/* ── Modal bloqueo por muestras asociadas ── */}
+
+      {showInformativo && (
+        <ModalInformativo
+          onClose={() => setShowInformativo(false)}
+          tipo="Pozos"
+          dependencias="muestras de agua"
+        />
+      )}
+      <Spinner loading={loading} msg={msg} />
     </>
   );
 };

@@ -20,8 +20,36 @@ const ModalEliminar = ({
   const cantidadNum = parseInt(cantidad, 10) || 1;
   const esPlural = cantidadNum > 1;
 
-  const s = esPlural ? `${servicio}s` : servicio;
-  const art = esPlural ? 'las' : 'la';
+  /* const s = esPlural ? `${servicio}s` : servicio; */
+  /*   const s = esPlural ? `${servicio}s` : servicio; */
+
+  const getServicioTexto = (servicio, esPlural) => {
+    console.log('first', servicio, esPlural);
+    const textos = {
+      calibracion: esPlural ? 'calibraciones' : 'calibración',
+      muestra: esPlural ? 'muestras' : 'muestra',
+      maquina: esPlural ? 'maquinas' : 'maquina',
+      pozo: esPlural ? 'pozos' : 'pozo',
+      jornada: esPlural ? 'jornadas' : 'jornada',
+    };
+    return textos[servicio];
+  };
+
+  const getArticulo = (servicio, esPlural) => {
+    console.log('first', servicio, esPlural);
+    const textos = {
+      calibracion: esPlural ? 'las' : 'la',
+      muestra: esPlural ? 'las' : 'la',
+      maquina: esPlural ? 'las' : 'la',
+      pozo: esPlural ? 'los' : 'el',
+      jornada: esPlural ? 'las' : 'la',
+    };
+    return textos[servicio];
+  };
+
+  const s = getServicioTexto(servicio, esPlural);
+
+  const art = getArticulo(servicio, esPlural);
 
   return (
     <div
@@ -85,8 +113,8 @@ const ModalEliminar = ({
         {/* ── Mensaje ── */}
         <p className="text-white-50 text-center mb-3">
           {esPlural
-            ? `Las ${cantidadNum} ${s} seleccionados serán eliminadas`
-            : `La ${servicio} será eliminada`}{' '}
+            ? `${art.charAt(0).toUpperCase() + art.slice(1)} ${cantidadNum} ${s} seleccionadas serán eliminadas`
+            : `${art.charAt(0).toUpperCase() + art.slice(1)} ${servicio} será eliminada`}{' '}
           de forma{' '}
           <strong className="text-white">permanente e irreversible</strong>.
         </p>

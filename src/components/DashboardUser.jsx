@@ -1,108 +1,73 @@
 import { useEffect, useState } from 'react';
-import { allServices } from '../api/dashUser';
-import { allCliente } from '../api/clientes';
+import { allServicesToClients, totalServices } from '../api/dashUser';
 import { useCliente } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 
-// ─── helpers ────────────────────────────────────────────────────────────────
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
-const calcClienteMetrics = (cliente) => {
-  let totalCal = 0,
-    doneCal = 0,
-    totalAgua = 0,
-    doneAgua = 0,
-    totalJornada = 0,
-    doneJornada = 0;
+/**
+ * A partir del nuevo objeto de allServicesToClients, deriva las métricas
+ * necesarias para la tabla y el foco del día.
+ * El backend ya devuelve los totales — no hay que iterar registros anidados.
+ */
+const calcRowMetrics = (cliente) => {
+  const cal = cliente.Maquinas;
+  const agua = cliente.Pozos;
+  const jorn = cliente.Jornadas;
 
-  cliente.maquinas?.forEach((m) => {
-    m.calibracionesmaquina?.forEach((cal) => {
-      totalCal++;
-      if (cal.estado === 'CERRADO') doneCal++;
-    });
-  });
+  const doneCal = cal.totalCalibraciones - cal.calibracionesPendientes;
+  const doneAgua = agua.totalMuestras - agua.muestrasPendientes;
+  const doneJornada = jorn.totalJornadas - jorn.jornadasPendientes;
 
-  cliente.pozos?.forEach((p) => {
-    p.muestrasAgua?.forEach((muestra) => {
-      totalAgua++;
-      if (muestra.estado === 'CERRADO') doneAgua++;
-    });
-  });
-
-  cliente.jornadas?.forEach((j) => {
-    totalJornada++;
-    if (j.estado === 'CERRADO') doneJornada++;
-  });
-
-  const calPct = totalCal > 0 ? Math.round((doneCal / totalCal) * 100) : 0;
-  const aguaPct = totalAgua > 0 ? Math.round((doneAgua / totalAgua) * 100) : 0;
+  const calPct =
+    cal.totalCalibraciones > 0
+      ? Math.round((doneCal / cal.totalCalibraciones) * 100)
+      : 0;
+  const aguaPct =
+    agua.totalMuestras > 0
+      ? Math.round((doneAgua / agua.totalMuestras) * 100)
+      : 0;
   const jornadaPct =
-    totalJornada > 0 ? Math.round((doneJornada / totalJornada) * 100) : 0;
+    jorn.totalJornadas > 0
+      ? Math.round((doneJornada / jorn.totalJornadas) * 100)
+      : 0;
 
+  // Estado global del cliente para "Foco del día"
   let estado = 'sin';
   if (calPct === 100 && aguaPct === 100) estado = 'completo';
   else if (calPct > 0 || aguaPct > 0) estado = 'proceso';
 
   return {
-    totalCal,
+    // Calibraciones
+    totalCal: cal.totalCalibraciones,
     doneCal,
     calPct,
-    totalAgua,
+    // Muestras
+    totalAgua: agua.totalMuestras,
     doneAgua,
     aguaPct,
-    totalJornada,
+    // Jornadas
+    totalJornada: jorn.totalJornadas,
     doneJornada,
     jornadaPct,
+    // Contadores
+    totalMaquinas: cal.totalMaquinas,
+    totalPozos: agua.totalPozos,
     estado,
-    totalMaquinas: cliente.maquinas?.length ?? 0,
-    totalPozos: cliente.pozos?.length ?? 0,
   };
 };
 
-const calcGlobalMetrics = (clientes) => {
-  console.log('CLICLCICLCICLICLICICLCICLCICI', clientes);
-
-  let totalCal = 0,
-    doneCal = 0;
-  let totalAgua = 0,
-    doneAgua = 0;
-  // ── Jornadas acumuladas en este scope ──
-  let totalJornada = 0,
-    doneJornada = 0;
-
-  const rows = [];
-
-  clientes.forEach((c) => {
-    const m = calcClienteMetrics(c);
-
-    totalCal += m.totalCal;
-    doneCal += m.doneCal;
-    totalAgua += m.totalAgua;
-    doneAgua += m.doneAgua;
-    totalJornada += m.totalJornada;
-    doneJornada += m.doneJornada;
-
-    rows.push({
-      id: c.id,
-      razon_social: c.razon_social,
-      litros_estimados: c.litros_estimados,
-      cuil_cuit: c.cuil_cuit,
-      direccion: c.direccion,
-      telefono: c.telefono,
-      ...m,
-    });
-  });
+const buildRows = (clientes) => {
+  const rows = clientes.map((c) => ({
+    id: c.id,
+    razon_social: c.razon_social,
+    litros_estimados: c.litros_estimados,
+    ciudad: c.ciudad,
+    provincia: c.provincia,
+    ...calcRowMetrics(c),
+  }));
 
   return {
-    totalCal,
-    doneCal,
-    calPct: totalCal > 0 ? Math.round((doneCal / totalCal) * 100) : 0,
-    totalAgua,
-    doneAgua,
-    aguaPct: totalAgua > 0 ? Math.round((doneAgua / totalAgua) * 100) : 0,
-    totalJornada,
-    doneJornada,
-    jornadaPct:
-      totalJornada > 0 ? Math.round((doneJornada / totalJornada) * 100) : 0,
     rows,
     sin: rows.filter((r) => r.estado === 'sin').length,
     proceso: rows.filter((r) => r.estado === 'proceso').length,
@@ -110,76 +75,98 @@ const calcGlobalMetrics = (clientes) => {
   };
 };
 
-// ─── sub-components ──────────────────────────────────────────────────────────
+// ─── Sub-componentes ───────────────────────────────────────────────────────────
 
-const ResumenCard = ({ icon, title, done, total, pct, pendiente }) => (
-  <div className="card h-100">
-    <div className="card-body">
-      <div className="d-flex align-items-center gap-2 mb-3">
-        <span style={{ fontSize: 22 }}>{icon}</span>
-        <span className="fw-medium">{title}</span>
-      </div>
-      <div className="d-flex justify-content-between align-items-baseline mb-1">
-        <span className="fs-4 fw-medium">
-          {done !== null ? `${done} / ${total}` : '— / —'}
-        </span>
-      </div>
-      <div className="progress mb-1" style={{ height: 8 }}>
-        <div
-          className="progress-bar bg-success"
-          style={{ width: `${pct}%` }}
-          role="progressbar"
-          aria-valuenow={pct}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        />
-      </div>
-      <div className="d-flex justify-content-between">
-        <small className="text-success fw-medium">{pct}%</small>
-        <small className="text-muted">{pendiente}</small>
+const ResumenCard = ({ icon, title, total, pendientes, extra, extraLabel }) => {
+  const realizadas = total - pendientes;
+  const pct = total > 0 ? Math.round((realizadas / total) * 100) : 0;
+
+  const barColor = pct === 100 ? '#639922' : pct >= 50 ? '#EF9F27' : '#E24B4A';
+
+  return (
+    <div className="card h-100">
+      <div className="card-body">
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <div className="d-flex align-items-center gap-2">
+            <span style={{ fontSize: 22 }}>{icon}</span>
+            <span className="fw-medium">{title}</span>
+          </div>
+          {extra != null && (
+            <span
+              className="badge rounded-pill bg-info text-dark"
+              style={{ fontSize: '0.8rem' }}
+            >
+              {extra} {extraLabel}
+            </span>
+          )}
+        </div>
+
+        <div className="d-flex justify-content-between align-items-baseline mb-1">
+          <span className="fs-4 fw-medium">
+            {realizadas}{' '}
+            <span className="fs-6 text-muted fw-normal">/ {total}</span>
+          </span>
+          <small className="text-muted">{pct}% completado</small>
+        </div>
+
+        <div className="progress mb-2" style={{ height: 8, borderRadius: 4 }}>
+          <div
+            className="progress-bar"
+            role="progressbar"
+            style={{
+              width: `${pct}%`,
+              background: barColor,
+              transition: 'width .4s ease',
+            }}
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          />
+        </div>
+
+        <div className="d-flex justify-content-between">
+          <small style={{ color: barColor }} className="fw-medium">
+            ✓ {realizadas} realizadas
+          </small>
+          <small className="text-muted">⏳ {pendientes} pendientes</small>
+        </div>
       </div>
     </div>
-  </div>
-);
-
-const ESTADO_CONFIG = {
-  sin: {
-    label: 'Sin iniciar',
-    badgeClass: 'text-bg-danger',
-    dotColor: '#E24B4A',
-  },
-  proceso: {
-    label: 'En proceso',
-    badgeClass: 'text-bg-warning',
-    dotColor: '#EF9F27',
-  },
-  completo: {
-    label: 'Completado',
-    badgeClass: 'text-bg-success',
-    dotColor: '#639922',
-  },
-};
-
-const EstadoBadge = ({ estado }) => {
-  const cfg = ESTADO_CONFIG[estado] ?? ESTADO_CONFIG.sin;
-  return (
-    <span className={`badge rounded-pill ${cfg.badgeClass}`}>{cfg.label}</span>
   );
 };
 
-const MiniBar = ({ done, total, pct }) => (
-  <div className="d-flex align-items-center gap-2">
-    <small className="text-muted" style={{ minWidth: 34 }}>
-      {done}/{total}
-    </small>
-    <div className="progress flex-fill" style={{ height: 6 }}>
-      <div className="progress-bar bg-success" style={{ width: `${pct}%` }} />
+/**
+ * MiniBar — barra de progreso compacta para la tabla de clientes.
+ * Cambia de color igual que ResumenCard para mantener coherencia visual.
+ */
+const MiniBar = ({ done, total }) => {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const barColor = pct === 100 ? '#639922' : pct >= 50 ? '#EF9F27' : '#E24B4A';
+
+  return (
+    <div className="d-flex align-items-center gap-2">
+      <small
+        className="text-muted"
+        style={{ minWidth: 38, whiteSpace: 'nowrap' }}
+      >
+        {done}/{total}
+      </small>
+      <div className="progress flex-fill" style={{ height: 6 }}>
+        <div
+          className="progress-bar"
+          style={{ width: `${pct}%`, background: barColor }}
+        />
+      </div>
+      <small
+        className="text-muted"
+        style={{ minWidth: 32, textAlign: 'right' }}
+      >
+        {pct}%
+      </small>
     </div>
-    <small className="text-muted" style={{ minWidth: 32, textAlign: 'right' }}>
-      {pct}%
-    </small>
-  </div>
-);
+  );
+};
 
 const FocoCard = ({ color, count, label }) => (
   <div className="card h-100">
@@ -200,30 +187,34 @@ const FocoCard = ({ color, count, label }) => (
   </div>
 );
 
-// ─── main component ──────────────────────────────────────────────────────────
+// ─── Componente principal ──────────────────────────────────────────────────────
 
 const DashboardUser = () => {
+  const [totales, setTotales] = useState(null);
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [clienteIds, setClienteIds] = useState([]);
+
   const { setSelectedCliente } = useCliente();
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchData();
-    setSelectedCliente(null); // Limpiar cliente seleccionado al entrar al dashboard
+    setSelectedCliente(null);
   }, []);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const clientesRes = await allCliente();
-      const ids = clientesRes.data.map((c) => c.id);
-      setClienteIds(ids);
-      const serviciosRes = await allServices(ids);
+
+      const [serviciosRes, totalesRes] = await Promise.all([
+        allServicesToClients(),
+        totalServices(),
+      ]);
+
       setClientes(serviciosRes.data?.data ?? serviciosRes.data ?? []);
+      setTotales(totalesRes.data?.data ?? totalesRes.data ?? null);
     } catch (err) {
       console.error('Error al cargar datos:', err);
       setError('No se pudieron cargar los datos.');
@@ -259,48 +250,44 @@ const DashboardUser = () => {
     );
   }
 
-  const m = calcGlobalMetrics(clientes);
+  const { rows, sin, proceso, completos } = buildRows(clientes);
 
   const handleCliente = (row) => {
-    console.log('ROWWWWWWWWWWWWWW', row);
     setSelectedCliente(row);
     navigate(`/cliente/${row.id}/detalles`);
   };
 
   return (
     <div className="p-3">
-      {/* ── Resumen General ── */}
+      {/* ── Resumen general ── */}
       <h6 className="fw-medium mb-3">Resumen general</h6>
       <div className="row g-3 mb-4">
         <div className="col-12 col-md-4">
           <ResumenCard
             icon="🚜"
             title="Calibraciones"
-            done={m.doneCal}
-            total={m.totalCal}
-            pct={m.calPct}
-            pendiente={`Pendientes: ${m.totalCal - m.doneCal}`}
+            total={totales?.Maquinas?.totalCalibraciones ?? 0}
+            pendientes={totales?.Maquinas?.calibracionesPendientes ?? 0}
+            extra={totales?.Maquinas?.totalMaquinas}
+            extraLabel="máq."
           />
         </div>
         <div className="col-12 col-md-4">
           <ResumenCard
             icon="💧"
             title="Muestreo de agua"
-            done={m.doneAgua}
-            total={m.totalAgua}
-            pct={m.aguaPct}
-            pendiente={`Pendientes: ${m.totalAgua - m.doneAgua}`}
+            total={totales?.Pozos?.totalMuestras ?? 0}
+            pendientes={totales?.Pozos?.muestrasPendientes ?? 0}
+            extra={totales?.Pozos?.totalPozos}
+            extraLabel="pozos"
           />
         </div>
-        {/* ── Jornadas (reemplaza Capacitaciones) ── */}
         <div className="col-12 col-md-4">
           <ResumenCard
             icon="🎓"
             title="Jornadas"
-            done={m.doneJornada}
-            total={m.totalJornada}
-            pct={m.jornadaPct}
-            pendiente={`Pendientes: ${m.totalJornada - m.doneJornada}`}
+            total={totales?.Jornadas?.totalJornadas ?? 0}
+            pendientes={totales?.Jornadas?.jornadasPendientes ?? 0}
           />
         </div>
       </div>
@@ -311,22 +298,22 @@ const DashboardUser = () => {
         <div className="col-12 col-md-4">
           <FocoCard
             color="#E24B4A"
-            count={m.sin}
-            label={`cliente${m.sin !== 1 ? 's' : ''} sin arrancar`}
+            count={sin}
+            label={`cliente${sin !== 1 ? 's' : ''} sin arrancar`}
           />
         </div>
         <div className="col-12 col-md-4">
           <FocoCard
             color="#EF9F27"
-            count={m.proceso}
-            label={`cliente${m.proceso !== 1 ? 's' : ''} en proceso`}
+            count={proceso}
+            label={`cliente${proceso !== 1 ? 's' : ''} en proceso`}
           />
         </div>
         <div className="col-12 col-md-4">
           <FocoCard
             color="#639922"
-            count={m.completos}
-            label={`cliente${m.completos !== 1 ? 's' : ''} completo${m.completos !== 1 ? 's' : ''}`}
+            count={completos}
+            label={`cliente${completos !== 1 ? 's' : ''} completo${completos !== 1 ? 's' : ''}`}
           />
         </div>
       </div>
@@ -338,83 +325,78 @@ const DashboardUser = () => {
           <table className="table table-hover align-middle mb-0">
             <thead className="table-light">
               <tr>
-                <th style={{ width: '16%' }}>Cliente</th>
-                <th className="text-end" style={{ width: '6%' }}>
-                  Máquinas
-                </th>
-                <th style={{ width: '15%' }}>Calibraciones</th>
-                <th className="text-end" style={{ width: '6%' }}>
-                  Pozos
-                </th>
-                <th style={{ width: '15%' }}>Muestras de agua</th>
-                <th style={{ width: '15%' }}>Jornadas</th>
-                <th
-                  style={{
-                    width: '10%',
-                    textAlign: 'center',
-                  }}
-                >
-                  Lts. Estimados
-                </th>
+                <th>Cliente</th>
+                <th className="text-center">Máquinas</th>
+                <th>Calibraciones</th>
+                <th className="text-center">Pozos</th>
+                <th>Muestras de agua</th>
+                <th>Jornadas</th>
+                <th className="text-center">Lts. Estimados</th>
               </tr>
             </thead>
             <tbody>
-              {m.rows.length === 0 ? (
+              {rows.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center text-muted py-4">
                     Sin clientes registrados
                   </td>
                 </tr>
               ) : (
-                m.rows.map((row) => (
-                  <tr key={row.id}>
+                rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handleCliente(row)}
+                  >
+                    {/* Cliente */}
                     <td>
-                      <span
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => handleCliente(row)}
-                      >
-                        {row.razon_social}
-                      </span>
+                      <div className="fw-medium">{row.razon_social}</div>
+                      <small className="text-muted">
+                        {row.ciudad}, {row.provincia}
+                      </small>
                     </td>
-                    <td className="text-end">
+
+                    {/* Máquinas */}
+                    <td className="text-center">
                       <span
-                        className="badge rounded bg-info text-dark "
-                        style={{ fontSize: '0.9rem' }}
+                        className="badge rounded bg-info text-dark"
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {row.totalMaquinas}
                       </span>
                     </td>
+
+                    {/* Calibraciones */}
                     <td>
-                      <MiniBar
-                        done={row.doneCal}
-                        total={row.totalCal}
-                        pct={row.calPct}
-                      />
+                      <MiniBar done={row.doneCal} total={row.totalCal} />
                     </td>
-                    <td className="text-end">
+
+                    {/* Pozos */}
+                    <td className="text-center">
                       <span
                         className="badge rounded bg-info text-dark"
-                        style={{ fontSize: '0.9rem' }}
+                        style={{ fontSize: '0.85rem' }}
                       >
                         {row.totalPozos}
                       </span>
                     </td>
+
+                    {/* Muestras */}
                     <td>
-                      <MiniBar
-                        done={row.doneAgua}
-                        total={row.totalAgua}
-                        pct={row.aguaPct}
-                      />
+                      <MiniBar done={row.doneAgua} total={row.totalAgua} />
                     </td>
+
+                    {/* Jornadas */}
                     <td>
                       <MiniBar
                         done={row.doneJornada}
                         total={row.totalJornada}
-                        pct={row.jornadaPct}
                       />
                     </td>
+
+                    {/* Litros */}
                     <td className="text-center">
-                      {row?.litros_estimados ?? '—'}
+                      {row.litros_estimados ?? '—'}
                     </td>
                   </tr>
                 ))
