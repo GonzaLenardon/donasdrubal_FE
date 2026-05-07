@@ -34,3 +34,8 @@ export const openJornada = async (id) => {
   const res = await instance.put(`/jornadas/open/${id}`);
   return res.data;
 };
+
+export const delJornada = async (id) => {
+  const res = await instance.delete(`/jornadas/${id}`);
+  return res.data;
+};

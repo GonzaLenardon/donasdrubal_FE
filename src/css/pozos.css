@@ -283,3 +283,15 @@
   border-color: rgba(234, 179, 8, 0.5);
   color: #fef08a;
 }
+
+/* Eliminar → rojo */
+.pozo-btn-eliminar {
+  background: rgba(239, 68, 68, 0.7);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f0e9e9;
+}
+.pozo-btn-eliminar:hover {
+  background: rgba(239, 68, 68, 0.28);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #fecaca;
+}

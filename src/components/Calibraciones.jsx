@@ -71,13 +71,14 @@ export const Calibraciones = () => {
   };
 
   const handleEliminarSeleccionados = async () => {
-    setLoading(true);
     try {
-      await delCalibraciones(seleccionados);
       setShowConfirmDelete(false);
+      await delCalibraciones(seleccionados);
+
       cancelarSeleccion();
+      setLoading(true);
       setMsg('Eliminando Calibraciones ...');
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       setMsg('Calibraciones eliminadas exitosamente');
       await allcalibraciones();
     } catch (error) {
@@ -604,7 +605,7 @@ export const Calibraciones = () => {
 
                           {/* ESTADO ABIERTO/CERRADO */}
                           <td style={{ padding: '0.85rem 1rem' }}>
-                            {isCerrado ? (
+                            {cal.estado === 'CERRADO' && (
                               <span
                                 className="badge bg-danger"
                                 style={{
@@ -614,7 +615,9 @@ export const Calibraciones = () => {
                               >
                                 CERRADO
                               </span>
-                            ) : (
+                            )}
+
+                            {cal.estado === 'PENDIENTE' && (
                               <span
                                 className="badge bg-success"
                                 style={{
@@ -622,7 +625,19 @@ export const Calibraciones = () => {
                                   padding: '0.35rem 0.7rem',
                                 }}
                               >
-                                ABIERTO
+                                PENDIENTE
+                              </span>
+                            )}
+
+                            {cal.estado === 'EN PROCESO' && (
+                              <span
+                                className="badge bg-warning"
+                                style={{
+                                  fontSize: '0.72rem',
+                                  padding: '0.35rem 0.7rem',
+                                }}
+                              >
+                                EN PROCESO
                               </span>
                             )}
                           </td>
@@ -745,7 +760,7 @@ export const Calibraciones = () => {
         <ModalEliminar
           handleEliminar={handleEliminarSeleccionados}
           onCancelar={() => setShowConfirmDelete(false)}
-          servicio="calibración"
+          servicio="calibracion"
           /* detalle={`${maquinaSeleccionada?.tipo.marca} ${maquinaSeleccionada?.tipo.modelo}`} */
           cantidad={seleccionados.length}
         />

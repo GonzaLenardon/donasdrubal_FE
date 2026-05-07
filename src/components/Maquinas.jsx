@@ -1,9 +1,8 @@
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { allMaquinas, delMaquina } from '../api/maquinas';
 import { ModalMaquinas } from './ModalMaquinas';
 import { useNavigate } from 'react-router-dom';
 import { useCliente } from '../context/UserContext';
-import { calibracionesMaquina } from '../api/calibraciones';
 import ModalFinalizarServicios from './ModalFinalizarServicios';
 import ModalInformativo from './ModalInformativo';
 import Spinner from './Spinner';
@@ -52,11 +51,15 @@ const Maquinas = ({ cliente_id }) => {
     try {
       setShowConfirmDelete(false);
       await delMaquina(seleccionado);
-      await getMaquinas();
+
       setLoading(true);
+      setMsg('Eliminando Maquina ...');
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       setMsg('Maquina eliminada exitosamente');
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       setMsg('');
+      await getMaquinas();
     } catch (error) {
       const status = error.response?.status;
       console.log('LLLLLegggogo aca ');
@@ -91,10 +94,6 @@ const Maquinas = ({ cliente_id }) => {
   const toggleSeleccion = (id) => {
     setSeleccionado((prev) => (prev === id ? null : id));
   };
-
-  useEffect(() => {
-    console.log('MMMMMMMMMMMMMMMMMMMMMMMMM', seleccionado);
-  }, [seleccionado]);
 
   const toggleModoSeleccion = () => {
     setModoSeleccion((prev) => !prev);
@@ -399,7 +398,7 @@ const Maquinas = ({ cliente_id }) => {
         <ModalEliminar
           handleEliminar={handleDelete}
           onCancelar={() => setShowConfirmDelete(false)}
-          servicio="máquina"
+          servicio="maquina"
           /* detalle={`${maquinaSeleccionada?.tipo.marca} ${maquinaSeleccionada?.tipo.modelo}`} */
           cantidad={1}
         />

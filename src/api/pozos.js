@@ -13,7 +13,7 @@ export const upPozos = async (pozo) => {
 
   const res = await instance.put(
     `/cliente/${cliente_id}/pozos/${id}`,
-    pozoAcutalizar
+    pozoAcutalizar,
   );
   return res.data;
 };
@@ -24,5 +24,10 @@ export const addPozos = async (pozo) => {
   const res = await instance.post(`/cliente/${cliente_id}/pozos`, {
     newPozo,
   });
+  return res.data;
+};
+
+export const delPozo = async (id) => {
+  const res = await instance.delete(`/pozos/${id}`);
   return res.data;
 };

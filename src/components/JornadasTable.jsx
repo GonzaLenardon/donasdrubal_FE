@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { clienteJornadas, openJornada } from '../api/jornadas';
+import { clienteJornadas, delJornada, openJornada } from '../api/jornadas';
 import ModalJornadas from './ModalJornadas';
 import ModalFinalizarServicios from './ModalFinalizarServicios';
 import Spinner from './Spinner';
+import ModalEliminar from './ModalEliminar';
+import ModalInformativo from './ModalInformativo';
 
 const JornadasTable = () => {
   const { cliente_id } = useParams();
@@ -11,11 +13,15 @@ const JornadasTable = () => {
   const [jornadas, setJornadas] = useState([]);
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [jornadaEdit, setJornadaEdit] = useState(null);
   const [jornadaReabrir, setJornadaReabrir] = useState(null);
+  const [modoSeleccion, setModoSeleccion] = useState(false);
+  const [seleccionado, setSeleccionado] = useState(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.rol === 'Administrador';
 
@@ -25,13 +31,13 @@ const JornadasTable = () => {
 
   const getJornadas = async () => {
     try {
-      setLoading(true);
+      /* setLoading(true); */
       const res = await clienteJornadas(cliente_id);
       setJornadas(res.data);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      /* setLoading(false); */
     }
   };
 
@@ -93,6 +99,37 @@ const JornadasTable = () => {
     }
   };
 
+  const toggleModoSeleccion = () => {
+    setModoSeleccion((prev) => !prev);
+    setSeleccionado(null);
+  };
+
+  const cancelarSeleccion = () => {
+    setModoSeleccion(false);
+    setSeleccionado(null);
+  };
+
+  const handleConfirmarBorrado = async () => {
+    try {
+      setShowConfirmDelete(false);
+      await delJornada(seleccionado);
+      setSeleccionado(null);
+
+      setLoading(true);
+
+      setMsg('Eliminando Jornada ...');
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setMsg('Jornada eliminada exitosamente');
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setMsg('');
+      await getJornadas();
+    } catch (error) {
+      console.log('Error al eliminar jornada:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /* ================= RENDER ================= */
 
   return (
@@ -105,16 +142,32 @@ const JornadasTable = () => {
             <p className="text-white-50 mb-0">{jornadas.length} Jornadas</p>
           </div>
 
-          <button
-            className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
-            onClick={(e) => {
-              e.stopPropagation();
-              setJornadaEdit({ cliente_id: cliente_id });
-              setIsOpen(true);
-            }}
-          >
-            <i className="bi bi-plus-lg me-2"></i>Nueva jornada
-          </button>
+          <div className="d-flex align-items-center gap-2">
+            {isAdmin && (
+              <button
+                type="button"
+                className={`btn btn-sm d-flex align-items-center gap-2 ${
+                  modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
+                }`}
+                style={{ opacity: modoSeleccion ? 1 : 0.65 }}
+                onClick={toggleModoSeleccion}
+              >
+                <i className="bi bi-trash3"></i>
+                {modoSeleccion ? 'Cancelar' : 'Seleccionar'}
+              </button>
+            )}
+
+            <button
+              className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
+              onClick={(e) => {
+                e.stopPropagation();
+                setJornadaEdit({ cliente_id: cliente_id });
+                setIsOpen(true);
+              }}
+            >
+              <i className="bi bi-plus-lg me-2"></i>Nueva jornada
+            </button>
+          </div>
         </div>
 
         {/* FILTROS */}
@@ -148,113 +201,158 @@ const JornadasTable = () => {
           </div>
         </div>
 
+        {modoSeleccion && seleccionado && (
+          <div
+            className="d-flex align-items-center justify-content-between mb-3 px-3 py-2 rounded"
+            style={{
+              background: 'rgba(239,68,68,0.12)',
+              border: '1px solid rgba(239,68,68,0.3)',
+            }}
+          >
+            <div className="d-flex align-items-center gap-2">
+              <i className="bi bi-ui-checks text-white-50"></i>
+
+              <span className="text-white-50" style={{ fontSize: '0.85rem' }}>
+                <span className="text-white fw-bold p-1">1</span>
+                Maquina seleccionada
+              </span>
+            </div>
+            <div className="d-flex gap-2">
+              <button
+                className="btn btn-sm btn-outline-light"
+                style={{ opacity: 0.5, fontSize: '0.8rem' }}
+                onClick={cancelarSeleccion}
+              >
+                Cancelar
+              </button>
+              <button
+                className="btn btn-sm btn-danger d-flex align-items-center gap-2"
+                style={{ fontSize: '0.8rem' }}
+                onClick={() => setShowConfirmDelete(true)}
+              >
+                <i className="bi bi-trash3"></i>
+                Eliminar{' '}
+                {seleccionado.length > 0 ? `(${seleccionado.length})` : ''}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* TABLA */}
 
         <div className="container-table rounded shadow-lg">
           <div className="table-wrapper">
-            {loading ? (
-              <div className="text-center py-5">
-                <div
-                  className="spinner-border"
-                  style={{ color: 'var(--color-base)' }}
-                  role="status"
-                >
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-                <p className="mt-3" style={{ color: 'var(--color-gray-600)' }}>
-                  Cargando jornadas...
-                </p>
-              </div>
-            ) : (
-              <table className="table mb-0">
-                <thead>
-                  <tr>
-                    <th>
-                      <i className="bi bi-calendar-event"></i>Fecha
-                    </th>
-                    <th>
-                      <i className="bi bi-chat-left-text"></i>Motivo
-                    </th>
+            <table className="table mb-0">
+              <thead>
+                <tr>
+                  {modoSeleccion && (
+                    <th
+                      style={{
+                        padding: '0.85rem 0.5rem 0.85rem 1rem',
+                        width: '40px',
+                      }}
+                    ></th>
+                  )}
+                  <th>
+                    <i className="bi bi-calendar-event"></i>Fecha
+                  </th>
+                  <th>
+                    <i className="bi bi-chat-left-text"></i>Motivo
+                  </th>
 
-                    <th>
-                      <i className="bi bi-card-text"></i>Observaciones
-                    </th>
-                    <th>
-                      <i className="bi bi-flag-fill"></i>Estado
-                    </th>
-                    <th className="text-center">
-                      <i className="bi bi-gear"></i>Acciones
-                    </th>
-                  </tr>
-                </thead>
+                  <th>
+                    <i className="bi bi-card-text"></i>Observaciones
+                  </th>
+                  <th>
+                    <i className="bi bi-flag-fill"></i>Estado
+                  </th>
+                  <th className="text-center">
+                    <i className="bi bi-gear"></i>Acciones
+                  </th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {jornadasFiltradas.map((m) => {
-                    const isClosed = m.estado === 'CERRADO';
+              <tbody>
+                {jornadasFiltradas.map((m) => {
+                  const isClosed = m.estado === 'CERRADO';
 
-                    return (
-                      <tr
-                        key={m.id} /* onClick={() => handleEditarJornada(m)} */
-                      >
-                        {/* Fecha */}
-                        <td>
-                          <span className="table-text fw-semibold">
-                            {formatFecha(m.fecha_jornada)}
-                          </span>
+                  return (
+                    <tr key={m.id} /* onClick={() => handleEditarJornada(m)} */>
+                      {modoSeleccion && (
+                        <td style={{ padding: '0.85rem 0.5rem 0.85rem 1rem' }}>
+                          <input
+                            type="checkbox"
+                            checked={seleccionado === m.id}
+                            onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
+                            onChange={() => setSeleccionado(m.id)}
+                            style={{
+                              width: '15px',
+                              height: '15px',
+                              cursor: 'pointer',
+                              accentColor: '#ef4444',
+                            }}
+                          />
                         </td>
+                      )}
 
-                        {/* Motivo */}
-                        <td>
-                          <span className="table-text">{m.motivo || '-'}</span>
-                        </td>
+                      {/* Fecha */}
+                      <td>
+                        <span className="table-text fw-semibold">
+                          {formatFecha(m.fecha_jornada)}
+                        </span>
+                      </td>
 
-                        {/* Estado */}
+                      {/* Motivo */}
+                      <td>
+                        <span className="table-text">{m.motivo || '-'}</span>
+                      </td>
 
-                        {/* Observaciones */}
-                        <td>
-                          <span className="table-text">
-                            {m.observaciones || '-'}
-                          </span>
-                        </td>
+                      {/* Estado */}
 
-                        <td>
-                          <span className="table-badge-info">
-                            {m.estado || '-'}
-                          </span>
-                        </td>
+                      {/* Observaciones */}
+                      <td>
+                        <span className="table-text">
+                          {m.observaciones || '-'}
+                        </span>
+                      </td>
 
-                        {/* Acciones */}
-                        <td>
-                          <div className="table-actions">
-                            {!isClosed && (
-                              <button
-                                className="table-btn table-btn-edit"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEditarJornada(m);
-                                }}
-                              >
-                                <i className="bi bi-pencil"></i>
-                              </button>
-                            )}
+                      <td>
+                        <span className="table-badge-info">
+                          {m.estado || '-'}
+                        </span>
+                      </td>
 
-                            {isClosed && isAdmin && (
-                              <button
-                                className="btn btn-sm calibracion-botones text-warning"
-                                onClick={() => setJornadaReabrir(m)}
-                                title="Reabrir calibración"
-                              >
-                                <i className="bi bi-arrow-repeat"></i>
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
+                      {/* Acciones */}
+                      <td>
+                        <div className="table-actions">
+                          {!isClosed && (
+                            <button
+                              className="table-btn table-btn-edit"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditarJornada(m);
+                              }}
+                            >
+                              <i className="bi bi-pencil"></i>
+                            </button>
+                          )}
+
+                          {isClosed && isAdmin && (
+                            <button
+                              className="btn btn-sm calibracion-botones text-warning"
+                              onClick={() => setJornadaReabrir(m)}
+                              title="Reabrir calibración"
+                            >
+                              <i className="bi bi-arrow-repeat"></i>
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -271,6 +369,16 @@ const JornadasTable = () => {
           servicio="jornada"
           setShowFinalizar={() => setJornadaReabrir(null)}
           accion="reabrir"
+        />
+      )}
+
+      {showConfirmDelete && (
+        <ModalEliminar
+          handleEliminar={handleConfirmarBorrado}
+          onCancelar={() => setShowConfirmDelete(false)}
+          servicio="jornada"
+          /* detalle={`${maquinaSeleccionada?.tipo.marca} ${maquinaSeleccionada?.tipo.modelo}`} */
+          cantidad={1}
         />
       )}
 

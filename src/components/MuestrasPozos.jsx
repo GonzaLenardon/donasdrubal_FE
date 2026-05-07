@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { muestraAguaPozoCliente, openMuestra } from '../api/muestrasAgua';
+import {
+  delMuestras,
+  muestraAguaPozoCliente,
+  openMuestra,
+} from '../api/muestrasAgua';
 import ModalMuestrasPozos from './ModalMuestrasPozos';
 import { useCliente } from '../context/UserContext';
 import generarPDF from '../utils/generarPdf';
@@ -25,6 +29,7 @@ import ModalImpresion from './ModalImpresion';
 import { apiGenerarInformeMuestras } from '../api/informes';
 import ModalFinalizarServicios from './ModalFinalizarServicios';
 import Spinner from './Spinner';
+import ModalEliminar from './ModalEliminar';
 
 const MuestrasPozos = () => {
   const { cliente_id, pozos_id } = useParams();
@@ -42,8 +47,13 @@ const MuestrasPozos = () => {
   const [viewerUrl, setViewerUrl] = useState('');
   const [msg, setMsg] = useState('');
   const [muestraReabrir, setMuestraReabrir] = useState(false);
+  const [modoSeleccion, setModoSeleccion] = useState(false);
+  const [seleccionados, setSeleccionados] = useState([]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
   const { selectedPozo } = useCliente();
   const user = JSON.parse(localStorage.getItem('user'));
+  const isAdmin = user?.rol === 'Administrador';
 
   useEffect(() => {
     getMuestras();
@@ -159,6 +169,46 @@ const MuestrasPozos = () => {
     }
   };
 
+  const toggleModoSeleccion = () => {
+    setModoSeleccion((prev) => !prev);
+    setSeleccionados([]);
+  };
+
+  const cancelarSeleccion = () => {
+    setModoSeleccion(false);
+    setSeleccionados([]);
+  };
+
+  const toggleSeleccion = (id) => {
+    setSeleccionados((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const handleEliminarSeleccionados = async () => {
+    setLoading(true);
+    try {
+      await delMuestras(seleccionados);
+      setShowConfirmDelete(false);
+      cancelarSeleccion();
+      setMsg('Eliminando Muestras de Agua ...');
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setMsg('Muestras de Agua eliminadas exitosamente');
+      await getMuestras();
+    } catch (error) {
+      console.log('Error al eliminar Muestras de Agua', error.message);
+    } finally {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      setLoading(false);
+      setMsg('');
+    }
+  };
+
+  useEffect(() => {
+    console.log('xxxxxxxxxxxxxxxxx', seleccionados);
+  }, [seleccionados]);
+
   /* ================= RENDER ================= */
 
   return (
@@ -185,17 +235,33 @@ const MuestrasPozos = () => {
                 </p>
               </div>
 
-              <button
-                className="btn text-white d-flex align-items-center gap-2 shadow-lg muestra-pozo-btn-nuevo"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMuestraEdit({ pozo_id: pozos_id });
-                  setOnlyView(false);
-                  setIsOpen(true);
-                }}
-              >
-                <i className="bi bi-plus-lg me-2"></i>Nueva muestra
-              </button>
+              <div className="d-flex align-items-center gap-2">
+                {isAdmin && (
+                  <button
+                    type="button"
+                    className={`btn btn-sm d-flex align-items-center gap-2 ${
+                      modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
+                    }`}
+                    style={{ opacity: modoSeleccion ? 1 : 0.65 }}
+                    onClick={toggleModoSeleccion}
+                  >
+                    <i className="bi bi-trash3"></i>
+                    {modoSeleccion ? 'Cancelar' : 'Seleccionar'}
+                  </button>
+                )}
+
+                <button
+                  className="btn text-white d-flex align-items-center gap-2 shadow-lg muestra-pozo-btn-nuevo"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMuestraEdit({ pozo_id: pozos_id });
+                    setOnlyView(false);
+                    setIsOpen(true);
+                  }}
+                >
+                  <i className="bi bi-plus-lg me-2"></i>Nueva muestra
+                </button>
+              </div>
             </div>
 
             {/* FILTROS */}
@@ -229,6 +295,50 @@ const MuestrasPozos = () => {
               </div>
             </div>
 
+            {modoSeleccion && seleccionados.length > 0 && (
+              <div
+                className="d-flex align-items-center justify-content-between mb-3 px-3 py-2 rounded"
+                style={{
+                  background: 'rgba(239,68,68,0.12)',
+                  border: '1px solid rgba(239,68,68,0.3)',
+                }}
+              >
+                <div className="d-flex align-items-center gap-2">
+                  <i className="bi bi-ui-checks text-white-50"></i>
+                  <span className="text-white fw-bold">
+                    {seleccionados.length}
+                  </span>
+                  <span
+                    className="text-white-50"
+                    style={{ fontSize: '0.85rem' }}
+                  >
+                    muestra{seleccionados.length > 1 ? 's' : ''} seleccionada
+                    {seleccionados.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+                <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-sm btn-outline-light"
+                    style={{ opacity: 0.5, fontSize: '0.8rem' }}
+                    onClick={cancelarSeleccion}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    className="btn btn-sm btn-danger d-flex align-items-center gap-2"
+                    style={{ fontSize: '0.8rem' }}
+                    onClick={() => setShowConfirmDelete(true)}
+                  >
+                    <i className="bi bi-trash3"></i>
+                    Eliminar{' '}
+                    {seleccionados.length > 1
+                      ? `(${seleccionados.length})`
+                      : ''}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* TABLA */}
 
             <div className="container-table rounded shadow-lg">
@@ -241,60 +351,67 @@ const MuestrasPozos = () => {
                   <table className="table table-hover mb-0">
                     <thead>
                       <tr>
+                        {modoSeleccion && (
+                          <th
+                            style={{
+                              padding: '0.85rem 0.5rem 0.85rem 1rem',
+                              width: '40px',
+                            }}
+                          ></th>
+                        )}
+
                         <th>
-                          <i className="bi bi-calendar-event me-2"></i>Fecha
-                          muestras
+                          <i className="bi bi-calendar-event"></i>F. Muestras
                         </th>
 
                         <th>
-                          <i className="bi bi-calendar-event me-2"></i>Fecha
-                          analisis
+                          <i className="bi bi-calendar-event"></i>F. Analisis
                         </th>
 
                         <th>
                           <i className="bi bi-droplet me-2"></i>pH
                         </th>
                         <th
-                          className="text-white fw-semibold py-2 px-3 text-center"
+                          className="text-white fw-semibold text-center"
                           style={{ fontSize: '0.875rem' }}
                         >
                           <i className="bi bi-shield-check me-2"></i>Dureza
                         </th>
                         <th
-                          className="text-white fw-semibold py-2 px-3 text-center"
+                          className="text-white fw-semibold  text-center"
                           style={{ fontSize: '0.875rem' }}
                         >
                           <i className="bi bi-graph-up me-2"></i>Alcalinidad
                         </th>
                         <th
-                          className="text-white fw-semibold py-2 px-3 text-center"
+                          className="text-white fw-semibold text-center"
                           style={{ fontSize: '0.875rem' }}
                         >
                           <i className="bi bi-water me-2"></i>Salinidad
                         </th>
                         <th
-                          className="text-white fw-semibold py-2 px-3 text-center"
+                          className="text-white fw-semibold text-center"
                           style={{ fontSize: '0.875rem' }}
                         >
                           <i className="bi bi-lightning-charge me-2"></i>F.
                           Iónica
                         </th>
                         <th
-                          className="text-white fw-semibold py-2 px-3"
+                          className="text-white fw-semibold"
                           style={{ fontSize: '0.875rem' }}
                         >
-                          <i className="bi bi-prescription2 me-2"></i>Dosis
+                          <i className="bi bi-prescription2 me-2"></i>Dosis Hard
                         </th>
 
                         <th
-                          className="text-white fw-semibold py-2"
+                          className="text-white fw-semibold "
                           style={{ fontSize: '0.875rem' }}
                         >
                           <i className="bi bi-activity me-2"></i>Estado
                         </th>
 
                         <th
-                          className="text-white fw-semibold py-2"
+                          className="text-white fw-semibold"
                           style={{ fontSize: '0.875rem' }}
                         >
                           <i className="bi bi-file-earmark-bar-graph me-2"></i>
@@ -302,7 +419,7 @@ const MuestrasPozos = () => {
                         </th>
 
                         <th
-                          className="text-white fw-semibold py-2 px-3 text-center"
+                          className="text-white fw-semibold text-center"
                           style={{ fontSize: '0.875rem' }}
                         >
                           <i className="bi bi-gear me-2"></i>Acciones
@@ -333,6 +450,27 @@ const MuestrasPozos = () => {
                               }
                             }}
                           >
+                            {modoSeleccion && (
+                              <td
+                                style={{
+                                  padding: '0.85rem 0.5rem 0.85rem 1rem',
+                                }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  /*  checked={isChecked} */
+                                  onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
+                                  onChange={() => toggleSeleccion(m.id)}
+                                  style={{
+                                    width: '15px',
+                                    height: '15px',
+                                    cursor: 'pointer',
+                                    accentColor: '#ef4444',
+                                  }}
+                                />
+                              </td>
+                            )}
+
                             {/* Fecha */}
                             <td className="py-2 px-3">
                               <span
@@ -343,7 +481,7 @@ const MuestrasPozos = () => {
                               </span>
                             </td>
 
-                            <td className="py-2 px-3">
+                            <td className="">
                               <span
                                 className="fw-semibold"
                                 style={{ fontSize: '0.85rem' }}
@@ -359,7 +497,7 @@ const MuestrasPozos = () => {
                               { v: m.alcalinidad, c: al },
                               { v: m.salinidad, c: sa },
                             ].map((x, i) => (
-                              <td key={i} className="text-center py-2 px-3">
+                              <td key={i} className="text-center ">
                                 <span
                                   className="rounded px-2 py-1"
                                   style={{
@@ -490,6 +628,16 @@ const MuestrasPozos = () => {
 
       {showViewer && (
         <ModalImpresion setShowViewer={setShowViewer} viewerUrl={viewerUrl} />
+      )}
+
+      {showConfirmDelete && (
+        <ModalEliminar
+          handleEliminar={handleEliminarSeleccionados}
+          onCancelar={() => setShowConfirmDelete(false)}
+          servicio="muestra"
+          /* detalle={`${maquinaSeleccionada?.tipo.marca} ${maquinaSeleccionada?.tipo.modelo}`} */
+          cantidad={seleccionados.length}
+        />
       )}
 
       <Spinner msg={msg} loading={loading}></Spinner>

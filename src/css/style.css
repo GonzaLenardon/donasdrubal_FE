@@ -1448,8 +1448,7 @@ body {
 }
 
 .clientes-wrapper,
-.calibraciones-wrapper,
-.muestras-pozos-wrapper {
+.calibraciones-wrapper {
   background: linear-gradient(135deg, #2d5016 0%, #4a7c1f 100%);
   padding: 2rem;
   border-radius: 15px;

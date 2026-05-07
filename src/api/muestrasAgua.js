@@ -28,3 +28,10 @@ export const openMuestra = async (id) => {
   const res = await instance.put(`/muestras_agua/open/${id}`);
   return res.data;
 };
+
+export const delMuestras = async (ids) => {
+  const res = await instance.delete('/muestras_agua', {
+    data: { ids }, // 👈 importante
+  });
+  return res.data;
+};
