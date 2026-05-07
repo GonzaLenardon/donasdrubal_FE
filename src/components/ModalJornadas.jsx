@@ -6,20 +6,23 @@ import ModalFinalizarServicios from './ModalFinalizarServicios';
 const emptyJornada = {
   fecha_jornada: '',
   motivo: '',
-  estado: '',
+  estado: 'PENDIENTE',
   observaciones: '',
 };
 
 const ESTADOS_JORNADA = [
   { value: 'PENDIENTE', label: 'Pendiente' },
-  { value: 'ALERTADO', label: 'Alertado' },
+  { value: 'EN PROCESO', label: 'En Proceso' },
   { value: 'VENCIDO', label: 'Vencido' },
-  { value: 'COMPLETADO', label: 'Cancelado' },
+  { value: 'CERRADO', label: 'Cerrado' },
+  { value: 'CANCELADO', label: 'Cancelado' },
 ];
 
 const MOTIVOS_JORNADA = [
   { value: 'Mezclas', label: 'Mezclas' },
   { value: 'Capacitacion', label: 'Capacitación' },
+  { value: 'Acronex', label: 'Acronex' },
+  { value: 'Microvidas', label: 'Microvidas' },
   { value: 'Otro', label: 'Otro' },
 ];
 
@@ -129,7 +132,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   // isFormComplete — se habilita el botón Cerrar solo si la jornada
   // tiene fecha y estado cargados (ajustá los campos según tu criterio)
   const isFormComplete =
-    !!formData.fecha_jornada && !!formData.motivo && !!formData.estado;
+    !!formData.fecha_jornada && !!formData.motivo;
 
   if (!isOpen) return null;
 
@@ -217,7 +220,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
             </div>
 
             {/* Estado */}
-            <div className="form-group">
+            {/* <div className="form-group">
               <label htmlFor="estado" className="form-label">
                 <i className="bi bi-building me-2"></i>
                 Estado
@@ -235,7 +238,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
 
             {/* Observaciones */}
             <div className="form-group">
