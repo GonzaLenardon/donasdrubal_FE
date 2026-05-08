@@ -19,11 +19,11 @@ import instance from './axios';
  */
 
 export const allServicesToClients = async () => {
-  const resp = await instance.get(`dashboard/user/all`);
+  const resp = await instance.get(`dashboard/user/servicesToClients`);
   return resp.data;
 };
 
 export const totalServices = async () => {
-  const resp = await instance.get(`dashboard/services/all`);
+  const resp = await instance.get(`dashboard/services/totales`);
   return resp.data;
 };
