@@ -186,12 +186,33 @@ const ModalMuestrasPozos = ({
 
   // ── Submit guardar ────────────────────────────────────────────────────────
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    try {
+    setIsSubmitting(true);
+    if (await saveMuestra()) {
+      if (onSaved) onSaved();
+      handleClose();
+    }
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      setErrors({
+        submit:
+          error.message || 'Error al guardar la muestra. Intente nuevamente.',
+      });
+      setMsg('Error al guardar');
+      setTimeout(() => setMsg(''), 3000);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+      setLoading(false);
+    }
+  }
+  const saveMuestra = async () => {
+    if (!validateForm()) return false;
     setIsSubmitting(true);
     setLoading(true);
-    setMsg('Procesando...');
+     try {
+      setMsg('Procesando...');
 
-    try {
       const { informeFile, ...dataToSend } = formData;
       dataToSend.ph = formData.ph ? parseFloat(formData.ph) : null;
       dataToSend.dureza = formData.dureza ? parseFloat(formData.dureza) : null;
@@ -219,21 +240,23 @@ const ModalMuestrasPozos = ({
       await uploadFile(resp);
       setMsg(resp?.message || 'Muestra guardada correctamente');
       await new Promise((r) => setTimeout(r, 1000));
-      if (onSaved) onSaved();
-      handleClose();
-    } catch (error) {
-      console.error('Error al guardar:', error);
-      setErrors({
-        submit:
-          error.message || 'Error al guardar la muestra. Intente nuevamente.',
-      });
-      setMsg('Error al guardar');
-      setTimeout(() => setMsg(''), 3000);
-    } finally {
-      setIsSubmitting(false);
-      setLoading(false);
-    }
-  };
+
+      return true;
+    
+} catch (error) {
+    console.error('Error al guardar:', error);
+    setErrors({
+      submit: error.message || 'Error al guardar la muestra.',
+    });
+    setMsg('Error al guardar');
+    // Esperamos un poco para que el usuario lea el error antes de limpiar
+    await new Promise((r) => setTimeout(r, 3000));
+    return false; // Error capturado
+  } finally {
+    // No limpiamos el mensaje aquí para que no se borre el éxito/error prematuramente
+    setIsSubmitting(false);
+  }
+};
 
   // ── Finalizar muestra ─────────────────────────────────────────────────────
   const handleFinalizarMuestra = async () => {
@@ -241,22 +264,30 @@ const ModalMuestrasPozos = ({
 
     try {
       setLoading(true);
+      setShowFinalizarModal(false);
+      const guardadoExitoso = await saveMuestra();
+      if (!guardadoExitoso) return;
+
+      setMsg('Finalizando muestra...');
 
       const resp = await closeMuestra(muestra.id);
 
+      
+      
       console.log('Respuesta de cierre Muestra', resp);
-      setShowFinalizarModal(false);
-      setMsg('Muestra finalizada correctamente');
-      if (onSaved) onSaved();
       await new Promise((r) => setTimeout(r, 2000));
-      console.log('Paso x aca ?');
+
+      if (onSaved) onSaved();
+      
+      
       handleClose();
+
     } catch (error) {
       console.error('Error al finalizar:', error);
       setMsg('Error al finalizar Muestra');
       await new Promise((r) => setTimeout(r, 3000));
     } finally {
-      setMsg('');
+      // setMsg('');
       setLoading(false);
     }
   };
