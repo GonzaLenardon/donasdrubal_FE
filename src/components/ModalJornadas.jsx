@@ -105,7 +105,8 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
     try {
       setShowCerrar(false);
       setLoading(true);
-      await closeJornada(jornada.id);
+      const resp = await closeJornada(jornada.id);
+      console.log('rsp finalizar',resp.message);
       setMsg('Jornada finalizada exitosamente');
 
       if (onSaved) onSaved();
@@ -323,7 +324,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
 
       {showCerrar && (
         <ModalFinalizarServicios
-          handleFinalizar={handleSubmit}
+          handleFinalizar={handleCerrarJornada}
           servicio="jornada"
           setShowFinalizar={() => setShowCerrar(false)}
           accion="finalizar"
