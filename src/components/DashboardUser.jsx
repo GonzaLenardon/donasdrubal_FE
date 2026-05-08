@@ -194,6 +194,7 @@ const DashboardUser = () => {
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const { setSelectedCliente } = useCliente();
   const navigate = useNavigate();
@@ -250,7 +251,11 @@ const DashboardUser = () => {
     );
   }
 
-  const { rows, sin, proceso, completos } = buildRows(clientes);
+  const filteredClientes = clientes.filter((cliente) =>
+    cliente.razon_social?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const { rows, sin, proceso, completos } = buildRows(filteredClientes);
 
   const handleCliente = (row) => {
     setSelectedCliente(row);
@@ -314,6 +319,21 @@ const DashboardUser = () => {
             color="#639922"
             count={completos}
             label={`cliente${completos !== 1 ? 's' : ''} completo${completos !== 1 ? 's' : ''}`}
+          />
+        </div>
+      </div>
+
+      <div
+        className="container-table rounded shadow-lg mb-2"
+        style={{ background: '#1c4f1b36' }}
+      >
+        <div>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="🔍 Buscar cliente..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
