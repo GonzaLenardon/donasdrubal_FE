@@ -5,54 +5,59 @@ import { useNavigate } from 'react-router-dom';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
-/**
- * A partir del nuevo objeto de allServicesToClients, deriva las métricas
- * necesarias para la tabla y el foco del día.
- * El backend ya devuelve los totales — no hay que iterar registros anidados.
- */
 const calcRowMetrics = (cliente) => {
   const cal = cliente.Maquinas;
   const agua = cliente.Pozos;
   const jorn = cliente.Jornadas;
 
-  const doneCal = cal.totalCalibraciones - cal.calibracionesPendientes;
-  const doneAgua = agua.totalMuestras - agua.muestrasPendientes;
-  const doneJornada = jorn.totalJornadas - jorn.jornadasPendientes;
+  const calCerradas = cal.calibracionesCerradas ?? 0;
+  const calProceso = cal.calibracionesProceso ?? 0;
+  const calPendientes = cal.calibracionesPendientes ?? 0;
+  const totalCal = cal.totalCalibraciones ?? 0;
+  const calPct = totalCal > 0 ? Math.round((calCerradas / totalCal) * 100) : 0;
 
-  const calPct =
-    cal.totalCalibraciones > 0
-      ? Math.round((doneCal / cal.totalCalibraciones) * 100)
-      : 0;
+  const aguaCerradas = agua.muestrasCerradas ?? 0;
+  const aguaProceso = agua.muestrasProceso ?? 0;
+  const aguaPendientes = agua.muestrasPendientes ?? 0;
+  const totalAgua = agua.totalMuestras ?? 0;
   const aguaPct =
-    agua.totalMuestras > 0
-      ? Math.round((doneAgua / agua.totalMuestras) * 100)
-      : 0;
-  const jornadaPct =
-    jorn.totalJornadas > 0
-      ? Math.round((doneJornada / jorn.totalJornadas) * 100)
-      : 0;
+    totalAgua > 0 ? Math.round((aguaCerradas / totalAgua) * 100) : 0;
 
-  // Estado global del cliente para "Foco del día"
+  const jorCerradas = jorn.jornadasCerradas ?? 0;
+  const jorProceso = jorn.jornadasProceso ?? 0;
+  const jorPendientes = jorn.jornadasPendientes ?? 0;
+  const totalJornada = jorn.totalJornadas ?? 0;
+  const jorPct =
+    totalJornada > 0 ? Math.round((jorCerradas / totalJornada) * 100) : 0;
+
   let estado = 'sin';
   if (calPct === 100 && aguaPct === 100) estado = 'completo';
-  else if (calPct > 0 || aguaPct > 0) estado = 'proceso';
+  else if (
+    calCerradas > 0 ||
+    calProceso > 0 ||
+    aguaCerradas > 0 ||
+    aguaProceso > 0
+  )
+    estado = 'proceso';
 
   return {
-    // Calibraciones
-    totalCal: cal.totalCalibraciones,
-    doneCal,
+    totalCal,
+    calCerradas,
+    calProceso,
+    calPendientes,
     calPct,
-    // Muestras
-    totalAgua: agua.totalMuestras,
-    doneAgua,
+    totalAgua,
+    aguaCerradas,
+    aguaProceso,
+    aguaPendientes,
     aguaPct,
-    // Jornadas
-    totalJornada: jorn.totalJornadas,
-    doneJornada,
-    jornadaPct,
-    // Contadores
-    totalMaquinas: cal.totalMaquinas,
-    totalPozos: agua.totalPozos,
+    totalJornada,
+    jorCerradas,
+    jorProceso,
+    jorPendientes,
+    jorPct,
+    totalMaquinas: cal.totalMaquinas ?? 0,
+    totalPozos: agua.totalPozos ?? 0,
     estado,
   };
 };
@@ -77,58 +82,103 @@ const buildRows = (clientes) => {
 
 // ─── Sub-componentes ───────────────────────────────────────────────────────────
 
-const ResumenCard = ({ icon, title, total, pendientes, extra, extraLabel }) => {
-  const realizadas = total - pendientes;
-  const pct = total > 0 ? Math.round((realizadas / total) * 100) : 0;
+/**
+ * ResumenCard — barra segmentada con números y porcentajes.
+ * Sección "Resumen general".
+ */
+const ResumenCard = ({
+  icon,
+  title,
+  total,
+  cerradas,
+  proceso,
+  pendientes,
+  extra,
+  extraLabel,
+}) => {
+  const totalNum = Number(total) || 0;
+  const cerradasNum = Number(cerradas) || 0;
+  const procesoNum = Number(proceso) || 0;
+  const pendientesNum = Number(pendientes) || 0;
 
-  const barColor = pct === 100 ? '#639922' : pct >= 50 ? '#EF9F27' : '#E24B4A';
+  const pctCerradas = totalNum > 0 ? (cerradasNum / totalNum) * 100 : 0;
+  const pctProceso = totalNum > 0 ? (procesoNum / totalNum) * 100 : 0;
+  const pctPendientes = totalNum > 0 ? (pendientesNum / totalNum) * 100 : 0;
 
   return (
     <div className="card h-100">
       <div className="card-body">
-        <div className="d-flex align-items-center justify-content-between mb-3">
+        <div className="d-flex justify-content-between align-items-center mb-3">
           <div className="d-flex align-items-center gap-2">
-            <span style={{ fontSize: 22 }}>{icon}</span>
+            <span style={{ fontSize: 20 }}>{icon}</span>
             <span className="fw-medium">{title}</span>
           </div>
           {extra != null && (
             <span
               className="badge rounded-pill bg-info text-dark"
-              style={{ fontSize: '0.8rem' }}
+              style={{ fontSize: '0.78rem' }}
             >
               {extra} {extraLabel}
             </span>
           )}
         </div>
 
-        <div className="d-flex justify-content-between align-items-baseline mb-1">
-          <span className="fs-4 fw-medium">
-            {realizadas}{' '}
-            <span className="fs-6 text-muted fw-normal">/ {total}</span>
+        <div className="mb-2">
+          <span className="fs-4 fw-semibold">{totalNum}</span>
+          <span className="text-muted ms-1" style={{ fontSize: '0.85rem' }}>
+            en total
           </span>
-          <small className="text-muted">{pct}% completado</small>
         </div>
 
-        <div className="progress mb-2" style={{ height: 8, borderRadius: 4 }}>
+        <div className="progress mb-3" style={{ height: 10, borderRadius: 6 }}>
           <div
-            className="progress-bar"
-            role="progressbar"
-            style={{
-              width: `${pct}%`,
-              background: barColor,
-              transition: 'width .4s ease',
-            }}
-            aria-valuenow={pct}
-            aria-valuemin={0}
-            aria-valuemax={100}
+            className="progress-bar bg-success"
+            style={{ width: `${pctCerradas}%`, transition: 'width .4s ease' }}
+          />
+          <div
+            className="progress-bar bg-warning"
+            style={{ width: `${pctProceso}%`, transition: 'width .4s ease' }}
+          />
+          <div
+            className="progress-bar bg-danger"
+            style={{ width: `${pctPendientes}%`, transition: 'width .4s ease' }}
           />
         </div>
 
         <div className="d-flex justify-content-between">
-          <small style={{ color: barColor }} className="fw-medium">
-            ✓ {realizadas} realizadas
-          </small>
-          <small className="text-muted">⏳ {pendientes} pendientes</small>
+          <div className="d-flex flex-column align-items-start">
+            <span
+              className="text-success fw-medium"
+              style={{ fontSize: '0.8rem' }}
+            >
+              ✔ {cerradasNum}
+            </span>
+            <span className="text-muted" style={{ fontSize: '0.72rem' }}>
+              cerradas ({Math.round(pctCerradas)}%)
+            </span>
+          </div>
+          <div className="d-flex flex-column align-items-center">
+            <span
+              className="text-warning fw-medium"
+              style={{ fontSize: '0.8rem' }}
+            >
+              ⚙ {procesoNum}
+            </span>
+            <span className="text-muted" style={{ fontSize: '0.72rem' }}>
+              proceso ({Math.round(pctProceso)}%)
+            </span>
+          </div>
+          <div className="d-flex flex-column align-items-end">
+            <span
+              className="text-danger fw-medium"
+              style={{ fontSize: '0.8rem' }}
+            >
+              ⏳ {pendientesNum}
+            </span>
+            <span className="text-muted" style={{ fontSize: '0.72rem' }}>
+              pendientes ({Math.round(pctPendientes)}%)
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -136,34 +186,212 @@ const ResumenCard = ({ icon, title, total, pendientes, extra, extraLabel }) => {
 };
 
 /**
- * MiniBar — barra de progreso compacta para la tabla de clientes.
- * Cambia de color igual que ResumenCard para mantener coherencia visual.
+ * MiniDonut — SVG con % en el centro + sublabel debajo + stats en grilla 2×2.
+ * Sección "Clientes" (tabla).
+ *
+ * Props:
+ * @param {number} cerradas
+ * @param {number} proceso
+ * @param {number} pendientes
+ * @param {number} total
+ * @param {string} [subLabel]  — contexto bajo el círculo (ej: "2 máq.", "5 poz.")
  */
-const MiniBar = ({ done, total }) => {
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-  const barColor = pct === 100 ? '#639922' : pct >= 50 ? '#EF9F27' : '#E24B4A';
+// ── Constantes del donut SVG ──────────────────────────────────────────────────
+
+const DONUT_SIZE = 52;
+const DONUT_R = 18;
+const DONUT_SW = 6;
+const DONUT_CX = DONUT_SIZE / 2;
+const DONUT_CY = DONUT_SIZE / 2;
+const DONUT_CIRC = 2 * Math.PI * DONUT_R;
+
+const DONUT_STATS = [
+  { label: 'Cerradas', key: 'cerradas', color: '#3b6d11', border: '#639922' },
+  { label: 'Proceso', key: 'proceso', color: '#854f0b', border: '#EF9F27' },
+  {
+    label: 'Pendientes',
+    key: 'pendientes',
+    color: '#a32d2d',
+    border: '#E24B4A',
+  },
+  { label: 'Total', key: 'total', color: '#555555', border: '#cccccc' },
+];
+
+const MiniDonut = ({ cerradas, proceso, pendientes, total, subLabel }) => {
+  const vals = { cerradas, proceso, pendientes, total };
+
+  const CirculoVacio = () => (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 3,
+        flexShrink: 0,
+      }}
+    >
+      <svg
+        width={DONUT_SIZE}
+        height={DONUT_SIZE}
+        viewBox={`0 0 ${DONUT_SIZE} ${DONUT_SIZE}`}
+      >
+        <circle
+          cx={DONUT_CX}
+          cy={DONUT_CY}
+          r={DONUT_R}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth={DONUT_SW}
+        />
+        <text
+          x={DONUT_CX}
+          y={DONUT_CY + 4}
+          textAnchor="middle"
+          fontSize="10"
+          fill="#9ca3af"
+        >
+          —
+        </text>
+      </svg>
+      {subLabel && (
+        <span
+          style={{
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            color: '#082c09',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {subLabel}
+        </span>
+      )}
+    </div>
+  );
+
+  if (!total) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          width: '100%',
+        }}
+      >
+        <CirculoVacio />
+        <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+          Sin registros
+        </span>
+      </div>
+    );
+  }
+
+  const pct = Math.round((cerradas / total) * 100);
+  const pG = (cerradas / total) * DONUT_CIRC;
+  const pA = (proceso / total) * DONUT_CIRC;
+  const pR = (pendientes / total) * DONUT_CIRC;
+
+  const Arc = ({ len, color, offset }) => (
+    <circle
+      cx={DONUT_CX}
+      cy={DONUT_CY}
+      r={DONUT_R}
+      fill="none"
+      stroke={color}
+      strokeWidth={DONUT_SW}
+      strokeDasharray={`${len} ${DONUT_CIRC - len}`}
+      strokeDashoffset={offset}
+      transform={`rotate(-90 ${DONUT_CX} ${DONUT_CY})`}
+      strokeLinecap="round"
+    />
+  );
 
   return (
-    <div className="d-flex align-items-center gap-2">
-      <small
-        className="text-muted"
-        style={{ minWidth: 38, whiteSpace: 'nowrap' }}
+    <div
+      style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%' }}
+    >
+      {/* Izquierda: círculo + sublabel */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 3,
+          flexShrink: 0,
+        }}
       >
-        {done}/{total}
-      </small>
-      <div className="progress flex-fill" style={{ height: 6 }}>
-        <div
-          className="progress-bar"
-          style={{ width: `${pct}%`, background: barColor }}
-        />
+        <svg
+          width={DONUT_SIZE}
+          height={DONUT_SIZE}
+          viewBox={`0 0 ${DONUT_SIZE} ${DONUT_SIZE}`}
+        >
+          <circle
+            cx={DONUT_CX}
+            cy={DONUT_CY}
+            r={DONUT_R}
+            fill="none"
+            stroke="#e5e7eb"
+            strokeWidth={DONUT_SW}
+          />
+          <Arc len={pG} color="#639922" offset={0} />
+          <Arc len={pA} color="#EF9F27" offset={-pG} />
+          <Arc len={pR} color="#E24B4A" offset={-(pG + pA)} />
+          <text
+            x={DONUT_CX}
+            y={DONUT_CY + 4}
+            textAnchor="middle"
+            fontSize="11"
+            fontWeight="600"
+            fill="#1f2937"
+          >
+            {pct}%
+          </text>
+        </svg>
+        {subLabel && (
+          <span
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: '#082c09',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {subLabel}
+          </span>
+        )}
       </div>
-      <small
-        className="text-muted"
-        style={{ minWidth: 32, textAlign: 'right' }}
+
+      {/* Derecha: stats en grilla 2×2 — Opción C (borde coloreado) */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '3px',
+          flex: 1,
+        }}
       >
-        {pct}%
-      </small>
+        {DONUT_STATS.map(({ label, key, color, border }) => (
+          <div
+            key={key}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              padding: '2px 7px',
+              borderRadius: 20,
+              border: `1.5px solid ${border}`,
+              color,
+              background: 'transparent',
+            }}
+          >
+            <span>{label}</span>
+            <span>{vals[key]}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -208,12 +436,10 @@ const DashboardUser = () => {
     try {
       setLoading(true);
       setError(null);
-
       const [serviciosRes, totalesRes] = await Promise.all([
         allServicesToClients(),
         totalServices(),
       ]);
-
       setClientes(serviciosRes.data?.data ?? serviciosRes.data ?? []);
       setTotales(totalesRes.data?.data ?? totalesRes.data ?? null);
     } catch (err) {
@@ -251,11 +477,11 @@ const DashboardUser = () => {
     );
   }
 
-  const filteredClientes = clientes.filter((cliente) =>
-    cliente.razon_social?.toLowerCase().includes(searchTerm.toLowerCase()),
+  const clientesFiltrados = clientes.filter((c) =>
+    c.razon_social?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const { rows, sin, proceso, completos } = buildRows(filteredClientes);
+  const { rows, sin, proceso, completos } = buildRows(clientesFiltrados);
 
   const handleCliente = (row) => {
     setSelectedCliente(row);
@@ -264,7 +490,7 @@ const DashboardUser = () => {
 
   return (
     <div className="p-3">
-      {/* ── Resumen general ── */}
+      {/* ── Resumen general — barras segmentadas ── */}
       <h6 className="fw-medium mb-3">Resumen general</h6>
       <div className="row g-3 mb-4">
         <div className="col-12 col-md-4">
@@ -272,7 +498,9 @@ const DashboardUser = () => {
             icon="🚜"
             title="Calibraciones"
             total={totales?.Maquinas?.totalCalibraciones ?? 0}
-            pendientes={totales?.Maquinas?.calibracionesPendientes ?? 0}
+            cerradas={totales?.Maquinas?.cerradas ?? 0}
+            proceso={totales?.Maquinas?.proceso ?? 0}
+            pendientes={totales?.Maquinas?.pendientes ?? 0}
             extra={totales?.Maquinas?.totalMaquinas}
             extraLabel="máq."
           />
@@ -282,7 +510,9 @@ const DashboardUser = () => {
             icon="💧"
             title="Muestreo de agua"
             total={totales?.Pozos?.totalMuestras ?? 0}
-            pendientes={totales?.Pozos?.muestrasPendientes ?? 0}
+            cerradas={totales?.Pozos?.cerradas ?? 0}
+            proceso={totales?.Pozos?.proceso ?? 0}
+            pendientes={totales?.Pozos?.pendientes ?? 0}
             extra={totales?.Pozos?.totalPozos}
             extraLabel="pozos"
           />
@@ -292,7 +522,9 @@ const DashboardUser = () => {
             icon="🎓"
             title="Jornadas"
             total={totales?.Jornadas?.totalJornadas ?? 0}
-            pendientes={totales?.Jornadas?.jornadasPendientes ?? 0}
+            cerradas={totales?.Jornadas?.cerradas ?? 0}
+            proceso={totales?.Jornadas?.proceso ?? 0}
+            pendientes={totales?.Jornadas?.pendientes ?? 0}
           />
         </div>
       </div>
@@ -323,11 +555,14 @@ const DashboardUser = () => {
         </div>
       </div>
 
-      <div
-        className="container-table rounded shadow-lg mb-2"
-        style={{ background: '#1c4f1b36' }}
-      >
-        <div>
+      {/* ── Clientes — mini donuts ── */}
+      <h6 className="fw-medium mb-3">Clientes</h6>
+      <div className="card mb-4">
+        {/* Buscador */}
+        <div
+          className="container-table rounded mb-2 p-2"
+          style={{ background: '#1c4f1b36' }}
+        >
           <input
             type="text"
             className="form-control"
@@ -336,29 +571,27 @@ const DashboardUser = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-      </div>
 
-      {/* ── Tabla de clientes ── */}
-      <h6 className="fw-medium mb-3">Clientes</h6>
-      <div className="card mb-4">
         <div className="table-responsive">
           <table className="table table-hover align-middle mb-0">
             <thead className="table-light">
               <tr>
-                <th>Cliente</th>
-                <th className="text-center">Máquinas</th>
-                <th>Calibraciones</th>
-                <th className="text-center">Pozos</th>
-                <th>Muestras de agua</th>
+                <th style={{ minWidth: 160 }}>Cliente</th>
+                <th>Máq. / Calibraciones</th>
+                <th>Poz. / Muestras</th>
                 <th>Jornadas</th>
-                <th className="text-center">Lts. Estimados</th>
+                <th className="text-center" style={{ width: 90 }}>
+                  Lts. Est.
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center text-muted py-4">
-                    Sin clientes registrados
+                  <td colSpan={5} className="text-center text-muted py-4">
+                    {searchTerm
+                      ? 'No se encontraron clientes'
+                      : 'Sin clientes registrados'}
                   </td>
                 </tr>
               ) : (
@@ -376,46 +609,40 @@ const DashboardUser = () => {
                       </small>
                     </td>
 
-                    {/* Máquinas */}
-                    <td className="text-center">
-                      <span
-                        className="badge rounded bg-info text-dark"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {row.totalMaquinas}
-                      </span>
-                    </td>
-
                     {/* Calibraciones */}
                     <td>
-                      <MiniBar done={row.doneCal} total={row.totalCal} />
-                    </td>
-
-                    {/* Pozos */}
-                    <td className="text-center">
-                      <span
-                        className="badge rounded bg-info text-dark"
-                        style={{ fontSize: '0.85rem' }}
-                      >
-                        {row.totalPozos}
-                      </span>
+                      <MiniDonut
+                        cerradas={row.calCerradas}
+                        proceso={row.calProceso}
+                        pendientes={row.calPendientes}
+                        total={row.totalCal}
+                        subLabel={`${row.totalMaquinas} máq.`}
+                      />
                     </td>
 
                     {/* Muestras */}
                     <td>
-                      <MiniBar done={row.doneAgua} total={row.totalAgua} />
+                      <MiniDonut
+                        cerradas={row.aguaCerradas}
+                        proceso={row.aguaProceso}
+                        pendientes={row.aguaPendientes}
+                        total={row.totalAgua}
+                        subLabel={`${row.totalPozos} poz.`}
+                      />
                     </td>
 
                     {/* Jornadas */}
                     <td>
-                      <MiniBar
-                        done={row.doneJornada}
+                      <MiniDonut
+                        cerradas={row.jorCerradas}
+                        proceso={row.jorProceso}
+                        pendientes={row.jorPendientes}
                         total={row.totalJornada}
                       />
                     </td>
 
                     {/* Litros */}
-                    <td className="text-center">
+                    <td className="text-center text-muted">
                       {row.litros_estimados ?? '—'}
                     </td>
                   </tr>
