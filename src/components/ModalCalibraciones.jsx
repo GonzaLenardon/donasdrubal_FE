@@ -1076,9 +1076,27 @@ export const ModalCalibraciones = ({
 
   // ── Submit ────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
+    try{
+      if(await saveCalibracion()){
+        if(onSaved) onSaved();
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      setErrors({ submit: error.message || 'Error al guardar la calibración' });
+      setMsg('Error al guardar');
+      setTimeout(() => setMsg(''), 3000);
+    } finally {
+      setLoading(false);
+      setIsSubmitting(false);
+    }
+  };
+
+  const saveCalibracion = async () => {
+
     if (!validarTodoElFormulario()) {
       setCurrentPage(1);
-      return;
+      return false;
     }
 
     try {
@@ -1122,30 +1140,35 @@ export const ModalCalibraciones = ({
       await uploadFiles(resp); // Subir archivos después de obtener el ID de la nueva calibración
       setMsg(resp.message || 'Calibración guardada exitosamente');
       await new Promise((res) => setTimeout(res, 1500));
-      onSaved();
-      onClose();
-    } catch (error) {
-      console.error('Error al guardar:', error);
-      setErrors({ submit: error.message || 'Error al guardar la calibración' });
-      setMsg('Error al guardar');
-      setTimeout(() => setMsg(''), 3000);
-    } finally {
-      setLoading(false);
+      return true;
+    }catch (error) {
+        console.error('Error en saveCalibracion:', error);
+        setErrors({ submit: error.message || 'Error al guardar la calibración' });
+        setMsg('Error al guardar');
+        await new Promise((res) => setTimeout(res, 3000));
+        return false;
+    }finally {      
       setIsSubmitting(false);
     }
-  };
+
+
+  }
 
   // ── Cerrar Calibracion ────────────────────────────────────────────────────────────────
   const handleCerrarCalibracion = async () => {
     try {
       setIsClosing(true);
-
+      setLoading(true);
+      setShowCerrar(false);
+      const guardadoExitoso = await saveCalibracion();
+      if (!guardadoExitoso) return;
+      setMsg('Finalizando muestra...');      
       const resp = await closeCalibraciones(calibracion.id);
       console.log(resp.message);
-      setShowCerrar(false);
-      setCloseSuccess(false);
-      setCloseSuccess(true);
-      setLoading(true);
+      // setShowCerrar(false);
+      // // setCloseSuccess(false);
+      // setCloseSuccess(true);
+      // setLoading(true);
 
       setMsg('Calibracion finalizada exitosamente');
 
