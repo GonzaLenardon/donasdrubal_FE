@@ -244,7 +244,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
@@ -256,7 +256,7 @@
 .modal-container {
   background: var(--color-white);
   border-radius: 20px;
-  max-width: 700px;
+  /* max-width: px; */
   width: 99%;
   max-height: 95vh;
   overflow: hidden;
@@ -356,7 +356,13 @@
   padding: 2rem;
   /* background: var(--color-white); */
   overflow-y: auto;
-  background: #dae0da;
+  /*  background: #dae0da; */
+}
+
+.modal-body-conclusion-pozos {
+  padding: 1rem 2rem;
+
+  overflow-y: auto;
 }
 
 /* Footer del Modal */
@@ -367,7 +373,7 @@
   align-items: stretch;
   padding: 1rem;
   border-top: 1px solid var(--color-gray-200);
-  background: #e3ebe3;
+  /* background: #e3ebe3; */
 
   border-radius: 0 0 20px 20px;
 }
@@ -385,7 +391,7 @@
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ── Modificador de tamaño ─────────────────────────────────────────── */
-.modal-conclusion {
+/* .modal-conclusion {
   max-width: 560px;
   width: 92%;
   max-height: 90vh;
@@ -395,23 +401,23 @@
   border: 1px solid rgba(27, 89, 49, 0.45);
   border-radius: 16px;
   overflow: hidden;
-}
+} */
 
 /* ── Override del body genérico ────────────────────────────────────── */
-.modal-conclusion .modal-body {
+/* .modal-conclusion .modal-body {
   background: #80a38a;
   padding: 22px 24px;
   flex: 1;
   overflow-y: auto;
-}
+} */
 
 /* ── Override del footer genérico ──────────────────────────────────── */
-.modal-conclusion .modal-footer {
+/* .modal-conclusion .modal-footer {
   background: #80a38a;
   border-top: 1px solid rgba(27, 89, 49, 0.2);
   border-radius: 0 0 16px 16px;
   padding: 16px 24px;
-}
+} */
 
 /* ── Franja de pozos seleccionados ─────────────────────────────────── */
 
@@ -426,8 +432,9 @@
 }
 
 .modal-conclusion-resumen-titulo {
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(19, 42, 6, 0.801);
   font-size: 12px;
+  font-weight: 600;
 }
 
 .modal-conclusion-pozo-chip {
@@ -435,11 +442,11 @@
   align-items: center;
   padding: 3px 10px;
   border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
-  background: rgba(27, 89, 49, 0.4);
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(27, 89, 49, 0.2);
   border: 1px solid rgba(27, 89, 49, 0.6);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(13, 81, 32, 0.8);
 }
 
 /* ── Label del textarea ────────────────────────────────────────────── */
@@ -508,6 +515,7 @@
   margin-top: 8px;
   color: rgba(10, 40, 2, 0.734);
   font-size: 13px;
+  font-weight: 700;
 }
 
 /* ── Botón cancelar ────────────────────────────────────────────────── */

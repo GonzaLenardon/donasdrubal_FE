@@ -130,6 +130,17 @@ const DashboardLayout = () => {
         continue;
       }
 
+      if (seg === 'calibraciones') {
+        items.push({
+          label: 'Calibraciones',
+          to: lastValidTo,
+          clickable: false,
+          action: () => setActiveTab('calibraciones'),
+        });
+
+        continue;
+      }
+
       /* ===== MUESTRAS ===== */
       if (seg === 'muestras') {
         items.push({
@@ -186,7 +197,7 @@ const DashboardLayout = () => {
         closeSidebar={() => setIsMobileOpen(false)}
       />
 
-      <main className="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
+      <main className="flex-1 p-4 md:pt-10 px-0 overflow-y-auto h-screen">
         <div className="container-fluid">
           {/* ============================
               Breadcrumb

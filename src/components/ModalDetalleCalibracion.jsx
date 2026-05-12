@@ -73,7 +73,7 @@ const ModalDetalleCalibracion = ({
         <div
           className="p-3"
           style={{
-            background: 'rgba(139,92,246,0.1)',
+            background: '#212529',
             borderRadius: '10px',
             border: '1px solid rgba(139,92,246,0.3)',
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
@@ -88,7 +88,7 @@ const ModalDetalleCalibracion = ({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(6, 1fr)',
+              gridTemplateColumns: 'repeat(15, 1fr)',
               gap: '5px',
             }}
           >
@@ -215,7 +215,7 @@ const ModalDetalleCalibracion = ({
         <div
           className="p-3"
           style={{
-            background: 'rgba(99,102,241,0.1)',
+            background: '#212529',
             borderRadius: '10px',
             border: '1px solid rgba(99,102,241,0.3)',
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
@@ -630,7 +630,7 @@ const ModalDetalleCalibracion = ({
       <div
         className="modal-container cal-modal-detalle"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '1100px', maxHeight: '90vh', overflowY: 'auto' }}
+        style={{ maxWidth: '90%', maxHeight: '95vh', overflowY: 'auto' }}
       >
         {/* HEADER */}
         <div className="modal-header">

@@ -424,7 +424,7 @@ export const Calibraciones = () => {
                 >
                   <thead
                     style={{
-                      background: 'rgba(255,255,255,0.12)',
+                      background: 'rgb(236, 19, 19)',
                       position: 'sticky',
                       top: 0,
                       zIndex: 10,
