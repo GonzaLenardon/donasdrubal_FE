@@ -351,10 +351,7 @@ const Pozos = ({ cliente_id }) => {
       {/* ── Modal Conclusión ── */}
       {showConclusion && (
         <div className="modal-overlay" onClick={handleCerrarModalConclusion}>
-          <div
-            className="modal-container modal-conclusion"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className="modal-container" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <div className="d-flex align-items-center gap-3">
                 <div className="modal-icon">
@@ -376,7 +373,7 @@ const Pozos = ({ cliente_id }) => {
               </button>
             </div>
 
-            <div className="modal-body">
+            <div className="p-3 m-2">
               <div className="d-flex align-items-center gap-2 mb-2">
                 <i
                   className="bi bi-check-circle-fill"
@@ -400,7 +397,7 @@ const Pozos = ({ cliente_id }) => {
               </div>
             </div>
 
-            <div className="modal-body">
+            <div className="modal-body-conclusion-pozos">
               <label htmlFor="conclusion" className="modal-conclusion-label">
                 Conclusión final <span style={{ color: '#ef4444' }}>*</span>
               </label>

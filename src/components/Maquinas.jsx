@@ -212,7 +212,14 @@ const Maquinas = ({ cliente_id }) => {
               </div>
             ) : (
               <table className="table mb-0">
-                <thead>
+                <thead
+                  style={{
+                    background: 'rgba(206, 190, 110, 0.12)',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 10,
+                  }}
+                >
                   <tr>
                     {modoSeleccion && (
                       <th
