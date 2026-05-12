@@ -9,7 +9,6 @@ import { ModalCalibraciones } from './ModalCalibraciones';
 import { useCliente } from '../context/UserContext';
 import { Plus, Lightbulb } from 'lucide-react';
 import ModalImpresion from './ModalImpresion';
-import { calibracionesPreview } from '../api/informes';
 import ModalFinalizarServicios from './ModalFinalizarServicios';
 import ModalDetalleCalibracion from './ModalDetalleCalibracion';
 import Spinner from './Spinner';
@@ -28,6 +27,7 @@ export const Calibraciones = () => {
   const [ingenieros, setIngenieros] = useState([]);
   const [showViewer, setShowViewer] = useState(false);
   const [viewerUrl, setViewerUrl] = useState('');
+  const url = import.meta.env.VITE_API_URL || 'https://apis.donasdrubal.com.ar';
 
   // ── Modo selección para borrado múltiple (solo Admin) ─────────────────────
   const [modoSeleccion, setModoSeleccion] = useState(false);
@@ -290,23 +290,24 @@ export const Calibraciones = () => {
     }
   };
 
-  const generarInformeCalibracion = async (cal) => {
+  /*   const generarInformeCalibracion = async (cal) => {
     try {
-      const blob = await calibracionesPreview(cal.id);
+    const blob = await calibracionesPreview(cal.id);
       if (blob.type !== 'application/pdf') {
         console.error('El servidor no devolvió un PDF válido');
         return;
       }
       const url = URL.createObjectURL(blob);
       window.open(url, '_blank');
-      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+      await setTimeout(() => URL.revokeObjectURL(url), 10_000); 
+      
     } catch (error) {
       console.error(
         'Error al previsualizar PDF:',
         error?.response?.data?.message ?? error.message,
       );
     }
-  };
+  }; */
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -679,13 +680,15 @@ export const Calibraciones = () => {
                                 </button>
                               )}
 
-                              <button
+                              <a
+                                href={`${url}/calibraciones/${cal.id}/preview-pdf`}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 className="btn btn-sm calibracion-botones text-danger"
-                                onClick={() => generarInformeCalibracion(cal)}
                                 title="Generar informe PDF"
                               >
                                 <i className="bi bi-file-earmark-pdf-fill"></i>
-                              </button>
+                              </a>
                             </div>
                           </td>
                         </tr>
