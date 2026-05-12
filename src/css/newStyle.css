@@ -256,7 +256,7 @@
 .modal-container {
   background: var(--color-white);
   border-radius: 20px;
-  /* max-width: px; */
+  max-width: 700px;
   width: 99%;
   max-height: 95vh;
   overflow: hidden;
