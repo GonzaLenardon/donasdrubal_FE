@@ -70,48 +70,80 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    try {
+      setIsSubmitting(true);
+      if (await saveJornada()) {
+        if (onSaved) onSaved();
+        handleClose();
+      }
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      setErrors({ 
+        submit: 
+          error.message || 'Error al guardar la jornada. Intente nuevamente.',
+      });
+      setMsg('Error al guardar');
+      setTimeout(() => setMsg(''), 3000);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+      setLoading(false);
+    }
+  };
 
+  const saveJornada = async () => {
+    if (!validateForm()) return false;
     setIsSubmitting(true);
     setLoading(true);
-
     try {
+      setMsg('Procesando...');      
+
       const dataToSend = {
         ...formData,
         cliente_id: parseInt(formData.cliente_id),
       };
 
       let resp;
-      if (dataToSend.id) resp = await upJornadas(dataToSend);
-      else resp = await addJornadas(dataToSend);
+      if (dataToSend.id) {
+        setMsg('Actualizando jornada...');        
+        resp = await upJornadas(dataToSend);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }else {
+        setMsg('Guardando jornada...');
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        resp = await addJornadas(dataToSend);
+      }
 
       setMsg(resp.message);
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      if (onSaved) onSaved();
-      handleClose();
+      return true;
     } catch (error) {
       console.error('Error al guardar:', error);
-      setErrors({ submit: 'Error al guardar la Jornada. Intente nuevamente.' });
+      setErrors({ 
+        submit: 'Error al guardar la Jornada. Intente nuevamente.' 
+      });
+        setMsg('Error al guardar');
+        await new Promise((resolve) => setTimeout(resolve, 3000));
     } finally {
       setIsSubmitting(false);
-      setLoading(false);
-      setMsg('');
     }
-  };
+
+  }
 
   // La lógica de cerrar jornada la implementás vos acá
   const handleCerrarJornada = async () => {
     try {
-      setShowCerrar(false);
       setLoading(true);
+      setShowCerrar(false);
+      const guardadoExitoso = await saveJornada();
+      if (!guardadoExitoso) return;
+      setMsg('Finalizando muestra...');
       const resp = await closeJornada(jornada.id);
       console.log('rsp finalizar',resp.message);
       setMsg('Jornada finalizada exitosamente');
+      await new Promise((r) => setTimeout(r, 2000));
 
-      if (onSaved) onSaved();
-
-      await new Promise((r) => setTimeout(r, 1500));
+      if (onSaved) onSaved();      
 
       handleClose();
     } catch (error) {
@@ -120,7 +152,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
       await new Promise((r) => setTimeout(r, 3000));
     } finally {
       setLoading(false);
-      setMsg('');
+      // setMsg('');
     }
   };
 

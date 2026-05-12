@@ -187,11 +187,11 @@ const ModalMuestrasPozos = ({
   // ── Submit guardar ────────────────────────────────────────────────────────
   const handleSubmit = async () => {
     try {
-    setIsSubmitting(true);
-    if (await saveMuestra()) {
-      if (onSaved) onSaved();
-      handleClose();
-    }
+      setIsSubmitting(true);
+      if (await saveMuestra()) {
+        if (onSaved) onSaved();
+        handleClose();
+      }
     } catch (error) {
       console.error('Error al guardar:', error);
       setErrors({
@@ -206,6 +206,7 @@ const ModalMuestrasPozos = ({
       setLoading(false);
     }
   }
+
   const saveMuestra = async () => {
     if (!validateForm()) return false;
     setIsSubmitting(true);
@@ -260,28 +261,21 @@ const ModalMuestrasPozos = ({
 
   // ── Finalizar muestra ─────────────────────────────────────────────────────
   const handleFinalizarMuestra = async () => {
-    // Lo implementás vos — acá va tu lógica de finalización
-
+    
     try {
       setLoading(true);
       setShowFinalizarModal(false);
       const guardadoExitoso = await saveMuestra();
       if (!guardadoExitoso) return;
-
       setMsg('Finalizando muestra...');
-
-      const resp = await closeMuestra(muestra.id);
-
-      
-      
+      const resp = await closeMuestra(muestra.id);      
       console.log('Respuesta de cierre Muestra', resp);
+      setMsg('Muestra finalizada exitosamente');
       await new Promise((r) => setTimeout(r, 2000));
 
-      if (onSaved) onSaved();
-      
+      if (onSaved) onSaved();      
       
       handleClose();
-
     } catch (error) {
       console.error('Error al finalizar:', error);
       setMsg('Error al finalizar Muestra');
