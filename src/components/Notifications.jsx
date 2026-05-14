@@ -143,7 +143,7 @@ const Notifications = () => {
   const [enviadasApi, setEnviadasApi] = useState([]);
   const [users, setUsers] = useState([]);
   const [ingenieros, setIngenieros] = useState([]);
-  const [clientes, setClientes] = useState([]);
+  // const [clientes, setClientes] = useState([]);
 
   const destinatarios = useMemo(() => {
     const map = new Map();
@@ -166,20 +166,21 @@ const Notifications = () => {
       });
     });
 
-    toArray(clientes).forEach((cliente) => {
-      const userId = inferClienteUserId(cliente);
-      if (!userId) return;
+    // toArray(clientes).forEach((cliente) => {
+    //   const userId = inferClienteUserId(cliente);
+    //   if (!userId) return;
 
-      map.set(String(userId), {
-        id: String(userId),
-        nombre: cliente.razon_social || `Cliente #${cliente.id}`,
-        tipo: 'Cliente',
-        detalle: cliente.email || cliente.cuil_cuit || '',
-      });
-    });
+    //   map.set(String(userId), {
+    //     id: String(userId),
+    //     nombre: cliente.razon_social || `Cliente #${cliente.id}`,
+    //     tipo: 'Cliente',
+    //     detalle: cliente.email || cliente.cuil_cuit || '',
+    //   });
+    // });
 
     return Array.from(map.values()).sort((a, b) => a.nombre.localeCompare(b.nombre));
-  }, [users, ingenieros, clientes]);
+  }, [users, ingenieros]);
+  // }, [users, ingenieros, clientes]);
 
   const destinatariosMap = useMemo(
     () => new Map(destinatarios.map((item) => [item.id, item])),
@@ -251,21 +252,21 @@ const Notifications = () => {
         enviadasResp,
         usersResp,
         ingenierosResp,
-        clientesResp,
+        // clientesResp,
       ] =
         await Promise.all([
           getNotificacionesRecibidas(sessionUserId),
           getNotificacionesEnviadas(sessionUserId),
           allUsers(),
           allIngenieros(),
-          allCliente(),
+          // allCliente(),
         ]);
 
       setRecibidasApi(toArray(recibidasResp));
       setEnviadasApi(toArray(enviadasResp));
       setUsers(usersResp);
       setIngenieros(ingenierosResp);
-      setClientes(clientesResp);
+      // setClientes(clientesResp);
     } catch (error) {
       console.error('Error al cargar notificaciones', error);
       setErrors((prev) => ({
