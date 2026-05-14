@@ -10,7 +10,7 @@ import {
 
 const TAB_RECIBIDAS = 'recibidas';
 const TAB_ENVIADAS = 'enviadas';
-const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'EN PROCESO'];
+const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'ALERTADO', 'EN PROCESO'];
 
 const initialForm = {
   usuario_to_id: '',
@@ -298,32 +298,20 @@ const Notifications = () => {
     setErrors({});
   };
 
-  const buildReadPayload = (notification, readDate) => ({
-    usuario_from_id: Number(notification.usuario_from_id ?? notification.fromId ?? 0),
-    usuario_to_id: Number(notification.usuario_to_id ?? notification.toId ?? sessionUserId),
-    entidad_tipo: notification.entidad_tipo || 'user',
-    entidad_id: Number(notification.entidad_id ?? notification.toId ?? sessionUserId),
-    tipo_alerta: notification.tipo_alerta || 'mensaje_recibido',
-    categoria: notification.categoria || 'sistema',
+  const buildReadPayload = (readDate) => ({
     estado: 'LEIDA',
-    prioridad: notification.prioridad || 'NORMAL',
-    titulo: notification.titulo || '',
-    mensaje: notification.mensaje || '',
-    fecha_alerta: readDate,
-    fecha_evento: notification.fecha_evento || null,
-    fecha_vencimiento: notification.fecha_vencimiento || null,
-    requiere_accion: Boolean(notification.requiere_accion),
-    accion_texto: notification.accion_texto || null,
-    url_accion: notification.url_accion || null,
-    observaciones: notification.observaciones || null,
-    metadata: notification.metadata || null,
+    fecha_leida: readDate,
   });
 
   const updateNotificationAsRead = async (notification) => {
     const isOwnReceivedNotification =
       String(notification.usuario_to_id ?? notification.toId ?? '') === sessionUserId;
 
-    if (!notification?.id || notification.estado !== 'PENDIENTE' || !isOwnReceivedNotification) {
+    if (
+      !notification?.id ||
+      !PENDING_NOTIFICATION_STATES.includes(notification.estado) ||
+      !isOwnReceivedNotification
+    ) {
       return notification;
     }
 
@@ -331,7 +319,7 @@ const Notifications = () => {
     const updatedNotification = {
       ...notification,
       estado: 'LEIDA',
-      fecha_alerta: fechaAlerta,
+      fecha_leida: fechaAlerta,
     };
 
     setRecibidasApi((prev) =>
@@ -339,7 +327,7 @@ const Notifications = () => {
     );
 
     try {
-      await updateNotificacion(notification.id, buildReadPayload(notification, fechaAlerta));
+      await updateNotificacion(notification.id, buildReadPayload(fechaAlerta));
       window.dispatchEvent(new Event('notificaciones:updated'));
       return updatedNotification;
     } catch (error) {

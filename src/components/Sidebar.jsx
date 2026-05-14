@@ -5,7 +5,7 @@ import { useCliente } from '../context/UserContext';
 import Spinner from './Spinner';
 import { getNotificacionesRecibidas } from '../api/notificaciones';
 
-const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'EN PROCESO'];
+const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'ALERTADO', 'EN PROCESO'];
 
 const toArray = (value) => {
   if (Array.isArray(value)) return value;
