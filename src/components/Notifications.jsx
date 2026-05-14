@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Spinner from './Spinner.jsx';
 import { allUsers, allIngenieros } from '../api/users.js';
-import { allCliente } from '../api/clientes.js';
 import {
   createNotificacion,
   getNotificacionesEnviadas,
@@ -11,6 +10,7 @@ import {
 
 const TAB_RECIBIDAS = 'recibidas';
 const TAB_ENVIADAS = 'enviadas';
+const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'EN PROCESO'];
 
 const initialForm = {
   usuario_to_id: '',
@@ -47,13 +47,6 @@ const toArray = (value) => {
   return [];
 };
 
-const inferClienteUserId = (cliente) =>
-  cliente?.user_id ||
-  cliente?.usuario_id ||
-  cliente?.usuario?.id ||
-  cliente?.usuario_to_id ||
-  '';
-
 const formatDate = (value) => {
   if (!value) return '-';
 
@@ -80,8 +73,9 @@ const stateClass = (value) => {
   if (value === 'RESUELTA' || value === 'COMPLETADO') {
     return 'notif-pill notif-pill-success';
   }
+  if (value === 'LEIDA') return 'notif-pill notif-pill-success';
   if (value === 'VENCIDO') return 'notif-pill notif-pill-danger';
-  if (value === 'PENDIENTE' || value === 'ACTIVA' || value === 'EN PROCESO') {
+  if (PENDING_NOTIFICATION_STATES.includes(value)) {
     return 'notif-pill notif-pill-warning';
   }
   return 'notif-pill notif-pill-muted';
@@ -228,9 +222,8 @@ const Notifications = () => {
     () => ({
       recibidas: recibidas.length,
       enviadas: enviadas.length,
-      pendientes: recibidas.filter((item) =>
-        ['PENDIENTE', 'ACTIVA', 'EN PROCESO'].includes(item.estado),
-      ).length,
+      pendientes: recibidas.filter((item) => PENDING_NOTIFICATION_STATES.includes(item.estado))
+        .length,
       urgentes: alertasNormalizadas.filter((item) => item.prioridad === 'URGENTE')
         .length,
     }),
@@ -305,9 +298,71 @@ const Notifications = () => {
     setErrors({});
   };
 
-  const openDetailModal = (notification) => {
+  const buildReadPayload = (notification, readDate) => ({
+    usuario_from_id: Number(notification.usuario_from_id ?? notification.fromId ?? 0),
+    usuario_to_id: Number(notification.usuario_to_id ?? notification.toId ?? sessionUserId),
+    entidad_tipo: notification.entidad_tipo || 'user',
+    entidad_id: Number(notification.entidad_id ?? notification.toId ?? sessionUserId),
+    tipo_alerta: notification.tipo_alerta || 'mensaje_recibido',
+    categoria: notification.categoria || 'sistema',
+    estado: 'LEIDA',
+    prioridad: notification.prioridad || 'NORMAL',
+    titulo: notification.titulo || '',
+    mensaje: notification.mensaje || '',
+    fecha_alerta: readDate,
+    fecha_evento: notification.fecha_evento || null,
+    fecha_vencimiento: notification.fecha_vencimiento || null,
+    requiere_accion: Boolean(notification.requiere_accion),
+    accion_texto: notification.accion_texto || null,
+    url_accion: notification.url_accion || null,
+    observaciones: notification.observaciones || null,
+    metadata: notification.metadata || null,
+  });
+
+  const updateNotificationAsRead = async (notification) => {
+    const isOwnReceivedNotification =
+      String(notification.usuario_to_id ?? notification.toId ?? '') === sessionUserId;
+
+    if (!notification?.id || notification.estado !== 'PENDIENTE' || !isOwnReceivedNotification) {
+      return notification;
+    }
+
+    const fechaAlerta = new Date().toISOString();
+    const updatedNotification = {
+      ...notification,
+      estado: 'LEIDA',
+      fecha_alerta: fechaAlerta,
+    };
+
+    setRecibidasApi((prev) =>
+      prev.map((item) => (item.id === notification.id ? { ...item, ...updatedNotification } : item)),
+    );
+
+    try {
+      await updateNotificacion(notification.id, buildReadPayload(notification, fechaAlerta));
+      window.dispatchEvent(new Event('notificaciones:updated'));
+      return updatedNotification;
+    } catch (error) {
+      console.error('Error al marcar notificacion como leida', error);
+      setRecibidasApi((prev) =>
+        prev.map((item) => (item.id === notification.id ? { ...item, estado: notification.estado } : item)),
+      );
+      setErrors((prev) => ({
+        ...prev,
+        detail:
+          error.response?.data?.mensaje ||
+          'No se pudo marcar la notificacion como leida.',
+      }));
+      return notification;
+    }
+  };
+
+  const openDetailModal = async (notification) => {
+    setErrors((prev) => ({ ...prev, detail: '' }));
     setSelectedNotification(notification);
     setDetailModal(true);
+    const updatedNotification = await updateNotificationAsRead(notification);
+    setSelectedNotification(updatedNotification);
   };
 
   const closeDetailModal = () => {
@@ -855,6 +910,8 @@ const Notifications = () => {
             </div>
 
             <div className="modal-body" style={{ maxHeight: '70vh' }}>
+              {errors.detail && <div className="alert alert-danger mb-3">{errors.detail}</div>}
+
               <div className="row g-3">
                 <div className="col-md-6">
                   <label className="form-label">Titulo</label>
