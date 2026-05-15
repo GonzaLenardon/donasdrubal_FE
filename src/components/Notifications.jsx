@@ -3,10 +3,12 @@ import Spinner from './Spinner.jsx';
 import { allUsers, allIngenieros } from '../api/users.js';
 import {
   createNotificacion,
+  deleteNotificacion,
   getNotificacionesEnviadas,
   getNotificacionesRecibidas,
   updateNotificacion,
 } from '../api/notificaciones.js';
+import ModalEliminar from './ModalEliminar.jsx';
 
 const TAB_RECIBIDAS = 'recibidas';
 const TAB_ENVIADAS = 'enviadas';
@@ -133,6 +135,9 @@ const Notifications = () => {
   const [form, setForm] = useState(initialForm);
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [editingNotificationId, setEditingNotificationId] = useState(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedNotificationIds, setSelectedNotificationIds] = useState([]);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [recibidasApi, setRecibidasApi] = useState([]);
   const [enviadasApi, setEnviadasApi] = useState([]);
   const [users, setUsers] = useState([]);
@@ -277,6 +282,11 @@ const Notifications = () => {
     loadData();
   }, [loadData]);
 
+  useEffect(() => {
+    setSelectedNotificationIds([]);
+    setSelectionMode(false);
+  }, [tab]);
+
   const openModal = () => {
     const defaultUserId = toArray(users)[0]?.id ? String(toArray(users)[0].id) : '';
     const defaultDestinatarioId = destinatarios[0]?.id || '';
@@ -298,10 +308,33 @@ const Notifications = () => {
     setErrors({});
   };
 
-  const buildReadPayload = (readDate) => ({
-    estado: 'LEIDA',
-    fecha_leida: readDate,
+  const buildNotificationUpdatePayload = (notification, overrides = {}) => ({
+    usuario_from_id: Number(notification.usuario_from_id ?? notification.fromId ?? sessionUserId),
+    usuario_to_id: Number(notification.usuario_to_id ?? notification.toId),
+    entidad_tipo: notification.entidad_tipo || 'user',
+    entidad_id: Number(notification.entidad_id ?? notification.toId),
+    tipo_alerta: notification.tipo_alerta || 'mensaje_recibido',
+    categoria: notification.categoria || 'sistema',
+    estado: notification.estado || 'PENDIENTE',
+    prioridad: notification.prioridad || 'NORMAL',
+    titulo: notification.titulo || '',
+    mensaje: notification.mensaje || '',
+    fecha_alerta: notification.fecha_alerta || null,
+    fecha_evento: notification.fecha_evento || null,
+    fecha_vencimiento: notification.fecha_vencimiento || null,
+    requiere_accion: Boolean(notification.requiere_accion),
+    accion_texto: notification.requiere_accion ? notification.accion_texto || null : null,
+    url_accion: notification.requiere_accion ? notification.url_accion || null : null,
+    observaciones: notification.observaciones ?? null,
+    metadata: notification.metadata ?? null,
+    ...overrides,
   });
+
+  const buildReadPayload = (notification, readDate) =>
+    buildNotificationUpdatePayload(notification, {
+      estado: 'LEIDA',
+      fecha_leida: readDate,
+    });
 
   const updateNotificationAsRead = async (notification) => {
     const isOwnReceivedNotification =
@@ -327,7 +360,7 @@ const Notifications = () => {
     );
 
     try {
-      await updateNotificacion(notification.id, buildReadPayload(fechaAlerta));
+      await updateNotificacion(notification.id, buildReadPayload(notification, fechaAlerta));
       window.dispatchEvent(new Event('notificaciones:updated'));
       return updatedNotification;
     } catch (error) {
@@ -356,6 +389,54 @@ const Notifications = () => {
   const closeDetailModal = () => {
     setSelectedNotification(null);
     setDetailModal(false);
+  };
+
+  const toggleSelectionMode = () => {
+    setSelectionMode((prev) => !prev);
+    setSelectedNotificationIds([]);
+  };
+
+  const cancelSelection = () => {
+    setSelectionMode(false);
+    setSelectedNotificationIds([]);
+    setShowConfirmDelete(false);
+  };
+
+  const toggleNotificationSelection = (id) => {
+    setSelectedNotificationIds((prev) =>
+      prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id],
+    );
+  };
+
+  const handleConfirmDelete = async () => {
+    const idsToDelete = [...selectedNotificationIds];
+    if (idsToDelete.length === 0) return;
+
+    try {
+      setShowConfirmDelete(false);
+      setLoading(true);
+      setMsg(
+        idsToDelete.length === 1
+          ? 'Eliminando notificacion...'
+          : 'Eliminando notificaciones...',
+      );
+
+      await Promise.all(idsToDelete.map((id) => deleteNotificacion(id)));
+      await loadData();
+      cancelSelection();
+      window.dispatchEvent(new Event('notificaciones:updated'));
+    } catch (error) {
+      console.error('Error al eliminar notificaciones', error);
+      setErrors((prev) => ({
+        ...prev,
+        fetch:
+          error.response?.data?.mensaje ||
+          'No se pudieron eliminar las notificaciones seleccionadas.',
+      }));
+    } finally {
+      setLoading(false);
+      setMsg('');
+    }
   };
 
   const toDateTimeLocal = (value) => {
@@ -455,7 +536,7 @@ const Notifications = () => {
         entidad_id: Number(form.entidad_id),
         tipo_alerta: form.tipo_alerta || 'mensaje_recibido',
         categoria: form.categoria || 'sistema',
-        estado: form.estado || 'PENDIENTE',
+        estado: editingNotificationId ? 'ACTIVA' : form.estado || 'PENDIENTE',
         prioridad: form.prioridad,
         titulo: form.titulo.trim(),
         mensaje: form.mensaje.trim(),
@@ -504,10 +585,21 @@ const Notifications = () => {
               </p>
             </div>
 
-            <button className="btn-primary" onClick={openModal}>
-              <i className="bi bi-plus-lg"></i>
-              Nueva Notificacion
-            </button>
+            <div className="d-flex align-items-center gap-2">
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={toggleSelectionMode}
+              >
+                <i className="bi bi-trash3"></i>
+                {selectionMode ? 'Cancelar' : 'Seleccionar'}
+              </button>
+
+              <button className="btn-primary" onClick={openModal}>
+                <i className="bi bi-plus-lg"></i>
+                Nueva Notificacion
+              </button>
+            </div>
           </div>
 
           <div className="notifications-kpi-grid">
@@ -560,11 +652,51 @@ const Notifications = () => {
             <div className="alert alert-danger mt-3">{errors.fetch}</div>
           )}
 
+          {selectionMode && selectedNotificationIds.length > 0 && (
+            <div
+              className="d-flex align-items-center justify-content-between mb-3 px-3 py-2 rounded"
+              style={{
+                background: 'rgba(239,68,68,0.12)',
+                border: '1px solid rgba(239,68,68,0.3)',
+              }}
+            >
+              <div className="d-flex align-items-center gap-2">
+                <i className="bi bi-ui-checks text-white-50"></i>
+                <span className="text-white-50" style={{ fontSize: '0.85rem' }}>
+                  <span className="text-white fw-bold p-1">
+                    {selectedNotificationIds.length}
+                  </span>
+                  {selectedNotificationIds.length === 1
+                    ? 'Notificacion seleccionada'
+                    : 'Notificaciones seleccionadas'}
+                </span>
+              </div>
+              <div className="d-flex gap-2">
+                <button
+                  className="btn btn-sm btn-outline-light"
+                  style={{ opacity: 0.5, fontSize: '0.8rem' }}
+                  onClick={cancelSelection}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn btn-sm btn-danger d-flex align-items-center gap-2"
+                  style={{ fontSize: '0.8rem' }}
+                  onClick={() => setShowConfirmDelete(true)}
+                >
+                  <i className="bi bi-trash3"></i>
+                  Eliminar ({selectedNotificationIds.length})
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="container-table rounded shadow-lg">
             <table className="table mb-0" style={{ tableLayout: 'fixed', width: '100%' }}>
               <thead>
                 <tr>
-                  <th style={{ width: '18%' }}>Titulo</th>
+                  {selectionMode && <th style={{ width: '4%' }}></th>}
+                  <th style={{ width: selectionMode ? '14%' : '18%' }}>Titulo</th>
                   <th style={{ width: '12%' }}>
                     {tab === TAB_RECIBIDAS ? 'Remitente' : 'Destinatario'}
                   </th>
@@ -580,7 +712,7 @@ const Notifications = () => {
               <tbody>
                 {filteredList.length === 0 ? (
                   <tr>
-                    <td colSpan="9">
+                    <td colSpan={selectionMode ? 10 : 9}>
                       <div className="notifications-empty">
                         No hay notificaciones para mostrar.
                       </div>
@@ -589,6 +721,22 @@ const Notifications = () => {
                 ) : (
                   filteredList.map((item) => (
                     <tr key={item.id}>
+                      {selectionMode && (
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={selectedNotificationIds.includes(item.id)}
+                            onClick={(event) => event.stopPropagation()}
+                            onChange={() => toggleNotificationSelection(item.id)}
+                            style={{
+                              width: '15px',
+                              height: '15px',
+                              cursor: 'pointer',
+                              accentColor: '#ef4444',
+                            }}
+                          />
+                        </td>
+                      )}
                       <td>
                         <div className="table-text">{item.titulo}</div>
                         <small className="table-text-muted">
@@ -645,6 +793,7 @@ const Notifications = () => {
                               openEditModal(item);
                             }}
                             title="Editar notificacion"
+                            disabled={selectionMode}
                           >
                             <i className="bi bi-pencil-square"></i>
                           </button>
@@ -656,6 +805,7 @@ const Notifications = () => {
                               openDetailModal(item);
                             }}
                             title="Ver detalle"
+                            disabled={selectionMode}
                           >
                             <i className="bi bi-eye"></i>
                           </button>
@@ -1037,6 +1187,15 @@ const Notifications = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showConfirmDelete && (
+        <ModalEliminar
+          handleEliminar={handleConfirmDelete}
+          onCancelar={() => setShowConfirmDelete(false)}
+          servicio="notificacion"
+          cantidad={selectedNotificationIds.length}
+        />
       )}
 
       <Spinner loading={loading} msg={msg} />
