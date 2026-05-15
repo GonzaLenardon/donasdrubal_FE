@@ -3,6 +3,17 @@ import { useState, useEffect } from 'react';
 import { logout } from '../api/users';
 import { useCliente } from '../context/UserContext';
 import Spinner from './Spinner';
+import { getNotificacionesRecibidas } from '../api/notificaciones';
+
+const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'ALERTADO', 'EN PROCESO'];
+
+const toArray = (value) => {
+  if (Array.isArray(value)) return value;
+  if (Array.isArray(value?.data)) return value.data;
+  if (Array.isArray(value?.payload)) return value.payload;
+  if (Array.isArray(value?.rows)) return value.rows;
+  return [];
+};
 
 const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   const navigate = useNavigate();
@@ -12,6 +23,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   const [showCliente, setShowCliente] = useState(false);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pendingNotifications, setPendingNotifications] = useState(0);
   const { selectedCliente } = useCliente();
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -56,6 +68,38 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
     if (!item.roles) return true;
     return item.roles.includes(user?.rol);
   };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadPendingNotifications = async () => {
+      if (!user?.id) {
+        setPendingNotifications(0);
+        return;
+      }
+
+      try {
+        const resp = await getNotificacionesRecibidas(user.id);
+        const pendingCount = toArray(resp).filter((item) =>
+          PENDING_NOTIFICATION_STATES.includes(item.estado),
+        ).length;
+
+        if (isMounted) {
+          setPendingNotifications(pendingCount);
+        }
+      } catch (error) {
+        console.error('Error al cargar pendientes de notificaciones', error);
+      }
+    };
+
+    loadPendingNotifications();
+    window.addEventListener('notificaciones:updated', loadPendingNotifications);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener('notificaciones:updated', loadPendingNotifications);
+    };
+  }, [user?.id]);
 
   useEffect(() => {
     console.log('daaaaaaaaa', selectedCliente);
@@ -195,7 +239,15 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
                   onClick={closeSidebar}
                 >
                   <i className={`bi ${item.icon} sidebar-icon`} />
-                  {item.title}
+                  <span className="sidebar-link-label">{item.title}</span>
+                  {item.title === 'Notificaciones' && pendingNotifications > 0 && (
+                    <span
+                      className="sidebar-notification-badge"
+                      title={`${pendingNotifications} notificaciones pendientes`}
+                    >
+                      {pendingNotifications > 99 ? '99+' : pendingNotifications}
+                    </span>
+                  )}
                 </Link>
               </li>
             );

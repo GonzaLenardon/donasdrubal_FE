@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Spinner from './Spinner.jsx';
 import { allUsers, allIngenieros } from '../api/users.js';
-import { allCliente } from '../api/clientes.js';
 import {
   createNotificacion,
   getNotificacionesEnviadas,
@@ -11,6 +10,7 @@ import {
 
 const TAB_RECIBIDAS = 'recibidas';
 const TAB_ENVIADAS = 'enviadas';
+const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'ALERTADO', 'EN PROCESO'];
 
 const initialForm = {
   usuario_to_id: '',
@@ -47,13 +47,6 @@ const toArray = (value) => {
   return [];
 };
 
-const inferClienteUserId = (cliente) =>
-  cliente?.user_id ||
-  cliente?.usuario_id ||
-  cliente?.usuario?.id ||
-  cliente?.usuario_to_id ||
-  '';
-
 const formatDate = (value) => {
   if (!value) return '-';
 
@@ -80,8 +73,9 @@ const stateClass = (value) => {
   if (value === 'RESUELTA' || value === 'COMPLETADO') {
     return 'notif-pill notif-pill-success';
   }
+  if (value === 'LEIDA') return 'notif-pill notif-pill-success';
   if (value === 'VENCIDO') return 'notif-pill notif-pill-danger';
-  if (value === 'PENDIENTE' || value === 'ACTIVA' || value === 'EN PROCESO') {
+  if (PENDING_NOTIFICATION_STATES.includes(value)) {
     return 'notif-pill notif-pill-warning';
   }
   return 'notif-pill notif-pill-muted';
@@ -143,7 +137,7 @@ const Notifications = () => {
   const [enviadasApi, setEnviadasApi] = useState([]);
   const [users, setUsers] = useState([]);
   const [ingenieros, setIngenieros] = useState([]);
-  const [clientes, setClientes] = useState([]);
+  // const [clientes, setClientes] = useState([]);
 
   const destinatarios = useMemo(() => {
     const map = new Map();
@@ -166,20 +160,21 @@ const Notifications = () => {
       });
     });
 
-    toArray(clientes).forEach((cliente) => {
-      const userId = inferClienteUserId(cliente);
-      if (!userId) return;
+    // toArray(clientes).forEach((cliente) => {
+    //   const userId = inferClienteUserId(cliente);
+    //   if (!userId) return;
 
-      map.set(String(userId), {
-        id: String(userId),
-        nombre: cliente.razon_social || `Cliente #${cliente.id}`,
-        tipo: 'Cliente',
-        detalle: cliente.email || cliente.cuil_cuit || '',
-      });
-    });
+    //   map.set(String(userId), {
+    //     id: String(userId),
+    //     nombre: cliente.razon_social || `Cliente #${cliente.id}`,
+    //     tipo: 'Cliente',
+    //     detalle: cliente.email || cliente.cuil_cuit || '',
+    //   });
+    // });
 
     return Array.from(map.values()).sort((a, b) => a.nombre.localeCompare(b.nombre));
-  }, [users, ingenieros, clientes]);
+  }, [users, ingenieros]);
+  // }, [users, ingenieros, clientes]);
 
   const destinatariosMap = useMemo(
     () => new Map(destinatarios.map((item) => [item.id, item])),
@@ -227,9 +222,8 @@ const Notifications = () => {
     () => ({
       recibidas: recibidas.length,
       enviadas: enviadas.length,
-      pendientes: recibidas.filter((item) =>
-        ['PENDIENTE', 'ACTIVA', 'EN PROCESO'].includes(item.estado),
-      ).length,
+      pendientes: recibidas.filter((item) => PENDING_NOTIFICATION_STATES.includes(item.estado))
+        .length,
       urgentes: alertasNormalizadas.filter((item) => item.prioridad === 'URGENTE')
         .length,
     }),
@@ -251,21 +245,21 @@ const Notifications = () => {
         enviadasResp,
         usersResp,
         ingenierosResp,
-        clientesResp,
+        // clientesResp,
       ] =
         await Promise.all([
           getNotificacionesRecibidas(sessionUserId),
           getNotificacionesEnviadas(sessionUserId),
           allUsers(),
           allIngenieros(),
-          allCliente(),
+          // allCliente(),
         ]);
 
       setRecibidasApi(toArray(recibidasResp));
       setEnviadasApi(toArray(enviadasResp));
       setUsers(usersResp);
       setIngenieros(ingenierosResp);
-      setClientes(clientesResp);
+      // setClientes(clientesResp);
     } catch (error) {
       console.error('Error al cargar notificaciones', error);
       setErrors((prev) => ({
@@ -304,9 +298,59 @@ const Notifications = () => {
     setErrors({});
   };
 
-  const openDetailModal = (notification) => {
+  const buildReadPayload = (readDate) => ({
+    estado: 'LEIDA',
+    fecha_leida: readDate,
+  });
+
+  const updateNotificationAsRead = async (notification) => {
+    const isOwnReceivedNotification =
+      String(notification.usuario_to_id ?? notification.toId ?? '') === sessionUserId;
+
+    if (
+      !notification?.id ||
+      !PENDING_NOTIFICATION_STATES.includes(notification.estado) ||
+      !isOwnReceivedNotification
+    ) {
+      return notification;
+    }
+
+    const fechaAlerta = new Date().toISOString();
+    const updatedNotification = {
+      ...notification,
+      estado: 'LEIDA',
+      fecha_leida: fechaAlerta,
+    };
+
+    setRecibidasApi((prev) =>
+      prev.map((item) => (item.id === notification.id ? { ...item, ...updatedNotification } : item)),
+    );
+
+    try {
+      await updateNotificacion(notification.id, buildReadPayload(fechaAlerta));
+      window.dispatchEvent(new Event('notificaciones:updated'));
+      return updatedNotification;
+    } catch (error) {
+      console.error('Error al marcar notificacion como leida', error);
+      setRecibidasApi((prev) =>
+        prev.map((item) => (item.id === notification.id ? { ...item, estado: notification.estado } : item)),
+      );
+      setErrors((prev) => ({
+        ...prev,
+        detail:
+          error.response?.data?.mensaje ||
+          'No se pudo marcar la notificacion como leida.',
+      }));
+      return notification;
+    }
+  };
+
+  const openDetailModal = async (notification) => {
+    setErrors((prev) => ({ ...prev, detail: '' }));
     setSelectedNotification(notification);
     setDetailModal(true);
+    const updatedNotification = await updateNotificationAsRead(notification);
+    setSelectedNotification(updatedNotification);
   };
 
   const closeDetailModal = () => {
@@ -854,6 +898,8 @@ const Notifications = () => {
             </div>
 
             <div className="modal-body" style={{ maxHeight: '70vh' }}>
+              {errors.detail && <div className="alert alert-danger mb-3">{errors.detail}</div>}
+
               <div className="row g-3">
                 <div className="col-md-6">
                   <label className="form-label">Titulo</label>
