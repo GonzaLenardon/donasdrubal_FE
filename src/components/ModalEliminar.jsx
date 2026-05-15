@@ -31,6 +31,7 @@ const ModalEliminar = ({
       maquina: esPlural ? 'maquinas' : 'maquina',
       pozo: esPlural ? 'pozos' : 'pozo',
       jornada: esPlural ? 'jornadas' : 'jornada',
+      notificacion: esPlural ? 'notificaciones' : 'notificacion',
     };
     return textos[servicio];
   };
@@ -43,6 +44,7 @@ const ModalEliminar = ({
       maquina: esPlural ? 'las' : 'la',
       pozo: esPlural ? 'los' : 'el',
       jornada: esPlural ? 'las' : 'la',
+      notificacion: esPlural ? 'las' : 'la',
     };
     return textos[servicio];
   };

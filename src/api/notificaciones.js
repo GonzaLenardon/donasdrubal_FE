@@ -26,3 +26,9 @@ export const updateNotificacion = async (id, payload) => {
   const resp = await instance.put(`/alertas/${id}`, payload);
   return resp.data;
 };
+
+export const deleteNotificacion = async (id) => {
+  const resp = await instance.delete(`/alertas/${id}`);
+  return resp.data;
+};
+  
