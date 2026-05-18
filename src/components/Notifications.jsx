@@ -97,9 +97,9 @@ const normalizeAlertList = (lista, destinatariosMap) =>
           fromId === '0'
             ? 'Sistema'
             : destinatariosMap.get(fromId)?.nombre ||
-              item.usuario_from?.nombre ||
-              item.usuario_from?.email ||
-              `Usuario #${fromId}`,
+            item.usuario_from?.nombre ||
+            item.usuario_from?.email ||
+            `Usuario #${fromId}`,
         destinatario:
           destinatariosMap.get(toId)?.nombre ||
           item.usuario_to?.nombre ||
@@ -146,12 +146,18 @@ const Notifications = () => {
 
   const destinatarios = useMemo(() => {
     const map = new Map();
+    const usuariosFiltrados = toArray(users).filter((user) => {
+      // Verificamos si el usuario tiene al menos un rol que coincida
+      return user.roles.some(rol => rol.nombre === 'Administrador' || rol.nombre === 'Ingeniero');
+    });
+    usuariosFiltrados.forEach((user) => {
+      // Buscamos el rol principal para asignarlo al campo 'tipo'
+      const rolPrincipal = user.roles.find(rol => rol.nombre === 'Administrador' || rol.nombre === 'Ingeniero');
 
-    toArray(users).forEach((user) => {
       map.set(String(user.id), {
         id: String(user.id),
         nombre: user.nombre || user.email || `Usuario #${user.id}`,
-        tipo: 'Ingeniero/Usuario',
+        tipo: rolPrincipal?.nombre || 'Sin rol',
         detalle: user.email || user.telefono || '',
       });
     });
@@ -348,11 +354,11 @@ const Notifications = () => {
       return notification;
     }
 
-    const fechaAlerta = new Date().toISOString();
+    const fecha_leida = new Date().toISOString();
     const updatedNotification = {
       ...notification,
       estado: 'LEIDA',
-      fecha_leida: fechaAlerta,
+      fecha_leida: fecha_leida,
     };
 
     setRecibidasApi((prev) =>
@@ -360,7 +366,7 @@ const Notifications = () => {
     );
 
     try {
-      await updateNotificacion(notification.id, buildReadPayload(notification, fechaAlerta));
+      await updateNotificacion(notification.id, buildReadPayload(notification, fecha_leida));
       window.dispatchEvent(new Event('notificaciones:updated'));
       return updatedNotification;
     } catch (error) {
