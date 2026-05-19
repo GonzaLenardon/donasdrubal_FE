@@ -6,6 +6,7 @@ import { allIngenieros } from '../api/users.js';
 import { allTipoClientes } from '../api/tipoClientes.js';
 import { Radius } from 'lucide-react';
 import { useCliente } from '../context/UserContext.jsx';
+import ModalNotas from './ModalNotas.jsx';
 
 const Clientes = () => {
   const [clienteList, setClienteList] = useState([]);
@@ -21,9 +22,12 @@ const Clientes = () => {
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [onlyView, setOnlyView] = useState(false);
+  const [showNotas, setShowNotas] = useState(false);
   const [msg, setMsg] = useState('');
   const navigate = useNavigate();
   const { setSelectedCliente } = useCliente();
+
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     const all = async () => {
@@ -443,6 +447,17 @@ const Clientes = () => {
 
                     <td>
                       <div className="table-actions">
+                        <button
+                          className="table-btn table-btn-edit"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowNotas(cliente);
+                          }}
+                        >
+                          {' '}
+                          <i className="bi bi-sticky me-1"></i>
+                        </button>
+
                         <button
                           className="table-btn table-btn-edit"
                           onClick={(e) => {
@@ -1202,6 +1217,15 @@ const Clientes = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {showNotas && (
+        <ModalNotas
+          isOpen={true}
+          onClose={() => setShowNotas(false)}
+          clienteId={showNotas.id}
+          userId={user.id}
+        />
       )}
 
       <Spinner loading={loading} msg={msg} />
