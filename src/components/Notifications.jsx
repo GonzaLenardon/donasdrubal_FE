@@ -148,11 +148,11 @@ const Notifications = () => {
     const map = new Map();
     const usuariosFiltrados = toArray(users).filter((user) => {
       // Verificamos si el usuario tiene al menos un rol que coincida
-      return user.roles.some(rol => rol.nombre === 'Administrador' || rol.nombre === 'Ingeniero');
+      return user.roles.some(rol => rol.nombre === 'Administrador');
     });
     usuariosFiltrados.forEach((user) => {
       // Buscamos el rol principal para asignarlo al campo 'tipo'
-      const rolPrincipal = user.roles.find(rol => rol.nombre === 'Administrador' || rol.nombre === 'Ingeniero');
+      const rolPrincipal = user.roles.find(rol => rol.nombre === 'Administrador');
 
       map.set(String(user.id), {
         id: String(user.id),
