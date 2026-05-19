@@ -11,8 +11,6 @@ export const getNotificacionesRecibidas = async (userId) => {
 };
 
 export const getNotificacionesEnviadas = async (userId) => {
-  console.log('Fetching sent notifications for userId:', userId);
-  console.log('Endpoint:', NOTIFICACIONES_ENDPOINTS.enviadas(userId));
   const resp = await instance.get(NOTIFICACIONES_ENDPOINTS.enviadas(userId));
   return resp.data;
 };
