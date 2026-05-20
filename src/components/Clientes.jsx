@@ -349,32 +349,36 @@ const Clientes = () => {
           <div className="container-table rounded shadow-lg">
             <table
               className="table mb-0"
-              style={{ tableLayout: 'fixed', width: '100%' }}
+              style={{
+                background: 'rgba(206, 190, 110, 0.12)',
+                position: 'sticky',
+                top: 0,
+                zIndex: 10,
+              }}
             >
               <thead>
                 <tr>
-                  <th style={{ width: '12%' }}>
+                  <th style={{ width: '20%' }}>
                     <i className="bi bi-person-badge me-1"></i>Nombre
                   </th>
                   <th style={{ width: '10%' }}>
                     <i className="bi bi-person-badge me-1"></i>Cuit
                   </th>
-                  {/*  <th style={{ width: '15%' }}>
-                    <i className="bi bi-geo-alt me-1"></i>Domicilio
-                  </th> */}
+
                   <th style={{ width: '15%' }}>
                     <i className="bi bi-envelope-at me-1"></i>Email
                   </th>
+
                   <th style={{ width: '10%' }}>
                     <i className="bi bi-telephone me-1"></i>Teléfono
                   </th>
-                  <th style={{ width: '15%' }}>
+                  <th>
                     <i className="bi bi-people me-1"></i>Ingenieros
                   </th>
-                  <th style={{ width: '4%' }}>Tipo</th>
-                  <th style={{ width: '6%' }}>Estado</th>
-                  <th className="text-center" style={{ width: '5%' }}>
-                    <i className="bi bi-gear"></i>
+                  <th style={{ width: '5%' }}>Tipo</th>
+                  <th>Estado</th>
+                  <th className="text-center">
+                    <i className="bi bi-gear"></i> Acciones
                   </th>
                 </tr>
               </thead>
@@ -396,6 +400,7 @@ const Clientes = () => {
                     <td>
                       <span className="table-text">{cliente.cuil_cuit}</span>
                     </td>
+
                     {/* 
                     <td className="td-truncate">
                       <span className="table-text">

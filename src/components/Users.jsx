@@ -3,6 +3,9 @@ import { addUser, allUsers, upUser } from '../api/users.js';
 import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
 import { allRoles } from '../api/roles.js';
+import { notasUsuario } from '../api/notas.js';
+import ModalNotasUsuario from './ModalNotasUsuario.jsx';
+import DrawerNotasUsuario from './DrawerNotasUsuario.jsx';
 
 const Users = () => {
   const [userList, setUserList] = useState([]);
@@ -15,6 +18,14 @@ const Users = () => {
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  // 2. Estado unificado (reemplaza notas, userSelected y notasModal)
+  const [drawerNotas, setDrawerNotas] = useState({
+    open: false,
+    notas: [],
+    nombre: '',
+  });
+
+  // 2. Reemplazar el estado notas y userSelected por uno unificado
 
   useEffect(() => {
     getUsers();
@@ -171,6 +182,26 @@ const Users = () => {
     setErrors({});
   };
 
+  // 3. Actualizar handleNotasUser
+  // 3. handleNotasUser actualizado
+  const handleNotasUser = async (user) => {
+    try {
+      setLoading(true);
+      setMsg('Cargando notas...');
+      const data = await notasUsuario(user?.id);
+      setDrawerNotas({
+        open: true,
+        notas: data?.data ?? [],
+        nombre: user?.nombre ?? '',
+      });
+    } catch (error) {
+      console.error('Error al cargar notas:', error);
+    } finally {
+      setLoading(false);
+      setMsg('');
+    }
+  };
+
   const filteredUsers = userList.filter(
     (user) =>
       user.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -185,7 +216,9 @@ const Users = () => {
           <div className="header">
             <div>
               <h2 className="title">Usuarios</h2>
-              <p className="subtitle">{userList.length} Usuarios registrados</p>
+              <p className="subtitle">
+                {userList.length} Usuarios ddddd registrados
+              </p>
             </div>
             <button className="btn-primary" onClick={modalNewUser}>
               <i className="bi bi-plus-lg"></i>
@@ -264,6 +297,16 @@ const Users = () => {
                             className="table-btn table-btn-edit"
                             onClick={(e) => {
                               e.stopPropagation();
+                              handleNotasUser(user);
+                            }}
+                          >
+                            <i className="bi bi-sticky me-1"></i>
+                          </button>
+
+                          <button
+                            className="table-btn table-btn-edit"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               modalUpUser(user);
                             }}
                           >
@@ -279,7 +322,6 @@ const Users = () => {
           </div>
         </div>
       </div>
-
       {/* MODAL FORMULARIO */}
       {modal && (
         <div className="modal-overlay">
@@ -471,9 +513,7 @@ const Users = () => {
           </div>
         </div>
       )}
-
       <Spinner loading={loading} msg={msg} />
-
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -486,6 +526,13 @@ const Users = () => {
         pauseOnHover
         theme="colored"
         transition={Slide}
+      />
+
+      <DrawerNotasUsuario
+        isOpen={drawerNotas.open}
+        onClose={() => setDrawerNotas({ open: false, notas: [], nombre: '' })}
+        notas={drawerNotas.notas}
+        nombreUsuario={drawerNotas.nombre}
       />
     </>
   );

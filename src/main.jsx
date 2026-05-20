@@ -16,6 +16,7 @@ import './css/calibraciones.css';
 import './css/login.css';
 import './css/pozos.css';
 import './css/notas.css';
+import './css/drawerNotasUsuario.css';
 
 createRoot(document.getElementById('root')).render(
   <UserProvider>

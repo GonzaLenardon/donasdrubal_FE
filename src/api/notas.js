@@ -5,6 +5,11 @@ export const notasCliente = async (cliente) => {
   return res.data;
 };
 
+export const notasUsuario = async (usuario) => {
+  const res = await instance.get(`/user/${usuario}/notas`);
+  return res.data;
+};
+
 export const addNota = async (nota) => {
   const res = await instance.post(`/clientes/${nota.cliente_id}/notas`, nota);
   return res.data;
