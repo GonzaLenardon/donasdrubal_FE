@@ -1,14 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { addNota, upNota, delNotas, notasCliente } from '../api/notas';
 
 import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
+import { formatFecha } from '../utils/formatFecha';
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
-const EMPTY_NOTA = {
-  fecha: '',
+const getToday = () => {
+  return new Date().toISOString().split('T')[0];
+};
+
+export const EMPTY_NOTA = {
+  fecha: getToday(),
   comentario: '',
+  cliente_id: null,
 };
 
 // ─── Sub-componente: Tarjeta de nota en el listado ────────────────────────────
@@ -20,14 +26,7 @@ const NotaCard = ({
   setNotaSelected,
   isDeleting,
 }) => {
-  const fechaFormateada = nota.fecha
-    ? new Date(nota.fecha).toLocaleDateString('es-AR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        timeZone: 'America/Argentina/Buenos_Aires',
-      })
-    : '—';
+  const fechaFormateada = nota.fecha ? formatFecha(nota.fecha) : '—';
 
   return (
     <div className="nota-card">
@@ -48,7 +47,6 @@ const NotaCard = ({
           <button
             className="nota-card__btn nota-card__btn--delete"
             onClick={() => {
-              console.log('ququqquququ', nota);
               setNotaSelected(nota); // 👈 usar la nota del map
               setShowEliminar(true);
             }}
@@ -192,6 +190,8 @@ const ModalNotas = ({ isOpen, onClose, clienteId, userId }) => {
   const [showEliminar, setShowEliminar] = useState(false);
   const [notaSelected, setNotaSelected] = useState(null);
   const [msg, setMsg] = useState('');
+  const [scrollToForm, setScrollToForm] = useState(false);
+  const formRef = useRef(null);
 
   // usuario_id desde localStorage
 
@@ -203,7 +203,12 @@ const ModalNotas = ({ isOpen, onClose, clienteId, userId }) => {
       setLoading(true);
       setMsg('Cargando notas...');
       const data = await notasCliente(clienteId, null);
-      setNotas(data?.data ?? data ?? []);
+
+      const notasOrdenadas = data?.data.sort(
+        (b, a) => new Date(b.fecha) - new Date(a.fecha),
+      );
+
+      setNotas(notasOrdenadas);
     } catch (error) {
       console.error('Error al cargar notas:', error);
       setNotas([]);
@@ -280,7 +285,15 @@ const ModalNotas = ({ isOpen, onClose, clienteId, userId }) => {
     });
     setErrors({});
     setShowForm(true);
+    setScrollToForm(true);
   };
+
+  useEffect(() => {
+    if (showForm && scrollToForm) {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setScrollToForm(false);
+    }
+  }, [showForm, scrollToForm]);
 
   // ── Eliminar ───────────────────────────────────────────────────────────────
 
@@ -354,14 +367,16 @@ const ModalNotas = ({ isOpen, onClose, clienteId, userId }) => {
           <div className="modal-body-pozos">
             {/* Formulario (visible solo cuando se crea o edita) */}
             {showForm && (
-              <NotaForm
-                formData={formData}
-                errors={errors}
-                isSubmitting={isSubmitting}
-                onChange={handleChange}
-                onSubmit={handleSubmit}
-                onCancel={handleCancelForm}
-              />
+              <div ref={formRef}>
+                <NotaForm
+                  formData={formData}
+                  errors={errors}
+                  isSubmitting={isSubmitting}
+                  onChange={handleChange}
+                  onSubmit={handleSubmit}
+                  onCancel={handleCancelForm}
+                />
+              </div>
             )}
 
             {/* Botón agregar (visible solo cuando no hay formulario abierto) */}
