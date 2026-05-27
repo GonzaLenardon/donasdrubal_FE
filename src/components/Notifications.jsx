@@ -10,6 +10,37 @@ import {
 } from '../api/notificaciones.js';
 import ModalEliminar from './ModalEliminar.jsx';
 
+const ENTITY_TYPES_WITH_FRONT_URL = [
+  'clientes',
+  'maquinas',
+  'pozos',
+  'servicios',
+  'muestras_agua',
+  'calibraciones',
+  'jornadas',
+];
+
+const buildNotificationUrl = (notification) => {
+  if (!notification?.url_accion) return null;
+
+  const entidadTipo = notification.entidad_tipo;
+
+  const requiresFrontUrl =
+    entidadTipo &&
+    ENTITY_TYPES_WITH_FRONT_URL.includes(entidadTipo);
+
+  if (!requiresFrontUrl) {
+    return notification.url_accion;
+  }
+
+  const baseUrl = window.location.origin;
+
+  const cleanBase = baseUrl.replace(/\/$/, '');
+  const cleanPath = notification.url_accion.replace(/^\//, '');
+
+  return `${cleanBase}/${cleanPath}`;
+};
+
 const TAB_RECIBIDAS = 'recibidas';
 const TAB_ENVIADAS = 'enviadas';
 const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'ALERTADO', 'EN PROCESO'];
@@ -743,12 +774,28 @@ const Notifications = () => {
                           />
                         </td>
                       )}
-                      <td>
-                        <div className="table-text">{item.titulo}</div>
-                        <small className="table-text-muted">
-                          {item.entidad_tipo} #{item.entidad_id}
-                        </small>
-                      </td>
+<td>
+  <div className="table-text">
+    {buildNotificationUrl(item) ? (
+      <a
+        href={buildNotificationUrl(item)}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: 'inherit', textDecoration: 'none' }}
+      >
+        {item.titulo}
+      </a>
+    ) : (
+      item.titulo
+    )}
+  </div>
+
+  {item?.metadata?.cliente_nombre && (
+    <small className="table-text-muted d-block">
+      {item.metadata.cliente_nombre}
+    </small>
+  )}
+</td>
                       <td>
                         <div className="table-text">
                           {tab === TAB_RECIBIDAS ? item.remitente : item.destinatario}
@@ -783,11 +830,17 @@ const Notifications = () => {
                       </td>
                       <td className="td-truncate">
                         <div className="notifications-message">{item.mensaje}</div>
-                        {item.requiere_accion && (
-                          <small className="notifications-action">
-                            Accion: {item.accion_texto || 'Ver detalle'}
-                          </small>
-                        )}
+{item.requiere_accion && (
+  <small className="notifications-action">
+    <a
+      href={buildNotificationUrl(item)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {item.accion_texto || 'Ver detalle'}
+    </a>
+  </small>
+)}
                       </td>
                       <td>
                         <div className="table-actions">
@@ -1063,18 +1116,18 @@ const Notifications = () => {
                     {prettyValue(selectedNotification.titulo)}
                   </div>
                 </div>
-                <div className="col-md-3">
+                {/* <div className="col-md-3">
                   <label className="form-label">ID</label>
                   <div className="notifications-detail-value">
                     {prettyValue(selectedNotification.id)}
                   </div>
-                </div>
-                <div className="col-md-3">
+                </div> */}
+                {/* <div className="col-md-3">
                   <label className="form-label">Tipo alerta</label>
                   <div className="notifications-detail-value">
                     {prettyValue(selectedNotification.tipo_alerta)}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="col-md-4">
                   <label className="form-label">Remitente</label>
@@ -1088,20 +1141,12 @@ const Notifications = () => {
                     {prettyValue(selectedNotification.destinatario)}
                   </div>
                 </div>
-                <div className="col-md-4">
-                  <label className="form-label">Entidad</label>
-                  <div className="notifications-detail-value">
-                    {prettyValue(selectedNotification.entidad_tipo)} / #
-                    {prettyValue(selectedNotification.entidad_id)}
-                  </div>
-                </div>
-
-                <div className="col-md-3">
+                {/* <div className="col-md-3">
                   <label className="form-label">Categoria</label>
                   <div className="notifications-detail-value">
                     {prettyValue(selectedNotification.categoria)}
                   </div>
-                </div>
+                </div> */}
                 <div className="col-md-3">
                   <label className="form-label">Prioridad</label>
                   <div className="notifications-detail-value">
@@ -1118,29 +1163,29 @@ const Notifications = () => {
                     </span>
                   </div>
                 </div>
-                <div className="col-md-3">
+                {/* <div className="col-md-3">
                   <label className="form-label">Requiere accion</label>
                   <div className="notifications-detail-value">
                     {prettyValue(selectedNotification.requiere_accion)}
                   </div>
-                </div>
+                </div> */}
 
-                <div className="col-md-4">
+                {/* <div className="col-md-4">
                   <label className="form-label">Fecha creacion</label>
                   <div className="notifications-detail-value">
                     {formatDate(selectedNotification.fecha_creacion || selectedNotification.createdAt)}
+                  </div>
+                </div> */}
+                <div className="col-md-4">
+                  <label className="form-label">Fecha evento</label>
+                  <div className="notifications-detail-value">
+                    {formatDate(selectedNotification.fecha_evento)}
                   </div>
                 </div>
                 <div className="col-md-4">
                   <label className="form-label">Fecha alerta</label>
                   <div className="notifications-detail-value">
                     {formatDate(selectedNotification.fecha_alerta)}
-                  </div>
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Fecha evento</label>
-                  <div className="notifications-detail-value">
-                    {formatDate(selectedNotification.fecha_evento)}
                   </div>
                 </div>
 
@@ -1150,7 +1195,7 @@ const Notifications = () => {
                     {formatDate(selectedNotification.fecha_vencimiento)}
                   </div>
                 </div>
-                <div className="col-md-4">
+                {/* <div className="col-md-4">
                   <label className="form-label">Texto accion</label>
                   <div className="notifications-detail-value">
                     {prettyValue(selectedNotification.accion_texto)}
@@ -1161,7 +1206,7 @@ const Notifications = () => {
                   <div className="notifications-detail-value notifications-detail-break">
                     {prettyValue(selectedNotification.url_accion)}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="col-12">
                   <label className="form-label">Mensaje</label>
@@ -1169,19 +1214,35 @@ const Notifications = () => {
                     {prettyValue(selectedNotification.mensaje)}
                   </div>
                 </div>
+{selectedNotification.requiere_accion && (
+  <div className="col-12">
+    <label className="form-label">Accion</label>
 
-                <div className="col-md-6">
+    <div className="notifications-detail-value">
+      <a
+        href={buildNotificationUrl(selectedNotification)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn btn-primary btn-sm"
+      >
+        {selectedNotification.accion_texto || 'Abrir'}
+      </a>
+    </div>
+  </div>
+)}
+
+                {/* <div className="col-md-6">
                   <label className="form-label">Observaciones</label>
                   <div className="notifications-detail-value notifications-detail-pre">
                     {prettyValue(selectedNotification.observaciones)}
                   </div>
-                </div>
-                <div className="col-md-6">
+                </div> */}
+                {/* <div className="col-md-6">
                   <label className="form-label">Metadata</label>
                   <div className="notifications-detail-value notifications-detail-pre">
                     {prettyValue(selectedNotification.metadata)}
                   </div>
-                </div>
+                </div> */}
               </div>
 
               <div className="modal-footer mt-4">
