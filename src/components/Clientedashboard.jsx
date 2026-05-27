@@ -16,7 +16,7 @@ import {
 // Importar funciones API
 import {
   getClienteStats,
-  getClienteServicesChart,
+  // getClienteServicesChart,
   getClienteMachinesChart,
   getClienteJornadasChart,
   getClienteCalibracionesChart,
@@ -282,20 +282,20 @@ const ClienteDashboard = ({ cliente }) => {
     }
   };
 
-  const fetchServicesChart = async () => {
-    try {
-      setLoading(prev => ({ ...prev, servicesChart: true }));
-      setErrors(prev => ({ ...prev, servicesChart: null }));
+  // const fetchServicesChart = async () => {
+  //   try {
+  //     setLoading(prev => ({ ...prev, servicesChart: true }));
+  //     setErrors(prev => ({ ...prev, servicesChart: null }));
       
-      const servicesChart = await getClienteServicesChart(cliente.id);
-      setData(prev => ({ ...prev, servicesChart }));
-    } catch (err) {
-      console.error('Error fetching services chart:', err);
-      setErrors(prev => ({ ...prev, servicesChart: err.message }));
-    } finally {
-      setLoading(prev => ({ ...prev, servicesChart: false }));
-    }
-  };
+  //     const servicesChart = await getClienteServicesChart(cliente.id);
+  //     setData(prev => ({ ...prev, servicesChart }));
+  //   } catch (err) {
+  //     console.error('Error fetching services chart:', err);
+  //     setErrors(prev => ({ ...prev, servicesChart: err.message }));
+  //   } finally {
+  //     setLoading(prev => ({ ...prev, servicesChart: false }));
+  //   }
+  // };
 
 
   const fetchAnalisisChart = async () => {
@@ -373,7 +373,7 @@ const ClienteDashboard = ({ cliente }) => {
   // Cargar todas las secciones de forma independiente
   const fetchAllData = () => {
     fetchStats();
-    fetchServicesChart();
+    // fetchServicesChart();
     fetchAnalisisChart();
     fetchCalibracionChart();
     fetchJornadasChart();
