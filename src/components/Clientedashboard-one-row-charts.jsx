@@ -536,198 +536,244 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
         )}
       </div>
 
-<div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-
-  {/* ================= LEFT COLUMN ================= */}
-  <div className="flex flex-col gap-4">
-
-    {/* ================= CHARTS ================= */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-      {/* CHART 1 */}
-      <div className="flex flex-col gap-2 rounded-lg p-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
-        
-        <h3 className="text-sm font-semibold text-text-light dark:text-text-dark">
-          Analisis de Agua
-        </h3>
-
-        <div className="flex-grow">
-          <DonutChart
-            data={analisisChartData}
-            totalValue={analisisChartTotal.toString()}
-            // totalLabel="Total"
-          />
-        </div>
-
-        <div className="flex flex-wrap justify-center gap-2 text-xs">
-          {analisisChartData.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-1">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: item.color }}
-              ></span>
-
-              <span>
-                {item.name} ({item.value})
-              </span>
+      {/* ==================== CHARTS ROW ==================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Chart 1 - Analisis de Agua */}
+        <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
+          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
+            Analisis de Agua
+          </h3>
+          
+          {loading.analisisChart ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CHART 2 */}
-      <div className="flex flex-col gap-2 rounded-lg p-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
-
-        <h3 className="text-sm font-semibold text-text-light dark:text-text-dark">
-          Calibraciones
-        </h3>
-
-        <div className="flex-grow">
-          <DonutChart
-            data={calibracionChartData}
-            totalValue={calibracionChartTotal.toString()}
-            // totalLabel="Calibraciones"
-          />
-        </div>
-
-        <div className="flex flex-wrap justify-center gap-2 text-xs">
-          {calibracionChartData.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-1">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: item.color }}
-              ></span>
-
-              <span>
-                {item.name} ({item.value})
-              </span>
+          ) : errors.analisisChart ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <AlertCircle className="w-12 h-12 text-red-400" />
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                {errors.analisisChart}
+              </p>
+              <button
+                onClick={fetchAnalisisChart}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <RefreshCw size={16} />
+                Reintentar
+              </button>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CHART 3 */}
-      <div className="flex flex-col gap-2 rounded-lg p-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
-
-        <h3 className="text-sm font-semibold text-text-light dark:text-text-dark">
-          Jornadas
-        </h3>
-
-        <div className="flex-grow">
-          <DonutChart
-            data={jornadasChartData}
-            totalValue={jornadasChartTotal.toString()}
-            // totalLabel="Jornadas"
-          />
-        </div>
-
-        <div className="flex flex-wrap justify-center gap-2 text-xs">
-          {jornadasChartData.map((item, idx) => (
-            <div key={idx} className="flex items-center gap-1">
-              <span
-                className="w-2 h-2 rounded-full"
-                style={{ backgroundColor: item.color }}
-              ></span>
-
-              <span>
-                {item.name} ({item.value})
-              </span>
+          ) : analisisChartData.length > 0 ? (
+            <>
+              <div className="flex-grow">
+                <DonutChart
+                  data={analisisChartData}
+                  totalValue={analisisChartTotal.toString()}
+                  totalLabel="Total"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
+                {analisisChartData.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    ></span>
+                    <span className="text-text-light dark:text-text-dark">
+                      {item.name} ({item.value})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-400">
+              Sin datos de Analisis de Agua
             </div>
-          ))}
+          )}
         </div>
+
+        {/* Chart 2 - Calibraciones */}
+        <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
+          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
+            Calibraciones
+          </h3>
+          
+          {loading.calibracionChart ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
+            </div>
+          ) : errors.calibracionChart ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <AlertCircle className="w-12 h-12 text-red-400" />
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                {errors.calibracionChart}
+              </p>
+              <button
+                onClick={fetchCalibracionChart}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <RefreshCw size={16} />
+                Reintentar
+              </button>
+            </div>
+          ) : calibracionChartData.length > 0 ? (
+            <>
+              <div className="flex-grow">
+                <DonutChart
+                  data={calibracionChartData}
+                  totalValue={calibracionChartTotal.toString()}
+                  totalLabel="Calibraciones"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
+                {calibracionChartData.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    ></span>
+                    <span className="text-text-light dark:text-text-dark">
+                      {item.name} ({item.value})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-400">
+              Sin datos de Calibraciones
+            </div>
+          )}
+        </div>
+
+        {/* Chart 3 - Jornadas */}
+        <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
+          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
+            Jornadas
+          </h3>
+          
+          {loading.jornadasChart ? (
+            <div className="flex items-center justify-center h-64">
+              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
+            </div>
+          ) : errors.jornadasChart ? (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+              <AlertCircle className="w-12 h-12 text-red-400" />
+              <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                {errors.jornadasChart}
+              </p>
+              <button
+                onClick={fetchJornadasChart}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <RefreshCw size={16} />
+                Reintentar
+              </button>
+            </div>
+          ) : jornadasChartData.length > 0 ? (
+            <>
+              <div className="flex-grow">
+                <DonutChart
+                  data={jornadasChartData}
+                  totalValue={jornadasChartTotal.toString()}
+                  totalLabel="Jornadas"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
+                {jornadasChartData.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    ></span>
+                    <span className="text-text-light dark:text-text-dark">
+                      {item.name} ({item.value})
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-64 text-gray-400">
+              Sin datos de Jornadas
+            </div>
+          )}
+        </div>
+
+
+
       </div>
 
-    </div>
-  </div>
+      {/* ==================== SERVICES ROW ==================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Servicios de Calibración */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Wrench className="text-[#4a7c1f]" size={24} />
+            <h2 className="text-text-light dark:text-text-dark text-xl font-bold">
+              Próximos Servicios de Calibración
+            </h2>
+          </div>
+          
+          {loading.upcomingServices ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3].map((i) => (
+                <ServiceItemSkeleton key={i} />
+              ))}
+            </div>
+          ) : errors.upcomingServices ? (
+            <ErrorCard
+              title=""
+              error={errors.upcomingServices}
+              onRetry={fetchUpcomingServices}
+            />
+          ) : calibracionServices.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {calibracionServices.map((service, idx) => (
+                <ServiceItem key={idx} {...service} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400 bg-card-light dark:bg-card-dark rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
+              No hay servicios de calibración programados
+            </div>
+          )}
+        </div>
 
-  {/* ================= RIGHT COLUMN ================= */}
-  <div className="flex flex-col gap-6">
-
-    {/* ================= SERVICIOS CALIBRACION ================= */}
-    <div>
-      <div className="flex items-center gap-2 mb-3">
-        <Wrench className="text-[#4a7c1f]" size={20} />
-
-        <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
-          Próximos Servicios de Calibración
-        </h2>
+        {/* Análisis de Agua y Capacitaciones */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Droplets className="text-[#4a7c1f]" size={24} />
+            <h2 className="text-text-light dark:text-text-dark text-xl font-bold">
+              Análisis de Agua y Capacitaciones
+            </h2>
+          </div>
+          
+          {loading.upcomingServices ? (
+            <div className="flex flex-col gap-3">
+              {[1, 2, 3].map((i) => (
+                <ServiceItemSkeleton key={i} />
+              ))}
+            </div>
+          ) : errors.upcomingServices ? (
+            <ErrorCard
+              title=""
+              error={errors.upcomingServices}
+              onRetry={fetchUpcomingServices}
+            />
+          ) : otrosServices.length > 0 ? (
+            <div className="flex flex-col gap-3">
+              {otrosServices.map((service, idx) => (
+                <ServiceItem key={idx} {...service} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-gray-400 bg-card-light dark:bg-card-dark rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
+              No hay servicios programados
+            </div>
+          )}
+        </div>
       </div>
-
-      {loading.upcomingServices ? (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3].map((i) => (
-            <ServiceItemSkeleton key={i} />
-          ))}
-        </div>
-
-      ) : errors.upcomingServices ? (
-
-        <ErrorCard
-          title=""
-          error={errors.upcomingServices}
-          onRetry={fetchUpcomingServices}
-        />
-
-      ) : calibracionServices.length > 0 ? (
-
-        <div className="flex flex-col gap-3">
-          {calibracionServices.map((service, idx) => (
-            <ServiceItem key={idx} {...service} />
-          ))}
-        </div>
-
-      ) : (
-
-        <div className="text-center py-6 text-sm text-gray-400 bg-card-light dark:bg-card-dark rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
-          No hay servicios de calibración programados
-        </div>
-      )}
-    </div>
-
-    {/* ================= OTROS SERVICIOS ================= */}
-    <div>
-      <div className="flex items-center gap-2 mb-3">
-        <Droplets className="text-[#4a7c1f]" size={20} />
-
-        <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
-          Análisis de Agua y Capacitaciones
-        </h2>
-      </div>
-
-      {loading.upcomingServices ? (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3].map((i) => (
-            <ServiceItemSkeleton key={i} />
-          ))}
-        </div>
-
-      ) : errors.upcomingServices ? (
-
-        <ErrorCard
-          title=""
-          error={errors.upcomingServices}
-          onRetry={fetchUpcomingServices}
-        />
-
-      ) : otrosServices.length > 0 ? (
-
-        <div className="flex flex-col gap-3">
-          {otrosServices.map((service, idx) => (
-            <ServiceItem key={idx} {...service} />
-          ))}
-        </div>
-
-      ) : (
-
-        <div className="text-center py-6 text-sm text-gray-400 bg-card-light dark:bg-card-dark rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
-          No hay servicios programados
-        </div>
-      )}
-    </div>
-
-  </div>
-
-</div>
     </div>
   );
 };
