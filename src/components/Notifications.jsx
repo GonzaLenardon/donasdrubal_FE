@@ -58,6 +58,7 @@ const initialForm = {
   fecha_alerta: '',
   fecha_evento: '',
   fecha_vencimiento: '',
+  dias_antes_alerta: 0,
   requiere_accion: false,
   accion_texto: '',
   url_accion: '',
@@ -93,6 +94,19 @@ const formatDate = (value) => {
     hour: '2-digit',
     minute: '2-digit',
   });
+};
+const calculateAlertDate = (fechaEvento, diasAntes) => {
+  if (!fechaEvento) return null;
+
+  const fecha = new Date(fechaEvento);
+
+  if (Number.isNaN(fecha.getTime())) {
+    return null;
+  }
+
+  fecha.setDate(fecha.getDate() - Number(diasAntes || 0));
+
+  return fecha.toISOString();
 };
 
 const priorityClass = (value) => {
@@ -502,9 +516,19 @@ const Notifications = () => {
       prioridad: notification.prioridad || 'NORMAL',
       titulo: notification.titulo || '',
       mensaje: notification.mensaje || '',
-      fecha_alerta: toDateTimeLocal(notification.fecha_alerta),
       fecha_evento: toDateTimeLocal(notification.fecha_evento),
-      fecha_vencimiento: toDateTimeLocal(notification.fecha_vencimiento),
+
+      dias_antes_alerta:
+        notification.fecha_alerta && notification.fecha_evento
+          ? Math.round(
+              (new Date(notification.fecha_evento) -
+                new Date(notification.fecha_alerta)) /
+                (1000 * 60 * 60 * 24)
+            )
+          : 0,      
+      // fecha_alerta: toDateTimeLocal(notification.fecha_alerta),
+      // fecha_evento: toDateTimeLocal(notification.fecha_evento),
+      // fecha_vencimiento: toDateTimeLocal(notification.fecha_vencimiento),
       requiere_accion: Boolean(notification.requiere_accion),
       accion_texto: notification.accion_texto || '',
       url_accion: notification.url_accion || '',
@@ -515,7 +539,13 @@ const Notifications = () => {
 
   const handleForm = (event) => {
     const { name, value, type, checked } = event.target;
-    const nextValue = type === 'checkbox' ? checked : value;
+    // const nextValue = type === 'checkbox' ? checked : value;
+    const nextValue =
+  type === 'checkbox'
+    ? checked
+    : type === 'number'
+      ? Number(value)
+      : value;
 
     setForm((prev) => {
       const updated = { ...prev, [name]: nextValue };
@@ -566,6 +596,13 @@ const Notifications = () => {
         editingNotificationId ? 'Actualizando notificacion...' : 'Creando notificacion...',
       );
 
+const fechaAlertaCalculada = calculateAlertDate(
+  form.fecha_evento,
+  form.dias_antes_alerta,
+);
+
+const fechaVencimientoCalculada = form.fecha_evento || null;      
+
       const payload = {
         usuario_from_id: Number(sessionUserId),
         usuario_to_id: Number(form.usuario_to_id),
@@ -577,9 +614,12 @@ const Notifications = () => {
         prioridad: form.prioridad,
         titulo: form.titulo.trim(),
         mensaje: form.mensaje.trim(),
-        fecha_alerta: form.fecha_alerta || null,
-        fecha_evento: form.fecha_evento || null,
-        fecha_vencimiento: form.fecha_vencimiento || null,
+fecha_alerta: fechaAlertaCalculada,
+fecha_evento: form.fecha_evento || null,
+fecha_vencimiento: fechaVencimientoCalculada,        
+        // fecha_alerta: form.fecha_alerta || null,
+        // fecha_evento: form.fecha_evento || null,
+        // fecha_vencimiento: form.fecha_vencimiento || null,
         requiere_accion: form.requiere_accion,
         accion_texto: form.requiere_accion ? form.accion_texto.trim() : null,
         url_accion: form.requiere_accion ? form.url_accion.trim() : null,
@@ -974,7 +1014,7 @@ const Notifications = () => {
                   </select>
                 </div>
 
-                <div className="col-md-3">
+                {/* <div className="col-md-3">
                   <label className="form-label">Fecha alerta</label>
                   <input
                     type="datetime-local"
@@ -983,9 +1023,9 @@ const Notifications = () => {
                     value={form.fecha_alerta}
                     onChange={handleForm}
                   />
-                </div>
+                </div> */}
 
-                <div className="col-md-3">
+                <div className="col-md-6">
                   <label className="form-label">Fecha evento</label>
                   <input
                     type="datetime-local"
@@ -996,7 +1036,20 @@ const Notifications = () => {
                   />
                 </div>
 
-                <div className="col-md-4">
+<div className="col-md-3">
+  <label className="form-label">Avisar dias antes</label>
+
+  <input
+    type="number"
+    min="0"
+    name="dias_antes_alerta"
+    className="form-control"
+    value={form.dias_antes_alerta}
+    onChange={handleForm}
+  />
+</div>                
+
+                {/* <div className="col-md-4">
                   <label className="form-label">Fecha vencimiento</label>
                   <input
                     type="datetime-local"
@@ -1005,7 +1058,7 @@ const Notifications = () => {
                     value={form.fecha_vencimiento}
                     onChange={handleForm}
                   />
-                </div>
+                </div> */}
 
                 <div className="col-md-8">
                   <label className="form-label d-block">Accion</label>
@@ -1182,19 +1235,33 @@ const Notifications = () => {
                     {formatDate(selectedNotification.fecha_evento)}
                   </div>
                 </div>
-                <div className="col-md-4">
+<div className="col-md-4">
+  <label className="form-label">Aviso previo</label>
+
+  <div className="notifications-detail-value">
+    {selectedNotification.fecha_alerta &&
+    selectedNotification.fecha_evento
+      ? `${Math.round(
+          (new Date(selectedNotification.fecha_evento) -
+            new Date(selectedNotification.fecha_alerta)) /
+            (1000 * 60 * 60 * 24),
+        )} dias antes`
+      : 'Sin aviso'}
+  </div>
+</div>                
+                {/* <div className="col-md-4">
                   <label className="form-label">Fecha alerta</label>
                   <div className="notifications-detail-value">
                     {formatDate(selectedNotification.fecha_alerta)}
                   </div>
-                </div>
+                </div> */}
 
-                <div className="col-md-4">
+                {/* <div className="col-md-4">
                   <label className="form-label">Fecha vencimiento</label>
                   <div className="notifications-detail-value">
                     {formatDate(selectedNotification.fecha_vencimiento)}
                   </div>
-                </div>
+                </div> */}
                 {/* <div className="col-md-4">
                   <label className="form-label">Texto accion</label>
                   <div className="notifications-detail-value">
