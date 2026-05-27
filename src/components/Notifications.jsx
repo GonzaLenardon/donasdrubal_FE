@@ -9,6 +9,7 @@ import {
   updateNotificacion,
 } from '../api/notificaciones.js';
 import ModalEliminar from './ModalEliminar.jsx';
+import Select from 'react-select';
 
 const ENTITY_TYPES_WITH_FRONT_URL = [
   'clientes',
@@ -46,7 +47,7 @@ const TAB_ENVIADAS = 'enviadas';
 const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'ALERTADO', 'EN PROCESO'];
 
 const initialForm = {
-  usuario_to_id: '',
+  usuario_to_ids: [],
   entidad_tipo: 'user',
   entidad_id: '',
   tipo_alerta: 'mensaje_recibido',
@@ -340,13 +341,13 @@ const Notifications = () => {
 
   const openModal = () => {
     const defaultUserId = toArray(users)[0]?.id ? String(toArray(users)[0].id) : '';
-    const defaultDestinatarioId = destinatarios[0]?.id || '';
+    // const defaultDestinatarioId = destinatarios[0]?.id || '';
 
     setEditingNotificationId(null);
     setForm({
       ...initialForm,
-      usuario_to_id: defaultDestinatarioId,
-      entidad_id: defaultDestinatarioId || defaultUserId,
+       usuario_to_ids: [],
+      entidad_id: defaultUserId,
     });
     setErrors({});
     setModal(true);
@@ -504,7 +505,7 @@ const Notifications = () => {
   const openEditModal = (notification) => {
     setEditingNotificationId(notification.id);
     setForm({
-      usuario_to_id: notification.toId || '',
+      usuario_to_ids: notification.toId ? [notification.toId] : [],
       entidad_tipo: notification.entidad_tipo || 'user',
       entidad_id:
         notification.entidad_id !== null && notification.entidad_id !== undefined
@@ -521,11 +522,11 @@ const Notifications = () => {
       dias_antes_alerta:
         notification.fecha_alerta && notification.fecha_evento
           ? Math.round(
-              (new Date(notification.fecha_evento) -
-                new Date(notification.fecha_alerta)) /
-                (1000 * 60 * 60 * 24)
-            )
-          : 0,      
+            (new Date(notification.fecha_evento) -
+              new Date(notification.fecha_alerta)) /
+            (1000 * 60 * 60 * 24)
+          )
+          : 0,
       // fecha_alerta: toDateTimeLocal(notification.fecha_alerta),
       // fecha_evento: toDateTimeLocal(notification.fecha_evento),
       // fecha_vencimiento: toDateTimeLocal(notification.fecha_vencimiento),
@@ -541,11 +542,11 @@ const Notifications = () => {
     const { name, value, type, checked } = event.target;
     // const nextValue = type === 'checkbox' ? checked : value;
     const nextValue =
-  type === 'checkbox'
-    ? checked
-    : type === 'number'
-      ? Number(value)
-      : value;
+      type === 'checkbox'
+        ? checked
+        : type === 'number'
+          ? Number(value)
+          : value;
 
     setForm((prev) => {
       const updated = { ...prev, [name]: nextValue };
@@ -571,7 +572,7 @@ const Notifications = () => {
     const nextErrors = {};
 
     if (!sessionUserId) nextErrors.submit = 'No se encontro el usuario de sesion.';
-    if (!form.usuario_to_id) nextErrors.usuario_to_id = 'Selecciona un destinatario.';
+    if (!form.usuario_to_ids.length) nextErrors.usuario_to_ids = 'Selecciona un destinatario.';
     if (!form.entidad_tipo) nextErrors.entidad_tipo = 'Selecciona una entidad.';
     if (!form.entidad_id) nextErrors.entidad_id = 'Indica el ID de la entidad.';
     if (!form.titulo.trim()) nextErrors.titulo = 'El titulo es obligatorio.';
@@ -596,42 +597,89 @@ const Notifications = () => {
         editingNotificationId ? 'Actualizando notificacion...' : 'Creando notificacion...',
       );
 
-const fechaAlertaCalculada = calculateAlertDate(
-  form.fecha_evento,
-  form.dias_antes_alerta,
-);
+      const fechaAlertaCalculada = calculateAlertDate(
+        form.fecha_evento,
+        form.dias_antes_alerta,
+      );
 
-const fechaVencimientoCalculada = form.fecha_evento || null;      
+      const fechaVencimientoCalculada = form.fecha_evento || null;
 
-      const payload = {
-        usuario_from_id: Number(sessionUserId),
-        usuario_to_id: Number(form.usuario_to_id),
-        entidad_tipo: form.entidad_tipo || 'user',
-        entidad_id: Number(form.entidad_id),
-        tipo_alerta: form.tipo_alerta || 'mensaje_recibido',
-        categoria: form.categoria || 'sistema',
-        estado: editingNotificationId ? 'ACTIVA' : form.estado || 'PENDIENTE',
-        prioridad: form.prioridad,
-        titulo: form.titulo.trim(),
-        mensaje: form.mensaje.trim(),
-fecha_alerta: fechaAlertaCalculada,
-fecha_evento: form.fecha_evento || null,
-fecha_vencimiento: fechaVencimientoCalculada,        
-        // fecha_alerta: form.fecha_alerta || null,
-        // fecha_evento: form.fecha_evento || null,
-        // fecha_vencimiento: form.fecha_vencimiento || null,
-        requiere_accion: form.requiere_accion,
-        accion_texto: form.requiere_accion ? form.accion_texto.trim() : null,
-        url_accion: form.requiere_accion ? form.url_accion.trim() : null,
-        observaciones: null,
-        metadata: null,
-      };
+      // const payload = {
+      //   usuario_from_id: Number(sessionUserId),
+      //   usuario_to_id: Number(form.usuario_to_id),
+      //   entidad_tipo: form.entidad_tipo || 'user',
+      //   entidad_id: Number(form.entidad_id),
+      //   tipo_alerta: form.tipo_alerta || 'mensaje_recibido',
+      //   categoria: form.categoria || 'sistema',
+      //   estado: editingNotificationId ? 'ACTIVA' : form.estado || 'PENDIENTE',
+      //   prioridad: form.prioridad,
+      //   titulo: form.titulo.trim(),
+      //   mensaje: form.mensaje.trim(),
+      //   fecha_alerta: fechaAlertaCalculada,
+      //   fecha_evento: form.fecha_evento || null,
+      //   fecha_vencimiento: fechaVencimientoCalculada,
+      //   // fecha_alerta: form.fecha_alerta || null,
+      //   // fecha_evento: form.fecha_evento || null,
+      //   // fecha_vencimiento: form.fecha_vencimiento || null,
+      //   requiere_accion: form.requiere_accion,
+      //   accion_texto: form.requiere_accion ? form.accion_texto.trim() : null,
+      //   url_accion: form.requiere_accion ? form.url_accion.trim() : null,
+      //   observaciones: null,
+      //   metadata: null,
+      // };
+const basePayload = {
+  usuario_from_id: Number(sessionUserId),
+  entidad_tipo: form.entidad_tipo || 'user',
+  tipo_alerta: form.tipo_alerta || 'mensaje_recibido',
+  categoria: form.categoria || 'sistema',
+  estado: editingNotificationId ? 'ACTIVA' : form.estado || 'PENDIENTE',
+  prioridad: form.prioridad,
+  titulo: form.titulo.trim(),
+  mensaje: form.mensaje.trim(),
+  fecha_alerta: fechaAlertaCalculada,
+  fecha_evento: form.fecha_evento || null,
+  fecha_vencimiento: fechaVencimientoCalculada,
+  requiere_accion: form.requiere_accion,
+  accion_texto: form.requiere_accion
+    ? form.accion_texto.trim()
+    : null,
+  url_accion: form.requiere_accion
+    ? form.url_accion.trim()
+    : null,
+  observaciones: null,
+  metadata: null,
+};      
 
-      if (editingNotificationId) {
-        await updateNotificacion(editingNotificationId, payload);
-      } else {
-        await createNotificacion(payload);
-      }
+      // if (editingNotificationId) {
+      //   await updateNotificacion(editingNotificationId, payload);
+      // } else {
+      //   await Promise.all(
+      //     form.usuario_to_ids.map((userId) =>
+      //       createNotificacion({
+      //         ...payload,
+      //         usuario_to_id: Number(userId),
+      //         entidad_id: Number(userId),
+      //       })
+      //     )
+      //   );
+      // }
+if (editingNotificationId) {
+  await updateNotificacion(editingNotificationId, {
+    ...basePayload,
+    usuario_to_id: Number(form.usuario_to_ids[0]),
+    entidad_id: Number(form.usuario_to_ids[0]),
+  });
+} else {
+  await Promise.all(
+    form.usuario_to_ids.map((userId) =>
+      createNotificacion({
+        ...basePayload,
+        usuario_to_id: Number(userId),
+        entidad_id: Number(userId),
+      })
+    )
+  );
+}      
 
       await loadData();
       closeModal();
@@ -814,28 +862,28 @@ fecha_vencimiento: fechaVencimientoCalculada,
                           />
                         </td>
                       )}
-<td>
-  <div className="table-text">
-    {buildNotificationUrl(item) ? (
-      <a
-        href={buildNotificationUrl(item)}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ color: 'inherit', textDecoration: 'none' }}
-      >
-        {item.titulo}
-      </a>
-    ) : (
-      item.titulo
-    )}
-  </div>
+                      <td>
+                        <div className="table-text">
+                          {buildNotificationUrl(item) ? (
+                            <a
+                              href={buildNotificationUrl(item)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ color: 'inherit', textDecoration: 'none' }}
+                            >
+                              {item.titulo}
+                            </a>
+                          ) : (
+                            item.titulo
+                          )}
+                        </div>
 
-  {item?.metadata?.cliente_nombre && (
-    <small className="table-text-muted d-block">
-      {item.metadata.cliente_nombre}
-    </small>
-  )}
-</td>
+                        {item?.metadata?.cliente_nombre && (
+                          <small className="table-text-muted d-block">
+                            {item.metadata.cliente_nombre}
+                          </small>
+                        )}
+                      </td>
                       <td>
                         <div className="table-text">
                           {tab === TAB_RECIBIDAS ? item.remitente : item.destinatario}
@@ -870,17 +918,17 @@ fecha_vencimiento: fechaVencimientoCalculada,
                       </td>
                       <td className="td-truncate">
                         <div className="notifications-message">{item.mensaje}</div>
-{item.requiere_accion && (
-  <small className="notifications-action">
-    <a
-      href={buildNotificationUrl(item)}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {item.accion_texto || 'Ver detalle'}
-    </a>
-  </small>
-)}
+                        {item.requiere_accion && (
+                          <small className="notifications-action">
+                            <a
+                              href={buildNotificationUrl(item)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {item.accion_texto || 'Ver detalle'}
+                            </a>
+                          </small>
+                        )}
                       </td>
                       <td>
                         <div className="table-actions">
@@ -957,20 +1005,49 @@ fecha_vencimiento: fechaVencimientoCalculada,
               <div className="row g-3">
                 <div className="col-md-6">
                   <label className="form-label">Destinatario *</label>
-                  <select
-                    name="usuario_to_id"
-                    className={`form-control ${errors.usuario_to_id ? 'is-invalid' : ''}`}
-                    value={form.usuario_to_id}
-                    onChange={handleForm}
-                  >
-                    <option value="">Seleccione un destinatario</option>
-                    {destinatarios.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.nombre} - {item.tipo}
-                        {item.detalle ? ` (${item.detalle})` : ''}
-                      </option>
-                    ))}
-                  </select>
+<Select
+  isMulti
+  closeMenuOnSelect={false}
+  placeholder="Seleccione destinatarios..."
+  classNamePrefix="react-select"
+  options={destinatarios.map((item) => ({
+    value: item.id,
+    label: `${item.nombre} - ${item.tipo}${item.detalle ? ` (${item.detalle})` : ''
+      }`,
+  }))}
+  value={destinatarios
+    .filter((item) => form.usuario_to_ids.includes(item.id))
+    .map((item) => ({
+      value: item.id,
+      label: `${item.nombre} - ${item.tipo}${item.detalle ? ` (${item.detalle})` : ''
+        }`,
+    }))
+  }
+  onChange={(selectedOptions) => {
+    const ids = selectedOptions
+      ? selectedOptions.map((option) => option.value)
+      : [];
+
+    setForm((prev) => ({
+      ...prev,
+      usuario_to_ids: ids,
+      entidad_id: ids[0] || '',
+    }));
+
+    if (errors.usuario_to_ids) {
+      setErrors((prev) => ({
+        ...prev,
+        usuario_to_ids: '',
+      }));
+    }
+  }}
+/>
+{errors.usuario_to_ids && (
+  <div className="text-danger mt-1" style={{ fontSize: '0.875rem' }}>
+    {errors.usuario_to_ids}
+  </div>
+)}
+
                   {errors.usuario_to_id && (
                     <div className="invalid-feedback">{errors.usuario_to_id}</div>
                   )}
@@ -1036,18 +1113,18 @@ fecha_vencimiento: fechaVencimientoCalculada,
                   />
                 </div>
 
-<div className="col-md-3">
-  <label className="form-label">Avisar dias antes</label>
+                <div className="col-md-3">
+                  <label className="form-label">Avisar dias antes</label>
 
-  <input
-    type="number"
-    min="0"
-    name="dias_antes_alerta"
-    className="form-control"
-    value={form.dias_antes_alerta}
-    onChange={handleForm}
-  />
-</div>                
+                  <input
+                    type="number"
+                    min="0"
+                    name="dias_antes_alerta"
+                    className="form-control"
+                    value={form.dias_antes_alerta}
+                    onChange={handleForm}
+                  />
+                </div>
 
                 {/* <div className="col-md-4">
                   <label className="form-label">Fecha vencimiento</label>
@@ -1235,20 +1312,20 @@ fecha_vencimiento: fechaVencimientoCalculada,
                     {formatDate(selectedNotification.fecha_evento)}
                   </div>
                 </div>
-<div className="col-md-4">
-  <label className="form-label">Aviso previo</label>
+                <div className="col-md-4">
+                  <label className="form-label">Aviso previo</label>
 
-  <div className="notifications-detail-value">
-    {selectedNotification.fecha_alerta &&
-    selectedNotification.fecha_evento
-      ? `${Math.round(
-          (new Date(selectedNotification.fecha_evento) -
-            new Date(selectedNotification.fecha_alerta)) /
-            (1000 * 60 * 60 * 24),
-        )} dias antes`
-      : 'Sin aviso'}
-  </div>
-</div>                
+                  <div className="notifications-detail-value">
+                    {selectedNotification.fecha_alerta &&
+                      selectedNotification.fecha_evento
+                      ? `${Math.round(
+                        (new Date(selectedNotification.fecha_evento) -
+                          new Date(selectedNotification.fecha_alerta)) /
+                        (1000 * 60 * 60 * 24),
+                      )} dias antes`
+                      : 'Sin aviso'}
+                  </div>
+                </div>
                 {/* <div className="col-md-4">
                   <label className="form-label">Fecha alerta</label>
                   <div className="notifications-detail-value">
@@ -1281,22 +1358,22 @@ fecha_vencimiento: fechaVencimientoCalculada,
                     {prettyValue(selectedNotification.mensaje)}
                   </div>
                 </div>
-{selectedNotification.requiere_accion && (
-  <div className="col-12">
-    <label className="form-label">Accion</label>
+                {selectedNotification.requiere_accion && (
+                  <div className="col-12">
+                    <label className="form-label">Accion</label>
 
-    <div className="notifications-detail-value">
-      <a
-        href={buildNotificationUrl(selectedNotification)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn btn-primary btn-sm"
-      >
-        {selectedNotification.accion_texto || 'Abrir'}
-      </a>
-    </div>
-  </div>
-)}
+                    <div className="notifications-detail-value">
+                      <a
+                        href={buildNotificationUrl(selectedNotification)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn btn-primary btn-sm"
+                      >
+                        {selectedNotification.accion_texto || 'Abrir'}
+                      </a>
+                    </div>
+                  </div>
+                )}
 
                 {/* <div className="col-md-6">
                   <label className="form-label">Observaciones</label>
