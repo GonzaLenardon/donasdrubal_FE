@@ -24,11 +24,11 @@ import {
   getClienteUpcomingServices,
 } from '../api/clientes.js';
 // import {
-//   getClienteStats,
-//   getClienteServicesChart,
-//   getClienteCalibracionesChart,
+//   // getClienteStats,
+//   // getClienteServicesChart,
+//   // getClienteCalibracionesChart,
 //   getClienteUpcomingServices,
-// } from '../api/clientes_moks_errorgranular.js';
+// } from '../api/clientes_moks.js';
 
 // ==================== STATS CARD ====================
 const StatCard = ({ title, value, trendLabel, isPositive, icon: Icon, color }) => {
@@ -372,19 +372,19 @@ const ClienteDashboard = ({ cliente }) => {
     setLoading(p => ({ ...p, jornadasChart: false }));
   }
 };
-  const fetchMachinesChart = async () => {
-  try {
-    setLoading(p => ({ ...p, machinesChart: true }));
-    setErrors(p => ({ ...p, machinesChart: null }));
+//   const fetchMachinesChart = async () => {
+//   try {
+//     setLoading(p => ({ ...p, machinesChart: true }));
+//     setErrors(p => ({ ...p, machinesChart: null }));
 
-    const res = await getClienteMachinesChart(cliente.id);
-    setData(p => ({ ...p, machinesChart: res }));
-  } catch (err) {
-    setErrors(p => ({ ...p, machinesChart: err.message }));
-  } finally {
-    setLoading(p => ({ ...p, machinesChart: false }));
-  }
-};
+//     const res = await getClienteMachinesChart(cliente.id);
+//     setData(p => ({ ...p, machinesChart: res }));
+//   } catch (err) {
+//     setErrors(p => ({ ...p, machinesChart: err.message }));
+//   } finally {
+//     setLoading(p => ({ ...p, machinesChart: false }));
+//   }
+// };
 
 
   const fetchUpcomingServices = async () => {
@@ -409,7 +409,7 @@ const ClienteDashboard = ({ cliente }) => {
     fetchAnalisisChart();
     fetchCalibracionChart();
     fetchJornadasChart();
-    fetchMachinesChart();    
+    // fetchMachinesChart();    
     fetchUpcomingServices();
   };
 
