@@ -16,6 +16,7 @@ import DashboardLayout from './components/DashboardLayout.jsx';
 import Alertas from './components/Alertas.jsx';
 import DashboardUser from './components/DashboardUser.jsx';
 import Notifications from './components/Notifications.jsx';
+import ReporteSemanal from './components/ReporteSemanal.jsx';
 
 function App() {
   return (
@@ -52,6 +53,7 @@ function App() {
           <Route path="cliente" element={<Clientes />} />
           <Route path="notificaciones" element={<Notifications />} />
           <Route path="campañas" element={<Alertas />} />
+          <Route path="/reportes/resumen" element={<ReporteSemanal />} />
 
           {/* Detalles */}
 
