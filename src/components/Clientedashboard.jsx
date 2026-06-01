@@ -31,24 +31,34 @@ import {
 // } from '../api/clientes_moks_errorgranular.js';
 
 // ==================== STATS CARD ====================
-const StatCard = ({ title, value, trendLabel, isPositive, icon: Icon, color }) => {
+const StatCard = ({
+  title,
+  value,
+  trendLabel,
+  isPositive,
+  icon: Icon,
+  color,
+}) => {
   const iconColors = {
-    green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+    green:
+      'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
     blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-    amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
-    purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+    amber:
+      'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+    purple:
+      'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
   };
 
   return (
     <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm hover:shadow-lg hover:border-[#4a7c1f] transition-all duration-300 hover:-translate-y-1">
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconColors[color]}`}>
+      <div
+        className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconColors[color]}`}
+      >
         <Icon size={24} />
       </div>
 
       <div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-          {title}
-        </p>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{title}</p>
         <p className="text-4xl font-bold text-text-light dark:text-text-dark mb-2">
           {value}
         </p>
@@ -120,7 +130,7 @@ const ErrorCard = ({ title, error, onRetry, icon: Icon }) => {
           {title}
         </h3>
       </div>
-      
+
       <div className="flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
@@ -193,9 +203,12 @@ const DonutChart = ({ data, totalValue, totalLabel, height = 250 }) => {
 
 // ==================== SERVICE ITEM ====================
 const statusStyles = {
-  Confirmado: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
-  Pendiente: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
-  Realizado: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+  Confirmado:
+    'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
+  Pendiente:
+    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
+  Realizado:
+    'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
 };
 
 const ServiceItem = ({ title, subtitle, date, status, badge, icon }) => {
@@ -206,9 +219,7 @@ const ServiceItem = ({ title, subtitle, date, status, badge, icon }) => {
           <p className="font-semibold text-text-light dark:text-text-dark mb-1">
             {title}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {subtitle}
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
         </div>
         <span
           className={`text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap ${statusStyles[status]}`}
@@ -240,7 +251,7 @@ const ClienteDashboard = ({ cliente }) => {
     calibracionChart: true,
     analisisChart: true,
     jornadasChart: true,
-    machinesChart: true,    
+    machinesChart: true,
     upcomingServices: true,
   });
 
@@ -258,115 +269,112 @@ const ClienteDashboard = ({ cliente }) => {
     stats: null,
     servicesChart: null,
     calibracionChart: null,
-    calibracionChart: null,
     analisisChart: null,
     jornadasChart: null,
-    machinesChart: null,    
+    machinesChart: null,
     upcomingServices: null,
   });
 
   // ==================== FETCH INDIVIDUAL CON MANEJO DE ERRORES ====================
-  
+
   const fetchStats = async () => {
     try {
-      setLoading(prev => ({ ...prev, stats: true }));
-      setErrors(prev => ({ ...prev, stats: null }));
-      
+      setLoading((prev) => ({ ...prev, stats: true }));
+      setErrors((prev) => ({ ...prev, stats: null }));
+
       const stats = await getClienteStats(cliente.id);
-      setData(prev => ({ ...prev, stats }));
+      setData((prev) => ({ ...prev, stats }));
     } catch (err) {
       console.error('Error fetching stats:', err);
-      setErrors(prev => ({ ...prev, stats: err.message }));
+      setErrors((prev) => ({ ...prev, stats: err.message }));
     } finally {
-      setLoading(prev => ({ ...prev, stats: false }));
+      setLoading((prev) => ({ ...prev, stats: false }));
     }
   };
 
   const fetchServicesChart = async () => {
     try {
-      setLoading(prev => ({ ...prev, servicesChart: true }));
-      setErrors(prev => ({ ...prev, servicesChart: null }));
-      
+      setLoading((prev) => ({ ...prev, servicesChart: true }));
+      setErrors((prev) => ({ ...prev, servicesChart: null }));
+
       const servicesChart = await getClienteServicesChart(cliente.id);
-      setData(prev => ({ ...prev, servicesChart }));
+      setData((prev) => ({ ...prev, servicesChart }));
     } catch (err) {
       console.error('Error fetching services chart:', err);
-      setErrors(prev => ({ ...prev, servicesChart: err.message }));
+      setErrors((prev) => ({ ...prev, servicesChart: err.message }));
     } finally {
-      setLoading(prev => ({ ...prev, servicesChart: false }));
+      setLoading((prev) => ({ ...prev, servicesChart: false }));
     }
   };
 
-
   const fetchAnalisisChart = async () => {
     try {
-      setLoading(p => ({ ...p, analisisChart: true }));
-      setErrors(p => ({ ...p, analisisChart: null }));
+      setLoading((p) => ({ ...p, analisisChart: true }));
+      setErrors((p) => ({ ...p, analisisChart: null }));
 
       const res = await getClienteAnalisisChart(cliente.id);
-      setData(p => ({ ...p, analisisChart: res }));
+      setData((p) => ({ ...p, analisisChart: res }));
     } catch (err) {
-      setErrors(p => ({ ...p, analisisChart: err.message }));
+      setErrors((p) => ({ ...p, analisisChart: err.message }));
     } finally {
-      setLoading(p => ({ ...p, analisisChart: false }));
+      setLoading((p) => ({ ...p, analisisChart: false }));
     }
-  };  
+  };
 
   const fetchCalibracionChart = async () => {
     try {
-      setLoading(prev => ({ ...prev, calibracionChart: true }));
-      setErrors(prev => ({ ...prev, calibracionChart: null }));
-      
+      setLoading((prev) => ({ ...prev, calibracionChart: true }));
+      setErrors((prev) => ({ ...prev, calibracionChart: null }));
+
       const calibracionChart = await getClienteCalibracionesChart(cliente.id);
-      setData(prev => ({ ...prev, calibracionChart }));
+      setData((prev) => ({ ...prev, calibracionChart }));
     } catch (err) {
       console.error('Error fetching calibracion chart:', err);
-      setErrors(prev => ({ ...prev, calibracionChart: err.message }));
+      setErrors((prev) => ({ ...prev, calibracionChart: err.message }));
     } finally {
-      setLoading(prev => ({ ...prev, calibracionChart: false }));
+      setLoading((prev) => ({ ...prev, calibracionChart: false }));
     }
   };
 
   const fetchJornadasChart = async () => {
-  try {
-    setLoading(p => ({ ...p, jornadasChart: true }));
-    setErrors(p => ({ ...p, jornadasChart: null }));
+    try {
+      setLoading((p) => ({ ...p, jornadasChart: true }));
+      setErrors((p) => ({ ...p, jornadasChart: null }));
 
-    const res = await getClienteJornadasChart(cliente.id);
-    setData(p => ({ ...p, jornadasChart: res }));
-  } catch (err) {
-    setErrors(p => ({ ...p, jornadasChart: err.message }));
-  } finally {
-    setLoading(p => ({ ...p, jornadasChart: false }));
-  }
-};
+      const res = await getClienteJornadasChart(cliente.id);
+      setData((p) => ({ ...p, jornadasChart: res }));
+    } catch (err) {
+      setErrors((p) => ({ ...p, jornadasChart: err.message }));
+    } finally {
+      setLoading((p) => ({ ...p, jornadasChart: false }));
+    }
+  };
   const fetchMachinesChart = async () => {
-  try {
-    setLoading(p => ({ ...p, machinesChart: true }));
-    setErrors(p => ({ ...p, machinesChart: null }));
+    try {
+      setLoading((p) => ({ ...p, machinesChart: true }));
+      setErrors((p) => ({ ...p, machinesChart: null }));
 
-    const res = await getClienteMachinesChart(cliente.id);
-    setData(p => ({ ...p, machinesChart: res }));
-  } catch (err) {
-    setErrors(p => ({ ...p, machinesChart: err.message }));
-  } finally {
-    setLoading(p => ({ ...p, machinesChart: false }));
-  }
-};
-
+      const res = await getClienteMachinesChart(cliente.id);
+      setData((p) => ({ ...p, machinesChart: res }));
+    } catch (err) {
+      setErrors((p) => ({ ...p, machinesChart: err.message }));
+    } finally {
+      setLoading((p) => ({ ...p, machinesChart: false }));
+    }
+  };
 
   const fetchUpcomingServices = async () => {
     try {
-      setLoading(prev => ({ ...prev, upcomingServices: true }));
-      setErrors(prev => ({ ...prev, upcomingServices: null }));
-      
+      setLoading((prev) => ({ ...prev, upcomingServices: true }));
+      setErrors((prev) => ({ ...prev, upcomingServices: null }));
+
       const upcomingServices = await getClienteUpcomingServices(cliente.id);
-      setData(prev => ({ ...prev, upcomingServices }));
+      setData((prev) => ({ ...prev, upcomingServices }));
     } catch (err) {
       console.error('Error fetching upcoming services:', err);
-      setErrors(prev => ({ ...prev, upcomingServices: err.message }));
+      setErrors((prev) => ({ ...prev, upcomingServices: err.message }));
     } finally {
-      setLoading(prev => ({ ...prev, upcomingServices: false }));
+      setLoading((prev) => ({ ...prev, upcomingServices: false }));
     }
   };
 
@@ -377,7 +385,7 @@ const ClienteDashboard = ({ cliente }) => {
     fetchAnalisisChart();
     fetchCalibracionChart();
     fetchJornadasChart();
-    fetchMachinesChart();    
+    fetchMachinesChart();
     fetchUpcomingServices();
   };
 
@@ -388,42 +396,44 @@ const ClienteDashboard = ({ cliente }) => {
   }, [cliente?.id]);
 
   // ==================== TRANSFORM DATA ====================
-  
+
   // Stats Cards
-  const statsData = data.stats ? [
-    {
-      title: 'Pozos Registrados',
-      value: data.stats?.pozos?.total?.toString() || '0',
-      trendLabel: `${data.stats?.pozos?.nuevos || 0} nuevos ${data.stats?.pozos?.periodo || 'este año'}`,
-      isPositive: (data.stats?.pozos?.nuevos || 0) > 0,
-      icon: Droplets,
-      color: 'green',
-    },
-    {
-      title: 'Máquinas Pulverizadoras',
-      value: data.stats?.maquinas?.total?.toString() || '0',
-      trendLabel: `${data.stats?.maquinas?.porcentaje || 0}% calibradas`,
-      isPositive: (data.stats?.maquinas?.porcentaje || 0) >= 80,
-      icon: Tractor,
-      color: 'blue',
-    },
-    {
-      title: 'Jornadas Realizadas',
-      value: data.stats?.jornadas?.total?.toString() || '0',
-      trendLabel: `${data.stats?.jornadas?.nuevos || 0} nuevos ${data.stats?.jornadas?.periodo || 'este año'}`,
-      isPositive: (data.stats?.jornadas?.nuevos || 0) > 0,
-      icon: GraduationCap,
-      color: 'purple',
-    },
-    {
-      title: 'Servicios Pendientes',
-      value: data.stats?.serviciosPendientes?.total?.toString() || '0',
-      trendLabel: `${data.stats?.serviciosPendientes?.proximos15dias || 0} próximos 15 días`,
-      isPositive: false,
-      icon: Calendar,
-      color: 'amber',
-    },
-  ] : [];
+  const statsData = data.stats
+    ? [
+        {
+          title: 'Pozos Registrados',
+          value: data.stats?.pozos?.total?.toString() || '0',
+          trendLabel: `${data.stats?.pozos?.nuevos || 0} nuevos ${data.stats?.pozos?.periodo || 'este año'}`,
+          isPositive: (data.stats?.pozos?.nuevos || 0) > 0,
+          icon: Droplets,
+          color: 'green',
+        },
+        {
+          title: 'Máquinas Pulverizadoras',
+          value: data.stats?.maquinas?.total?.toString() || '0',
+          trendLabel: `${data.stats?.maquinas?.porcentaje || 0}% calibradas`,
+          isPositive: (data.stats?.maquinas?.porcentaje || 0) >= 80,
+          icon: Tractor,
+          color: 'blue',
+        },
+        {
+          title: 'Jornadas Realizadas',
+          value: data.stats?.jornadas?.total?.toString() || '0',
+          trendLabel: `${data.stats?.jornadas?.nuevos || 0} nuevos ${data.stats?.jornadas?.periodo || 'este año'}`,
+          isPositive: (data.stats?.jornadas?.nuevos || 0) > 0,
+          icon: GraduationCap,
+          color: 'purple',
+        },
+        {
+          title: 'Servicios Pendientes',
+          value: data.stats?.serviciosPendientes?.total?.toString() || '0',
+          trendLabel: `${data.stats?.serviciosPendientes?.proximos15dias || 0} próximos 15 días`,
+          isPositive: false,
+          icon: Calendar,
+          color: 'amber',
+        },
+      ]
+    : [];
 
   const servicesChartData = data.servicesChart?.data || [];
   const servicesChartTotal = data.servicesChart?.total || 0;
@@ -437,43 +447,57 @@ const ClienteDashboard = ({ cliente }) => {
   const jornadasChartData = data.jornadasChart?.data || [];
   const jornadasChartTotal = data.jornadasChart?.total || 0;
 
-  const calibracionServices = (data.upcomingServices?.calibracion || []).map(service => ({
-    title: service.maquina || service.nombre,
-    subtitle: service.tipo || service.descripcion,
-    date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    }) : 'Sin fecha',
-    status: service.estado || 'Pendiente',
-    badge: service.tipoMaquina.tipo,
-    icon: '🚜',
-  }));
+  const calibracionServices = (data.upcomingServices?.calibracion || []).map(
+    (service) => ({
+      title: service.maquina || service.nombre,
+      subtitle: service.tipo || service.descripcion,
+      date: service.fecha
+        ? new Date(service.fecha).toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          })
+        : 'Sin fecha',
+      status: service.estado || 'Pendiente',
+      badge: service.tipoMaquina.tipo,
+      icon: '🚜',
+    }),
+  );
 
-  const muestrasServices = (data.upcomingServices?.muestras_agua || []).map(service => ({
-    title: service.nombre || service.titulo,
-    subtitle: service.tipo || service.descripcion,
-    date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    }) : 'Sin fecha',
-    status: service.estado || 'Pendiente',
-    icon: service.categoria === 'analisis' ? '💧' : '🎓',
-  }));
+  const muestrasServices = (data.upcomingServices?.muestras_agua || []).map(
+    (service) => ({
+      title: service.nombre || service.titulo,
+      subtitle: service.tipo || service.descripcion,
+      date: service.fecha
+        ? new Date(service.fecha).toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          })
+        : 'Sin fecha',
+      status: service.estado || 'Pendiente',
+      icon: service.categoria === 'analisis' ? '💧' : '🎓',
+    }),
+  );
 
-  const jornadasServices = (data.upcomingServices?.jornadas || []).map(service => ({
-    title: service.nombre || service.titulo,
-    subtitle: service.tipo || service.descripcion,
-    date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    }) : 'Sin fecha',
-    status: service.estado || 'Pendiente',
-    icon: service.categoria === 'analisis' ? '💧' : '🎓',
-  }));
-const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const jornadasServices = (data.upcomingServices?.jornadas || []).map(
+    (service) => ({
+      title: service.nombre || service.titulo,
+      subtitle: service.tipo || service.descripcion,
+      date: service.fecha
+        ? new Date(service.fecha).toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+          })
+        : 'Sin fecha',
+      status: service.estado || 'Pendiente',
+      icon: service.categoria === 'analisis' ? '💧' : '🎓',
+    }),
+  );
+  const otrosServices = [...muestrasServices, ...jornadasServices].sort(
+    (a, b) => new Date(a.date) - new Date(b.date),
+  );
   // ==================== RENDER DASHBOARD ====================
   return (
     <div className="flex flex-col gap-8 pb-8">
@@ -498,9 +522,7 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
           </div>
         ) : (
           // Datos cargados correctamente
-          statsData.map((stat, idx) => (
-            <StatCard key={idx} {...stat} />
-          ))
+          statsData.map((stat, idx) => <StatCard key={idx} {...stat} />)
         )}
       </div>
 
@@ -511,7 +533,7 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
           <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
             Analisis de Agua
           </h3>
-          
+
           {loading.analisisChart ? (
             <div className="flex items-center justify-center h-64">
               <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
@@ -565,7 +587,7 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
           <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
             Calibraciones
           </h3>
-          
+
           {loading.calibracionChart ? (
             <div className="flex items-center justify-center h-64">
               <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
@@ -619,7 +641,7 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
           <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
             Jornadas
           </h3>
-          
+
           {loading.jornadasChart ? (
             <div className="flex items-center justify-center h-64">
               <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
@@ -667,9 +689,6 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
             </div>
           )}
         </div>
-
-
-
       </div>
 
       {/* ==================== SERVICES ROW ==================== */}
@@ -682,7 +701,7 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
               Próximos Servicios de Calibración
             </h2>
           </div>
-          
+
           {loading.upcomingServices ? (
             <div className="flex flex-col gap-3">
               {[1, 2, 3].map((i) => (
@@ -716,7 +735,7 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
               Análisis de Agua y Capacitaciones
             </h2>
           </div>
-          
+
           {loading.upcomingServices ? (
             <div className="flex flex-col gap-3">
               {[1, 2, 3].map((i) => (
