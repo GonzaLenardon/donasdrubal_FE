@@ -32,12 +32,22 @@ import {
 // } from '../api/clientes_moks.js';
 
 // ==================== STATS CARD ====================
-const StatCard = ({ title, value, trendLabel, isPositive, icon: Icon, color }) => {
+const StatCard = ({
+  title,
+  value,
+  trendLabel,
+  isPositive,
+  icon: Icon,
+  color,
+}) => {
   const iconColors = {
-    green: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
+    green:
+      'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
     blue: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
-    amber: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
-    purple: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
+    amber:
+      'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+    purple:
+      'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
   };
 
   return (
@@ -153,7 +163,7 @@ const ErrorCard = ({ title, error, onRetry, icon: Icon }) => {
           {title}
         </h3>
       </div>
-      
+
       <div className="flex items-start gap-3">
         <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
         <div className="flex-1">
@@ -226,9 +236,12 @@ const DonutChart = ({ data, totalValue, totalLabel, height = 250 }) => {
 
 // ==================== SERVICE ITEM ====================
 const statusStyles = {
-  Confirmado: 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
-  Pendiente: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
-  Realizado: 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
+  Confirmado:
+    'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300',
+  Pendiente:
+    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
+  Realizado:
+    'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300',
 };
 
 const ServiceItem = ({ title, subtitle, date, status, badge, icon }) => {
@@ -239,9 +252,7 @@ const ServiceItem = ({ title, subtitle, date, status, badge, icon }) => {
           <p className="font-semibold text-text-light dark:text-text-dark mb-1">
             {title}
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {subtitle}
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
         </div>
         <span
           className={`text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap ${statusStyles[status]}`}
@@ -292,7 +303,7 @@ const ClienteDashboard = ({ cliente }) => {
     calibracionChart: true,
     analisisChart: true,
     jornadasChart: true,
-    machinesChart: true,    
+    machinesChart: true,
     upcomingServices: true,
     notas: true,
   });
@@ -312,28 +323,27 @@ const ClienteDashboard = ({ cliente }) => {
     stats: null,
     servicesChart: null,
     calibracionChart: null,
-    calibracionChart: null,
     analisisChart: null,
     jornadasChart: null,
-    machinesChart: null,    
+    machinesChart: null,
     upcomingServices: null,
     notas: [],
   });
 
   // ==================== FETCH INDIVIDUAL CON MANEJO DE ERRORES ====================
-  
+
   const fetchStats = async () => {
     try {
-      setLoading(prev => ({ ...prev, stats: true }));
-      setErrors(prev => ({ ...prev, stats: null }));
-      
+      setLoading((prev) => ({ ...prev, stats: true }));
+      setErrors((prev) => ({ ...prev, stats: null }));
+
       const stats = await getClienteStats(cliente.id);
-      setData(prev => ({ ...prev, stats }));
+      setData((prev) => ({ ...prev, stats }));
     } catch (err) {
       console.error('Error fetching stats:', err);
-      setErrors(prev => ({ ...prev, stats: err.message }));
+      setErrors((prev) => ({ ...prev, stats: err.message }));
     } finally {
-      setLoading(prev => ({ ...prev, stats: false }));
+      setLoading((prev) => ({ ...prev, stats: false }));
     }
   };
 
@@ -352,33 +362,32 @@ const ClienteDashboard = ({ cliente }) => {
   //   }
   // };
 
-
   const fetchAnalisisChart = async () => {
     try {
-      setLoading(p => ({ ...p, analisisChart: true }));
-      setErrors(p => ({ ...p, analisisChart: null }));
+      setLoading((p) => ({ ...p, analisisChart: true }));
+      setErrors((p) => ({ ...p, analisisChart: null }));
 
       const res = await getClienteAnalisisChart(cliente.id);
-      setData(p => ({ ...p, analisisChart: res }));
+      setData((p) => ({ ...p, analisisChart: res }));
     } catch (err) {
-      setErrors(p => ({ ...p, analisisChart: err.message }));
+      setErrors((p) => ({ ...p, analisisChart: err.message }));
     } finally {
-      setLoading(p => ({ ...p, analisisChart: false }));
+      setLoading((p) => ({ ...p, analisisChart: false }));
     }
-  };  
+  };
 
   const fetchCalibracionChart = async () => {
     try {
-      setLoading(prev => ({ ...prev, calibracionChart: true }));
-      setErrors(prev => ({ ...prev, calibracionChart: null }));
-      
+      setLoading((prev) => ({ ...prev, calibracionChart: true }));
+      setErrors((prev) => ({ ...prev, calibracionChart: null }));
+
       const calibracionChart = await getClienteCalibracionesChart(cliente.id);
-      setData(prev => ({ ...prev, calibracionChart }));
+      setData((prev) => ({ ...prev, calibracionChart }));
     } catch (err) {
       console.error('Error fetching calibracion chart:', err);
-      setErrors(prev => ({ ...prev, calibracionChart: err.message }));
+      setErrors((prev) => ({ ...prev, calibracionChart: err.message }));
     } finally {
-      setLoading(prev => ({ ...prev, calibracionChart: false }));
+      setLoading((prev) => ({ ...prev, calibracionChart: false }));
     }
   };
 
@@ -409,19 +418,27 @@ const ClienteDashboard = ({ cliente }) => {
 //   }
 // };
 
+      const res = await getClienteMachinesChart(cliente.id);
+      setData((p) => ({ ...p, machinesChart: res }));
+    } catch (err) {
+      setErrors((p) => ({ ...p, machinesChart: err.message }));
+    } finally {
+      setLoading((p) => ({ ...p, machinesChart: false }));
+    }
+  };
 
   const fetchUpcomingServices = async () => {
     try {
-      setLoading(prev => ({ ...prev, upcomingServices: true }));
-      setErrors(prev => ({ ...prev, upcomingServices: null }));
-      
+      setLoading((prev) => ({ ...prev, upcomingServices: true }));
+      setErrors((prev) => ({ ...prev, upcomingServices: null }));
+
       const upcomingServices = await getClienteUpcomingServices(cliente.id);
-      setData(prev => ({ ...prev, upcomingServices }));
+      setData((prev) => ({ ...prev, upcomingServices }));
     } catch (err) {
       console.error('Error fetching upcoming services:', err);
-      setErrors(prev => ({ ...prev, upcomingServices: err.message }));
+      setErrors((prev) => ({ ...prev, upcomingServices: err.message }));
     } finally {
-      setLoading(prev => ({ ...prev, upcomingServices: false }));
+      setLoading((prev) => ({ ...prev, upcomingServices: false }));
     }
   };
 const fetchNotas = async () => {
@@ -461,7 +478,7 @@ const fetchNotas = async () => {
     fetchAnalisisChart();
     fetchCalibracionChart();
     fetchJornadasChart();
-    // fetchMachinesChart();    
+    // fetchMachinesChart();   
     fetchUpcomingServices();
     fetchNotas(); 
   };
@@ -473,42 +490,44 @@ const fetchNotas = async () => {
   }, [cliente?.id]);
 
   // ==================== TRANSFORM DATA ====================
-  
+
   // Stats Cards
-  const statsData = data.stats ? [
-    {
-      title: 'Pozos Registrados',
-      value: data.stats?.pozos?.total?.toString() || '0',
-      trendLabel: `${data.stats?.pozos?.nuevos || 0} nuevos ${data.stats?.pozos?.periodo || 'este año'}`,
-      isPositive: (data.stats?.pozos?.nuevos || 0) > 0,
-      icon: Droplets,
-      color: 'green',
-    },
-    {
-      title: 'Máquinas Pulverizadoras',
-      value: data.stats?.maquinas?.total?.toString() || '0',
-      trendLabel: `${data.stats?.maquinas?.porcentaje || 0}% calibradas`,
-      isPositive: (data.stats?.maquinas?.porcentaje || 0) >= 80,
-      icon: Tractor,
-      color: 'blue',
-    },
-    {
-      title: 'Jornadas Realizadas',
-      value: data.stats?.jornadas?.total?.toString() || '0',
-      trendLabel: `${data.stats?.jornadas?.nuevos || 0} nuevos ${data.stats?.jornadas?.periodo || 'este año'}`,
-      isPositive: (data.stats?.jornadas?.nuevos || 0) > 0,
-      icon: GraduationCap,
-      color: 'purple',
-    },
-    {
-      title: 'Servicios Pendientes',
-      value: data.stats?.serviciosPendientes?.total?.toString() || '0',
-      trendLabel: `${data.stats?.serviciosPendientes?.proximos15dias || 0} próximos 15 días`,
-      isPositive: false,
-      icon: Calendar,
-      color: 'amber',
-    },
-  ] : [];
+  const statsData = data.stats
+    ? [
+        {
+          title: 'Pozos Registrados',
+          value: data.stats?.pozos?.total?.toString() || '0',
+          trendLabel: `${data.stats?.pozos?.nuevos || 0} nuevos ${data.stats?.pozos?.periodo || 'este año'}`,
+          isPositive: (data.stats?.pozos?.nuevos || 0) > 0,
+          icon: Droplets,
+          color: 'green',
+        },
+        {
+          title: 'Máquinas Pulverizadoras',
+          value: data.stats?.maquinas?.total?.toString() || '0',
+          trendLabel: `${data.stats?.maquinas?.porcentaje || 0}% calibradas`,
+          isPositive: (data.stats?.maquinas?.porcentaje || 0) >= 80,
+          icon: Tractor,
+          color: 'blue',
+        },
+        {
+          title: 'Jornadas Realizadas',
+          value: data.stats?.jornadas?.total?.toString() || '0',
+          trendLabel: `${data.stats?.jornadas?.nuevos || 0} nuevos ${data.stats?.jornadas?.periodo || 'este año'}`,
+          isPositive: (data.stats?.jornadas?.nuevos || 0) > 0,
+          icon: GraduationCap,
+          color: 'purple',
+        },
+        {
+          title: 'Servicios Pendientes',
+          value: data.stats?.serviciosPendientes?.total?.toString() || '0',
+          trendLabel: `${data.stats?.serviciosPendientes?.proximos15dias || 0} próximos 15 días`,
+          isPositive: false,
+          icon: Calendar,
+          color: 'amber',
+        },
+      ]
+    : [];
 
   const servicesChartData = data.servicesChart?.data || [];
   const servicesChartTotal = data.servicesChart?.total || 0;
@@ -589,9 +608,7 @@ const pendingServices = [
           </div>
         ) : (
           // Datos cargados correctamente
-          statsData.map((stat, idx) => (
-            <StatCard key={idx} {...stat} />
-          ))
+          statsData.map((stat, idx) => <StatCard key={idx} {...stat} />)
         )}
       </div>
 

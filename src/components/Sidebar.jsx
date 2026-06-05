@@ -5,7 +5,12 @@ import { useCliente } from '../context/UserContext';
 import Spinner from './Spinner';
 import { getNotificacionesRecibidas } from '../api/notificaciones';
 
-const PENDING_NOTIFICATION_STATES = ['PENDIENTE', 'ACTIVA', 'ALERTADO', 'EN PROCESO'];
+const PENDING_NOTIFICATION_STATES = [
+  'PENDIENTE',
+  'ACTIVA',
+  'ALERTADO',
+  'EN PROCESO',
+];
 
 const toArray = (value) => {
   if (Array.isArray(value)) return value;
@@ -42,7 +47,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       icon: 'bi-gear-fill',
       children: [
         {
-          title: 'Usuarios',
+          title: 'Usuarios mmm',
           path: '/user',
           icon: 'bi-person-fill',
           roles: ['Administrador'], // 🔐 Solo admin
@@ -51,6 +56,12 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           title: 'Tipos Máquinas',
           path: '/maquinasTipos',
           icon: 'bi-layers-fill',
+        },
+        {
+          title: 'Informe Resumen ',
+          path: '/reportes/resumen',
+          icon: 'bi bi-flower1',
+          roles: ['Administrador'], // 🔐 Solo admin
         },
         {
           title: 'Campañas',
@@ -97,7 +108,10 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
 
     return () => {
       isMounted = false;
-      window.removeEventListener('notificaciones:updated', loadPendingNotifications);
+      window.removeEventListener(
+        'notificaciones:updated',
+        loadPendingNotifications,
+      );
     };
   }, [user?.id]);
 
@@ -240,14 +254,17 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
                 >
                   <i className={`bi ${item.icon} sidebar-icon`} />
                   <span className="sidebar-link-label">{item.title}</span>
-                  {item.title === 'Notificaciones' && pendingNotifications > 0 && (
-                    <span
-                      className="sidebar-notification-badge"
-                      title={`${pendingNotifications} notificaciones pendientes`}
-                    >
-                      {pendingNotifications > 99 ? '99+' : pendingNotifications}
-                    </span>
-                  )}
+                  {item.title === 'Notificaciones' &&
+                    pendingNotifications > 0 && (
+                      <span
+                        className="sidebar-notification-badge"
+                        title={`${pendingNotifications} notificaciones pendientes`}
+                      >
+                        {pendingNotifications > 99
+                          ? '99+'
+                          : pendingNotifications}
+                      </span>
+                    )}
                 </Link>
               </li>
             );

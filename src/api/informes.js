@@ -81,3 +81,12 @@ export const apiGenerarInformeMuestras = async (muestra) => {
   });
   return resp.data; // retorna el Blob directamente
 };
+
+export const resumenSemanal = async (fechaInicio, fechaFin) => {
+  const resp = await instance.post(
+    '/informes/resumen/rango',
+    { fechaInicio, fechaFin },
+    { responseType: 'blob' },
+  );
+  return resp.data;
+};
