@@ -22,6 +22,7 @@ import {
   getClienteCalibracionesChart,
   getClienteAnalisisChart,
   getClienteUpcomingServices,
+  getClienteNotas,
 } from '../api/clientes.js';
 // import {
 //   // getClienteStats,
@@ -262,6 +263,25 @@ const ServiceItem = ({ title, subtitle, date, status, badge, icon }) => {
     </div>
   );
 };
+const NotaItem = ({ fecha, comentario }) => {
+  return (
+    <div className="
+      p-3
+      rounded-lg
+      bg-card-light dark:bg-card-dark
+      border border-border-light dark:border-border-dark
+      shadow-sm
+    ">
+      <div className="text-xs text-gray-500 mb-2">
+        {new Date(fecha).toLocaleDateString('es-AR')}
+      </div>
+
+      <p className="text-sm text-text-light dark:text-text-dark whitespace-pre-wrap">
+        {comentario}
+      </p>
+    </div>
+  );
+};
 
 // ==================== MAIN DASHBOARD ====================
 const ClienteDashboard = ({ cliente }) => {
@@ -274,6 +294,7 @@ const ClienteDashboard = ({ cliente }) => {
     jornadasChart: true,
     machinesChart: true,    
     upcomingServices: true,
+    notas: true,
   });
 
   const [errors, setErrors] = useState({
@@ -284,6 +305,7 @@ const ClienteDashboard = ({ cliente }) => {
     jornadasChart: null,
     machinesChart: null,
     upcomingServices: null,
+    notas: null,
   });
 
   const [data, setData] = useState({
@@ -295,6 +317,7 @@ const ClienteDashboard = ({ cliente }) => {
     jornadasChart: null,
     machinesChart: null,    
     upcomingServices: null,
+    notas: [],
   });
 
   // ==================== FETCH INDIVIDUAL CON MANEJO DE ERRORES ====================
@@ -401,7 +424,36 @@ const ClienteDashboard = ({ cliente }) => {
       setLoading(prev => ({ ...prev, upcomingServices: false }));
     }
   };
+const fetchNotas = async () => {
+  try {
+    setLoading(prev => ({
+      ...prev,
+      notas: true,
+    }));
 
+    setErrors(prev => ({
+      ...prev,
+      notas: null,
+    }));
+
+    const notas = await getClienteNotas(cliente.id);
+
+    setData(prev => ({
+      ...prev,
+      notas,
+    }));
+  } catch (err) {
+    setErrors(prev => ({
+      ...prev,
+      notas: err.message,
+    }));
+  } finally {
+    setLoading(prev => ({
+      ...prev,
+      notas: false,
+    }));
+  }
+};
   // Cargar todas las secciones de forma independiente
   const fetchAllData = () => {
     fetchStats();
@@ -411,6 +463,7 @@ const ClienteDashboard = ({ cliente }) => {
     fetchJornadasChart();
     // fetchMachinesChart();    
     fetchUpcomingServices();
+    fetchNotas(); 
   };
 
   useEffect(() => {
@@ -470,42 +523,48 @@ const ClienteDashboard = ({ cliente }) => {
   const jornadasChartTotal = data.jornadasChart?.total || 0;
 
   const calibracionServices = (data.upcomingServices?.calibracion || []).map(service => ({
-    title: service.maquina || service.nombre,
-    subtitle: service.tipo || service.descripcion,
-    date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
+    title: service.title || 'Sin definir',
+    subtitle: service.subtitle || 'Sin descripción',
+    date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
       year: 'numeric'
     }) : 'Sin fecha',
-    status: service.estado || 'Pendiente',
-    badge: service.tipoMaquina.tipo,
-    icon: '🚜',
+    status: service.status || 'Pendiente',
+    icon: service.icon == 'calibracion' ? '🔧' : '🚜',
   }));
 
   const muestrasServices = (data.upcomingServices?.muestras_agua || []).map(service => ({
-    title: service.nombre || service.titulo,
-    subtitle: service.tipo || service.descripcion,
-    date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
+    title: service.title || 'Sin definir',
+    subtitle: service.subtitle || 'Sin descripción',
+    date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
       year: 'numeric'
     }) : 'Sin fecha',
-    status: service.estado || 'Pendiente',
-    icon: service.categoria === 'analisis' ? '💧' : '🎓',
+    status: service.status || 'Pendiente',
+    icon: service.icon === 'analisis' ? '💧' : '🎓',
   }));
 
   const jornadasServices = (data.upcomingServices?.jornadas || []).map(service => ({
-    title: service.nombre || service.titulo,
-    subtitle: service.tipo || service.descripcion,
-    date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
+    title: service.title || 'Sin definir',
+    subtitle: service.subtitle || 'Sin descripción',
+    date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
       year: 'numeric'
     }) : 'Sin fecha',
-    status: service.estado || 'Pendiente',
-    icon: service.categoria === 'analisis' ? '💧' : '🎓',
+    status: service.status || 'Pendiente',
+    icon: service.icon === 'jornadas' ? '💧' : '🎓',
   }));
 const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => new Date(a.date) - new Date(b.date));
+const pendingServices = [
+  ...calibracionServices,
+  ...muestrasServices,
+  ...jornadasServices,
+].sort((a, b) => {
+  return new Date(a.date) - new Date(b.date);
+});  
   // ==================== RENDER DASHBOARD ====================
   return (
     <div className="flex flex-col gap-8 pb-8">
@@ -649,7 +708,7 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
         <Wrench className="text-[#4a7c1f]" size={20} />
 
         <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
-          Próximos Servicios de Calibración
+          Servicios Pendientes
         </h2>
       </div>
 
@@ -671,7 +730,7 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
       ) : calibracionServices.length > 0 ? (
 
         <div className="flex flex-col gap-3">
-          {calibracionServices.map((service, idx) => (
+          {pendingServices.map((service, idx) => (
             <ServiceItem key={idx} {...service} />
           ))}
         </div>
@@ -690,39 +749,56 @@ const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => 
         <Droplets className="text-[#4a7c1f]" size={20} />
 
         <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
-          Análisis de Agua y Capacitaciones
+          ANotas del Cliente
         </h2>
       </div>
 
-      {loading.upcomingServices ? (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3].map((i) => (
-            <ServiceItemSkeleton key={i} />
-          ))}
-        </div>
+{loading.notas ? (
+  <div className="flex flex-col gap-3">
+    {[1,2,3].map(i => (
+      <ServiceItemSkeleton key={i}/>
+    ))}
+  </div>
 
-      ) : errors.upcomingServices ? (
+) : errors.notas ? (
 
-        <ErrorCard
-          title=""
-          error={errors.upcomingServices}
-          onRetry={fetchUpcomingServices}
-        />
+  <ErrorCard
+    title=""
+    error={errors.notas}
+    onRetry={fetchNotas}
+  />
 
-      ) : otrosServices.length > 0 ? (
+) : data.notas?.length > 0 ? (
 
-        <div className="flex flex-col gap-3">
-          {otrosServices.map((service, idx) => (
-            <ServiceItem key={idx} {...service} />
-          ))}
-        </div>
+  <div className="flex flex-col gap-3">
+    {data.notas.map((nota) => (
+      <NotaItem
+        key={nota.id}
+        fecha={nota.fecha}
+        comentario={nota.comentario}
+      />
+    ))}
+  </div>
 
-      ) : (
+) : (
 
-        <div className="text-center py-6 text-sm text-gray-400 bg-card-light dark:bg-card-dark rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
-          No hay servicios programados
-        </div>
-      )}
+  <div className="
+    text-center
+    py-6
+    text-sm
+    text-gray-400
+    bg-card-light
+    dark:bg-card-dark
+    rounded-lg
+    border
+    border-dashed
+    border-gray-300
+    dark:border-gray-600
+  ">
+    No hay notas registradas
+  </div>
+
+)}
     </div>
 
   </div>

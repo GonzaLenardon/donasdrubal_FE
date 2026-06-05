@@ -67,6 +67,12 @@ export const getClienteUpcomingServices = async (cliente_id) => {
   return res.data.payload;
 };
 
+export const getClienteNotas = async (clienteId) => {
+  const response = await instance.get(`/clientes/${clienteId}/notas`);
+
+  return response.data.data;
+};
+
 
 
 
