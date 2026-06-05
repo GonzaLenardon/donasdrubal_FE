@@ -16,19 +16,20 @@ import {
 // Importar funciones API
 import {
   getClienteStats,
-  getClienteServicesChart,
+  // getClienteServicesChart,
   getClienteMachinesChart,
   getClienteJornadasChart,
   getClienteCalibracionesChart,
   getClienteAnalisisChart,
   getClienteUpcomingServices,
+  getClienteNotas,
 } from '../api/clientes.js';
 // import {
-//   getClienteStats,
-//   getClienteServicesChart,
-//   getClienteCalibracionesChart,
+//   // getClienteStats,
+//   // getClienteServicesChart,
+//   // getClienteCalibracionesChart,
 //   getClienteUpcomingServices,
-// } from '../api/clientes_moks_errorgranular.js';
+// } from '../api/clientes_moks.js';
 
 // ==================== STATS CARD ====================
 const StatCard = ({
@@ -50,26 +51,58 @@ const StatCard = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm hover:shadow-lg hover:border-[#4a7c1f] transition-all duration-300 hover:-translate-y-1">
+    <div
+      className="
+        flex items-center gap-3
+        rounded-lg
+        px-3 py-2
+        bg-card-light dark:bg-card-dark
+        border border-border-light dark:border-border-dark
+        shadow-sm
+        hover:shadow-md
+        transition-all
+      "
+    >
+      {/* ICONO */}
       <div
-        className={`w-12 h-12 rounded-xl flex items-center justify-center ${iconColors[color]}`}
+        className={`
+          w-10 h-10
+          rounded-xl
+          flex items-center justify-center
+          flex-shrink-0
+          ${iconColors[color]}
+        `}
       >
-        <Icon size={24} />
+        <Icon size={22} />
       </div>
 
-      <div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{title}</p>
-        <p className="text-4xl font-bold text-text-light dark:text-text-dark mb-2">
-          {value}
-        </p>
+      {/* CONTENIDO */}
+      <div className="flex flex-col justify-center min-w-0 flex-1">
+        
+        {/* TITULO + VALOR */}
+        <div className="flex items-baseline gap-2 leading-none">
+          <p className="text-xs text-gray-500 truncate">
+            {title}
+          </p>
+
+          <p className="text-2xl font-bold text-text-light dark:text-text-dark">
+            {value}
+          </p>
+        </div>
+
+        {/* TREND */}
         <p
-          className={`text-sm font-semibold flex items-center gap-1 ${
+          className={`mt-0.5 text-xs flex items-center gap-2 leading-none ${
             isPositive
               ? 'text-green-600 dark:text-green-400'
               : 'text-red-600 dark:text-red-400'
           }`}
         >
-          {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+          {isPositive
+            ? <TrendingUp size={11} />
+            : <TrendingDown size={11} />
+          }
+
           {trendLabel}
         </p>
       </div>
@@ -241,6 +274,25 @@ const ServiceItem = ({ title, subtitle, date, status, badge, icon }) => {
     </div>
   );
 };
+const NotaItem = ({ fecha, comentario }) => {
+  return (
+    <div className="
+      p-3
+      rounded-lg
+      bg-card-light dark:bg-card-dark
+      border border-border-light dark:border-border-dark
+      shadow-sm
+    ">
+      <div className="text-xs text-gray-500 mb-2">
+        {new Date(fecha).toLocaleDateString('es-AR')}
+      </div>
+
+      <p className="text-sm text-text-light dark:text-text-dark whitespace-pre-wrap">
+        {comentario}
+      </p>
+    </div>
+  );
+};
 
 // ==================== MAIN DASHBOARD ====================
 const ClienteDashboard = ({ cliente }) => {
@@ -253,6 +305,7 @@ const ClienteDashboard = ({ cliente }) => {
     jornadasChart: true,
     machinesChart: true,
     upcomingServices: true,
+    notas: true,
   });
 
   const [errors, setErrors] = useState({
@@ -263,6 +316,7 @@ const ClienteDashboard = ({ cliente }) => {
     jornadasChart: null,
     machinesChart: null,
     upcomingServices: null,
+    notas: null,
   });
 
   const [data, setData] = useState({
@@ -273,6 +327,7 @@ const ClienteDashboard = ({ cliente }) => {
     jornadasChart: null,
     machinesChart: null,
     upcomingServices: null,
+    notas: [],
   });
 
   // ==================== FETCH INDIVIDUAL CON MANEJO DE ERRORES ====================
@@ -292,20 +347,20 @@ const ClienteDashboard = ({ cliente }) => {
     }
   };
 
-  const fetchServicesChart = async () => {
-    try {
-      setLoading((prev) => ({ ...prev, servicesChart: true }));
-      setErrors((prev) => ({ ...prev, servicesChart: null }));
-
-      const servicesChart = await getClienteServicesChart(cliente.id);
-      setData((prev) => ({ ...prev, servicesChart }));
-    } catch (err) {
-      console.error('Error fetching services chart:', err);
-      setErrors((prev) => ({ ...prev, servicesChart: err.message }));
-    } finally {
-      setLoading((prev) => ({ ...prev, servicesChart: false }));
-    }
-  };
+  // const fetchServicesChart = async () => {
+  //   try {
+  //     setLoading(prev => ({ ...prev, servicesChart: true }));
+  //     setErrors(prev => ({ ...prev, servicesChart: null }));
+      
+  //     const servicesChart = await getClienteServicesChart(cliente.id);
+  //     setData(prev => ({ ...prev, servicesChart }));
+  //   } catch (err) {
+  //     console.error('Error fetching services chart:', err);
+  //     setErrors(prev => ({ ...prev, servicesChart: err.message }));
+  //   } finally {
+  //     setLoading(prev => ({ ...prev, servicesChart: false }));
+  //   }
+  // };
 
   const fetchAnalisisChart = async () => {
     try {
@@ -337,22 +392,31 @@ const ClienteDashboard = ({ cliente }) => {
   };
 
   const fetchJornadasChart = async () => {
-    try {
-      setLoading((p) => ({ ...p, jornadasChart: true }));
-      setErrors((p) => ({ ...p, jornadasChart: null }));
+  try {
+    setLoading(p => ({ ...p, jornadasChart: true }));
+    setErrors(p => ({ ...p, jornadasChart: null }));
 
-      const res = await getClienteJornadasChart(cliente.id);
-      setData((p) => ({ ...p, jornadasChart: res }));
-    } catch (err) {
-      setErrors((p) => ({ ...p, jornadasChart: err.message }));
-    } finally {
-      setLoading((p) => ({ ...p, jornadasChart: false }));
-    }
-  };
-  const fetchMachinesChart = async () => {
-    try {
-      setLoading((p) => ({ ...p, machinesChart: true }));
-      setErrors((p) => ({ ...p, machinesChart: null }));
+    const res = await getClienteJornadasChart(cliente.id);
+    setData(p => ({ ...p, jornadasChart: res }));
+  } catch (err) {
+    setErrors(p => ({ ...p, jornadasChart: err.message }));
+  } finally {
+    setLoading(p => ({ ...p, jornadasChart: false }));
+  }
+};
+//   const fetchMachinesChart = async () => {
+//   try {
+//     setLoading(p => ({ ...p, machinesChart: true }));
+//     setErrors(p => ({ ...p, machinesChart: null }));
+
+//     const res = await getClienteMachinesChart(cliente.id);
+//     setData(p => ({ ...p, machinesChart: res }));
+//   } catch (err) {
+//     setErrors(p => ({ ...p, machinesChart: err.message }));
+//   } finally {
+//     setLoading(p => ({ ...p, machinesChart: false }));
+//   }
+// };
 
       const res = await getClienteMachinesChart(cliente.id);
       setData((p) => ({ ...p, machinesChart: res }));
@@ -377,16 +441,46 @@ const ClienteDashboard = ({ cliente }) => {
       setLoading((prev) => ({ ...prev, upcomingServices: false }));
     }
   };
+const fetchNotas = async () => {
+  try {
+    setLoading(prev => ({
+      ...prev,
+      notas: true,
+    }));
 
+    setErrors(prev => ({
+      ...prev,
+      notas: null,
+    }));
+
+    const notas = await getClienteNotas(cliente.id);
+
+    setData(prev => ({
+      ...prev,
+      notas,
+    }));
+  } catch (err) {
+    setErrors(prev => ({
+      ...prev,
+      notas: err.message,
+    }));
+  } finally {
+    setLoading(prev => ({
+      ...prev,
+      notas: false,
+    }));
+  }
+};
   // Cargar todas las secciones de forma independiente
   const fetchAllData = () => {
     fetchStats();
-    fetchServicesChart();
+    // fetchServicesChart();
     fetchAnalisisChart();
     fetchCalibracionChart();
     fetchJornadasChart();
-    fetchMachinesChart();
+    // fetchMachinesChart();   
     fetchUpcomingServices();
+    fetchNotas(); 
   };
 
   useEffect(() => {
@@ -447,57 +541,49 @@ const ClienteDashboard = ({ cliente }) => {
   const jornadasChartData = data.jornadasChart?.data || [];
   const jornadasChartTotal = data.jornadasChart?.total || 0;
 
-  const calibracionServices = (data.upcomingServices?.calibracion || []).map(
-    (service) => ({
-      title: service.maquina || service.nombre,
-      subtitle: service.tipo || service.descripcion,
-      date: service.fecha
-        ? new Date(service.fecha).toLocaleDateString('es-AR', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-          })
-        : 'Sin fecha',
-      status: service.estado || 'Pendiente',
-      badge: service.tipoMaquina.tipo,
-      icon: '🚜',
-    }),
-  );
+  const calibracionServices = (data.upcomingServices?.calibracion || []).map(service => ({
+    title: service.title || 'Sin definir',
+    subtitle: service.subtitle || 'Sin descripción',
+    date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }) : 'Sin fecha',
+    status: service.status || 'Pendiente',
+    icon: service.icon == 'calibracion' ? '🔧' : '🚜',
+  }));
 
-  const muestrasServices = (data.upcomingServices?.muestras_agua || []).map(
-    (service) => ({
-      title: service.nombre || service.titulo,
-      subtitle: service.tipo || service.descripcion,
-      date: service.fecha
-        ? new Date(service.fecha).toLocaleDateString('es-AR', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-          })
-        : 'Sin fecha',
-      status: service.estado || 'Pendiente',
-      icon: service.categoria === 'analisis' ? '💧' : '🎓',
-    }),
-  );
+  const muestrasServices = (data.upcomingServices?.muestras_agua || []).map(service => ({
+    title: service.title || 'Sin definir',
+    subtitle: service.subtitle || 'Sin descripción',
+    date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }) : 'Sin fecha',
+    status: service.status || 'Pendiente',
+    icon: service.icon === 'analisis' ? '💧' : '🎓',
+  }));
 
-  const jornadasServices = (data.upcomingServices?.jornadas || []).map(
-    (service) => ({
-      title: service.nombre || service.titulo,
-      subtitle: service.tipo || service.descripcion,
-      date: service.fecha
-        ? new Date(service.fecha).toLocaleDateString('es-AR', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-          })
-        : 'Sin fecha',
-      status: service.estado || 'Pendiente',
-      icon: service.categoria === 'analisis' ? '💧' : '🎓',
-    }),
-  );
-  const otrosServices = [...muestrasServices, ...jornadasServices].sort(
-    (a, b) => new Date(a.date) - new Date(b.date),
-  );
+  const jornadasServices = (data.upcomingServices?.jornadas || []).map(service => ({
+    title: service.title || 'Sin definir',
+    subtitle: service.subtitle || 'Sin descripción',
+    date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }) : 'Sin fecha',
+    status: service.status || 'Pendiente',
+    icon: service.icon === 'jornadas' ? '💧' : '🎓',
+  }));
+const otrosServices = [...muestrasServices, ...jornadasServices].sort((a, b) => new Date(a.date) - new Date(b.date));
+const pendingServices = [
+  ...calibracionServices,
+  ...muestrasServices,
+  ...jornadasServices,
+].sort((a, b) => {
+  return new Date(a.date) - new Date(b.date);
+});  
   // ==================== RENDER DASHBOARD ====================
   return (
     <div className="flex flex-col gap-8 pb-8">
@@ -526,241 +612,215 @@ const ClienteDashboard = ({ cliente }) => {
         )}
       </div>
 
-      {/* ==================== CHARTS ROW ==================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart 1 - Analisis de Agua */}
-        <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
-          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
-            Analisis de Agua
-          </h3>
+<div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
-          {loading.analisisChart ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
-            </div>
-          ) : errors.analisisChart ? (
-            <div className="flex flex-col items-center justify-center h-64 gap-4">
-              <AlertCircle className="w-12 h-12 text-red-400" />
-              <p className="text-sm text-red-600 dark:text-red-400 text-center">
-                {errors.analisisChart}
-              </p>
-              <button
-                onClick={fetchAnalisisChart}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
-              >
-                <RefreshCw size={16} />
-                Reintentar
-              </button>
-            </div>
-          ) : analisisChartData.length > 0 ? (
-            <>
-              <div className="flex-grow">
-                <DonutChart
-                  data={analisisChartData}
-                  totalValue={analisisChartTotal.toString()}
-                  totalLabel="Total"
-                />
-              </div>
-              <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
-                {analisisChartData.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: item.color }}
-                    ></span>
-                    <span className="text-text-light dark:text-text-dark">
-                      {item.name} ({item.value})
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-64 text-gray-400">
-              Sin datos de Analisis de Agua
-            </div>
-          )}
+  {/* ================= LEFT COLUMN ================= */}
+  <div className="flex flex-col gap-4">
+
+    {/* ================= CHARTS ================= */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      {/* CHART 1 */}
+      <div className="flex flex-col gap-2 rounded-lg p-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
+        
+        <h3 className="text-sm font-semibold text-text-light dark:text-text-dark">
+          Analisis de Agua
+        </h3>
+
+        <div className="flex-grow">
+          <DonutChart
+            data={analisisChartData}
+            totalValue={analisisChartTotal.toString()}
+            // totalLabel="Total"
+          />
         </div>
 
-        {/* Chart 2 - Calibraciones */}
-        <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
-          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
-            Calibraciones
-          </h3>
+        <div className="flex flex-wrap justify-center gap-2 text-xs">
+          {analisisChartData.map((item, idx) => (
+            <div key={idx} className="flex items-center gap-1">
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: item.color }}
+              ></span>
 
-          {loading.calibracionChart ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
+              <span>
+                {item.name} ({item.value})
+              </span>
             </div>
-          ) : errors.calibracionChart ? (
-            <div className="flex flex-col items-center justify-center h-64 gap-4">
-              <AlertCircle className="w-12 h-12 text-red-400" />
-              <p className="text-sm text-red-600 dark:text-red-400 text-center">
-                {errors.calibracionChart}
-              </p>
-              <button
-                onClick={fetchCalibracionChart}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
-              >
-                <RefreshCw size={16} />
-                Reintentar
-              </button>
-            </div>
-          ) : calibracionChartData.length > 0 ? (
-            <>
-              <div className="flex-grow">
-                <DonutChart
-                  data={calibracionChartData}
-                  totalValue={calibracionChartTotal.toString()}
-                  totalLabel="Calibraciones"
-                />
-              </div>
-              <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
-                {calibracionChartData.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: item.color }}
-                    ></span>
-                    <span className="text-text-light dark:text-text-dark">
-                      {item.name} ({item.value})
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-64 text-gray-400">
-              Sin datos de Calibraciones
-            </div>
-          )}
-        </div>
-
-        {/* Chart 3 - Jornadas */}
-        <div className="flex flex-col gap-4 rounded-xl p-6 bg-card-light dark:bg-card-dark border-2 border-border-light dark:border-border-dark shadow-sm">
-          <h3 className="text-text-light dark:text-text-dark text-lg font-bold">
-            Jornadas
-          </h3>
-
-          {loading.jornadasChart ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader className="w-8 h-8 animate-spin text-[#4a7c1f]" />
-            </div>
-          ) : errors.jornadasChart ? (
-            <div className="flex flex-col items-center justify-center h-64 gap-4">
-              <AlertCircle className="w-12 h-12 text-red-400" />
-              <p className="text-sm text-red-600 dark:text-red-400 text-center">
-                {errors.jornadasChart}
-              </p>
-              <button
-                onClick={fetchJornadasChart}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition-colors"
-              >
-                <RefreshCw size={16} />
-                Reintentar
-              </button>
-            </div>
-          ) : jornadasChartData.length > 0 ? (
-            <>
-              <div className="flex-grow">
-                <DonutChart
-                  data={jornadasChartData}
-                  totalValue={jornadasChartTotal.toString()}
-                  totalLabel="Jornadas"
-                />
-              </div>
-              <div className="flex flex-wrap justify-center gap-4 text-sm mt-2">
-                {jornadasChartData.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <span
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: item.color }}
-                    ></span>
-                    <span className="text-text-light dark:text-text-dark">
-                      {item.name} ({item.value})
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-64 text-gray-400">
-              Sin datos de Jornadas
-            </div>
-          )}
+          ))}
         </div>
       </div>
 
-      {/* ==================== SERVICES ROW ==================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Servicios de Calibración */}
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <Wrench className="text-[#4a7c1f]" size={24} />
-            <h2 className="text-text-light dark:text-text-dark text-xl font-bold">
-              Próximos Servicios de Calibración
-            </h2>
-          </div>
+      {/* CHART 2 */}
+      <div className="flex flex-col gap-2 rounded-lg p-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
 
-          {loading.upcomingServices ? (
-            <div className="flex flex-col gap-3">
-              {[1, 2, 3].map((i) => (
-                <ServiceItemSkeleton key={i} />
-              ))}
-            </div>
-          ) : errors.upcomingServices ? (
-            <ErrorCard
-              title=""
-              error={errors.upcomingServices}
-              onRetry={fetchUpcomingServices}
-            />
-          ) : calibracionServices.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {calibracionServices.map((service, idx) => (
-                <ServiceItem key={idx} {...service} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-400 bg-card-light dark:bg-card-dark rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
-              No hay servicios de calibración programados
-            </div>
-          )}
+        <h3 className="text-sm font-semibold text-text-light dark:text-text-dark">
+          Calibraciones
+        </h3>
+
+        <div className="flex-grow">
+          <DonutChart
+            data={calibracionChartData}
+            totalValue={calibracionChartTotal.toString()}
+            // totalLabel="Calibraciones"
+          />
         </div>
 
-        {/* Análisis de Agua y Capacitaciones */}
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <Droplets className="text-[#4a7c1f]" size={24} />
-            <h2 className="text-text-light dark:text-text-dark text-xl font-bold">
-              Análisis de Agua y Capacitaciones
-            </h2>
-          </div>
+        <div className="flex flex-wrap justify-center gap-2 text-xs">
+          {calibracionChartData.map((item, idx) => (
+            <div key={idx} className="flex items-center gap-1">
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: item.color }}
+              ></span>
 
-          {loading.upcomingServices ? (
-            <div className="flex flex-col gap-3">
-              {[1, 2, 3].map((i) => (
-                <ServiceItemSkeleton key={i} />
-              ))}
+              <span>
+                {item.name} ({item.value})
+              </span>
             </div>
-          ) : errors.upcomingServices ? (
-            <ErrorCard
-              title=""
-              error={errors.upcomingServices}
-              onRetry={fetchUpcomingServices}
-            />
-          ) : otrosServices.length > 0 ? (
-            <div className="flex flex-col gap-3">
-              {otrosServices.map((service, idx) => (
-                <ServiceItem key={idx} {...service} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-400 bg-card-light dark:bg-card-dark rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600">
-              No hay servicios programados
-            </div>
-          )}
+          ))}
         </div>
       </div>
+
+      {/* CHART 3 */}
+      <div className="flex flex-col gap-2 rounded-lg p-4 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark shadow-sm">
+
+        <h3 className="text-sm font-semibold text-text-light dark:text-text-dark">
+          Jornadas
+        </h3>
+
+        <div className="flex-grow">
+          <DonutChart
+            data={jornadasChartData}
+            totalValue={jornadasChartTotal.toString()}
+            // totalLabel="Jornadas"
+          />
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-2 text-xs">
+          {jornadasChartData.map((item, idx) => (
+            <div key={idx} className="flex items-center gap-1">
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: item.color }}
+              ></span>
+
+              <span>
+                {item.name} ({item.value})
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {/* ================= RIGHT COLUMN ================= */}
+  <div className="flex flex-col gap-6">
+
+    {/* ================= SERVICIOS CALIBRACION ================= */}
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <Wrench className="text-[#4a7c1f]" size={20} />
+
+        <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
+          Servicios Pendientes
+        </h2>
+      </div>
+
+      {loading.upcomingServices ? (
+        <div className="flex flex-col gap-3">
+          {[1, 2, 3].map((i) => (
+            <ServiceItemSkeleton key={i} />
+          ))}
+        </div>
+
+      ) : errors.upcomingServices ? (
+
+        <ErrorCard
+          title=""
+          error={errors.upcomingServices}
+          onRetry={fetchUpcomingServices}
+        />
+
+      ) : calibracionServices.length > 0 ? (
+
+        <div className="flex flex-col gap-3">
+          {pendingServices.map((service, idx) => (
+            <ServiceItem key={idx} {...service} />
+          ))}
+        </div>
+
+      ) : (
+
+        <div className="text-center py-6 text-sm text-gray-400 bg-card-light dark:bg-card-dark rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+          No hay servicios de calibración programados
+        </div>
+      )}
+    </div>
+
+    {/* ================= OTROS SERVICIOS ================= */}
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <Droplets className="text-[#4a7c1f]" size={20} />
+
+        <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
+          ANotas del Cliente
+        </h2>
+      </div>
+
+{loading.notas ? (
+  <div className="flex flex-col gap-3">
+    {[1,2,3].map(i => (
+      <ServiceItemSkeleton key={i}/>
+    ))}
+  </div>
+
+) : errors.notas ? (
+
+  <ErrorCard
+    title=""
+    error={errors.notas}
+    onRetry={fetchNotas}
+  />
+
+) : data.notas?.length > 0 ? (
+
+  <div className="flex flex-col gap-3">
+    {data.notas.map((nota) => (
+      <NotaItem
+        key={nota.id}
+        fecha={nota.fecha}
+        comentario={nota.comentario}
+      />
+    ))}
+  </div>
+
+) : (
+
+  <div className="
+    text-center
+    py-6
+    text-sm
+    text-gray-400
+    bg-card-light
+    dark:bg-card-dark
+    rounded-lg
+    border
+    border-dashed
+    border-gray-300
+    dark:border-gray-600
+  ">
+    No hay notas registradas
+  </div>
+
+)}
+    </div>
+
+  </div>
+
+</div>
     </div>
   );
 };
