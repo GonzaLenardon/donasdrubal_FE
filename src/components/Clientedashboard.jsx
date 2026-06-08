@@ -83,8 +83,8 @@ const StatCard = ({ title, value, trendLabel, isPositive, icon: Icon, color }) =
         {/* TREND */}
         <p
           className={`mt-0.5 text-xs flex items-center gap-2 leading-none ${isPositive
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
+            ? 'text-green-600 dark:text-green-400'
+            : 'text-red-600 dark:text-red-400'
             }`}
         >
           {isPositive
@@ -175,7 +175,7 @@ const ErrorCard = ({ title, error, onRetry, icon: Icon }) => {
 };
 
 // ==================== DONUT CHART ====================
-const DonutChart = ({ data, totalValue, totalLabel, height = 250 }) => {
+const DonutChart = ({ data, totalValue, totalLabel, height = 120 }) => {
   return (
     <div className="relative h-full flex flex-col justify-center items-center">
       <div style={{ width: '100%', height: height }}>
@@ -597,6 +597,53 @@ const ClienteDashboard = ({ cliente }) => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
         {/* ================= LEFT COLUMN ================= */}
+        <div className="flex flex-col gap-6">
+
+          {/* ================= SERVICIOS ================= */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Wrench className="text-[#4a7c1f]" size={20} />
+
+              <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
+                Servicios Pendientes
+              </h2>
+            </div>
+
+            {loading.upcomingServices ? (
+              <div className="flex flex-col gap-3">
+                {[1, 2, 3].map((i) => (
+                  <ServiceItemSkeleton key={i} />
+                ))}
+              </div>
+
+            ) : errors.upcomingServices ? (
+
+              <ErrorCard
+                title=""
+                error={errors.upcomingServices}
+                onRetry={fetchUpcomingServices}
+              />
+
+            ) : calibracionServices.length > 0 ? (
+
+              <div className="flex flex-col gap-3">
+                {pendingServices.map((service, idx) => (
+                  <ServiceItem key={idx} {...service} />
+                ))}
+              </div>
+
+            ) : (
+
+              <div className="text-center py-6 text-sm text-gray-400 bg-card-light dark:bg-card-dark rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
+                No hay servicios de calibración programados
+              </div>
+            )}
+          </div>
+
+        </div>
+
+        {/* ================= RIGHT COLUMN ================= */}
+
         <div className="flex flex-col gap-4">
 
           {/* ================= CHARTS ================= */}
@@ -696,53 +743,7 @@ const ClienteDashboard = ({ cliente }) => {
             </div>
 
           </div>
-        </div>
-
-        {/* ================= RIGHT COLUMN ================= */}
-        <div className="flex flex-col gap-6">
-
-          {/* ================= SERVICIOS CALIBRACION ================= */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <Wrench className="text-[#4a7c1f]" size={20} />
-
-              <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
-                Servicios Pendientes
-              </h2>
-            </div>
-
-            {loading.upcomingServices ? (
-              <div className="flex flex-col gap-3">
-                {[1, 2, 3].map((i) => (
-                  <ServiceItemSkeleton key={i} />
-                ))}
-              </div>
-
-            ) : errors.upcomingServices ? (
-
-              <ErrorCard
-                title=""
-                error={errors.upcomingServices}
-                onRetry={fetchUpcomingServices}
-              />
-
-            ) : calibracionServices.length > 0 ? (
-
-              <div className="flex flex-col gap-3">
-                {pendingServices.map((service, idx) => (
-                  <ServiceItem key={idx} {...service} />
-                ))}
-              </div>
-
-            ) : (
-
-              <div className="text-center py-6 text-sm text-gray-400 bg-card-light dark:bg-card-dark rounded-lg border border-dashed border-gray-300 dark:border-gray-600">
-                No hay servicios de calibración programados
-              </div>
-            )}
-          </div>
-
-          {/* ================= OTROS SERVICIOS ================= */}
+          {/* ================= NOTAS ================= */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Droplets className="text-[#4a7c1f]" size={20} />
@@ -782,25 +783,25 @@ const ClienteDashboard = ({ cliente }) => {
             ) : (
 
               <div className="
-    text-center
-    py-6
-    text-sm
-    text-gray-400
-    bg-card-light
-    dark:bg-card-dark
-    rounded-lg
-    border
-    border-dashed
-    border-gray-300
-    dark:border-gray-600
-  ">
+                text-center
+                py-6
+                text-sm
+                text-gray-400
+                bg-card-light
+                dark:bg-card-dark
+                rounded-lg
+                border
+                border-dashed
+                border-gray-300
+                dark:border-gray-600
+              ">
                 No hay notas registradas
               </div>
 
             )}
-          </div>
-
-        </div>
+          </div>              
+        </div>     
+       
 
       </div>
     </div>
