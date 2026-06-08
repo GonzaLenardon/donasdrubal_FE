@@ -490,10 +490,6 @@
     width: 36px;
     height: 36px;
   }
-
-  .tab-content-container {
-    padding: 1rem;
-  }
 }
 
 @media (max-width: 576px) {
@@ -561,6 +557,6 @@
   }
 
   .tab-content-container {
-    padding: 0.75rem;
+    padding: 0.2rem;
   }
 }

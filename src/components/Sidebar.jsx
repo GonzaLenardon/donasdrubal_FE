@@ -47,7 +47,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       icon: 'bi-gear-fill',
       children: [
         {
-          title: 'Usuarios mmm',
+          title: 'Usuarios',
           path: '/user',
           icon: 'bi-person-fill',
           roles: ['Administrador'], // 🔐 Solo admin
@@ -60,7 +60,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
         {
           title: 'Informe Resumen ',
           path: '/reportes/resumen',
-          icon: 'bi bi-flower1',
+          icon: 'bi-file-earmark-bar-graph-fill',
           roles: ['Administrador'], // 🔐 Solo admin
         },
         {
@@ -115,10 +115,6 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
     };
   }, [user?.id]);
 
-  useEffect(() => {
-    console.log('daaaaaaaaa', selectedCliente);
-  }, [selectedCliente]);
-
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
   };
@@ -152,6 +148,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
     <>
       <aside className={`sidebar ${isMobileOpen ? 'sidebar-mobile-open' : ''}`}>
         {/* Header */}
+
         <div className="sidebar-header">
           <Link to="/" className="sidebar-link" onClick={closeSidebar}>
             <span className="material-symbols-outlined sidebar-logo">

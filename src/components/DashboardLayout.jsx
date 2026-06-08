@@ -11,7 +11,7 @@ const breadcrumbNames = {
   user: 'Usuarios',
   maquinas: 'Máquinas',
   calibraciones: 'Calibraciones',
-  detalles: 'Dashborad',
+  detalles: 'Dashborad ggg',
   cliente: 'Clientes',
   clientes: 'Clientes',
   notificaciones: 'Notificaciones',
@@ -173,10 +173,13 @@ const DashboardLayout = () => {
   }, [location.pathname, clienteNombre, pozoNombre]);
 
   return (
-    <div className="relative flex min-h-screen w-full bg-background-light dark:bg-background-dark">
+    <>
       {/* Botón hamburguesa */}
       <div className="topbar-mobile">
-        <button className="hamburger-btn" onClick={() => setIsMobileOpen(true)}>
+        <button
+          className="hamburger-btn"
+          onClick={() => setIsMobileOpen((prev) => !prev)}
+        >
           <span />
           <span />
           <span />
@@ -190,53 +193,53 @@ const DashboardLayout = () => {
           onClick={() => setIsMobileOpen(false)}
         />
       )}
+      <Link to="/" className="logoDesktop">
+        <div className="logoMobile" />
+      </Link>
 
-      {/* Sidebar */}
-      <Sidebar
-        isMobileOpen={isMobileOpen}
-        closeSidebar={() => setIsMobileOpen(false)}
-      />
+      <div className="relative flex min-h-screen w-full bg-background-warning dark:bg-background-dark">
+        {/* Sidebar */}
+        <Sidebar
+          isMobileOpen={isMobileOpen}
+          closeSidebar={() => setIsMobileOpen(false)}
+        />
 
-      <main className="flex-1 p-4 md:pt-10 px-0 overflow-y-auto h-screen">
-        <div className="container-fluid">
-          {/* ============================
-              Breadcrumb
-          ============================ */}
-          <nav className="app-breadcrumb">
-            {breadcrumbItems.length === 0 ? (
-              <span className="crumb current">Dashboard</span>
-            ) : (
-              breadcrumbItems.map((item, idx) => {
-                const isLast = idx === breadcrumbItems.length - 1;
+        {/* Contenido */}
+        <main className="flex-1 overflow-y-auto min-h-screen">
+          <div className="container-fluid p-2">
+            <nav className="app-breadcrumb">
+              {breadcrumbItems.length === 0 ? (
+                <span className="crumb current">Dashboard</span>
+              ) : (
+                breadcrumbItems.map((item, idx) => {
+                  const isLast = idx === breadcrumbItems.length - 1;
 
-                return (
-                  <span key={idx} className="crumb-wrapper">
-                    {item.clickable && !isLast ? (
-                      <Link
-                        to={item.to}
-                        className="crumb link"
-                        onClick={() => item.action?.()}
-                      >
-                        {item.label}
-                      </Link>
-                    ) : (
-                      <span className="crumb current">{item.label}</span>
-                    )}
-                    {!isLast && <span className="separator">{'>'}</span>}
-                  </span>
-                );
-              })
-            )}
-          </nav>
+                  return (
+                    <span key={idx} className="crumb-wrapper">
+                      {item.clickable && !isLast ? (
+                        <Link
+                          to={item.to}
+                          className="crumb link"
+                          onClick={() => item.action?.()}
+                        >
+                          {item.label}
+                        </Link>
+                      ) : (
+                        <span className="crumb current">{item.label}</span>
+                      )}
 
-          {/* ============================
-              Contenido
-          ============================ */}
+                      {!isLast && <span className="separator">{'>'}</span>}
+                    </span>
+                  );
+                })
+              )}
+            </nav>
 
-          <Outlet />
-        </div>
-      </main>
-    </div>
+            <Outlet />
+          </div>
+        </main>
+      </div>
+    </>
   );
 };
 

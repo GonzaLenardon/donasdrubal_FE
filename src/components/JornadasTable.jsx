@@ -1,3 +1,4 @@
+// src/components/JornadasTable.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { clienteJornadas, delJornada, openJornada } from '../api/jornadas';
@@ -5,10 +6,24 @@ import ModalJornadas from './ModalJornadas';
 import ModalFinalizarServicios from './ModalFinalizarServicios';
 import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
-import ModalInformativo from './ModalInformativo';
+import JornadasMobileList from './JornadasMobileList';
+import { useIsMobile } from '../hooks/useIsMobile';
+
+const badgeConfig = {
+  CERRADO: { className: 'badge bg-danger', label: 'Cerrado' },
+  PENDIENTE: { className: 'badge bg-success', label: 'Pendiente' },
+  'EN PROCESO': {
+    className: 'badge bg-warning text-dark',
+    label: 'En proceso',
+  },
+};
+
+const formatFecha = (fecha) =>
+  fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-';
 
 const JornadasTable = () => {
   const { cliente_id } = useParams();
+  const isMobile = useIsMobile();
 
   const [jornadas, setJornadas] = useState([]);
   const [desde, setDesde] = useState('');
@@ -31,36 +46,14 @@ const JornadasTable = () => {
 
   const getJornadas = async () => {
     try {
-      /* setLoading(true); */
       const res = await clienteJornadas(cliente_id);
       setJornadas(res.data);
     } catch (err) {
       console.error(err);
-    } finally {
-      /* setLoading(false); */
     }
   };
 
-  /* ================= HELPERS ================= */
-
-  const formatFecha = (fecha) =>
-    fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-';
-
-  const getValorColor = (valor, min, max) => {
-    if (valor === null || valor === undefined)
-      return { color: '#9ca3af', bg: 'rgba(156,163,175,0.15)' };
-    if (valor < min || valor > max)
-      return { color: '#ef4444', bg: 'rgba(239,68,68,0.2)' };
-    return { color: '#22c55e', bg: 'rgba(34,197,94,0.2)' };
-  };
-
-  const getValorIcon = (valor, min, max) => {
-    if (valor === null || valor === undefined) return '•';
-    if (valor < min || valor > max) return '⚠';
-    return '✓';
-  };
-
-  /* ================= FILTROS ================= */
+  /* ── Filtros ── */
 
   const jornadasFiltradas = jornadas.filter((m) => {
     if (!desde && !hasta) return true;
@@ -75,6 +68,8 @@ const JornadasTable = () => {
     setHasta('');
   };
 
+  /* ── Handlers ── */
+
   const handleEditarJornada = (m) => {
     setJornadaEdit({ ...m });
     setIsOpen(true);
@@ -87,10 +82,8 @@ const JornadasTable = () => {
       await openJornada(jornadaReabrir.id);
       setMsg('Jornada abierta correctamente');
       await new Promise((r) => setTimeout(r, 1500));
-
       getJornadas();
-    } catch (error) {
-      console.error('Error al finalizar:', error);
+    } catch {
       setMsg('Error al abrir Jornada');
       await new Promise((r) => setTimeout(r, 3000));
     } finally {
@@ -114,40 +107,40 @@ const JornadasTable = () => {
       setShowConfirmDelete(false);
       await delJornada(seleccionado);
       setSeleccionado(null);
-
       setLoading(true);
-
       setMsg('Eliminando Jornada ...');
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((r) => setTimeout(r, 2000));
       setMsg('Jornada eliminada exitosamente');
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((r) => setTimeout(r, 1500));
       setMsg('');
       await getJornadas();
     } catch (error) {
-      console.log('Error al eliminar jornada:', error);
+      console.error('Error al eliminar jornada:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= RENDER ================= */
+  /* ── Render ── */
 
   return (
     <div className="maquinas-wrapper">
       <div style={{ margin: '0 auto' }}>
-        {/* HEADER */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
+        {/* ── Header ── */}
+
+        {/* ── Header ── */}
+        <div className="jornadas-header mb-4">
           <div>
             <h2 className="fw-bold text-white mb-1">Gestión de Jornadas</h2>
             <p className="text-white-50 mb-0">{jornadas.length} Jornadas</p>
           </div>
-
-          <div className="d-flex align-items-center gap-2">
+          <div className="jornadas-header-actions">
             {isAdmin && (
               <button
                 type="button"
-                className={`btn btn-sm d-flex align-items-center gap-2 ${modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
-                  }`}
+                className={`btn btn-sm d-flex align-items-center gap-2 ${
+                  modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
+                }`}
                 style={{ opacity: modoSeleccion ? 1 : 0.65 }}
                 onClick={toggleModoSeleccion}
               >
@@ -155,51 +148,54 @@ const JornadasTable = () => {
                 {modoSeleccion ? 'Cancelar' : 'Seleccionar'}
               </button>
             )}
-
             <button
-              className="btn text-white d-flex align-items-center gap-2 shadow-lg maquina-btn-nuevo"
+              className="btn btn-sm text-white d-flex align-items-center gap-2 maquina-btn-nuevo"
               onClick={(e) => {
                 e.stopPropagation();
-                setJornadaEdit({ cliente_id: cliente_id });
+                setJornadaEdit({ cliente_id });
                 setIsOpen(true);
               }}
             >
-              <i className="bi bi-plus-lg me-2"></i>Nueva jornada
+              <i className="bi bi-plus-lg"></i>Nueva jornada
             </button>
           </div>
         </div>
 
-        {/* FILTROS */}
-        <div className="row g-3 mb-4">
-          <div className="col-md-4">
-            <label className="text-white fw-semibold">Desde</label>
+        {/* ── Filtros ── */}
+        {/* ── Filtros ── */}
+        <div className="jornadas-filtros mb-4">
+          <div className="jornadas-filtro-group">
+            <label className="text-white fw-semibold" style={{ fontSize: 13 }}>
+              Desde
+            </label>
             <input
               type="date"
-              className="form-control"
+              className="form-control jornadas-filtro-input"
               value={desde}
               onChange={(e) => setDesde(e.target.value)}
             />
           </div>
-          <div className="col-md-4">
-            <label className="text-white fw-semibold">Hasta</label>
+          <div className="jornadas-filtro-group">
+            <label className="text-white fw-semibold" style={{ fontSize: 13 }}>
+              Hasta
+            </label>
             <input
               type="date"
-              className="form-control"
+              className="form-control jornadas-filtro-input"
               value={hasta}
               onChange={(e) => setHasta(e.target.value)}
             />
           </div>
-          <div className="col-md-4 d-flex align-items-end">
-            <button
-              className="btn btn-light w-100"
-              onClick={limpiarFiltros}
-              disabled={!desde && !hasta}
-            >
-              Limpiar filtros
-            </button>
-          </div>
+          <button
+            className="btn btn-light jornadas-filtro-limpiar"
+            onClick={limpiarFiltros}
+            disabled={!desde && !hasta}
+          >
+            Limpiar filtros
+          </button>
         </div>
 
+        {/* ── Banner selección activa ── */}
         {modoSeleccion && seleccionado && (
           <div
             className="d-flex align-items-center justify-content-between mb-3 px-3 py-2 rounded"
@@ -210,10 +206,9 @@ const JornadasTable = () => {
           >
             <div className="d-flex align-items-center gap-2">
               <i className="bi bi-ui-checks text-white-50"></i>
-
               <span className="text-white-50" style={{ fontSize: '0.85rem' }}>
                 <span className="text-white fw-bold p-1">1</span>
-                Maquina seleccionada
+                jornada seleccionada
               </span>
             </div>
             <div className="d-flex gap-2">
@@ -229,171 +224,148 @@ const JornadasTable = () => {
                 style={{ fontSize: '0.8rem' }}
                 onClick={() => setShowConfirmDelete(true)}
               >
-                <i className="bi bi-trash3"></i>
-                Eliminar{' '}
-                {seleccionado.length > 0 ? `(${seleccionado.length})` : ''}
+                <i className="bi bi-trash3"></i>Eliminar
               </button>
             </div>
           </div>
         )}
 
-        {/* TABLA */}
+        {/* ── Tabla (desktop) / Cards (mobile) ── */}
+        {isMobile ? (
+          <JornadasMobileList
+            jornadas={jornadasFiltradas}
+            isAdmin={isAdmin}
+            modoSeleccion={modoSeleccion}
+            seleccionado={seleccionado}
+            onSeleccionar={setSeleccionado}
+            onEditar={handleEditarJornada}
+            onReabrir={setJornadaReabrir}
+          />
+        ) : (
+          <div className="container-table rounded shadow-lg">
+            <div className="table-wrapper">
+              <table className="table mb-0">
+                <thead>
+                  <tr>
+                    {modoSeleccion && (
+                      <th
+                        style={{
+                          padding: '0.85rem 0.5rem 0.85rem 1rem',
+                          width: 40,
+                        }}
+                      />
+                    )}
+                    <th>
+                      <i className="bi bi-calendar-event me-1"></i>Fecha
+                    </th>
+                    <th>
+                      <i className="bi bi-chat-left-text me-1"></i>Motivo
+                    </th>
+                    <th>
+                      <i className="bi bi-card-text me-1"></i>Observaciones
+                    </th>
+                    <th>
+                      <i className="bi bi-flag-fill me-1"></i>Estado
+                    </th>
+                    <th className="text-center">
+                      <i className="bi bi-gear me-1"></i>Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {jornadasFiltradas.map((m) => {
+                    const isClosed = m.estado === 'CERRADO';
+                    const badge = badgeConfig[m.estado] ?? {
+                      className: 'badge bg-secondary',
+                      label: m.estado,
+                    };
 
-        <div className="container-table rounded shadow-lg">
-          <div className="table-wrapper">
-            <table className="table mb-0">
-              <thead>
-                <tr>
-                  {modoSeleccion && (
-                    <th
-                      style={{
-                        padding: '0.85rem 0.5rem 0.85rem 1rem',
-                        width: '40px',
-                      }}
-                    ></th>
-                  )}
-                  <th>
-                    <i className="bi bi-calendar-event"></i>Fecha
-                  </th>
-                  <th>
-                    <i className="bi bi-chat-left-text"></i>Motivo
-                  </th>
-
-                  <th>
-                    <i className="bi bi-card-text"></i>Observaciones
-                  </th>
-                  <th>
-                    <i className="bi bi-flag-fill"></i>Estado
-                  </th>
-                  <th className="text-center">
-                    <i className="bi bi-gear"></i>Acciones
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {jornadasFiltradas.map((m) => {
-                  const isClosed = m.estado === 'CERRADO';
-
-                  return (
-                    <tr key={m.id} /* onClick={() => handleEditarJornada(m)} */>
-                      {modoSeleccion && (
-                        <td style={{ padding: '0.85rem 0.5rem 0.85rem 1rem' }}>
-                          <input
-                            type="checkbox"
-                            checked={seleccionado === m.id}
-                            onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
-                            onChange={() => setSeleccionado(m.id)}
-                            style={{
-                              width: '15px',
-                              height: '15px',
-                              cursor: 'pointer',
-                              accentColor: '#ef4444',
-                            }}
-                          />
-                        </td>
-                      )}
-
-                      {/* Fecha */}
-                      <td>
-                        <span className="table-text fw-semibold">
-                          {formatFecha(m.fecha_jornada)}
-                        </span>
-                      </td>
-
-                      {/* Motivo */}
-                      <td>
-                        <span className="table-text">{m.motivo || '-'}</span>
-                      </td>
-
-                      {/* Estado */}
-
-                      {/* Observaciones */}
-                      <td>
-                        <span className="table-text">
-                          {m.observaciones || '-'}
-                        </span>
-                      </td>
-                      {/* ESTADO ABIERTO/CERRADO */}
-                      <td style={{ padding: '0.85rem 1rem' }}>
-                        {m.estado === 'CERRADO' && (
-                          <span
-                            className="badge bg-danger"
-                            style={{
-                              fontSize: '0.72rem',
-                              padding: '0.35rem 0.7rem',
-                            }}
+                    return (
+                      <tr key={m.id}>
+                        {modoSeleccion && (
+                          <td
+                            style={{ padding: '0.85rem 0.5rem 0.85rem 1rem' }}
                           >
-                            CERRADO
-                          </span>
-                        )}
-
-                        {m.estado === 'PENDIENTE' && (
-                          <span
-                            className="badge bg-success"
-                            style={{
-                              fontSize: '0.72rem',
-                              padding: '0.35rem 0.7rem',
-                            }}
-                          >
-                            PENDIENTE
-                          </span>
-                        )}
-
-                        {m.estado === 'EN PROCESO' && (
-                          <span
-                            className="badge bg-warning"
-                            style={{
-                              fontSize: '0.72rem',
-                              padding: '0.35rem 0.7rem',
-                            }}
-                          >
-                            EN PROCESO
-                          </span>
-                        )}
-                      </td>
-
-                      {/* Acciones */}
-                      <td>
-                        <div className="table-actions">
-                          {!isClosed && (
-                            <button
-                              className="table-btn table-btn-edit"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditarJornada(m);
+                            <input
+                              type="checkbox"
+                              checked={seleccionado === m.id}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={() => setSeleccionado(m.id)}
+                              style={{
+                                width: 15,
+                                height: 15,
+                                cursor: 'pointer',
+                                accentColor: '#ef4444',
                               }}
-                            >
-                              <i className="bi bi-pencil"></i>
-                            </button>
-                          )}
-
-                          {isClosed && isAdmin && (
-                            <button
-                              className="btn btn-sm calibracion-botones text-warning"
-                              onClick={() => setJornadaReabrir(m)}
-                              title="Reabrir calibración"
-                            >
-                              <i className="bi bi-arrow-repeat"></i>
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                            />
+                          </td>
+                        )}
+                        <td>
+                          <span className="table-text fw-semibold">
+                            {formatFecha(m.fecha_jornada)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="table-text">{m.motivo || '-'}</span>
+                        </td>
+                        <td>
+                          <span className="table-text">
+                            {m.observaciones || '-'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 1rem' }}>
+                          <span
+                            className={badge.className}
+                            style={{
+                              fontSize: '0.72rem',
+                              padding: '0.35rem 0.7rem',
+                            }}
+                          >
+                            {badge.label}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="table-actions">
+                            {!isClosed && (
+                              <button
+                                className="table-btn table-btn-edit"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditarJornada(m);
+                                }}
+                              >
+                                <i className="bi bi-pencil"></i>
+                              </button>
+                            )}
+                            {isClosed && isAdmin && (
+                              <button
+                                className="btn btn-sm calibracion-botones text-warning"
+                                onClick={() => setJornadaReabrir(m)}
+                                title="Reabrir jornada"
+                              >
+                                <i className="bi bi-arrow-repeat"></i>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
+      {/* ── Modales ── */}
       <ModalJornadas
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         jornada={jornadaEdit}
         onSaved={getJornadas}
       />
+
       {jornadaReabrir && (
         <ModalFinalizarServicios
           handleFinalizar={handleReabrirJornada}
@@ -408,7 +380,6 @@ const JornadasTable = () => {
           handleEliminar={handleConfirmarBorrado}
           onCancelar={() => setShowConfirmDelete(false)}
           servicio="jornada"
-          /* detalle={`${maquinaSeleccionada?.tipo.marca} ${maquinaSeleccionada?.tipo.modelo}`} */
           cantidad={1}
         />
       )}

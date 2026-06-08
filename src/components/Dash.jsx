@@ -78,7 +78,7 @@ const Dash = () => {
       {/* Page Heading */}
       <div className="flex flex-wrap justify-between items-center gap-4">
         <h1 className="text-text-light dark:text-text-dark text-3xl font-black leading-tight tracking-tight">
-          Dashboard
+          Dashboard cccc
         </h1>
       </div>
       {/*  <StatsRow /> <ChartsRow /> <ServicesRow /> */}
