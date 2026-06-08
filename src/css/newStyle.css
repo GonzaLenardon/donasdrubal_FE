@@ -1196,7 +1196,7 @@ small.text-muted {
 
 @media (max-width: 768px) {
   .container_seccion {
-    padding: 1.25rem;
+    padding: 0.25rem;
   }
 
   .header {
@@ -1831,7 +1831,7 @@ small.text-muted {
 }
 
 .react-select__menu {
-  background-color: rgb(208, 198, 198)  !important;
+  background-color: rgb(208, 198, 198) !important;
   color: black !important;
 }
 
@@ -1856,4 +1856,134 @@ small.text-muted {
 .react-select__single-value,
 .react-select__placeholder {
   color: white !important;
+}
+
+/* ── JornadasTable: header ── */
+.jornadas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.jornadas-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── JornadasTable: filtros ── */
+.jornadas-filtros {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.jornadas-filtro-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jornadas-filtro-input {
+  width: 160px;
+}
+
+/* ── JornadasTable: cards mobile ── */
+.jornada-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.jornada-card--selected {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.jornada-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.jornada-card__fecha {
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.jornada-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jornada-card__id {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.jornada-card__body {
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.jornada-card__motivo {
+  margin: 0 0 2px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.jornada-card__obs {
+  margin: 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.jornada-card__footer {
+  display: flex;
+  gap: 6px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .jornadas-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .jornadas-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .jornadas-header-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .jornadas-filtros {
+    gap: 8px;
+  }
+
+  .jornadas-filtro-input {
+    width: 100%;
+  }
+
+  .jornadas-filtro-group {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .jornadas-filtro-limpiar {
+    font-size: 13px;
+    padding: 6px 10px;
+    align-self: flex-end;
+  }
 }

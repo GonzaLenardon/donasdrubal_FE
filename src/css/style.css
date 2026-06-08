@@ -146,6 +146,7 @@ body {
   flex-grow: 1;
   padding: 30px;
 }
+
 /* ============================================
    BOTONES
    ============================================ */
@@ -158,7 +159,7 @@ body {
    SIDEBAR
    ============================================ */
 
-.sidebar {
+/* .sidebar {
   min-width: 240px;
   width: 285px;
   height: 100vh;
@@ -172,6 +173,20 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+} */
+
+.sidebar {
+  min-width: 240px;
+  width: 285px;
+  height: 100vh;
+  background: #1e293b;
+  color: #fff;
+
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease;
 }
 
 /* Header */
@@ -363,6 +378,17 @@ body {
 
 .nav-link:hover {
   background-color: #334155;
+}
+
+.topbar-mobile {
+  display: none;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 900;
 }
 
 /* ============================================
@@ -2483,6 +2509,10 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
+.logoMobile {
+  display: none; /* oculto en desktop */
+}
+
 /* ============================================
    RESPONSIVE - MOBILE SIDEBAR
    ============================================ */
@@ -2506,31 +2536,47 @@ textarea:focus-visible {
     margin-left: 0;
   }
 
+  .logoMobile {
+    display: block; /* oculto en desktop */
+    background: url('../assets/Logo.png') no-repeat right center;
+    background-size: contain;
+    height: 60px;
+  }
+
+  .sidebar-header {
+    display: none;
+  }
+
   /* Sidebar */
+
   .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 285px;
+    height: 100vh;
     transform: translateX(-100%);
+    z-index: 1000;
   }
 
   .sidebar-mobile-open {
     transform: translateX(0);
+    padding-top: 5rem;
   }
 
   /* Topbar mobile */
   .topbar-mobile {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1100;
     display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    height: 56px;
-    padding: 0 16px;
-    background-color: transparent;
-    border-bottom: 0px;
   }
 
   .hamburger-btn {
-    display: block;
-    width: 36px;
-    height: 36px;
-    background-color: #1e293b;
+    width: 40px;
+    height: 40px;
+    background: #1e293b;
     border: 1px solid #334155;
     border-radius: 8px;
     display: flex;
@@ -2539,15 +2585,12 @@ textarea:focus-visible {
     align-items: center;
     gap: 4px;
     cursor: pointer;
-    transition:
-      background-color 0.2s ease,
-      border-color 0.2s ease;
   }
 
   .hamburger-btn span {
     width: 18px;
     height: 2px;
-    background-color: #e2e8f0;
+    background: #e2e8f0;
     border-radius: 2px;
   }
 

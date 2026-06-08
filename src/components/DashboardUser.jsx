@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { allServicesToClients, totalServices } from '../api/dashUser';
 import { useCliente } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '../hooks/useIsMobile';
+import ClientesMobileList from '../components/ClientesMobileList';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -424,6 +426,8 @@ const DashboardUser = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const isMobile = useIsMobile();
+
   const { setSelectedCliente } = useCliente();
   const navigate = useNavigate();
 
@@ -489,7 +493,7 @@ const DashboardUser = () => {
   };
 
   return (
-    <div className="p-3">
+    <div className="p-1 p-md-3">
       {/* ── Resumen general — barras segmentadas ── */}
       <h6 className="fw-medium mb-3">Resumen general</h6>
       <div className="row g-3 mb-4">
@@ -555,10 +559,10 @@ const DashboardUser = () => {
         </div>
       </div>
 
-      {/* ── Clientes — mini donuts ── */}
+      {/* ── Clientes — tabla (desktop) / cards (mobile) ── */}
       <h6 className="fw-medium mb-3">Clientes</h6>
       <div className="card mb-4">
-        {/* Buscador */}
+        {/* Buscador — igual que antes */}
         <div
           className="container-table rounded mb-2 p-2"
           style={{ background: '#1c4f1b36' }}
@@ -572,85 +576,88 @@ const DashboardUser = () => {
           />
         </div>
 
-        <div className="table-responsive">
-          <table className="table table-hover align-middle mb-0">
-            <thead className="table-light">
-              <tr>
-                <th style={{ minWidth: 160 }}>Cliente</th>
-                <th>Máq. / Calibraciones</th>
-                <th>Poz. / Muestras</th>
-                <th>Jornadas</th>
-                <th className="text-center" style={{ width: 90 }}>
-                  Lts. Est.
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.length === 0 ? (
+        {/* Renderizado condicional */}
+        {isMobile ? (
+          <div className="p-2">
+            <ClientesMobileList
+              rows={rows}
+              searchTerm={searchTerm}
+              onSelect={handleCliente}
+            />
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-hover align-middle mb-0">
+              {/* thead y tbody exactamente igual que antes — sin ningún cambio */}
+              <thead className="table-light">
                 <tr>
-                  <td colSpan={5} className="text-center text-muted py-4">
-                    {searchTerm
-                      ? 'No se encontraron clientes'
-                      : 'Sin clientes registrados'}
-                  </td>
+                  <th style={{ minWidth: 160 }}>Cliente</th>
+                  <th>Máq. / Calibraciones</th>
+                  <th>Poz. / Muestras</th>
+                  <th>Jornadas</th>
+                  <th className="text-center" style={{ width: 90 }}>
+                    Lts. Est.
+                  </th>
                 </tr>
-              ) : (
-                rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handleCliente(row)}
-                  >
-                    {/* Cliente */}
-                    <td>
-                      <div className="fw-medium">{row.razon_social}</div>
-                      <small className="text-muted">
-                        {row.ciudad}, {row.provincia}
-                      </small>
-                    </td>
-
-                    {/* Calibraciones */}
-                    <td>
-                      <MiniDonut
-                        cerradas={row.calCerradas}
-                        proceso={row.calProceso}
-                        pendientes={row.calPendientes}
-                        total={row.totalCal}
-                        subLabel={`${row.totalMaquinas} máq.`}
-                      />
-                    </td>
-
-                    {/* Muestras */}
-                    <td>
-                      <MiniDonut
-                        cerradas={row.aguaCerradas}
-                        proceso={row.aguaProceso}
-                        pendientes={row.aguaPendientes}
-                        total={row.totalAgua}
-                        subLabel={`${row.totalPozos} poz.`}
-                      />
-                    </td>
-
-                    {/* Jornadas */}
-                    <td>
-                      <MiniDonut
-                        cerradas={row.jorCerradas}
-                        proceso={row.jorProceso}
-                        pendientes={row.jorPendientes}
-                        total={row.totalJornada}
-                      />
-                    </td>
-
-                    {/* Litros */}
-                    <td className="text-center text-muted">
-                      {row.litros_estimados ?? '—'}
+              </thead>
+              <tbody>
+                {rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center text-muted py-4">
+                      {searchTerm
+                        ? 'No se encontraron clientes'
+                        : 'Sin clientes registrados'}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handleCliente(row)}
+                    >
+                      <td>
+                        <div className="fw-medium">{row.razon_social}</div>
+                        <small className="text-muted">
+                          {row.ciudad}, {row.provincia}
+                        </small>
+                      </td>
+                      <td>
+                        <MiniDonut
+                          cerradas={row.calCerradas}
+                          proceso={row.calProceso}
+                          pendientes={row.calPendientes}
+                          total={row.totalCal}
+                          subLabel={`${row.totalMaquinas} máq.`}
+                        />
+                      </td>
+                      <td>
+                        <MiniDonut
+                          cerradas={row.aguaCerradas}
+                          proceso={row.aguaProceso}
+                          pendientes={row.aguaPendientes}
+                          total={row.totalAgua}
+                          subLabel={`${row.totalPozos} poz.`}
+                        />
+                      </td>
+                      <td>
+                        <MiniDonut
+                          cerradas={row.jorCerradas}
+                          proceso={row.jorProceso}
+                          pendientes={row.jorPendientes}
+                          total={row.totalJornada}
+                        />
+                      </td>
+                      <td className="text-center text-muted">
+                        {row.litros_estimados ?? '—'}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* ── Alertas ── */}
