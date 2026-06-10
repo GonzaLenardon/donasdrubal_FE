@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { allServicesToClients, totalServices } from '../api/dashUser';
+import { allIngenieros } from '../api/users';
 import { useCliente } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -422,9 +423,11 @@ const FocoCard = ({ color, count, label }) => (
 const DashboardUser = () => {
   const [totales, setTotales] = useState(null);
   const [clientes, setClientes] = useState([]);
+  const [ingenieros, setIngenieros] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedIngenieroId, setSelectedIngenieroId] = useState('');
 
   const isMobile = useIsMobile();
 
@@ -440,12 +443,14 @@ const DashboardUser = () => {
     try {
       setLoading(true);
       setError(null);
-      const [serviciosRes, totalesRes] = await Promise.all([
+      const [serviciosRes, totalesRes, ingenierosRes] = await Promise.all([
         allServicesToClients(),
         totalServices(),
+        allIngenieros(),
       ]);
       setClientes(serviciosRes.data?.data ?? serviciosRes.data ?? []);
       setTotales(totalesRes.data?.data ?? totalesRes.data ?? null);
+      setIngenieros(ingenierosRes.data ?? []);
     } catch (err) {
       console.error('Error al cargar datos:', err);
       setError('No se pudieron cargar los datos.');
@@ -481,9 +486,16 @@ const DashboardUser = () => {
     );
   }
 
-  const clientesFiltrados = clientes.filter((c) =>
-    c.razon_social?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const clientesFiltrados = clientes.filter((c) => {
+    const matchesSearch = c.razon_social
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesIngeniero =
+      !selectedIngenieroId ||
+      c.ingenieros?.some((ing) => ing.id === Number(selectedIngenieroId));
+
+    return matchesSearch && matchesIngeniero;
+  });
 
   const { rows, sin, proceso, completos } = buildRows(clientesFiltrados);
 
@@ -567,13 +579,31 @@ const DashboardUser = () => {
           className="container-table rounded mb-2 p-2"
           style={{ background: '#1c4f1b36' }}
         >
-          <input
-            type="text"
-            className="form-control"
-            placeholder="🔍 Buscar cliente..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+          <div className="row g-2">
+            <div className="col-12 col-md-7">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="🔍 Buscar cliente..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="col-12 col-md-5">
+              <select
+                className="form-select"
+                value={selectedIngenieroId}
+                onChange={(e) => setSelectedIngenieroId(e.target.value)}
+              >
+                <option value="">Todos los ingenieros</option>
+                {ingenieros.map((ingeniero) => (
+                  <option key={ingeniero.id} value={ingeniero.id}>
+                    {ingeniero.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
         {/* Renderizado condicional */}
@@ -604,7 +634,7 @@ const DashboardUser = () => {
                 {rows.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="text-center text-muted py-4">
-                      {searchTerm
+                      {searchTerm || selectedIngenieroId
                         ? 'No se encontraron clientes'
                         : 'Sin clientes registrados'}
                     </td>
