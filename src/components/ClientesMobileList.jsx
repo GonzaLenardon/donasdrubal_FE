@@ -69,11 +69,18 @@ const StatRow = ({ label, cerradas, proceso, pendientes, meta }) => (
   </div>
 );
 
-const ClientesMobileList = ({ rows, searchTerm, onSelect }) => {
+const ClientesMobileList = ({
+  rows,
+  hasActiveFilters,
+  visibleServices,
+  onSelect,
+}) => {
   if (rows.length === 0) {
     return (
       <p style={{ textAlign: 'center', color: '#9ca3af', padding: '1.5rem 0' }}>
-        {searchTerm ? 'No se encontraron clientes' : 'Sin clientes registrados'}
+        {hasActiveFilters
+          ? 'No se encontraron clientes'
+          : 'Sin clientes registrados'}
       </p>
     );
   }
@@ -148,26 +155,32 @@ const ClientesMobileList = ({ rows, searchTerm, onSelect }) => {
 
           {/* Stats */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            <StatRow
-              label="Cal."
-              cerradas={row.calCerradas}
-              proceso={row.calProceso}
-              pendientes={row.calPendientes}
-              meta={`${row.totalMaquinas} máq.`}
-            />
-            <StatRow
-              label="Muestras"
-              cerradas={row.aguaCerradas}
-              proceso={row.aguaProceso}
-              pendientes={row.aguaPendientes}
-              meta={`${row.totalPozos} poz.`}
-            />
-            <StatRow
-              label="Jornadas"
-              cerradas={row.jorCerradas}
-              proceso={row.jorProceso}
-              pendientes={row.jorPendientes}
-            />
+            {visibleServices.maquinas && (
+              <StatRow
+                label="Cal."
+                cerradas={row.calCerradas}
+                proceso={row.calProceso}
+                pendientes={row.calPendientes}
+                meta={`${row.totalMaquinas} máq.`}
+              />
+            )}
+            {visibleServices.muestras && (
+              <StatRow
+                label="Muestras"
+                cerradas={row.aguaCerradas}
+                proceso={row.aguaProceso}
+                pendientes={row.aguaPendientes}
+                meta={`${row.totalPozos} poz.`}
+              />
+            )}
+            {visibleServices.jornadas && (
+              <StatRow
+                label="Jornadas"
+                cerradas={row.jorCerradas}
+                proceso={row.jorProceso}
+                pendientes={row.jorPendientes}
+              />
+            )}
           </div>
         </div>
       ))}

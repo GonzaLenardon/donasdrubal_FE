@@ -83,6 +83,52 @@ const buildRows = (clientes) => {
   };
 };
 
+const INITIAL_STATUS_FILTERS = {
+  pendientes: true,
+  proceso: true,
+  cerradas: true,
+};
+
+const INITIAL_SERVICE_VISIBILITY = {
+  maquinas: true,
+  muestras: true,
+  jornadas: true,
+};
+
+const SERVICE_COLUMNS = [
+  { key: 'maquinas', label: 'Máq. / Calibraciones' },
+  { key: 'muestras', label: 'Poz. / Muestras' },
+  { key: 'jornadas', label: 'Jornadas' },
+];
+
+const hasSelectedStatus = (cliente, statusFilters) => {
+  const selectedStatuses = Object.entries(statusFilters)
+    .filter(([, isSelected]) => isSelected)
+    .map(([status]) => status);
+  const allStatusesSelected =
+    selectedStatuses.length === Object.keys(statusFilters).length;
+
+  if (allStatusesSelected) return true;
+  if (selectedStatuses.length === 0) return false;
+
+  const statusTotals = {
+    pendientes:
+      (cliente.Maquinas?.calibracionesPendientes ?? 0) +
+      (cliente.Pozos?.muestrasPendientes ?? 0) +
+      (cliente.Jornadas?.jornadasPendientes ?? 0),
+    proceso:
+      (cliente.Maquinas?.calibracionesProceso ?? 0) +
+      (cliente.Pozos?.muestrasProceso ?? 0) +
+      (cliente.Jornadas?.jornadasProceso ?? 0),
+    cerradas:
+      (cliente.Maquinas?.calibracionesCerradas ?? 0) +
+      (cliente.Pozos?.muestrasCerradas ?? 0) +
+      (cliente.Jornadas?.jornadasCerradas ?? 0),
+  };
+
+  return selectedStatuses.some((status) => statusTotals[status] > 0);
+};
+
 // ─── Sub-componentes ───────────────────────────────────────────────────────────
 
 /**
@@ -418,6 +464,25 @@ const FocoCard = ({ color, count, label }) => (
   </div>
 );
 
+const ToggleButton = ({ id, label, checked, onChange }) => (
+  <div>
+    <input
+      type="checkbox"
+      className="btn-check"
+      id={id}
+      checked={checked}
+      onChange={onChange}
+    />
+    <label
+      className={`btn btn-sm ${checked ? 'btn-success' : 'btn-outline-secondary'}`}
+      htmlFor={id}
+      style={{ borderRadius: 20 }}
+    >
+      {label}
+    </label>
+  </div>
+);
+
 // ─── Componente principal ──────────────────────────────────────────────────────
 
 const DashboardUser = () => {
@@ -428,6 +493,10 @@ const DashboardUser = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIngenieroId, setSelectedIngenieroId] = useState('');
+  const [statusFilters, setStatusFilters] = useState(INITIAL_STATUS_FILTERS);
+  const [visibleServices, setVisibleServices] = useState(
+    INITIAL_SERVICE_VISIBILITY,
+  );
 
   const isMobile = useIsMobile();
 
@@ -493,11 +562,27 @@ const DashboardUser = () => {
     const matchesIngeniero =
       !selectedIngenieroId ||
       c.ingenieros?.some((ing) => ing.id === Number(selectedIngenieroId));
+    const matchesStatus = hasSelectedStatus(c, statusFilters);
 
-    return matchesSearch && matchesIngeniero;
+    return matchesSearch && matchesIngeniero && matchesStatus;
   });
 
   const { rows, sin, proceso, completos } = buildRows(clientesFiltrados);
+  const visibleServiceCount =
+    Object.values(visibleServices).filter(Boolean).length;
+  const tableColSpan = 2 + visibleServiceCount;
+  const hasActiveFilters =
+    searchTerm ||
+    selectedIngenieroId ||
+    !Object.values(statusFilters).every(Boolean);
+
+  const toggleStatusFilter = (key) => {
+    setStatusFilters((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const toggleServiceVisibility = (key) => {
+    setVisibleServices((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const handleCliente = (row) => {
     setSelectedCliente(row);
@@ -604,6 +689,50 @@ const DashboardUser = () => {
               </select>
             </div>
           </div>
+          <div className="d-flex flex-column flex-lg-row gap-3 mt-3">
+            <div className="d-flex flex-wrap align-items-center gap-2">
+              <span className="text-muted small fw-medium me-1">Estado</span>
+              <ToggleButton
+                id="dashboard-filter-pendientes"
+                label="Pendientes"
+                checked={statusFilters.pendientes}
+                onChange={() => toggleStatusFilter('pendientes')}
+              />
+              <ToggleButton
+                id="dashboard-filter-proceso"
+                label="En proceso"
+                checked={statusFilters.proceso}
+                onChange={() => toggleStatusFilter('proceso')}
+              />
+              <ToggleButton
+                id="dashboard-filter-cerradas"
+                label="Cerradas"
+                checked={statusFilters.cerradas}
+                onChange={() => toggleStatusFilter('cerradas')}
+              />
+            </div>
+            <div className="d-flex flex-wrap align-items-center gap-2">
+              <span className="text-muted small fw-medium me-1">Mostrar</span>
+              <ToggleButton
+                id="dashboard-show-maquinas"
+                label="Máquinas"
+                checked={visibleServices.maquinas}
+                onChange={() => toggleServiceVisibility('maquinas')}
+              />
+              <ToggleButton
+                id="dashboard-show-muestras"
+                label="Muestras"
+                checked={visibleServices.muestras}
+                onChange={() => toggleServiceVisibility('muestras')}
+              />
+              <ToggleButton
+                id="dashboard-show-jornadas"
+                label="Jornadas"
+                checked={visibleServices.jornadas}
+                onChange={() => toggleServiceVisibility('jornadas')}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Renderizado condicional */}
@@ -611,7 +740,8 @@ const DashboardUser = () => {
           <div className="p-2">
             <ClientesMobileList
               rows={rows}
-              searchTerm={searchTerm}
+              hasActiveFilters={hasActiveFilters}
+              visibleServices={visibleServices}
               onSelect={handleCliente}
             />
           </div>
@@ -622,9 +752,11 @@ const DashboardUser = () => {
               <thead className="table-light">
                 <tr>
                   <th style={{ minWidth: 160 }}>Cliente</th>
-                  <th>Máq. / Calibraciones</th>
-                  <th>Poz. / Muestras</th>
-                  <th>Jornadas</th>
+                  {SERVICE_COLUMNS.filter(
+                    ({ key }) => visibleServices[key],
+                  ).map(({ key, label }) => (
+                    <th key={key}>{label}</th>
+                  ))}
                   <th className="text-center" style={{ width: 90 }}>
                     Lts. Est.
                   </th>
@@ -633,8 +765,11 @@ const DashboardUser = () => {
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center text-muted py-4">
-                      {searchTerm || selectedIngenieroId
+                    <td
+                      colSpan={tableColSpan}
+                      className="text-center text-muted py-4"
+                    >
+                      {hasActiveFilters
                         ? 'No se encontraron clientes'
                         : 'Sin clientes registrados'}
                     </td>
@@ -652,32 +787,38 @@ const DashboardUser = () => {
                           {row.ciudad}, {row.provincia}
                         </small>
                       </td>
-                      <td>
-                        <MiniDonut
-                          cerradas={row.calCerradas}
-                          proceso={row.calProceso}
-                          pendientes={row.calPendientes}
-                          total={row.totalCal}
-                          subLabel={`${row.totalMaquinas} máq.`}
-                        />
-                      </td>
-                      <td>
-                        <MiniDonut
-                          cerradas={row.aguaCerradas}
-                          proceso={row.aguaProceso}
-                          pendientes={row.aguaPendientes}
-                          total={row.totalAgua}
-                          subLabel={`${row.totalPozos} poz.`}
-                        />
-                      </td>
-                      <td>
-                        <MiniDonut
-                          cerradas={row.jorCerradas}
-                          proceso={row.jorProceso}
-                          pendientes={row.jorPendientes}
-                          total={row.totalJornada}
-                        />
-                      </td>
+                      {visibleServices.maquinas && (
+                        <td>
+                          <MiniDonut
+                            cerradas={row.calCerradas}
+                            proceso={row.calProceso}
+                            pendientes={row.calPendientes}
+                            total={row.totalCal}
+                            subLabel={`${row.totalMaquinas} máq.`}
+                          />
+                        </td>
+                      )}
+                      {visibleServices.muestras && (
+                        <td>
+                          <MiniDonut
+                            cerradas={row.aguaCerradas}
+                            proceso={row.aguaProceso}
+                            pendientes={row.aguaPendientes}
+                            total={row.totalAgua}
+                            subLabel={`${row.totalPozos} poz.`}
+                          />
+                        </td>
+                      )}
+                      {visibleServices.jornadas && (
+                        <td>
+                          <MiniDonut
+                            cerradas={row.jorCerradas}
+                            proceso={row.jorProceso}
+                            pendientes={row.jorPendientes}
+                            total={row.totalJornada}
+                          />
+                        </td>
+                      )}
                       <td className="text-center text-muted">
                         {row.litros_estimados ?? '—'}
                       </td>
