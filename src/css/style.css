@@ -178,11 +178,20 @@ body {
 .sidebar {
   min-width: 240px;
   width: 285px;
-  height: 100vh;
+  min-height: 100vh;
   background: #1e293b;
   color: #fff;
+  position: relative;
 
   padding: 20px;
+}
+
+.abc {
+  position: fixed;
+
+  height: 100%;
+  display: flex;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;

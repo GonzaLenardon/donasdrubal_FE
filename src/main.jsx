@@ -17,6 +17,7 @@ import './css/login.css';
 import './css/pozos.css';
 import './css/notas.css';
 import './css/drawerNotasUsuario.css';
+import './css/notasclientes.css';
 
 createRoot(document.getElementById('root')).render(
   <UserProvider>

@@ -267,6 +267,10 @@ const JornadasTable = () => {
                     <th>
                       <i className="bi bi-flag-fill me-1"></i>Estado
                     </th>
+
+                    <th className="text-center">
+                      <i className="bi bi-person-fill me-1"></i>Ing. Responsable
+                    </th>
                     <th className="text-center">
                       <i className="bi bi-gear me-1"></i>Acciones
                     </th>
@@ -324,6 +328,13 @@ const JornadasTable = () => {
                             {badge.label}
                           </span>
                         </td>
+
+                        <td className="text-center">
+                          <span className="table-text">
+                            {m.responsable?.nombre || '-'}
+                          </span>
+                        </td>
+
                         <td>
                           <div className="table-actions">
                             {!isClosed && (

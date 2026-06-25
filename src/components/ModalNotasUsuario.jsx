@@ -78,7 +78,7 @@ const ModalNotasUsuario = ({ isOpen, onClose, notas = [], nombreUsuario }) => {
             </div>
             <div>
               <h3 className="modal-title-pozos mb-1">
-                Notas de {nombreUsuario ?? 'usuario'}
+                Notas de{nombreUsuario ?? 'usuario'}
               </h3>
               <p className="modal-subtitle-pozos mb-0">
                 {totalNotas > 0

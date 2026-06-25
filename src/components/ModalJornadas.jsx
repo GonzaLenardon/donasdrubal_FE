@@ -5,6 +5,7 @@ import ModalFinalizarServicios from './ModalFinalizarServicios';
 
 const emptyJornada = {
   fecha_jornada: '',
+  responsable_id: '',
   motivo: '',
   estado: 'PENDIENTE',
   observaciones: '',
@@ -40,6 +41,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
       setFormData({
         ...emptyJornada,
         ...jornada,
+
         fecha_jornada: jornada.fecha_jornada?.split('T')[0] || '',
       });
     } else {
@@ -78,8 +80,8 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
       }
     } catch (error) {
       console.error('Error al guardar:', error);
-      setErrors({ 
-        submit: 
+      setErrors({
+        submit:
           error.message || 'Error al guardar la jornada. Intente nuevamente.',
       });
       setMsg('Error al guardar');
@@ -96,19 +98,22 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
     setIsSubmitting(true);
     setLoading(true);
     try {
-      setMsg('Procesando...');      
+      setMsg('Procesando...');
+      const { cliente, ...resto } = formData;
+
+      console.log('REsto ', resto);
 
       const dataToSend = {
-        ...formData,
+        ...resto,
         cliente_id: parseInt(formData.cliente_id),
       };
 
       let resp;
       if (dataToSend.id) {
-        setMsg('Actualizando jornada...');        
+        setMsg('Actualizando jornada...');
         resp = await upJornadas(dataToSend);
         await new Promise((resolve) => setTimeout(resolve, 1000));
-      }else {
+      } else {
         setMsg('Guardando jornada...');
         await new Promise((resolve) => setTimeout(resolve, 1000));
         resp = await addJornadas(dataToSend);
@@ -119,16 +124,15 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
       return true;
     } catch (error) {
       console.error('Error al guardar:', error);
-      setErrors({ 
-        submit: 'Error al guardar la Jornada. Intente nuevamente.' 
+      setErrors({
+        submit: 'Error al guardar la Jornada. Intente nuevamente.',
       });
-        setMsg('Error al guardar');
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+      setMsg('Error al guardar');
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     } finally {
       setIsSubmitting(false);
     }
-
-  }
+  };
 
   // La lógica de cerrar jornada la implementás vos acá
   const handleCerrarJornada = async () => {
@@ -139,11 +143,11 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
       if (!guardadoExitoso) return;
       setMsg('Finalizando muestra...');
       const resp = await closeJornada(jornada.id);
-      console.log('rsp finalizar',resp.message);
+      console.log('rsp finalizar', resp.message);
       setMsg('Jornada finalizada exitosamente');
       await new Promise((r) => setTimeout(r, 2000));
 
-      if (onSaved) onSaved();      
+      if (onSaved) onSaved();
 
       handleClose();
     } catch (error) {
@@ -164,8 +168,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
 
   // isFormComplete — se habilita el botón Cerrar solo si la jornada
   // tiene fecha y estado cargados (ajustá los campos según tu criterio)
-  const isFormComplete =
-    !!formData.fecha_jornada && !!formData.motivo;
+  const isFormComplete = !!formData.fecha_jornada && !!formData.motivo;
 
   if (!isOpen) return null;
 
@@ -229,6 +232,26 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                   {errors.fecha_jornada}
                 </div>
               )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="motivo" className="form-label">
+                <i className="bi bi-building me-2"></i>
+                Ingeniero Responsable
+              </label>
+              <select
+                className="form-control form-control-jornadas"
+                name="responsable_id"
+                value={formData.responsable_id}
+                onChange={handleChange}
+              >
+                <option value="">Seleccione responsable</option>
+                {formData.cliente?.ingenieros.map((ing) => (
+                  <option key={ing.id} value={ing.id}>
+                    {ing.nombre}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Motivo */}
