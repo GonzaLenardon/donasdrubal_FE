@@ -17,7 +17,11 @@ import {
   Tractor,
   Mail,
   FileText,
+  Notebook,
+  NotebookIcon,
 } from 'lucide-react';
+import ModalNotas from './ModalNotas.jsx';
+import NotasCliente from './NotasClientes.jsx';
 
 const ClienteDetalles = () => {
   const { cliente_id } = useParams();
@@ -26,6 +30,7 @@ const ClienteDetalles = () => {
   const { activeTab, setActiveTab } = useCliente();
   const outlet = useOutlet();
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     dataCliente();
@@ -99,6 +104,17 @@ const ClienteDetalles = () => {
           <Calendar className="tab-icon" size={18} />
           <span>Jornadas</span>
         </button>
+
+        <button
+          className={`tab-button ${activeTab === 'notas' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveTab('notas');
+          }}
+        >
+          <NotebookIcon className="tab-icon" size={18} />
+
+          <span>Notas</span>
+        </button>
       </div>
 
       {/* ================= CONTENT AREA ================= */}
@@ -118,6 +134,10 @@ const ClienteDetalles = () => {
             {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
             {activeTab === 'jornadas' && (
               <JornadasTable cliente_id={cliente_id} />
+            )}
+
+            {activeTab === 'notas' && (
+              <NotasCliente clienteId={cliente_id} userId={user.id} />
             )}
           </>
         )}
