@@ -177,6 +177,7 @@ const Notifications = () => {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [userFilter, setUserFilter] = useState('all');
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState(initialForm);
   const [selectedNotification, setSelectedNotification] = useState(null);
@@ -255,11 +256,43 @@ const Notifications = () => {
 
   const currentList = tab === TAB_RECIBIDAS ? recibidas : enviadas;
 
+  const filterOptions = useMemo(() => {
+    const options = [];
+    const seen = new Set();
+
+    currentList.forEach((item) => {
+      const label = tab === TAB_RECIBIDAS ? item.remitente : item.destinatario;
+      const value = String(label || '').trim();
+
+      if (!value || seen.has(value)) return;
+
+      seen.add(value);
+      options.push({ value, label: value });
+    });
+
+    return options.sort((a, b) => a.label.localeCompare(b.label));
+  }, [currentList, tab]);
+
   const filteredList = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return currentList;
+    const normalizedUserFilter = userFilter === 'all' ? null : String(userFilter);
 
-    return currentList.filter((item) =>
+    let list = currentList;
+
+    if (normalizedUserFilter) {
+      list = list.filter((item) => {
+        const targetValue =
+          tab === TAB_RECIBIDAS
+            ? String(item.remitente || '')
+            : String(item.destinatario || '');
+
+        return targetValue.toLowerCase() === normalizedUserFilter.toLowerCase();
+      });
+    }
+
+    if (!term) return list;
+
+    return list.filter((item) =>
       [
         item.titulo,
         item.mensaje,
@@ -273,7 +306,7 @@ const Notifications = () => {
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(term)),
     );
-  }, [currentList, searchTerm]);
+  }, [currentList, searchTerm, userFilter, tab]);
 
   const stats = useMemo(
     () => ({
@@ -337,6 +370,7 @@ const Notifications = () => {
   useEffect(() => {
     setSelectedNotificationIds([]);
     setSelectionMode(false);
+    setUserFilter('all');
   }, [tab]);
 
   const openModal = () => {
@@ -761,6 +795,25 @@ if (editingNotificationId) {
                 >
                   Enviadas
                 </button>
+              </div>
+
+              <div className="d-flex align-items-center gap-2" style={{ minWidth: '260px' }}>
+                <label className="form-label mb-0 text-white-50" style={{ fontSize: '0.8rem' }}>
+                  {tab === TAB_RECIBIDAS ? 'Filtrar por remitente' : 'Filtrar por destinatario'}
+                </label>
+                <select
+                  className="form-select form-select-sm"
+                  value={userFilter}
+                  onChange={(event) => setUserFilter(event.target.value)}
+                  style={{ minWidth: '180px' }}
+                >
+                  <option value="all">Todos</option>
+                  {filterOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <input
