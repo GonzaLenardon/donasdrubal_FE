@@ -37,8 +37,6 @@ const DashboardLayout = () => {
   const { selectedMaquina, selectedCliente, selectedPozo, setActiveTab } =
     useCliente();
 
-  console.log('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', selectedCliente);
-
   const clienteNombre = selectedCliente?.razon_social;
   const maquinaNombre =
     selectedMaquina?.tipo?.marca && selectedMaquina?.tipo?.modelo

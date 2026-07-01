@@ -1512,6 +1512,11 @@ small.text-muted {
   height: 100%;
 }
 
+.form-section--cards {
+  background-color: rgb(245, 242, 242);
+  box-shadow: rgba(0, 0, 0, 0.5) 2px 2px;
+}
+
 /* Sección full width */
 .form-section--full {
   grid-column: 1 / -1;

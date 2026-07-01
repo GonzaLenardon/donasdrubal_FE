@@ -34,10 +34,6 @@ const ModalPozos = ({ isOpen, onClose, pozo, onSaved, onlyView }) => {
     }
   }, [pozo, isOpen]);
 
-  useEffect(() => {
-    console.log('Form Data', formData);
-  }, [formData]);
-
   const resetForm = () => {
     setFormData({
       nombre: '',
