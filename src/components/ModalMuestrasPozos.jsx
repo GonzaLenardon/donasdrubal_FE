@@ -14,10 +14,14 @@ const ModalMuestrasPozos = ({
   isOpen,
   onClose,
   muestra,
+  ingenieros,
   onSaved,
   onlyView,
 }) => {
   const { cliente, cliente_id } = useParams();
+
+  console.log('INGENIEROS', ingenieros);
+  console.log('muestras', muestra);
 
   const [formData, setFormData] = useState({
     ph: '',
@@ -30,6 +34,8 @@ const ModalMuestrasPozos = ({
     fecha_analisis: '',
     informe: '',
     informeFile: null,
+    responsable_id: '',
+    responsable: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -68,11 +74,6 @@ const ModalMuestrasPozos = ({
     }
   }, [muestra, isOpen]);
 
-  useEffect(() => {
-    console.log('FFFFFFFFFFFFFFFFFFFFFFF', formData);
-    console.log(formatFecha(muestra?.fecha_muestra));
-  }, [formData]);
-
   const resetForm = () => {
     setFormData({
       ph: '',
@@ -85,6 +86,8 @@ const ModalMuestrasPozos = ({
       fecha_analisis: '',
       informe: '',
       informeFile: null,
+      responsable_id: '',
+      responsable: '',
     });
     setErrors({});
     setFileErrors(null);
@@ -205,13 +208,13 @@ const ModalMuestrasPozos = ({
       setIsSubmitting(false);
       setLoading(false);
     }
-  }
+  };
 
   const saveMuestra = async () => {
     if (!validateForm()) return false;
     setIsSubmitting(true);
     setLoading(true);
-     try {
+    try {
       setMsg('Procesando...');
 
       const { informeFile, ...dataToSend } = formData;
@@ -243,38 +246,36 @@ const ModalMuestrasPozos = ({
       await new Promise((r) => setTimeout(r, 1000));
 
       return true;
-    
-} catch (error) {
-    console.error('Error al guardar:', error);
-    setErrors({
-      submit: error.message || 'Error al guardar la muestra.',
-    });
-    setMsg('Error al guardar');
-    // Esperamos un poco para que el usuario lea el error antes de limpiar
-    await new Promise((r) => setTimeout(r, 3000));
-    return false; // Error capturado
-  } finally {
-    // No limpiamos el mensaje aquí para que no se borre el éxito/error prematuramente
-    setIsSubmitting(false);
-  }
-};
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      setErrors({
+        submit: error.message || 'Error al guardar la muestra.',
+      });
+      setMsg('Error al guardar');
+      // Esperamos un poco para que el usuario lea el error antes de limpiar
+      await new Promise((r) => setTimeout(r, 3000));
+      return false; // Error capturado
+    } finally {
+      // No limpiamos el mensaje aquí para que no se borre el éxito/error prematuramente
+      setIsSubmitting(false);
+    }
+  };
 
   // ── Finalizar muestra ─────────────────────────────────────────────────────
   const handleFinalizarMuestra = async () => {
-    
     try {
       setLoading(true);
       setShowFinalizarModal(false);
       const guardadoExitoso = await saveMuestra();
       if (!guardadoExitoso) return;
       setMsg('Finalizando muestra...');
-      const resp = await closeMuestra(muestra.id);      
+      const resp = await closeMuestra(muestra.id);
       console.log('Respuesta de cierre Muestra', resp);
       setMsg('Muestra finalizada exitosamente');
       await new Promise((r) => setTimeout(r, 2000));
 
-      if (onSaved) onSaved();      
-      
+      if (onSaved) onSaved();
+
       handleClose();
     } catch (error) {
       console.error('Error al finalizar:', error);
@@ -320,6 +321,8 @@ const ModalMuestrasPozos = ({
     !!formData.alcalinidad &&
     !!formData.salinidad &&
     !!formData.fuerza_ionica &&
+    !!(formData.informe || formData.informeFile);
+  !!formData.responsable_id && // ← agregar
     !!(formData.informe || formData.informeFile);
 
   // ── Early return — SIEMPRE después de todos los hooks ────────────────────
@@ -377,11 +380,11 @@ const ModalMuestrasPozos = ({
             )}
 
             {/* Fechas */}
-            <div className="form-section">
+            <div className="form-section form-section--cards">
               <h6 className="form-section__title">
                 <i className="bi bi-calendar3 me-2"></i>Fechas
               </h6>
-              <div className="row g-3">
+              <div className="row g-3 mb-2">
                 <div className="col-6">
                   <label className="form-label form-label--sm">
                     Fecha de Muestra <span className="text-danger">*</span>
@@ -418,10 +421,37 @@ const ModalMuestrasPozos = ({
                   />
                 </div>
               </div>
+
+              <div className="form-group">
+                <label htmlFor="motivo" className="form-label">
+                  <i className="bi bi-building me-2"></i>
+                  Ingeniero Responsable
+                </label>
+
+                <select
+                  className={`form-control form-control-jornadas ${errors.responsable_id ? 'is-invalid' : ''}`}
+                  name="responsable_id"
+                  value={formData.responsable_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Seleccione responsable</option>
+                  {ingenieros?.map((ing) => (
+                    <option key={ing.id} value={ing.id}>
+                      {ing.nombre}
+                    </option>
+                  ))}
+                </select>
+                {errors.responsable_id && (
+                  <div className="invalid-feedback">
+                    <i className="bi bi-exclamation-circle me-1"></i>
+                    {errors.responsable_id}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Informe adjunto */}
-            <div className="form-section">
+            <div className="form-section form-section--cards">
               <h6 className="form-section__title">
                 <i className="bi bi-paperclip me-2"></i>Informe adjunto
                 <small className="fw-normal ms-2 text-secondary">(PDF)</small>
@@ -610,7 +640,7 @@ const ModalMuestrasPozos = ({
             </div>
 
             {/* Parámetros Químicos */}
-            <div className="form-section form-section--full">
+            <div className="form-section form-section--full form-section--cards">
               <h6 className="form-section__title">
                 <i className="bi bi-droplet-half me-2"></i>Parámetros Químicos
               </h6>

@@ -1,7 +1,6 @@
 import instance from './axios';
 
 export const muestraAguaPozoCliente = async (cliente, pozo) => {
-  console.log('first,', cliente);
   const res = await instance.get(
     `/cliente/${cliente}/pozos/${pozo}/muestras_agua`,
   );

@@ -36,6 +36,7 @@ const MuestrasPozos = () => {
 
   const [muestras, setMuestras] = useState([]);
   const [cliente, setCliente] = useState([]);
+  const [ingenieros, setIngenieros] = useState([]);
   const [pozo, setPozo] = useState([]);
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
@@ -63,6 +64,7 @@ const MuestrasPozos = () => {
     try {
       setLoading(true);
       const res = await muestraAguaPozoCliente(cliente_id, pozos_id);
+      setIngenieros(res.data.cliente?.ingenieros);
       setPozo(res.data);
       setCliente(res.data.cliente);
       setMuestras(res.data.muestrasAgua);
@@ -106,7 +108,7 @@ const MuestrasPozos = () => {
   };
 
   /* ================= FILTROS ================= */
-  console.log('Muestras para filtrar', muestras);
+
   const muestrasFiltradas = muestras.filter((m) => {
     if (!desde && !hasta) return true;
     const f = new Date(m.fecha_muestra);
@@ -205,10 +207,6 @@ const MuestrasPozos = () => {
     }
   };
 
-  useEffect(() => {
-    console.log('xxxxxxxxxxxxxxxxx', seleccionados);
-  }, [seleccionados]);
-
   /* ================= RENDER ================= */
 
   return (
@@ -239,8 +237,9 @@ const MuestrasPozos = () => {
                 {isAdmin && (
                   <button
                     type="button"
-                    className={`btn btn-sm d-flex align-items-center gap-2 ${modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
-                      }`}
+                    className={`btn btn-sm d-flex align-items-center gap-2 ${
+                      modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
+                    }`}
                     style={{ opacity: modoSeleccion ? 1 : 0.65 }}
                     onClick={toggleModoSeleccion}
                   >
@@ -418,6 +417,14 @@ const MuestrasPozos = () => {
                         </th>
 
                         <th
+                          className="text-white fw-semibold"
+                          style={{ fontSize: '0.875rem' }}
+                        >
+                          <i className="bi bi-person-fill me-1"></i>Ing.
+                          Responsable
+                        </th>
+
+                        <th
                           className="text-white fw-semibold text-center"
                           style={{ fontSize: '0.875rem' }}
                         >
@@ -561,7 +568,7 @@ const MuestrasPozos = () => {
                                 </span>
                               )}
                             </td>
-                            
+
                             <td className="text-center">
                               {m.informe ? (
                                 <button
@@ -576,13 +583,17 @@ const MuestrasPozos = () => {
                                     setShowViewer(true);
                                     setViewerUrl(
                                       `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` +
-                                      m.informe,
+                                        m.informe,
                                     );
                                   }}
                                 >
                                   <i className="bi bi-file-earmark-arrow-down"></i>
                                 </button>
                               ) : null}
+                            </td>
+
+                            <td className="text-center py-2 px-3">
+                              <span>{m.responsable?.nombre}</span>
                             </td>
 
                             {/* Acciones */}
@@ -602,7 +613,7 @@ const MuestrasPozos = () => {
                                 )}
 
                                 {m.estado === 'CERRADO' &&
-                                  user.rol === 'Administrador' ? (
+                                user.rol === 'Administrador' ? (
                                   <button
                                     className="btn btn-sm maquina-btn-reabrir"
                                     onClick={(e) => {
@@ -642,6 +653,7 @@ const MuestrasPozos = () => {
               setIsOpen(false);
             }}
             muestra={muestraEdit}
+            ingenieros={ingenieros}
             onSaved={getMuestras}
             onlyView={onlyView}
           />
