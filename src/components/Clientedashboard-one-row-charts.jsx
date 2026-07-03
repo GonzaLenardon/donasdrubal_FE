@@ -475,7 +475,8 @@ const ClienteDashboard = ({ cliente }) => {
     date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC',
     }) : 'Sin fecha',
     status: service.estado || 'Pendiente',
     badge: service.tipoMaquina.tipo,
@@ -488,7 +489,8 @@ const ClienteDashboard = ({ cliente }) => {
     date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC',
     }) : 'Sin fecha',
     status: service.estado || 'Pendiente',
     icon: service.categoria === 'analisis' ? '💧' : '🎓',
@@ -500,7 +502,8 @@ const ClienteDashboard = ({ cliente }) => {
     date: service.fecha ? new Date(service.fecha).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC',
     }) : 'Sin fecha',
     status: service.estado || 'Pendiente',
     icon: service.categoria === 'analisis' ? '💧' : '🎓',

@@ -527,7 +527,8 @@ const ClienteDashboard = ({ cliente }) => {
     date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC',
     }) : 'Sin fecha',
     status: service.status || 'Pendiente',
     icon: service.icon == 'calibracion' ? '🔧' : '🚜',
@@ -539,7 +540,8 @@ const ClienteDashboard = ({ cliente }) => {
     date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC',
     }) : 'Sin fecha',
     status: service.status || 'Pendiente',
     icon: service.icon === 'analisis' ? '💧' : '🎓',
@@ -551,7 +553,8 @@ const ClienteDashboard = ({ cliente }) => {
     date: service.date ? new Date(service.date).toLocaleDateString('es-AR', {
       day: '2-digit',
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
+      timeZone: 'UTC',
     }) : 'Sin fecha',
     status: service.status || 'Pendiente',
     icon: service.icon === 'jornadas' ? '💧' : '🎓',

@@ -336,6 +336,7 @@ const Alertas = () => {
                     day: '2-digit',
                     month: 'long',
                     year: 'numeric',
+                    timeZone: 'UTC',
                   })}
                 </strong>
               </div>
@@ -350,6 +351,7 @@ const Alertas = () => {
                       day: '2-digit',
                       month: 'long',
                       year: 'numeric',
+                      timeZone: 'UTC',
                     },
                   )}
                 </strong>

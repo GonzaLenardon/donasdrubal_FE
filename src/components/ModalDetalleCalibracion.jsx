@@ -24,6 +24,7 @@ const ModalDetalleCalibracion = ({
     day: '2-digit',
     month: 'long',
     year: 'numeric',
+    timeZone: 'UTC',
   });
 
   const ingResponsable = ingenieros?.find((i) => i.id === cal.responsable_id);
