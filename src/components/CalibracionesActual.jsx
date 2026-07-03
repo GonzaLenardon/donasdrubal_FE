@@ -381,6 +381,7 @@ export const Calibraciones = () => {
                     day: '2-digit',
                     month: 'long',
                     year: 'numeric',
+                    timeZone: 'UTC',
                   });
                   const isOpen = openIndex === i;
                   const estadoMaquinaData = parseEstado(
