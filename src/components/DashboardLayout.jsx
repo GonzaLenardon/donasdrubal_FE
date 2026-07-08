@@ -15,6 +15,7 @@ const breadcrumbNames = {
   cliente: 'Clientes',
   clientes: 'Clientes',
   notificaciones: 'Notificaciones',
+  herramientas: 'Herramientas',
   pozos: 'Pozos',
   jornadas: 'Jornadas',
   reportes: 'Reportes',

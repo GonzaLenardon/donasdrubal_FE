@@ -43,6 +43,11 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       icon: 'bi-bell-fill',
     },
     {
+      title: 'Herramientas',
+      path: '/herramientas',
+      icon: 'bi-wrench',
+    },
+    {
       title: 'Configuración',
       icon: 'bi-gear-fill',
       children: [
