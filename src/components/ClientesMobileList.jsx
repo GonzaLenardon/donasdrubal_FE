@@ -1,45 +1,7 @@
-// src/components/ClientesMobileList.jsx
+import EstadoServicio from './EstadoServicio';
 
-const Pill = ({ value, type }) => {
-  if (!value) return null;
-
-  const styles = {
-    check: { background: '#eaf3de', color: '#3b6d11' },
-    clock: { background: '#faeeda', color: '#854f0b' },
-    circle: {
-      background: '#f3f4f6',
-      color: '#6b7280',
-      border: '1px solid #e5e7eb',
-    },
-  };
-
-  const icons = {
-    check: '✔',
-    clock: '⏳',
-    circle: '○',
-  };
-
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 3,
-        fontSize: 11,
-        fontWeight: 500,
-        padding: '1px 7px',
-        borderRadius: 999,
-        ...styles[type],
-      }}
-    >
-      <span style={{ fontSize: 10 }}>{icons[type]}</span>
-      {value}
-    </span>
-  );
-};
-
-const StatRow = ({ label, cerradas, proceso, pendientes, meta }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+const FilaEstado = ({ label, cerradas, proceso, pendientes, total }) => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
     <span
       style={{
         fontSize: 10,
@@ -53,19 +15,12 @@ const StatRow = ({ label, cerradas, proceso, pendientes, meta }) => (
     >
       {label}
     </span>
-    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-      <Pill value={cerradas} type="check" />
-      <Pill value={proceso} type="clock" />
-      <Pill value={pendientes} type="circle" />
-      {!cerradas && !proceso && !pendientes && (
-        <span style={{ fontSize: 11, color: '#9ca3af' }}>—</span>
-      )}
-    </div>
-    {meta && (
-      <span style={{ fontSize: 10, color: '#9ca3af', marginLeft: 'auto' }}>
-        {meta}
-      </span>
-    )}
+    <EstadoServicio
+      cerradas={cerradas}
+      proceso={proceso}
+      pendientes={pendientes}
+      total={total}
+    />
   </div>
 );
 
@@ -106,10 +61,9 @@ const ClientesMobileList = ({
             cursor: 'pointer',
             display: 'flex',
             flexDirection: 'column',
-            gap: 8,
+            gap: 10,
           }}
         >
-          {/* Header: nombre + litros */}
           <div
             style={{
               display: 'flex',
@@ -153,32 +107,32 @@ const ClientesMobileList = ({
             </span>
           </div>
 
-          {/* Stats */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {visibleServices.maquinas && (
-              <StatRow
+              <FilaEstado
                 label="Cal."
                 cerradas={row.calCerradas}
                 proceso={row.calProceso}
                 pendientes={row.calPendientes}
-                meta={`${row.totalMaquinas} máq.`}
+                total={row.totalCal}
               />
             )}
             {visibleServices.muestras && (
-              <StatRow
+              <FilaEstado
                 label="Muestras"
                 cerradas={row.aguaCerradas}
                 proceso={row.aguaProceso}
                 pendientes={row.aguaPendientes}
-                meta={`${row.totalPozos} poz.`}
+                total={row.totalAgua}
               />
             )}
             {visibleServices.jornadas && (
-              <StatRow
+              <FilaEstado
                 label="Jornadas"
                 cerradas={row.jorCerradas}
                 proceso={row.jorProceso}
                 pendientes={row.jorPendientes}
+                total={row.totalJornada}
               />
             )}
           </div>
