@@ -4,7 +4,8 @@ import { allIngenieros } from '../api/users';
 import { useCliente } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
-import ClientesMobileList from '../components/ClientesMobileList';
+import EstadoServicio from './EstadoServicio';
+import { LeyendaEstados } from './EstadoServicio';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -229,217 +230,6 @@ const ResumenCard = ({
             </span>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-/**
- * MiniDonut — SVG con % en el centro + sublabel debajo + stats en grilla 2×2.
- * Sección "Clientes" (tabla).
- *
- * Props:
- * @param {number} cerradas
- * @param {number} proceso
- * @param {number} pendientes
- * @param {number} total
- * @param {string} [subLabel]  — contexto bajo el círculo (ej: "2 máq.", "5 poz.")
- */
-
-// ── Constantes del donut SVG ──────────────────────────────────────────────────
-
-const DONUT_SIZE = 52;
-const DONUT_R = 18;
-const DONUT_SW = 6;
-const DONUT_CX = DONUT_SIZE / 2;
-const DONUT_CY = DONUT_SIZE / 2;
-const DONUT_CIRC = 2 * Math.PI * DONUT_R;
-
-const DONUT_STATS = [
-  { label: 'Cerradas', key: 'cerradas', color: '#3b6d11', border: '#639922' },
-  { label: 'Proceso', key: 'proceso', color: '#854f0b', border: '#EF9F27' },
-  {
-    label: 'Pendientes',
-    key: 'pendientes',
-    color: '#a32d2d',
-    border: '#E24B4A',
-  },
-  { label: 'Total', key: 'total', color: '#555555', border: '#cccccc' },
-];
-
-const MiniDonut = ({ cerradas, proceso, pendientes, total, subLabel }) => {
-  const vals = { cerradas, proceso, pendientes, total };
-
-  const CirculoVacio = () => (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 3,
-        flexShrink: 0,
-      }}
-    >
-      <svg
-        width={DONUT_SIZE}
-        height={DONUT_SIZE}
-        viewBox={`0 0 ${DONUT_SIZE} ${DONUT_SIZE}`}
-      >
-        <circle
-          cx={DONUT_CX}
-          cy={DONUT_CY}
-          r={DONUT_R}
-          fill="none"
-          stroke="#e5e7eb"
-          strokeWidth={DONUT_SW}
-        />
-        <text
-          x={DONUT_CX}
-          y={DONUT_CY + 4}
-          textAnchor="middle"
-          fontSize="10"
-          fill="#9ca3af"
-        >
-          —
-        </text>
-      </svg>
-      {subLabel && (
-        <span
-          style={{
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            color: '#082c09',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {subLabel}
-        </span>
-      )}
-    </div>
-  );
-
-  if (!total) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          width: '100%',
-        }}
-      >
-        <CirculoVacio />
-        <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-          Sin registros
-        </span>
-      </div>
-    );
-  }
-
-  const pct = Math.round((cerradas / total) * 100);
-  const pG = (cerradas / total) * DONUT_CIRC;
-  const pA = (proceso / total) * DONUT_CIRC;
-  const pR = (pendientes / total) * DONUT_CIRC;
-
-  const Arc = ({ len, color, offset }) => (
-    <circle
-      cx={DONUT_CX}
-      cy={DONUT_CY}
-      r={DONUT_R}
-      fill="none"
-      stroke={color}
-      strokeWidth={DONUT_SW}
-      strokeDasharray={`${len} ${DONUT_CIRC - len}`}
-      strokeDashoffset={offset}
-      transform={`rotate(-90 ${DONUT_CX} ${DONUT_CY})`}
-      strokeLinecap="round"
-    />
-  );
-
-  return (
-    <div
-      style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%' }}
-    >
-      {/* Izquierda: círculo + sublabel */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 3,
-          flexShrink: 0,
-        }}
-      >
-        <svg
-          width={DONUT_SIZE}
-          height={DONUT_SIZE}
-          viewBox={`0 0 ${DONUT_SIZE} ${DONUT_SIZE}`}
-        >
-          <circle
-            cx={DONUT_CX}
-            cy={DONUT_CY}
-            r={DONUT_R}
-            fill="none"
-            stroke="#e5e7eb"
-            strokeWidth={DONUT_SW}
-          />
-          <Arc len={pG} color="#639922" offset={0} />
-          <Arc len={pA} color="#EF9F27" offset={-pG} />
-          <Arc len={pR} color="#E24B4A" offset={-(pG + pA)} />
-          <text
-            x={DONUT_CX}
-            y={DONUT_CY + 4}
-            textAnchor="middle"
-            fontSize="11"
-            fontWeight="600"
-            fill="#1f2937"
-          >
-            {pct}%
-          </text>
-        </svg>
-        {subLabel && (
-          <span
-            style={{
-              fontSize: '0.75rem',
-              fontWeight: 500,
-              color: '#082c09',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {subLabel}
-          </span>
-        )}
-      </div>
-
-      {/* Derecha: stats en grilla 2×2 — Opción C (borde coloreado) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '3px',
-          flex: 1,
-        }}
-      >
-        {DONUT_STATS.map(({ label, key, color, border }) => (
-          <div
-            key={key}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              padding: '2px 7px',
-              borderRadius: 20,
-              border: `1.5px solid ${border}`,
-              color,
-              background: 'transparent',
-            }}
-          >
-            <span>{label}</span>
-            <span>{vals[key]}</span>
-          </div>
-        ))}
       </div>
     </div>
   );
@@ -735,6 +525,9 @@ const DashboardUser = () => {
           </div>
         </div>
 
+        {/* ✅ Leyenda de colores — referencia fija de qué significa cada color */}
+        <LeyendaEstados />
+
         {/* Renderizado condicional */}
         {isMobile ? (
           <div className="p-2">
@@ -751,7 +544,7 @@ const DashboardUser = () => {
               {/* thead y tbody exactamente igual que antes — sin ningún cambio */}
               <thead className="table-light">
                 <tr>
-                  <th style={{ minWidth: 160 }}>Cliente</th>
+                  <th style={{ width: '30%' }}>Cliente</th>
                   {SERVICE_COLUMNS.filter(
                     ({ key }) => visibleServices[key],
                   ).map(({ key, label }) => (
@@ -787,31 +580,30 @@ const DashboardUser = () => {
                           {row.ciudad}, {row.provincia}
                         </small>
                       </td>
+
                       {visibleServices.maquinas && (
                         <td>
-                          <MiniDonut
+                          <EstadoServicio
                             cerradas={row.calCerradas}
                             proceso={row.calProceso}
                             pendientes={row.calPendientes}
                             total={row.totalCal}
-                            subLabel={`${row.totalMaquinas} máq.`}
                           />
                         </td>
                       )}
                       {visibleServices.muestras && (
                         <td>
-                          <MiniDonut
+                          <EstadoServicio
                             cerradas={row.aguaCerradas}
                             proceso={row.aguaProceso}
                             pendientes={row.aguaPendientes}
                             total={row.totalAgua}
-                            subLabel={`${row.totalPozos} poz.`}
                           />
                         </td>
                       )}
                       {visibleServices.jornadas && (
                         <td>
-                          <MiniDonut
+                          <EstadoServicio
                             cerradas={row.jorCerradas}
                             proceso={row.jorProceso}
                             pendientes={row.jorPendientes}
@@ -819,6 +611,7 @@ const DashboardUser = () => {
                           />
                         </td>
                       )}
+
                       <td className="text-center text-muted">
                         {row.litros_estimados ?? '—'}
                       </td>
