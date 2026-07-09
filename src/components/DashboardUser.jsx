@@ -102,30 +102,47 @@ const SERVICE_COLUMNS = [
   { key: 'jornadas', label: 'Jornadas' },
 ];
 
-const hasSelectedStatus = (cliente, statusFilters) => {
+const hasSelectedStatus = (cliente, statusFilters, visibleServices) => {
   const selectedStatuses = Object.entries(statusFilters)
     .filter(([, isSelected]) => isSelected)
     .map(([status]) => status);
   const allStatusesSelected =
     selectedStatuses.length === Object.keys(statusFilters).length;
 
+  const visibleServiceKeys = Object.entries(visibleServices)
+    .filter(([, isVisible]) => isVisible)
+    .map(([serviceKey]) => serviceKey);
+
+  if (visibleServiceKeys.length === 0) return false;
   if (allStatusesSelected) return true;
   if (selectedStatuses.length === 0) return false;
 
-  const statusTotals = {
-    pendientes:
-      (cliente.Maquinas?.calibracionesPendientes ?? 0) +
-      (cliente.Pozos?.muestrasPendientes ?? 0) +
-      (cliente.Jornadas?.jornadasPendientes ?? 0),
-    proceso:
-      (cliente.Maquinas?.calibracionesProceso ?? 0) +
-      (cliente.Pozos?.muestrasProceso ?? 0) +
-      (cliente.Jornadas?.jornadasProceso ?? 0),
-    cerradas:
-      (cliente.Maquinas?.calibracionesCerradas ?? 0) +
-      (cliente.Pozos?.muestrasCerradas ?? 0) +
-      (cliente.Jornadas?.jornadasCerradas ?? 0),
+  const serviceData = {
+    maquinas: {
+      pendientes: cliente.Maquinas?.calibracionesPendientes ?? 0,
+      proceso: cliente.Maquinas?.calibracionesProceso ?? 0,
+      cerradas: cliente.Maquinas?.calibracionesCerradas ?? 0,
+    },
+    muestras: {
+      pendientes: cliente.Pozos?.muestrasPendientes ?? 0,
+      proceso: cliente.Pozos?.muestrasProceso ?? 0,
+      cerradas: cliente.Pozos?.muestrasCerradas ?? 0,
+    },
+    jornadas: {
+      pendientes: cliente.Jornadas?.jornadasPendientes ?? 0,
+      proceso: cliente.Jornadas?.jornadasProceso ?? 0,
+      cerradas: cliente.Jornadas?.jornadasCerradas ?? 0,
+    },
   };
+
+  const statusTotals = visibleServiceKeys.reduce(
+    (totals, serviceKey) => ({
+      pendientes: totals.pendientes + (serviceData[serviceKey]?.pendientes ?? 0),
+      proceso: totals.proceso + (serviceData[serviceKey]?.proceso ?? 0),
+      cerradas: totals.cerradas + (serviceData[serviceKey]?.cerradas ?? 0),
+    }),
+    { pendientes: 0, proceso: 0, cerradas: 0 },
+  );
 
   return selectedStatuses.some((status) => statusTotals[status] > 0);
 };
@@ -352,7 +369,7 @@ const DashboardUser = () => {
     const matchesIngeniero =
       !selectedIngenieroId ||
       c.ingenieros?.some((ing) => ing.id === Number(selectedIngenieroId));
-    const matchesStatus = hasSelectedStatus(c, statusFilters);
+    const matchesStatus = hasSelectedStatus(c, statusFilters, visibleServices);
 
     return matchesSearch && matchesIngeniero && matchesStatus;
   });
@@ -364,7 +381,8 @@ const DashboardUser = () => {
   const hasActiveFilters =
     searchTerm ||
     selectedIngenieroId ||
-    !Object.values(statusFilters).every(Boolean);
+    !Object.values(statusFilters).every(Boolean) ||
+    !Object.values(visibleServices).every(Boolean);
 
   const toggleStatusFilter = (key) => {
     setStatusFilters((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -447,7 +465,12 @@ const DashboardUser = () => {
       </div>
 
       {/* ── Clientes — tabla (desktop) / cards (mobile) ── */}
-      <h6 className="fw-medium mb-3">Clientes</h6>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h6 className="fw-medium mb-0">Clientes</h6>
+        <span className="badge rounded-pill bg-success-subtle text-success-emphasis">
+          {rows.length} cliente{rows.length !== 1 ? 's' : ''} listado{rows.length !== 1 ? 's' : ''}
+        </span>
+      </div>
       <div className="card mb-4">
         {/* Buscador — igual que antes */}
         <div
