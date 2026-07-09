@@ -16,15 +16,20 @@ export const Dot = ({ color }) => (
 );
 
 /**
- * Indicador compacto de estado de servicio: conteo con punto de color +
- * barra de progreso fina + porcentaje. Tooltip nativo (title) con el
- * detalle completo al pasar el mouse. Reemplaza al donut SVG anterior.
+ * Indicador compacto de estado de servicio: total fijo (ej: "7 máq.") +
+ * conteo con punto de color + barra de progreso fina + porcentaje.
+ * Tooltip nativo (title) con el detalle completo al pasar el mouse.
+ *
+ * @param {string} [unitLabel] — unidad del total (ej: "máq.", "poz.").
+ *   Si no se pasa, no se muestra el bloque de total (útil para Jornadas,
+ *   que no tiene una "unidad" propia distinta del conteo de servicios).
  */
 const EstadoServicio = ({
   cerradas = 0,
   proceso = 0,
   pendientes = 0,
   total = 0,
+  unitLabel = null,
 }) => {
   if (!total) {
     return <span style={{ fontSize: 13, color: '#9ca3af' }}>—</span>;
@@ -38,47 +43,76 @@ const EstadoServicio = ({
   const tooltip = `${cerradas} cerradas, ${proceso} en proceso, ${pendientes} pendientes de ${total} en total (${pct}% completado)`;
 
   return (
-    <div title={tooltip} style={{ cursor: 'default' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          fontSize: 13,
-          fontWeight: 500,
-          marginBottom: 4,
-        }}
-      >
-        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Dot color={COLOR_CERRADAS} />
-          {cerradas}
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        gap: 10,
+
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.79)',
+        padding: '4px 8px',
+        borderRadius: 8,
+      }}
+    >
+      {unitLabel && (
+        <span
+          style={{
+            fontSize: 12,
+            fontWeight: 500,
+            color: '#6b7280',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}
+        >
+          {total} {unitLabel}
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Dot color={COLOR_PROCESO} />
-          {proceso}
-        </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-          <Dot color={COLOR_PENDIENTES} />
-          {pendientes}
-        </span>
-      </div>
-      <div
-        style={{
-          display: 'flex',
-          height: 4,
-          borderRadius: 2,
-          overflow: 'hidden',
-          background: '#eef0f2',
-          marginBottom: 3,
-        }}
-      >
-        <div style={{ width: `${wCerradas}%`, background: COLOR_CERRADAS }} />
-        <div style={{ width: `${wProceso}%`, background: COLOR_PROCESO }} />
+      )}
+
+      <div title={tooltip} style={{ cursor: 'default', flex: 1 }}>
         <div
-          style={{ width: `${wPendientes}%`, background: COLOR_PENDIENTES }}
-        />
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            fontSize: 13,
+            fontWeight: 500,
+            marginBottom: 4,
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Dot color={COLOR_CERRADAS} />
+            {cerradas}
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Dot color={COLOR_PROCESO} />
+            {proceso}
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Dot color={COLOR_PENDIENTES} />
+            {pendientes}
+          </span>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            height: 4,
+            borderRadius: 2,
+            overflow: 'hidden',
+            background: '#eef0f2',
+            marginBottom: 3,
+          }}
+        >
+          <div style={{ width: `${wCerradas}%`, background: COLOR_CERRADAS }} />
+          <div style={{ width: `${wProceso}%`, background: COLOR_PROCESO }} />
+          <div
+            style={{ width: `${wPendientes}%`, background: COLOR_PENDIENTES }}
+          />
+        </div>
+        <span style={{ fontSize: 11, color: '#9ca3af' }}>
+          {pct}% completado
+        </span>
       </div>
-      <span style={{ fontSize: 11, color: '#9ca3af' }}>{pct}% completado</span>
     </div>
   );
 };
