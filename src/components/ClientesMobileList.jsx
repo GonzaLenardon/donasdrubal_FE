@@ -1,6 +1,13 @@
 import EstadoServicio from './EstadoServicio';
 
-const FilaEstado = ({ label, cerradas, proceso, pendientes, total }) => (
+const FilaEstado = ({
+  label,
+  cerradas,
+  proceso,
+  pendientes,
+  total,
+  unitLabel,
+}) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
     <span
       style={{
@@ -20,6 +27,7 @@ const FilaEstado = ({ label, cerradas, proceso, pendientes, total }) => (
       proceso={proceso}
       pendientes={pendientes}
       total={total}
+      unitLabel={unitLabel}
     />
   </div>
 );
@@ -115,6 +123,7 @@ const ClientesMobileList = ({
                 proceso={row.calProceso}
                 pendientes={row.calPendientes}
                 total={row.totalCal}
+                unitLabel="máq."
               />
             )}
             {visibleServices.muestras && (
@@ -124,6 +133,7 @@ const ClientesMobileList = ({
                 proceso={row.aguaProceso}
                 pendientes={row.aguaPendientes}
                 total={row.totalAgua}
+                unitLabel="poz."
               />
             )}
             {visibleServices.jornadas && (

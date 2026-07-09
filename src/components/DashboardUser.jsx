@@ -588,6 +588,7 @@ const DashboardUser = () => {
                             proceso={row.calProceso}
                             pendientes={row.calPendientes}
                             total={row.totalCal}
+                            unitLabel="máq."
                           />
                         </td>
                       )}
@@ -598,6 +599,7 @@ const DashboardUser = () => {
                             proceso={row.aguaProceso}
                             pendientes={row.aguaPendientes}
                             total={row.totalAgua}
+                            unitLabel="poz."
                           />
                         </td>
                       )}
