@@ -4,8 +4,8 @@ import { allIngenieros } from '../api/users';
 import { useCliente } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
-import EstadoServicio from './EstadoServicio';
-import { LeyendaEstados } from './EstadoServicio';
+import ClientesMobileList from '../components/ClientesMobileList';
+import EstadoServicio, { LeyendaEstados } from '../components/EstadoServicio';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -137,7 +137,8 @@ const hasSelectedStatus = (cliente, statusFilters, visibleServices) => {
 
   const statusTotals = visibleServiceKeys.reduce(
     (totals, serviceKey) => ({
-      pendientes: totals.pendientes + (serviceData[serviceKey]?.pendientes ?? 0),
+      pendientes:
+        totals.pendientes + (serviceData[serviceKey]?.pendientes ?? 0),
       proceso: totals.proceso + (serviceData[serviceKey]?.proceso ?? 0),
       cerradas: totals.cerradas + (serviceData[serviceKey]?.cerradas ?? 0),
     }),
@@ -468,7 +469,8 @@ const DashboardUser = () => {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="fw-medium mb-0">Clientes</h6>
         <span className="badge rounded-pill bg-success-subtle text-success-emphasis">
-          {rows.length} cliente{rows.length !== 1 ? 's' : ''} listado{rows.length !== 1 ? 's' : ''}
+          {rows.length} cliente{rows.length !== 1 ? 's' : ''} listado
+          {rows.length !== 1 ? 's' : ''}
         </span>
       </div>
       <div className="card mb-4">
