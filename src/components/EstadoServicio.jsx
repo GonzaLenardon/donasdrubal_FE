@@ -1,12 +1,17 @@
-const COLOR_CERRADAS = '#639922';
-const COLOR_PROCESO = '#EF9F27';
-const COLOR_PENDIENTES = '#E24B4A';
+export const COLOR_CERRADAS = '#639922';
+export const COLOR_PROCESO = '#EF9F27';
+export const COLOR_PENDIENTES = '#E24B4A';
 
-export const Dot = ({ color }) => (
+/**
+ * @param {number} [size] — diámetro en px. Default chico (8) para uso en
+ *   listas compactas (ej: Pill de ClientesMobileList). EstadoServicio
+ *   (desktop) pide un tamaño mayor explícitamente.
+ */
+export const Dot = ({ color, size = 8 }) => (
   <span
     style={{
-      width: 20,
-      height: 20,
+      width: size,
+      height: size,
       borderRadius: '50%',
       background: color,
       display: 'inline-block',
@@ -49,8 +54,7 @@ const EstadoServicio = ({
         alignItems: 'center',
         justifyContent: 'space-evenly',
         gap: 10,
-
-        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.79)',
+        boxShadow: '2px 5px 5px rgba(0, 0, 0, 0.79)',
         padding: '4px 8px',
         borderRadius: 8,
       }}
@@ -60,7 +64,7 @@ const EstadoServicio = ({
           style={{
             fontSize: 12,
             fontWeight: 500,
-            color: '#6b7280',
+            color: '#15361a',
             whiteSpace: 'nowrap',
             flexShrink: 0,
           }}
@@ -80,16 +84,16 @@ const EstadoServicio = ({
             marginBottom: 4,
           }}
         >
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Dot color={COLOR_CERRADAS} />
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Dot color={COLOR_CERRADAS} size={20} />
             {cerradas}
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Dot color={COLOR_PROCESO} />
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Dot color={COLOR_PROCESO} size={20} />
             {proceso}
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Dot color={COLOR_PENDIENTES} />
+          <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Dot color={COLOR_PENDIENTES} size={20} />
             {pendientes}
           </span>
         </div>
@@ -109,7 +113,7 @@ const EstadoServicio = ({
             style={{ width: `${wPendientes}%`, background: COLOR_PENDIENTES }}
           />
         </div>
-        <span style={{ fontSize: 11, color: '#9ca3af' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: '#414e64' }}>
           {pct}% completado
         </span>
       </div>
