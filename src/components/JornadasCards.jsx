@@ -57,7 +57,7 @@ const Jornadas = ({ cliente_id }) => {
               }}
             >
               <i className="bi bi-plus-lg"></i>
-              Nueva Jornada ccc
+              Nueva Jornada
             </button>
           </div>
 

@@ -182,12 +182,12 @@ body {
   background: #1e293b;
   color: #fff;
   position: relative;
-
-  padding: 20px;
+  padding-left: 10px;
 }
 
 .abc {
   position: fixed;
+  width: 265px;
 
   height: 100%;
   display: flex;
