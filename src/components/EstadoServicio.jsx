@@ -54,7 +54,7 @@ const EstadoServicio = ({
         alignItems: 'center',
         justifyContent: 'space-evenly',
         gap: 10,
-        boxShadow: '2px 5px 5px rgba(0, 0, 0, 0.79)',
+        boxShadow: '2px 1px 5px rgba(0, 0, 0, 0.79)',
         padding: '4px 8px',
         borderRadius: 8,
       }}

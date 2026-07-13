@@ -32,6 +32,7 @@ const JornadasTable = () => {
   const [msg, setMsg] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [jornadaEdit, setJornadaEdit] = useState(null);
+  const [ingenieros, setIngenieros] = useState([]);
   const [jornadaReabrir, setJornadaReabrir] = useState(null);
   const [modoSeleccion, setModoSeleccion] = useState(false);
   const [seleccionado, setSeleccionado] = useState(null);
@@ -47,7 +48,9 @@ const JornadasTable = () => {
   const getJornadas = async () => {
     try {
       const res = await clienteJornadas(cliente_id);
-      setJornadas(res.data);
+
+      setJornadas(res.data.jornadas);
+      setIngenieros(res.data.ingenieros);
     } catch (err) {
       console.error(err);
     }
@@ -375,6 +378,7 @@ const JornadasTable = () => {
         onClose={() => setIsOpen(false)}
         jornada={jornadaEdit}
         onSaved={getJornadas}
+        ingenieros={ingenieros}
       />
 
       {jornadaReabrir && (

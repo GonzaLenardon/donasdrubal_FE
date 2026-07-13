@@ -1080,7 +1080,7 @@ input[type='radio'] {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 1rem 0;
+  padding: 1.5rem 0;
   margin-bottom: 1rem;
   border: 3px solid rgba(146, 153, 172, 0.2);
   border-radius: 15px;
@@ -1090,10 +1090,10 @@ input[type='radio'] {
 
 /* ESTADO COLAPSADO */
 .sidebar-cliente.collapsed {
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 0.8rem 0rem;
+  /*  flex-direction: row; */
+  /*   justify-content: flex-start; */
+  /* align-items: center; */
+  /*  padding: 0.8rem 0rem; */
 }
 
 /* AVATAR */
@@ -1121,20 +1121,22 @@ input[type='radio'] {
   transition: all 0.3s ease;
 }
 
-.sidebar-cliente.collapsed.cliente-info {
+/* .sidebar-cliente.collapsed.cliente-info {
   text-align: left;
   margin-left: 0.5rem;
-}
-.sidebar-cliente.collapsed .cliente {
-  font-size: 0.95rem;
-}
+} */
 
 /* NOMBRE */
 .cliente {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
   font-weight: bold;
   margin: 0;
+  padding: 0 0.5rem;
   transition: all 0.3s ease;
+}
+
+.sidebar-cliente.collapsed .cliente {
+  font-size: 0.9rem;
 }
 
 /* DATOS EXTRA */

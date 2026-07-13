@@ -180,7 +180,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
                 )}
               </p>
 
-              <div
+              {/*   <div
                 className={`sidebar-avatar-cliente ${
                   !showCliente ? 'collapsed' : ''
                 }`}
@@ -188,16 +188,17 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
                   backgroundImage:
                     'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDvJRZmA9x_QrC6m3FzsZPI_7ZMm5m8qSwHOhkvJuuyLB-30FaOQYY-mD5kQD35W_c06GThpQNqwxsI3_dDzCUJJqonce3itp432LphqDtLM1ThWn02UkXDOQUSv27AwFspClWTQAf1l4xfUgRE05jy2V7Kg30MpGtd_prZwS2DUSJyNcVglxWifzdJDApieDTCtaDLYoqxpTHnmkUHIcODhMdAj63L1bQwswMq3MoVsntT9TmhngfgABweUXxY_EkIu9UUeEbayVM")',
                 }}
-              />
+              /> */}
 
               <div className="cliente-info">
                 <p className="cliente">{selectedCliente.razon_social}</p>
-                <p className="telefono">{selectedCliente.telefono}</p>
 
                 {showCliente && (
                   <>
+                    <p className="telefono">{selectedCliente.telefono}</p>
                     <p className="domicilio">
-                      {selectedCliente.direccion}, {selectedCliente.ciudad}
+                      {selectedCliente.direccion || ''}{' '}
+                      {selectedCliente.ciudad || ''}
                     </p>
                     <p className="cuit">CUIT: {selectedCliente.cuil_cuit}</p>
                   </>

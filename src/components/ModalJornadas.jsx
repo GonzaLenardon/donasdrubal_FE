@@ -27,13 +27,21 @@ const MOTIVOS_JORNADA = [
   { value: 'Otro', label: 'Otro' },
 ];
 
-const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
+const ModalJornadas = ({
+  isOpen,
+  onClose,
+  jornada,
+  ingenieros = [],
+  onSaved,
+}) => {
   const [formData, setFormData] = useState({ ...emptyJornada });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [msg, setMsg] = useState('');
   const [showCerrar, setShowCerrar] = useState(false);
+
+  console.log('Joooororororororororo', jornada, ingenieros);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -61,12 +69,24 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
       setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
-
   const validateForm = () => {
     const newErrors = {};
     if (!formData.fecha_jornada) {
       newErrors.fecha_jornada = 'La fecha de jornada es requerida';
     }
+
+    if (!formData.responsable_id) {
+      newErrors.responsable_id = 'El responsable es requerido';
+    }
+
+    if (!formData.motivo) {
+      newErrors.motivo = 'El motivo es requerido';
+    }
+
+    if (!formData.observaciones?.trim()) {
+      newErrors.observaciones = 'Las observaciones son requeridas';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -240,18 +260,24 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                 Ingeniero Responsable
               </label>
               <select
-                className="form-control form-control-jornadas"
+                className={`form-control form-control-jornadas ${errors.responsable_id ? 'is-invalid' : ''}`}
                 name="responsable_id"
                 value={formData.responsable_id}
                 onChange={handleChange}
               >
                 <option value="">Seleccione responsable</option>
-                {formData.cliente?.ingenieros.map((ing) => (
+                {ingenieros.map((ing) => (
                   <option key={ing.id} value={ing.id}>
                     {ing.nombre}
                   </option>
                 ))}
               </select>
+              {errors.responsable_id && (
+                <div className="invalid-feedback">
+                  <i className="bi bi-exclamation-circle me-1"></i>
+                  {errors.responsable_id}
+                </div>
+              )}
             </div>
 
             {/* Motivo */}
@@ -261,7 +287,7 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                 Motivo
               </label>
               <select
-                className="form-control form-control-jornadas"
+                className={`form-control form-control-jornadas ${errors.motivo ? 'is-invalid' : ''}`}
                 name="motivo"
                 value={formData.motivo}
                 onChange={handleChange}
@@ -273,28 +299,13 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
                   </option>
                 ))}
               </select>
+              {errors.motivo && (
+                <div className="invalid-feedback">
+                  <i className="bi bi-exclamation-circle me-1"></i>
+                  {errors.motivo}
+                </div>
+              )}
             </div>
-
-            {/* Estado */}
-            {/* <div className="form-group">
-              <label htmlFor="estado" className="form-label">
-                <i className="bi bi-building me-2"></i>
-                Estado
-              </label>
-              <select
-                className="form-control form-control-jornadas"
-                name="estado"
-                value={formData.estado}
-                onChange={handleChange}
-              >
-                <option value="">Seleccione un estado</option>
-                {ESTADOS_JORNADA.map((estado) => (
-                  <option key={estado.value} value={estado.value}>
-                    {estado.label}
-                  </option>
-                ))}
-              </select>
-            </div> */}
 
             {/* Observaciones */}
             <div className="form-group">
@@ -386,61 +397,6 @@ const ModalJornadas = ({ isOpen, onClose, jornada, onSaved }) => {
           cantidad={1}
         />
       )}
-
-      {/* Modal confirmación — Cerrar Jornada */}
-      {/*  {showCerrarModal && (
-        <div className="modal-overlay-logout">
-          <div
-            className="modal-card-logout"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-icon-logout">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-
-            <h3 className="modal-title-logout">
-              ¿Deseas finalizar la Jornada?
-            </h3>
-
-            <p className="modal-text-logout">
-              Estás a punto de finalizar esta <strong>jornada </strong>. Una vez
-              finalizada no podrá ser modificada. Asegurate de que todos los
-              datos sean correctos antes de continuar.
-            </p>
-
-            <div className="modal-buttons-logout">
-              <button
-                className="btn-logout-cancel"
-                onClick={() => setShowCerrarModal(false)}
-              >
-                Cancelar
-              </button>
-              <button
-                className="btn-logout-confirm"
-                onClick={() => {
-                  setShowCerrarModal(false);
-                  handleCerrarJornada();
-                }}
-              >
-                Finalizar
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
 
       <Spinner loading={loading} msg={msg} />
     </>
