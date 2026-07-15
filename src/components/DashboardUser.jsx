@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ClientesMobileList from '../components/ClientesMobileList';
 import EstadoServicio, { LeyendaEstados } from '../components/EstadoServicio';
+import { utils, writeFile } from 'xlsx';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -83,15 +84,6 @@ const buildRows = (clientes) => {
     proceso: rows.filter((r) => r.estado === 'proceso').length,
     completos: rows.filter((r) => r.estado === 'completo').length,
   };
-};
-
-const escapeCsvValue = (value) => {
-  if (value == null) return '';
-  const text = String(value);
-  if (/[",\n]/.test(text)) {
-    return `"${text.replace(/"/g, '""')}"`;
-  }
-  return text;
 };
 
 const formatEstado = (estado) => {
@@ -424,32 +416,8 @@ const DashboardUser = () => {
     !Object.values(statusFilters).every(Boolean) ||
     !Object.values(visibleServices).every(Boolean);
 
-  const exportFilteredClientesToCsv = () => {
-    const header = [
-      'Cliente',
-      'Ciudad',
-      'Provincia',
-      'Tipo cliente',
-      'Ingenieros',
-      'Litros estimados',
-      'Estado',
-      'Total máquinas',
-      'Total calibraciones',
-      'Calibraciones cerradas',
-      'Calibraciones en proceso',
-      'Calibraciones pendientes',
-      'Total pozos',
-      'Total muestras',
-      'Muestras cerradas',
-      'Muestras en proceso',
-      'Muestras pendientes',
-      'Total jornadas',
-      'Jornadas cerradas',
-      'Jornadas en proceso',
-      'Jornadas pendientes',
-    ];
-
-    const rowsCsv = clientesFiltrados.map((cliente) => {
+  const exportFilteredClientesToExcel = () => {
+    const data = clientesFiltrados.map((cliente) => {
       const metrics = calcRowMetrics(cliente);
       const tipoCliente =
         cliente.tipo_cliente?.nombre || cliente.tipo_cliente?.tipo ||
@@ -460,35 +428,35 @@ const DashboardUser = () => {
         ?.map((ing) => ing.nombre)
         .join(' | ');
 
-      return [
-        cliente.razon_social,
-        cliente.ciudad,
-        cliente.provincia,
-        tipoCliente,
-        ingenieros,
-        cliente.litros_estimados ?? '',
-        formatEstado(metrics.estado),
-        cliente.Maquinas?.totalMaquinas ?? '',
-        cliente.Maquinas?.totalCalibraciones ?? '',
-        cliente.Maquinas?.calibracionesCerradas ?? '',
-        cliente.Maquinas?.calibracionesProceso ?? '',
-        cliente.Maquinas?.calibracionesPendientes ?? '',
-        cliente.Pozos?.totalPozos ?? '',
-        cliente.Pozos?.totalMuestras ?? '',
-        cliente.Pozos?.muestrasCerradas ?? '',
-        cliente.Pozos?.muestrasProceso ?? '',
-        cliente.Pozos?.muestrasPendientes ?? '',
-        cliente.Jornadas?.totalJornadas ?? '',
-        cliente.Jornadas?.jornadasCerradas ?? '',
-        cliente.Jornadas?.jornadasProceso ?? '',
-        cliente.Jornadas?.jornadasPendientes ?? '',
-      ]
-        .map(escapeCsvValue)
-        .join(',');
+      return {
+        Cliente: cliente.razon_social,
+        Ciudad: cliente.ciudad ?? '',
+        Provincia: cliente.provincia ?? '',
+        'Tipo cliente': tipoCliente,
+        Ingenieros: ingenieros ?? '',
+        'Litros estimados': cliente.litros_estimados ?? '',
+        Estado: formatEstado(metrics.estado),
+        'Total máquinas': cliente.Maquinas?.totalMaquinas ?? '',
+        'Total calibraciones': cliente.Maquinas?.totalCalibraciones ?? '',
+        'Calibraciones cerradas': cliente.Maquinas?.calibracionesCerradas ?? '',
+        'Calibraciones en proceso': cliente.Maquinas?.calibracionesProceso ?? '',
+        'Calibraciones pendientes': cliente.Maquinas?.calibracionesPendientes ?? '',
+        'Total pozos': cliente.Pozos?.totalPozos ?? '',
+        'Total muestras': cliente.Pozos?.totalMuestras ?? '',
+        'Muestras cerradas': cliente.Pozos?.muestrasCerradas ?? '',
+        'Muestras en proceso': cliente.Pozos?.muestrasProceso ?? '',
+        'Muestras pendientes': cliente.Pozos?.muestrasPendientes ?? '',
+        'Total jornadas': cliente.Jornadas?.totalJornadas ?? '',
+        'Jornadas cerradas': cliente.Jornadas?.jornadasCerradas ?? '',
+        'Jornadas en proceso': cliente.Jornadas?.jornadasProceso ?? '',
+        'Jornadas pendientes': cliente.Jornadas?.jornadasPendientes ?? '',
+      };
     });
 
-    const csvContent = [header.join(','), ...rowsCsv].join('\n');
-    downloadCsv('clientes_filtrados.csv', csvContent);
+    const worksheet = utils.json_to_sheet(data);
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, 'Clientes');
+    writeFile(workbook, 'clientes_filtrados.xlsx');
   };
 
   const toggleStatusFilter = (key) => {
@@ -578,9 +546,9 @@ const DashboardUser = () => {
           <button
             type="button"
             className="btn btn-outline-success btn-sm"
-            onClick={exportFilteredClientesToCsv}
+            onClick={exportFilteredClientesToExcel}
           >
-            Exportar CSV
+            Exportar Excel
           </button>
           <span className="badge rounded-pill bg-success-subtle text-success-emphasis">
             {rows.length} cliente{rows.length !== 1 ? 's' : ''} listado
