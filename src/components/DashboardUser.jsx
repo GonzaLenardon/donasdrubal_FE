@@ -85,6 +85,32 @@ const buildRows = (clientes) => {
   };
 };
 
+const escapeCsvValue = (value) => {
+  if (value == null) return '';
+  const text = String(value);
+  if (/[",\n]/.test(text)) {
+    return `"${text.replace(/"/g, '""')}"`;
+  }
+  return text;
+};
+
+const formatEstado = (estado) => {
+  if (estado === 'completo') return 'Completo';
+  if (estado === 'proceso') return 'En proceso';
+  if (estado === 'sin') return 'Sin arrancar';
+  return estado;
+};
+
+const downloadCsv = (filename, content) => {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
 const INITIAL_STATUS_FILTERS = {
   pendientes: true,
   proceso: true,
@@ -398,6 +424,73 @@ const DashboardUser = () => {
     !Object.values(statusFilters).every(Boolean) ||
     !Object.values(visibleServices).every(Boolean);
 
+  const exportFilteredClientesToCsv = () => {
+    const header = [
+      'Cliente',
+      'Ciudad',
+      'Provincia',
+      'Tipo cliente',
+      'Ingenieros',
+      'Litros estimados',
+      'Estado',
+      'Total máquinas',
+      'Total calibraciones',
+      'Calibraciones cerradas',
+      'Calibraciones en proceso',
+      'Calibraciones pendientes',
+      'Total pozos',
+      'Total muestras',
+      'Muestras cerradas',
+      'Muestras en proceso',
+      'Muestras pendientes',
+      'Total jornadas',
+      'Jornadas cerradas',
+      'Jornadas en proceso',
+      'Jornadas pendientes',
+    ];
+
+    const rowsCsv = clientesFiltrados.map((cliente) => {
+      const metrics = calcRowMetrics(cliente);
+      const tipoCliente =
+        cliente.tipo_cliente?.nombre || cliente.tipo_cliente?.tipo ||
+        (typeof cliente.tipo_cliente === 'string'
+          ? cliente.tipo_cliente
+          : '');
+      const ingenieros = cliente.ingenieros
+        ?.map((ing) => ing.nombre)
+        .join(' | ');
+
+      return [
+        cliente.razon_social,
+        cliente.ciudad,
+        cliente.provincia,
+        tipoCliente,
+        ingenieros,
+        cliente.litros_estimados ?? '',
+        formatEstado(metrics.estado),
+        cliente.Maquinas?.totalMaquinas ?? '',
+        cliente.Maquinas?.totalCalibraciones ?? '',
+        cliente.Maquinas?.calibracionesCerradas ?? '',
+        cliente.Maquinas?.calibracionesProceso ?? '',
+        cliente.Maquinas?.calibracionesPendientes ?? '',
+        cliente.Pozos?.totalPozos ?? '',
+        cliente.Pozos?.totalMuestras ?? '',
+        cliente.Pozos?.muestrasCerradas ?? '',
+        cliente.Pozos?.muestrasProceso ?? '',
+        cliente.Pozos?.muestrasPendientes ?? '',
+        cliente.Jornadas?.totalJornadas ?? '',
+        cliente.Jornadas?.jornadasCerradas ?? '',
+        cliente.Jornadas?.jornadasProceso ?? '',
+        cliente.Jornadas?.jornadasPendientes ?? '',
+      ]
+        .map(escapeCsvValue)
+        .join(',');
+    });
+
+    const csvContent = [header.join(','), ...rowsCsv].join('\n');
+    downloadCsv('clientes_filtrados.csv', csvContent);
+  };
+
   const toggleStatusFilter = (key) => {
     setStatusFilters((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -481,10 +574,19 @@ const DashboardUser = () => {
       {/* ── Clientes — tabla (desktop) / cards (mobile) ── */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="fw-medium mb-0">Clientes</h6>
-        <span className="badge rounded-pill bg-success-subtle text-success-emphasis">
-          {rows.length} cliente{rows.length !== 1 ? 's' : ''} listado
-          {rows.length !== 1 ? 's' : ''}
-        </span>
+        <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-outline-success btn-sm"
+            onClick={exportFilteredClientesToCsv}
+          >
+            Exportar CSV
+          </button>
+          <span className="badge rounded-pill bg-success-subtle text-success-emphasis">
+            {rows.length} cliente{rows.length !== 1 ? 's' : ''} listado
+            {rows.length !== 1 ? 's' : ''}
+          </span>
+        </div>
       </div>
       <div className="card mb-4">
         {/* Buscador — igual que antes */}
