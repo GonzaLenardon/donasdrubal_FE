@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { allServicesToClients, totalServices } from '../api/dashUser';
 import { allIngenieros } from '../api/users';
+import { allTipoClientes } from '../api/tipoClientes';
 import { useCliente } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -297,10 +298,12 @@ const DashboardUser = () => {
   const [totales, setTotales] = useState(null);
   const [clientes, setClientes] = useState([]);
   const [ingenieros, setIngenieros] = useState([]);
+  const [tipoClientes, setTipoClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIngenieroId, setSelectedIngenieroId] = useState('');
+  const [selectedTipoClienteId, setSelectedTipoClienteId] = useState('');
   const [statusFilters, setStatusFilters] = useState(INITIAL_STATUS_FILTERS);
   const [visibleServices, setVisibleServices] = useState(
     INITIAL_SERVICE_VISIBILITY,
@@ -320,14 +323,19 @@ const DashboardUser = () => {
     try {
       setLoading(true);
       setError(null);
-      const [serviciosRes, totalesRes, ingenierosRes] = await Promise.all([
-        allServicesToClients(),
-        totalServices(),
-        allIngenieros(),
-      ]);
+      const [serviciosRes, totalesRes, ingenierosRes, tipoClientesRes] =
+        await Promise.all([
+          allServicesToClients(),
+          totalServices(),
+          allIngenieros(),
+          allTipoClientes(),
+        ]);
       setClientes(serviciosRes.data?.data ?? serviciosRes.data ?? []);
       setTotales(totalesRes.data?.data ?? totalesRes.data ?? null);
-      setIngenieros(ingenierosRes.data ?? []);
+      setIngenieros(ingenierosRes.data ?? ingenierosRes ?? []);
+      setTipoClientes(
+        tipoClientesRes?.data ?? tipoClientesRes ?? [],
+      );
     } catch (err) {
       console.error('Error al cargar datos:', err);
       setError('No se pudieron cargar los datos.');
@@ -370,9 +378,13 @@ const DashboardUser = () => {
     const matchesIngeniero =
       !selectedIngenieroId ||
       c.ingenieros?.some((ing) => ing.id === Number(selectedIngenieroId));
+    const matchesTipoCliente =
+      !selectedTipoClienteId ||
+      c.tipo_cliente_id === Number(selectedTipoClienteId) ||
+      c.tipo_cliente?.id === Number(selectedTipoClienteId);
     const matchesStatus = hasSelectedStatus(c, statusFilters, visibleServices);
 
-    return matchesSearch && matchesIngeniero && matchesStatus;
+    return matchesSearch && matchesIngeniero && matchesTipoCliente && matchesStatus;
   });
 
   const { rows, sin, proceso, completos } = buildRows(clientesFiltrados);
@@ -382,6 +394,7 @@ const DashboardUser = () => {
   const hasActiveFilters =
     searchTerm ||
     selectedIngenieroId ||
+    selectedTipoClienteId ||
     !Object.values(statusFilters).every(Boolean) ||
     !Object.values(visibleServices).every(Boolean);
 
@@ -480,7 +493,7 @@ const DashboardUser = () => {
           style={{ background: '#1c4f1b36' }}
         >
           <div className="row g-2">
-            <div className="col-12 col-md-7">
+            <div className="col-12 col-md-4">
               <input
                 type="text"
                 className="form-control"
@@ -489,7 +502,7 @@ const DashboardUser = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="col-12 col-md-5">
+            <div className="col-12 col-md-4">
               <select
                 className="form-select"
                 value={selectedIngenieroId}
@@ -499,6 +512,20 @@ const DashboardUser = () => {
                 {ingenieros.map((ingeniero) => (
                   <option key={ingeniero.id} value={ingeniero.id}>
                     {ingeniero.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-12 col-md-4">
+              <select
+                className="form-select"
+                value={selectedTipoClienteId}
+                onChange={(e) => setSelectedTipoClienteId(e.target.value)}
+              >
+                <option value="">Todos los tipos</option>
+                {tipoClientes.map((tipo) => (
+                  <option key={tipo.id} value={tipo.id}>
+                    {tipo.tipoClientes ?? tipo.nombre ?? tipo.tipo}
                   </option>
                 ))}
               </select>
