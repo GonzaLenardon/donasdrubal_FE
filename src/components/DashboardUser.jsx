@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { allServicesToClients, totalServices } from '../api/dashUser';
 import { allIngenieros } from '../api/users';
+import { allTipoClientes } from '../api/tipoClientes';
 import { useCliente } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '../hooks/useIsMobile';
 import ClientesMobileList from '../components/ClientesMobileList';
 import EstadoServicio, { LeyendaEstados } from '../components/EstadoServicio';
+import { utils, writeFile } from 'xlsx';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -82,6 +84,23 @@ const buildRows = (clientes) => {
     proceso: rows.filter((r) => r.estado === 'proceso').length,
     completos: rows.filter((r) => r.estado === 'completo').length,
   };
+};
+
+const formatEstado = (estado) => {
+  if (estado === 'completo') return 'Completo';
+  if (estado === 'proceso') return 'En proceso';
+  if (estado === 'sin') return 'Sin arrancar';
+  return estado;
+};
+
+const downloadCsv = (filename, content) => {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 };
 
 const INITIAL_STATUS_FILTERS = {
@@ -297,10 +316,12 @@ const DashboardUser = () => {
   const [totales, setTotales] = useState(null);
   const [clientes, setClientes] = useState([]);
   const [ingenieros, setIngenieros] = useState([]);
+  const [tipoClientes, setTipoClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIngenieroId, setSelectedIngenieroId] = useState('');
+  const [selectedTipoClienteId, setSelectedTipoClienteId] = useState('');
   const [statusFilters, setStatusFilters] = useState(INITIAL_STATUS_FILTERS);
   const [visibleServices, setVisibleServices] = useState(
     INITIAL_SERVICE_VISIBILITY,
@@ -320,14 +341,19 @@ const DashboardUser = () => {
     try {
       setLoading(true);
       setError(null);
-      const [serviciosRes, totalesRes, ingenierosRes] = await Promise.all([
-        allServicesToClients(),
-        totalServices(),
-        allIngenieros(),
-      ]);
+      const [serviciosRes, totalesRes, ingenierosRes, tipoClientesRes] =
+        await Promise.all([
+          allServicesToClients(),
+          totalServices(),
+          allIngenieros(),
+          allTipoClientes(),
+        ]);
       setClientes(serviciosRes.data?.data ?? serviciosRes.data ?? []);
       setTotales(totalesRes.data?.data ?? totalesRes.data ?? null);
-      setIngenieros(ingenierosRes.data ?? []);
+      setIngenieros(ingenierosRes.data ?? ingenierosRes ?? []);
+      setTipoClientes(
+        tipoClientesRes?.data ?? tipoClientesRes ?? [],
+      );
     } catch (err) {
       console.error('Error al cargar datos:', err);
       setError('No se pudieron cargar los datos.');
@@ -370,9 +396,13 @@ const DashboardUser = () => {
     const matchesIngeniero =
       !selectedIngenieroId ||
       c.ingenieros?.some((ing) => ing.id === Number(selectedIngenieroId));
+    const matchesTipoCliente =
+      !selectedTipoClienteId ||
+      c.tipo_cliente_id === Number(selectedTipoClienteId) ||
+      c.tipo_cliente?.id === Number(selectedTipoClienteId);
     const matchesStatus = hasSelectedStatus(c, statusFilters, visibleServices);
 
-    return matchesSearch && matchesIngeniero && matchesStatus;
+    return matchesSearch && matchesIngeniero && matchesTipoCliente && matchesStatus;
   });
 
   const { rows, sin, proceso, completos } = buildRows(clientesFiltrados);
@@ -382,8 +412,52 @@ const DashboardUser = () => {
   const hasActiveFilters =
     searchTerm ||
     selectedIngenieroId ||
+    selectedTipoClienteId ||
     !Object.values(statusFilters).every(Boolean) ||
     !Object.values(visibleServices).every(Boolean);
+
+  const exportFilteredClientesToExcel = () => {
+    const data = clientesFiltrados.map((cliente) => {
+      const metrics = calcRowMetrics(cliente);
+      const tipoCliente =
+        cliente.tipo_cliente?.nombre || cliente.tipo_cliente?.tipo ||
+        (typeof cliente.tipo_cliente === 'string'
+          ? cliente.tipo_cliente
+          : '');
+      const ingenieros = cliente.ingenieros
+        ?.map((ing) => ing.nombre)
+        .join(' | ');
+
+      return {
+        Cliente: cliente.razon_social,
+        Ciudad: cliente.ciudad ?? '',
+        Provincia: cliente.provincia ?? '',
+        'Tipo cliente': tipoCliente,
+        Ingenieros: ingenieros ?? '',
+        'Litros estimados': cliente.litros_estimados ?? '',
+        Estado: formatEstado(metrics.estado),
+        'Total máquinas': cliente.Maquinas?.totalMaquinas ?? '',
+        'Total calibraciones': cliente.Maquinas?.totalCalibraciones ?? '',
+        'Calibraciones cerradas': cliente.Maquinas?.calibracionesCerradas ?? '',
+        'Calibraciones en proceso': cliente.Maquinas?.calibracionesProceso ?? '',
+        'Calibraciones pendientes': cliente.Maquinas?.calibracionesPendientes ?? '',
+        'Total pozos': cliente.Pozos?.totalPozos ?? '',
+        'Total muestras': cliente.Pozos?.totalMuestras ?? '',
+        'Muestras cerradas': cliente.Pozos?.muestrasCerradas ?? '',
+        'Muestras en proceso': cliente.Pozos?.muestrasProceso ?? '',
+        'Muestras pendientes': cliente.Pozos?.muestrasPendientes ?? '',
+        'Total jornadas': cliente.Jornadas?.totalJornadas ?? '',
+        'Jornadas cerradas': cliente.Jornadas?.jornadasCerradas ?? '',
+        'Jornadas en proceso': cliente.Jornadas?.jornadasProceso ?? '',
+        'Jornadas pendientes': cliente.Jornadas?.jornadasPendientes ?? '',
+      };
+    });
+
+    const worksheet = utils.json_to_sheet(data);
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, 'Clientes');
+    writeFile(workbook, 'clientes_filtrados.xlsx');
+  };
 
   const toggleStatusFilter = (key) => {
     setStatusFilters((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -468,10 +542,19 @@ const DashboardUser = () => {
       {/* ── Clientes — tabla (desktop) / cards (mobile) ── */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="fw-medium mb-0">Clientes</h6>
-        <span className="badge rounded-pill bg-success-subtle text-success-emphasis">
-          {rows.length} cliente{rows.length !== 1 ? 's' : ''} listado
-          {rows.length !== 1 ? 's' : ''}
-        </span>
+        <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-outline-success btn-sm"
+            onClick={exportFilteredClientesToExcel}
+          >
+            Exportar Excel
+          </button>
+          <span className="badge rounded-pill bg-success-subtle text-success-emphasis">
+            {rows.length} cliente{rows.length !== 1 ? 's' : ''} listado
+            {rows.length !== 1 ? 's' : ''}
+          </span>
+        </div>
       </div>
       <div className="card mb-4">
         {/* Buscador — igual que antes */}
@@ -480,7 +563,7 @@ const DashboardUser = () => {
           style={{ background: '#1c4f1b36' }}
         >
           <div className="row g-2">
-            <div className="col-12 col-md-7">
+            <div className="col-12 col-md-4">
               <input
                 type="text"
                 className="form-control"
@@ -489,7 +572,7 @@ const DashboardUser = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="col-12 col-md-5">
+            <div className="col-12 col-md-4">
               <select
                 className="form-select"
                 value={selectedIngenieroId}
@@ -499,6 +582,20 @@ const DashboardUser = () => {
                 {ingenieros.map((ingeniero) => (
                   <option key={ingeniero.id} value={ingeniero.id}>
                     {ingeniero.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-12 col-md-4">
+              <select
+                className="form-select"
+                value={selectedTipoClienteId}
+                onChange={(e) => setSelectedTipoClienteId(e.target.value)}
+              >
+                <option value="">Todos los tipos</option>
+                {tipoClientes.map((tipo) => (
+                  <option key={tipo.id} value={tipo.id}>
+                    {tipo.tipoClientes ?? tipo.nombre ?? tipo.tipo}
                   </option>
                 ))}
               </select>
