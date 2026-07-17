@@ -93,6 +93,52 @@ const formatEstado = (estado) => {
   return estado;
 };
 
+const buildExportRow = (cliente, visibleServices) => {
+  const metrics = calcRowMetrics(cliente);
+  const tipoCliente =
+    cliente.tipo_cliente?.nombre || cliente.tipo_cliente?.tipo ||
+    (typeof cliente.tipo_cliente === 'string'
+      ? cliente.tipo_cliente
+      : '');
+  const ingenieros = cliente.ingenieros
+    ?.map((ing) => ing.nombre)
+    .join(' | ');
+
+  const row = {
+    Cliente: cliente.razon_social,
+    Ciudad: cliente.ciudad ?? '',
+    Provincia: cliente.provincia ?? '',
+    'Tipo cliente': tipoCliente,
+    Ingenieros: ingenieros ?? '',
+    'Litros estimados': cliente.litros_estimados ?? '',
+  };
+
+  if (visibleServices.maquinas) {
+    row['Total máquinas'] = cliente.Maquinas?.totalMaquinas ?? '';
+    row['Total calibraciones'] = cliente.Maquinas?.totalCalibraciones ?? '';
+    row['Calibraciones cerradas'] = cliente.Maquinas?.calibracionesCerradas ?? '';
+    row['Calibraciones en proceso'] = cliente.Maquinas?.calibracionesProceso ?? '';
+    row['Calibraciones pendientes'] = cliente.Maquinas?.calibracionesPendientes ?? '';
+  }
+
+  if (visibleServices.muestras) {
+    row['Total pozos'] = cliente.Pozos?.totalPozos ?? '';
+    row['Total muestras'] = cliente.Pozos?.totalMuestras ?? '';
+    row['Muestras cerradas'] = cliente.Pozos?.muestrasCerradas ?? '';
+    row['Muestras en proceso'] = cliente.Pozos?.muestrasProceso ?? '';
+    row['Muestras pendientes'] = cliente.Pozos?.muestrasPendientes ?? '';
+  }
+
+  if (visibleServices.jornadas) {
+    row['Total jornadas'] = cliente.Jornadas?.totalJornadas ?? '';
+    row['Jornadas cerradas'] = cliente.Jornadas?.jornadasCerradas ?? '';
+    row['Jornadas en proceso'] = cliente.Jornadas?.jornadasProceso ?? '';
+    row['Jornadas pendientes'] = cliente.Jornadas?.jornadasPendientes ?? '';
+  }
+
+  return row;
+};
+
 const downloadCsv = (filename, content) => {
   const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
@@ -417,41 +463,9 @@ const DashboardUser = () => {
     !Object.values(visibleServices).every(Boolean);
 
   const exportFilteredClientesToExcel = () => {
-    const data = clientesFiltrados.map((cliente) => {
-      const metrics = calcRowMetrics(cliente);
-      const tipoCliente =
-        cliente.tipo_cliente?.nombre || cliente.tipo_cliente?.tipo ||
-        (typeof cliente.tipo_cliente === 'string'
-          ? cliente.tipo_cliente
-          : '');
-      const ingenieros = cliente.ingenieros
-        ?.map((ing) => ing.nombre)
-        .join(' | ');
-
-      return {
-        Cliente: cliente.razon_social,
-        Ciudad: cliente.ciudad ?? '',
-        Provincia: cliente.provincia ?? '',
-        'Tipo cliente': tipoCliente,
-        Ingenieros: ingenieros ?? '',
-        'Litros estimados': cliente.litros_estimados ?? '',
-        Estado: formatEstado(metrics.estado),
-        'Total máquinas': cliente.Maquinas?.totalMaquinas ?? '',
-        'Total calibraciones': cliente.Maquinas?.totalCalibraciones ?? '',
-        'Calibraciones cerradas': cliente.Maquinas?.calibracionesCerradas ?? '',
-        'Calibraciones en proceso': cliente.Maquinas?.calibracionesProceso ?? '',
-        'Calibraciones pendientes': cliente.Maquinas?.calibracionesPendientes ?? '',
-        'Total pozos': cliente.Pozos?.totalPozos ?? '',
-        'Total muestras': cliente.Pozos?.totalMuestras ?? '',
-        'Muestras cerradas': cliente.Pozos?.muestrasCerradas ?? '',
-        'Muestras en proceso': cliente.Pozos?.muestrasProceso ?? '',
-        'Muestras pendientes': cliente.Pozos?.muestrasPendientes ?? '',
-        'Total jornadas': cliente.Jornadas?.totalJornadas ?? '',
-        'Jornadas cerradas': cliente.Jornadas?.jornadasCerradas ?? '',
-        'Jornadas en proceso': cliente.Jornadas?.jornadasProceso ?? '',
-        'Jornadas pendientes': cliente.Jornadas?.jornadasPendientes ?? '',
-      };
-    });
+    const data = clientesFiltrados.map((cliente) =>
+      buildExportRow(cliente, visibleServices),
+    );
 
     const worksheet = utils.json_to_sheet(data);
     const workbook = utils.book_new();
