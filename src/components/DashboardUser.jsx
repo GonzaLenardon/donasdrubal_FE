@@ -483,7 +483,7 @@ const DashboardUser = () => {
 
   const handleCliente = (row) => {
     setSelectedCliente(row);
-    navigate(`/cliente/${row.id}/detalles`);
+    navigate(`/cliente/${row.id}`);
   };
 
   return (

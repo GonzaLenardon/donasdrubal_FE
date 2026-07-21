@@ -9,7 +9,7 @@ const Dashboard = () => {
     user: 'Usuarios',
     maquinas: 'Máquinas',
     calibraciones: 'Calibraciones',
-    detalles: 'Detalles',
+    dashboard: 'Dashboard',
     clientes: 'Clientes',
     reportes: 'Reportes',
   };
