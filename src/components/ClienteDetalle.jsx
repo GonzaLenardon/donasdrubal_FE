@@ -33,18 +33,21 @@ const ClienteDetalles = () => {
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user'));
 
+  const validTabs = ['dashboard', 'pozos', 'maquinas', 'jornadas', 'notas'];
+
+  const getRouteTab = () => {
+    const parts = location.pathname.split('/').filter(Boolean);
+    const maybeTab = parts[2];
+    return validTabs.includes(maybeTab) ? maybeTab : 'dashboard';
+  };
+
   useEffect(() => {
     dataCliente();
-    setActiveTab('dashboard');
   }, [cliente_id]);
 
   useEffect(() => {
-    if (location.pathname.includes('/calibraciones')) {
-      setActiveTab('maquinas');
-    } else if (location.pathname.includes('/muestras')) {
-      setActiveTab('pozos');
-    }
-  }, [location.pathname]);
+    setActiveTab(getRouteTab());
+  }, [location.pathname, cliente_id]);
 
   const dataCliente = async () => {
     try {
@@ -75,8 +78,13 @@ const ClienteDetalles = () => {
 
   const goToTab = (tab) => {
     setActiveTab(tab);
-    if (location.pathname !== clientBasePath) {
-      navigate(clientBasePath);
+    const path =
+      tab === 'dashboard'
+        ? clientBasePath
+        : `${clientBasePath}/${tab}`;
+
+    if (location.pathname !== path) {
+      navigate(path);
     }
   };
 
