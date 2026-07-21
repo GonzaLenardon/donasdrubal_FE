@@ -295,7 +295,7 @@ const Pozos = ({ cliente_id }) => {
                         e.stopPropagation();
                         setSelectedPozo(pozo);
                         navigate(
-                          `/cliente/${cliente_id}/detalles/pozos/${pozo.id}/muestras`,
+                          `/cliente/${cliente_id}/pozos/${pozo.id}/muestras`,
                         );
                       }}
                     >

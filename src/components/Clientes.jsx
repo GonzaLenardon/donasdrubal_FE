@@ -263,8 +263,8 @@ const Clientes = () => {
     console.log('Clientes', cliente);
 
     setSelectedCliente(cliente);
-    navigate(`/cliente/${cliente.id}/detalles`);
-  };
+    navigate(`/cliente/${cliente.id}`);
+  }
 
   const cantidadErrores = Object.keys(errors).length;
 

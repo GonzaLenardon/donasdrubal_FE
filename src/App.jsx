@@ -60,7 +60,7 @@ function App() {
           {/* Detalles */}
 
           <Route
-            path="cliente/:cliente_id/detalles"
+            path="cliente/:cliente_id"
             element={<ClienteDetalles />}
           >
             <Route

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useOutlet, useNavigate } from 'react-router-dom';
+import { useParams, useOutlet, useNavigate, useLocation } from 'react-router-dom';
 import { getCliente } from '../api/clientes.js';
 import Pozos from './Pozos.jsx';
 import Maquinas from './Maquinas.jsx';
@@ -27,24 +27,30 @@ const ClienteDetalles = () => {
   const { cliente_id } = useParams();
   const [cliente, setCliente] = useState(null);
 
-  const { activeTab, setActiveTab } = useCliente();
+  const { activeTab, setActiveTab, setSelectedCliente } = useCliente();
   const outlet = useOutlet();
   const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     dataCliente();
+    setActiveTab('dashboard');
   }, [cliente_id]);
 
   useEffect(() => {
-    // Si el cliente cambia, reseteamos al tab principal
-    navigate(`/cliente/${cliente_id}/detalles`);
-  }, [activeTab]);
+    if (location.pathname.includes('/calibraciones')) {
+      setActiveTab('maquinas');
+    } else if (location.pathname.includes('/muestras')) {
+      setActiveTab('pozos');
+    }
+  }, [location.pathname]);
 
   const dataCliente = async () => {
     try {
       const res = await getCliente(cliente_id);
       setCliente(res.data);
+      setSelectedCliente(res.data);
     } catch (error) {
       console.log(error.message);
     }
@@ -65,13 +71,22 @@ const ClienteDetalles = () => {
     );
   }
 
+  const clientBasePath = `/cliente/${cliente_id}`;
+
+  const goToTab = (tab) => {
+    setActiveTab(tab);
+    if (location.pathname !== clientBasePath) {
+      navigate(clientBasePath);
+    }
+  };
+
   return (
     <div className="container_seccion">
       {/* ================= TABS NAVIGATION ================= */}
       <div className="tabs-container">
         <button
           className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('dashboard')}
+          onClick={() => goToTab('dashboard')}
         >
           <LayoutDashboard className="tab-icon" size={18} />
           <span>Dashboard</span>
@@ -79,9 +94,7 @@ const ClienteDetalles = () => {
 
         <button
           className={`tab-button ${activeTab === 'pozos' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('pozos');
-          }}
+          onClick={() => goToTab('pozos')}
         >
           <Droplet className="tab-icon" size={18} />
           <span>Pozos</span>
@@ -89,7 +102,7 @@ const ClienteDetalles = () => {
 
         <button
           className={`tab-button ${activeTab === 'maquinas' ? 'active' : ''}`}
-          onClick={() => setActiveTab('maquinas')}
+          onClick={() => goToTab('maquinas')}
         >
           <Tractor className="tab-icon" size={18} />
           <span>Máquinas</span>
@@ -97,9 +110,7 @@ const ClienteDetalles = () => {
 
         <button
           className={`tab-button ${activeTab === 'jornadas' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('jornadas');
-          }}
+          onClick={() => goToTab('jornadas')}
         >
           <Calendar className="tab-icon" size={18} />
           <span>Jornadas</span>
@@ -107,9 +118,7 @@ const ClienteDetalles = () => {
 
         <button
           className={`tab-button ${activeTab === 'notas' ? 'active' : ''}`}
-          onClick={() => {
-            setActiveTab('notas');
-          }}
+          onClick={() => goToTab('notas')}
         >
           <NotebookIcon className="tab-icon" size={18} />
 
@@ -127,18 +136,11 @@ const ClienteDetalles = () => {
           outlet
         ) : (
           <>
-            {activeTab === 'dashboard' && (
-              <ClienteDashboard cliente={cliente} />
-            )}
+            {activeTab === 'dashboard' && (<ClienteDashboard cliente={cliente} />)}
             {activeTab === 'pozos' && <Pozos cliente_id={cliente_id} />}
             {activeTab === 'maquinas' && <Maquinas cliente_id={cliente_id} />}
-            {activeTab === 'jornadas' && (
-              <JornadasTable cliente_id={cliente_id} />
-            )}
-
-            {activeTab === 'notas' && (
-              <NotasCliente clienteId={cliente_id} userId={user.id} />
-            )}
+            {activeTab === 'jornadas' && (<JornadasTable cliente_id={cliente_id} />)}
+            {activeTab === 'notas' && (<NotasCliente clienteId={cliente_id} userId={user.id} />)}
           </>
         )}
       </div>

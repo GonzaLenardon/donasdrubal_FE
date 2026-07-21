@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import { useCliente } from '../context/UserContext';
-import ClienteDetalles from './ClienteDetalle';
 
 /* ============================
    Labels del breadcrumb
@@ -11,7 +10,7 @@ const breadcrumbNames = {
   user: 'Usuarios',
   maquinas: 'Máquinas',
   calibraciones: 'Calibraciones',
-  detalles: 'Dashborad ggg',
+  dashboard: 'Dashboard',
   cliente: 'Clientes',
   clientes: 'Clientes',
   notificaciones: 'Notificaciones',
@@ -19,6 +18,14 @@ const breadcrumbNames = {
   pozos: 'Pozos',
   jornadas: 'Jornadas',
   reportes: 'Reportes',
+};
+
+const tabBreadcrumbNames = {
+  dashboard: 'Dashboard',
+  pozos: 'Pozos',
+  maquinas: 'Máquinas',
+  jornadas: 'Jornadas',
+  notas: 'Notas',
 };
 
 /* ============================
@@ -35,7 +42,7 @@ const DashboardLayout = () => {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const { selectedMaquina, selectedCliente, selectedPozo, setActiveTab } =
+  const { selectedMaquina, selectedCliente, selectedPozo, activeTab, setActiveTab } =
     useCliente();
 
   const clienteNombre = selectedCliente?.razon_social;
@@ -76,13 +83,13 @@ const DashboardLayout = () => {
 
         // Nombre cliente
         items.push({
-          label: clienteNombre,
-          to: `/cliente/${clienteId}/detalles`,
+          label: clienteNombre || 'Cliente',
+          to: `/cliente/${clienteId}`,
           clickable: true,
           action: () => setActiveTab('dashboard'),
         });
 
-        lastValidTo = `/cliente/${clienteId}/detalles`;
+        lastValidTo = `/cliente/${clienteId}`;
         i++;
         continue;
       }
@@ -120,7 +127,7 @@ const DashboardLayout = () => {
       /* ===== Maquinas ===== */
       if (seg === 'maquinas') {
         items.push({
-          label: 'Maquinas',
+          label: 'Máquinas',
           to: lastValidTo,
           clickable: true,
           action: () => setActiveTab('maquinas'),
@@ -149,14 +156,25 @@ const DashboardLayout = () => {
         continue;
       }
 
+      /* ===== TAB ROUTES ===== */
+      if (tabBreadcrumbNames[seg]) {
+        items.push({
+          label: tabBreadcrumbNames[seg],
+          to: lastValidTo,
+          clickable: true,
+          action: () => setActiveTab(seg),
+        });
+        continue;
+      }
+
       /* ===== IGNORAR DETALLES ===== */
-      if (seg === 'detalles') continue;
+      if (seg === 'dashboard') continue;
 
       /* ===== SALTAR IDs ===== */
       if (isIdSegment(seg)) continue;
 
       /* ===== IGNORAR Maquinas tipos ===== */
-      if (seg === 'detalles') continue;
+      if (seg === 'dashboard') continue;
 
       /* ===== GENERICO ===== */
       const label = breadcrumbNames[seg] || '';
@@ -168,8 +186,23 @@ const DashboardLayout = () => {
       });
     }
 
+    if (
+      items.length > 0 &&
+      location.pathname.match(/^\/cliente\/\d+\/?$/)
+    ) {
+      const lastItem = items[items.length - 1];
+      const currentLabel = tabBreadcrumbNames[activeTab] || 'Dashboard';
+
+      if (!lastItem || lastItem.label !== currentLabel) {
+        items.push({
+          label: currentLabel,
+          clickable: false,
+        });
+      }
+    }
+
     return items;
-  }, [location.pathname, clienteNombre, pozoNombre]);
+  }, [location.pathname, clienteNombre, pozoNombre, activeTab]);
 
   return (
     <>

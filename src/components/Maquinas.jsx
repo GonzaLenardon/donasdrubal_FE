@@ -371,7 +371,7 @@ const Maquinas = ({ cliente_id }) => {
                               setSelectedMaquina(maq);
 
                               navigate(
-                                `/cliente/${cliente_id}/detalles/maquinas/${maq.id}/calibraciones`,
+                                `/cliente/${cliente_id}/maquinas/${maq.id}/calibraciones`,
                               );
                             }}
                           >
