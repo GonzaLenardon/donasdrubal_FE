@@ -262,7 +262,7 @@ const ServiceItem = ({ title, subtitle, date, status, badge, icon }) => {
     </div>
   );
 };
-const NotaItem = ({ fecha, comentario }) => {
+const NotaItem = ({ fecha, usuario_nombre, comentario }) => {
   return (
     <div className="
       p-3
@@ -272,7 +272,7 @@ const NotaItem = ({ fecha, comentario }) => {
       shadow-sm
     ">
       <div className="text-xs text-gray-500 mb-2">
-        {new Date(fecha).toLocaleDateString('es-AR')}
+        {new Date(fecha).toLocaleDateString('es-AR')} - {usuario_nombre}
       </div>
 
       <p className="text-sm text-text-light dark:text-text-dark whitespace-pre-wrap">
@@ -752,7 +752,7 @@ const ClienteDashboard = ({ cliente }) => {
               <Droplets className="text-[#4a7c1f]" size={20} />
 
               <h2 className="text-lg font-semibold text-text-light dark:text-text-dark">
-                ANotas del Cliente
+                Notas del Cliente
               </h2>
             </div>
 
@@ -778,6 +778,7 @@ const ClienteDashboard = ({ cliente }) => {
                   <NotaItem
                     key={nota.id}
                     fecha={nota.fecha}
+                    usuario_nombre={nota.usuario.nombre}
                     comentario={nota.comentario}
                   />
                 ))}
