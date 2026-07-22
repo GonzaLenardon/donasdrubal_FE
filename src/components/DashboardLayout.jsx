@@ -96,9 +96,10 @@ const DashboardLayout = () => {
 
       /* ===== POZOS ===== */
       if (seg === 'pozos') {
+        const pozoTabPath = `${lastValidTo}/pozos`;
         items.push({
           label: 'Pozos',
-          to: lastValidTo,
+          to: pozoTabPath,
           clickable: true,
           action: () => setActiveTab('pozos'),
         });
@@ -108,9 +109,10 @@ const DashboardLayout = () => {
 
       /* ===== POZO ID ===== */
       if (seg === 'pozos' && parts[i + 1] && isIdSegment(parts[i + 1])) {
+        const pozoTabPath = `${lastValidTo}/pozos`;
         items.push({
           label: 'Pozo',
-          to: lastValidTo,
+          to: pozoTabPath,
           clickable: true,
           action: () => setActiveTab('pozos'),
         });
@@ -126,9 +128,10 @@ const DashboardLayout = () => {
 
       /* ===== Maquinas ===== */
       if (seg === 'maquinas') {
+        const maquinasTabPath = `${lastValidTo}/maquinas`;
         items.push({
           label: 'Máquinas',
-          to: lastValidTo,
+          to: maquinasTabPath,
           clickable: true,
           action: () => setActiveTab('maquinas'),
         });
