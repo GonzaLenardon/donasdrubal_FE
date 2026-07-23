@@ -2,7 +2,7 @@ import instance from './axios'; // 👈 Importar la instancia configurada
 
 export const allMaquinas = async (cliente) => {
   console.log('first,', cliente);
-  const res = await instance.get(`/cliente/${cliente}/maquinas`);
+  const res = await instance.get(`/clientes/${cliente}/maquinas`);
   return res.data;
 };
 
@@ -13,7 +13,7 @@ export const addMaquinas = async (maquina) => {
   /*  newMaquina.marca ='-';
   newMaquina.modelo ='-'; */
   const res = await instance.post(
-    `/cliente/${cliente_id}/maquinas`,
+    `/clientes/${cliente_id}/maquinas`,
     newMaquina,
   );
   return res.data;
@@ -23,7 +23,7 @@ export const updateMaquina = async (maquina) => {
   const { cliente_id, id, ...upMaquina } = maquina;
 
   const res = await instance.put(
-    `/cliente/${cliente_id}/maquinas/${id}`,
+    `/clientes/${cliente_id}/maquinas/${id}`,
     upMaquina,
   );
   return res.data;

@@ -134,7 +134,7 @@ const Jornadas = ({ cliente_id }) => {
                       onClick={(e) => {
                         e.stopPropagation();
                         navigate(
-                          `/cliente/${cliente_id}/jornadas/${jornada.id}`,
+                          `/clientes/${cliente_id}/jornadas/${jornada.id}`,
                         );
                       }}
                     >

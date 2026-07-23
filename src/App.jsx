@@ -51,7 +51,7 @@ function App() {
           <Route path="user" element={<Users />} />
           <Route path="maquinas" element={<Maquinas />} />
           <Route path="varios" element={<Varios />} />
-          <Route path="cliente" element={<Clientes />} />
+          <Route path="clientes" element={<Clientes />} />
           <Route path="notificaciones" element={<Notifications />} />
           <Route path="herramientas" element={<Herramientas />} />
           <Route path="campañas" element={<Alertas />} />
@@ -60,7 +60,7 @@ function App() {
           {/* Detalles */}
 
           <Route
-            path="cliente/:cliente_id/*"
+            path="clientes/:cliente_id/*"
             element={<ClienteDetalles />}
           >
             <Route
