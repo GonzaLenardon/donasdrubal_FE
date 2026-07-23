@@ -13,6 +13,7 @@ import ModalFinalizarServicios from './ModalFinalizarServicios';
 import ModalDetalleCalibracion from './ModalDetalleCalibracion';
 import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
+import { stateColors } from '../utils/colors';
 
 export const Calibraciones = () => {
   const { maquina_id, cliente_id } = useParams();
@@ -486,6 +487,13 @@ export const Calibraciones = () => {
                       const isCerrado = cal.estado === 'CERRADO';
                       const isChecked = seleccionados.includes(cal.id);
 
+                      const colorBadge =
+                        cal.estado === 'CERRADO'
+                          ? stateColors.COLOR_CERRADAS
+                          : cal.estado === 'EN PROCESO'
+                            ? stateColors.COLOR_PROCESO
+                            : stateColors.COLOR_PENDIENTES;
+
                       return (
                         <tr
                           key={cal.id}
@@ -607,41 +615,16 @@ export const Calibraciones = () => {
 
                           {/* ESTADO ABIERTO/CERRADO */}
                           <td style={{ padding: '0.85rem 1rem' }}>
-                            {cal.estado === 'CERRADO' && (
-                              <span
-                                className="badge bg-danger"
-                                style={{
-                                  fontSize: '0.72rem',
-                                  padding: '0.35rem 0.7rem',
-                                }}
-                              >
-                                CERRADO
-                              </span>
-                            )}
-
-                            {cal.estado === 'PENDIENTE' && (
-                              <span
-                                className="badge bg-success"
-                                style={{
-                                  fontSize: '0.72rem',
-                                  padding: '0.35rem 0.7rem',
-                                }}
-                              >
-                                PENDIENTE
-                              </span>
-                            )}
-
-                            {cal.estado === 'EN PROCESO' && (
-                              <span
-                                className="badge bg-warning"
-                                style={{
-                                  fontSize: '0.72rem',
-                                  padding: '0.35rem 0.7rem',
-                                }}
-                              >
-                                EN PROCESO
-                              </span>
-                            )}
+                            <span
+                              className="badge"
+                              style={{
+                                fontSize: '0.72rem',
+                                padding: '0.35rem 0.7rem',
+                                backgroundColor: colorBadge,
+                              }}
+                            >
+                              {cal.estado}
+                            </span>
                           </td>
 
                           {/* ACCIONES */}
