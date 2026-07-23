@@ -127,7 +127,7 @@ const MaquinaTipo = () => {
   };
 
   const handleVer = async (cliente) => {
-    navigate(`/cliente/${cliente.id}`, {
+    navigate(`/clientes/${cliente.id}`, {
       state: { cliente: cliente },
     });
   };

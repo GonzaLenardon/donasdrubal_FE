@@ -74,7 +74,7 @@ const ClienteDetalles = () => {
     );
   }
 
-  const clientBasePath = `/cliente/${cliente_id}`;
+  const clientBasePath = `/clientes/${cliente_id}`;
 
   const goToTab = (tab) => {
     setActiveTab(tab);

@@ -70,13 +70,13 @@ const DashboardLayout = () => {
       const seg = parts[i];
 
       /* ===== CLIENTE ===== */
-      if (seg === 'cliente' && parts[i + 1] && isIdSegment(parts[i + 1])) {
+      if (seg === 'clientes' && parts[i + 1] && isIdSegment(parts[i + 1])) {
         clienteId = parts[i + 1];
 
         // Cliente (lista)
         items.push({
           label: 'Clientes',
-          to: '/cliente',
+          to: '/clientes',
           clickable: true,
           action: () => setActiveTab('dashboard'),
         });
@@ -84,12 +84,12 @@ const DashboardLayout = () => {
         // Nombre cliente
         items.push({
           label: clienteNombre || 'Cliente',
-          to: `/cliente/${clienteId}`,
+          to: `/clientes/${clienteId}`,
           clickable: true,
           action: () => setActiveTab('dashboard'),
         });
 
-        lastValidTo = `/cliente/${clienteId}`;
+        lastValidTo = `/clientes/${clienteId}`;
         i++;
         continue;
       }
@@ -191,7 +191,7 @@ const DashboardLayout = () => {
 
     if (
       items.length > 0 &&
-      location.pathname.match(/^\/cliente\/\d+\/?$/)
+      location.pathname.match(/^\/clientes\/\d+\/?$/)
     ) {
       const lastItem = items[items.length - 1];
       const currentLabel = tabBreadcrumbNames[activeTab] || 'Dashboard';

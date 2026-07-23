@@ -36,7 +36,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   /* ===================== MENÚ CON ROLES ===================== */
 
   const basicSelectores = [
-    { title: 'Clientes', path: '/cliente', icon: 'bi-person-fill' },
+    { title: 'Clientes', path: '/clientes', icon: 'bi-person-fill' },
     {
       title: 'Notificaciones',
       path: '/notificaciones',
