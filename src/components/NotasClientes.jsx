@@ -357,10 +357,10 @@ const NotasCliente = ({ clienteId, userId }) => {
 
           <button
             type="button"
-            className="btn-primary"
+            className="btn btn-sm text-white d-flex align-items-center gap-2 maquina-btn-nuevo"
             onClick={handleNuevaNota}
           >
-            <i className="bi bi-plus-circle-fill me-2"></i>
+            <i className="bi bi-plus-lg"></i>
             Nueva nota
           </button>
         </div>

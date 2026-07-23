@@ -96,13 +96,10 @@ const formatEstado = (estado) => {
 const buildExportRow = (cliente, visibleServices) => {
   const metrics = calcRowMetrics(cliente);
   const tipoCliente =
-    cliente.tipo_cliente?.nombre || cliente.tipo_cliente?.tipo ||
-    (typeof cliente.tipo_cliente === 'string'
-      ? cliente.tipo_cliente
-      : '');
-  const ingenieros = cliente.ingenieros
-    ?.map((ing) => ing.nombre)
-    .join(' | ');
+    cliente.tipo_cliente?.nombre ||
+    cliente.tipo_cliente?.tipo ||
+    (typeof cliente.tipo_cliente === 'string' ? cliente.tipo_cliente : '');
+  const ingenieros = cliente.ingenieros?.map((ing) => ing.nombre).join(' | ');
 
   const row = {
     Cliente: cliente.razon_social,
@@ -116,9 +113,12 @@ const buildExportRow = (cliente, visibleServices) => {
   if (visibleServices.maquinas) {
     row['Total máquinas'] = cliente.Maquinas?.totalMaquinas ?? '';
     row['Total calibraciones'] = cliente.Maquinas?.totalCalibraciones ?? '';
-    row['Calibraciones cerradas'] = cliente.Maquinas?.calibracionesCerradas ?? '';
-    row['Calibraciones en proceso'] = cliente.Maquinas?.calibracionesProceso ?? '';
-    row['Calibraciones pendientes'] = cliente.Maquinas?.calibracionesPendientes ?? '';
+    row['Calibraciones cerradas'] =
+      cliente.Maquinas?.calibracionesCerradas ?? '';
+    row['Calibraciones en proceso'] =
+      cliente.Maquinas?.calibracionesProceso ?? '';
+    row['Calibraciones pendientes'] =
+      cliente.Maquinas?.calibracionesPendientes ?? '';
   }
 
   if (visibleServices.muestras) {
@@ -397,9 +397,7 @@ const DashboardUser = () => {
       setClientes(serviciosRes.data?.data ?? serviciosRes.data ?? []);
       setTotales(totalesRes.data?.data ?? totalesRes.data ?? null);
       setIngenieros(ingenierosRes.data ?? ingenierosRes ?? []);
-      setTipoClientes(
-        tipoClientesRes?.data ?? tipoClientesRes ?? [],
-      );
+      setTipoClientes(tipoClientesRes?.data ?? tipoClientesRes ?? []);
     } catch (err) {
       console.error('Error al cargar datos:', err);
       setError('No se pudieron cargar los datos.');
@@ -448,7 +446,9 @@ const DashboardUser = () => {
       c.tipo_cliente?.id === Number(selectedTipoClienteId);
     const matchesStatus = hasSelectedStatus(c, statusFilters, visibleServices);
 
-    return matchesSearch && matchesIngeniero && matchesTipoCliente && matchesStatus;
+    return (
+      matchesSearch && matchesIngeniero && matchesTipoCliente && matchesStatus
+    );
   });
 
   const { rows, sin, proceso, completos } = buildRows(clientesFiltrados);

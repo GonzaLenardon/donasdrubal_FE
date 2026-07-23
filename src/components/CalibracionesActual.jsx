@@ -359,7 +359,7 @@ export const Calibraciones = () => {
                   </p>
                   <p className="text-white-50 mb-0">
                     {calibraciones?.calibraciones?.length || 0} calibraciones
-                    encontradas
+                    rrrrrrrrrrr encontradas
                   </p>
                 </div>
                 <button

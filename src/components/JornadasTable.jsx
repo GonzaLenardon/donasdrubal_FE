@@ -134,8 +134,10 @@ const JornadasTable = () => {
         {/* ── Header ── */}
         <div className="jornadas-header mb-4">
           <div>
-            <h2 className="fw-bold text-white mb-1">Gestión de Jornadas</h2>
-            <p className="text-white-50 mb-0">{jornadas.length} Jornadas</p>
+            <h2 className="notas-header__title mb-0">Gestión de Jornadas</h2>
+            <p className="notas-header__subtitle mb-0">
+              {jornadas.length} Jornadas
+            </p>
           </div>
           <div className="jornadas-header-actions">
             {isAdmin && (

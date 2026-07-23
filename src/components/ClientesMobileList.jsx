@@ -1,15 +1,11 @@
 // src/components/ClientesMobileList.jsx
-import {
-  Dot,
-  COLOR_CERRADAS,
-  COLOR_PROCESO,
-  COLOR_PENDIENTES,
-} from './EstadoServicio';
+import { Dot } from './EstadoServicio';
+import { stateColors } from '../utils/colors';
 
 const DOT_COLOR_BY_TYPE = {
-  check: COLOR_CERRADAS,
-  clock: COLOR_PROCESO,
-  circle: COLOR_PENDIENTES,
+  check: stateColors.COLOR_CERRADAS,
+  clock: stateColors.COLOR_PROCESO,
+  circle: stateColors.COLOR_PENDIENTES,
 };
 
 const Pill = ({ value, type }) => {

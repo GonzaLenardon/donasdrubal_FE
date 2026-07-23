@@ -1,7 +1,3 @@
-export const COLOR_CERRADAS = '#639922';
-export const COLOR_PROCESO = '#EF9F27';
-export const COLOR_PENDIENTES = '#E24B4A';
-
 /**
  * @param {number} [size] — diámetro en px. Default chico (8) para uso en
  *   listas compactas (ej: Pill de ClientesMobileList). EstadoServicio
@@ -28,7 +24,12 @@ export const Dot = ({ color, size = 8 }) => (
  * @param {string} [unitLabel] — unidad del total (ej: "máq.", "poz.").
  *   Si no se pasa, no se muestra el bloque de total (útil para Jornadas,
  *   que no tiene una "unidad" propia distinta del conteo de servicios).
+ *
+ *
  */
+
+import { stateColors } from '../utils/colors';
+
 const EstadoServicio = ({
   cerradas = 0,
   proceso = 0,
@@ -85,15 +86,15 @@ const EstadoServicio = ({
           }}
         >
           <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Dot color={COLOR_CERRADAS} size={20} />
+            <Dot color={stateColors.COLOR_CERRADAS} size={20} />
             {cerradas}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Dot color={COLOR_PROCESO} size={20} />
+            <Dot color={stateColors.COLOR_PROCESO} size={20} />
             {proceso}
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Dot color={COLOR_PENDIENTES} size={20} />
+            <Dot color={stateColors.COLOR_PENDIENTES} size={20} />
             {pendientes}
           </span>
         </div>
@@ -107,10 +108,23 @@ const EstadoServicio = ({
             marginBottom: 3,
           }}
         >
-          <div style={{ width: `${wCerradas}%`, background: COLOR_CERRADAS }} />
-          <div style={{ width: `${wProceso}%`, background: COLOR_PROCESO }} />
           <div
-            style={{ width: `${wPendientes}%`, background: COLOR_PENDIENTES }}
+            style={{
+              width: `${wCerradas}%`,
+              background: stateColors.COLOR_CERRADAS,
+            }}
+          />
+          <div
+            style={{
+              width: `${wProceso}%`,
+              background: stateColors.COLOR_PROCESO,
+            }}
+          />
+          <div
+            style={{
+              width: `${wPendientes}%`,
+              background: stateColors.COLOR_PENDIENTES,
+            }}
           />
         </div>
         <span style={{ fontSize: 12, fontWeight: 700, color: '#414e64' }}>
@@ -138,19 +152,19 @@ export const LeyendaEstados = () => (
       style={{ display: 'flex', alignItems: 'center', gap: 6 }}
       title="Servicios cerrados / completados"
     >
-      <Dot color={COLOR_CERRADAS} /> Cerradas
+      <Dot color={stateColors.COLOR_CERRADAS} /> Cerradas
     </span>
     <span
       style={{ display: 'flex', alignItems: 'center', gap: 6 }}
       title="Servicios en proceso, todavía sin cerrar"
     >
-      <Dot color={COLOR_PROCESO} /> En proceso
+      <Dot color={stateColors.COLOR_PROCESO} /> En proceso
     </span>
     <span
       style={{ display: 'flex', alignItems: 'center', gap: 6 }}
       title="Servicios pendientes, sin iniciar"
     >
-      <Dot color={COLOR_PENDIENTES} /> Pendientes
+      <Dot color={stateColors.COLOR_PENDIENTES} /> Pendientes
     </span>
   </div>
 );

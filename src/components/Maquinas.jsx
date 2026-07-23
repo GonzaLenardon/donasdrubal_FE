@@ -7,6 +7,8 @@ import ModalFinalizarServicios from './ModalFinalizarServicios';
 import ModalInformativo from './ModalInformativo';
 import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
+import { Dot, LeyendaEstados } from './EstadoServicio';
+import { stateColors } from '../utils/colors';
 
 const Maquinas = ({ cliente_id }) => {
   const [maquinas, setMaquinas] = useState([]);
@@ -107,8 +109,9 @@ const Maquinas = ({ cliente_id }) => {
 
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
-            <h2 className="fw-bold text-white mb-1">Maquinas</h2>
-            <p className="text-white-50 mb-0">
+            <h2 className="notas-header__title mb-0">Maquinas</h2>
+
+            <p className="notas-header__subtitle mb-0">
               {maquinas.length} máquinas registradas
             </p>
           </div>
@@ -182,6 +185,7 @@ const Maquinas = ({ cliente_id }) => {
 
         {/* TABLA */}
         <div className="container-table rounded shadow-lg">
+          <LeyendaEstados className="bg-info" />
           <div className="table-wrapper">
             {maquinas.length === 0 ? (
               <div className="p-5 text-center">
@@ -255,6 +259,9 @@ const Maquinas = ({ cliente_id }) => {
                     </th>
                     <th>
                       <i className="bi bi-person-fill"></i>Operario
+                    </th>
+                    <th>
+                      <i className="bi bi-info-circle"></i>Calibracion
                     </th>
                     <th className="text-center">
                       <i className="bi bi-gear"></i>Acciones
@@ -350,6 +357,20 @@ const Maquinas = ({ cliente_id }) => {
                         <span className="table-text">
                           {maq.responsable || '-'}
                         </span>
+                      </td>
+
+                      <td className="text-center">
+                        <Dot
+                          color={
+                            maq?.calibracionesmaquina[0].estado === 'CERRADO'
+                              ? stateColors.COLOR_CERRADAS
+                              : maq?.calibracionesmaquina[0].estado ===
+                                  'EN PROCESO'
+                                ? stateColors.COLOR_PROCESO
+                                : stateColors.COLOR_PENDIENTES
+                          }
+                          size={20}
+                        ></Dot>
                       </td>
 
                       {/* Acciones */}

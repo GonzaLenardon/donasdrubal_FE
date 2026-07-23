@@ -162,8 +162,8 @@ const Pozos = ({ cliente_id }) => {
           {/* ── Header ── */}
           <div className="d-flex justify-content-between align-items-center mb-4">
             <div>
-              <h2 className="fw-bold text-white mb-1">Gestión de Pozos</h2>
-              <p className="text-white-50 mb-0" style={{ fontSize: '13px' }}>
+              <h2 className="notas-header__title mb-0">Gestión de Pozos</h2>
+              <p className="notas-header__subtitle mb-0">
                 {pozos.length} pozos registrados
               </p>
             </div>
