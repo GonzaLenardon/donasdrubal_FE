@@ -217,18 +217,19 @@ const MuestrasPozos = () => {
             {/* HEADER */}
             <div className="d-flex justify-content-between align-items-center mb-4">
               <div>
-                <h2 className="fw-bold text-white mb-1">Muestras de Agua</h2>
+                <h2 className="notas-header__title mb-0">Muestras de Agua</h2>
                 <p
                   style={{
-                    fontSize: '1.2em',
-                    fontWeight: '600',
+                    fontSize: '0.9em',
+                    fontWeight: '500',
                     color: 'rgba(248, 243, 243, 0.5)',
+                    margin: '0px',
                   }}
                 >
                   <strong>Pozo: </strong>
                   {selectedPozo?.nombre} {selectedPozo?.establecimiento}
                 </p>
-                <p className="text-white-50 mb-0">
+                <p className="notas-header__subtitle mb-0">
                   {muestras?.length || 0} muestras registradas
                 </p>
               </div>
@@ -263,28 +264,40 @@ const MuestrasPozos = () => {
             </div>
 
             {/* FILTROS */}
-            <div className="row g-3 mb-4">
-              <div className="col-md-4">
-                <label className="text-white fw-semibold">Desde</label>
+            <div className="jornadas-filtros mb-4">
+              <div className="jornadas-filtro-group">
+                <label
+                  className="text-white fw-semibold"
+                  style={{ fontSize: 13 }}
+                >
+                  Desde
+                </label>
                 <input
                   type="date"
-                  className="form-control"
+                  className="form-control-sm jornadas-filtro-input"
                   value={desde}
                   onChange={(e) => setDesde(e.target.value)}
                 />
               </div>
-              <div className="col-md-4">
-                <label className="text-white fw-semibold">Hasta</label>
+
+              <div className="jornadas-filtro-group">
+                <label
+                  className="text-white fw-semibold"
+                  style={{ fontSize: 13 }}
+                >
+                  Hasta
+                </label>
                 <input
                   type="date"
-                  className="form-control"
+                  className="form-control-sm jornadas-filtro-input"
                   value={hasta}
                   onChange={(e) => setHasta(e.target.value)}
                 />
               </div>
+
               <div className="col-md-4 d-flex align-items-end">
                 <button
-                  className="btn btn-light w-100"
+                  className="btn btn-light btn-sm jornadas-filtro-limpiar"
                   onClick={limpiarFiltros}
                   disabled={!desde && !hasta}
                 >
