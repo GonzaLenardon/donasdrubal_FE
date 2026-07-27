@@ -8,6 +8,7 @@ import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
 import JornadasMobileList from './JornadasMobileList';
 import { useIsMobile } from '../hooks/useIsMobile';
+import ModalImpresion from './ModalImpresion';
 
 const badgeConfig = {
   CERRADO: { className: 'badge bg-danger', label: 'Cerrado' },
@@ -37,6 +38,8 @@ const JornadasTable = () => {
   const [modoSeleccion, setModoSeleccion] = useState(false);
   const [seleccionado, setSeleccionado] = useState(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [showViewer, setShowViewer] = useState(false);
+  const [viewerUrl, setViewerUrl] = useState('');
 
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.rol === 'Administrador';
@@ -175,24 +178,26 @@ const JornadasTable = () => {
             </label>
             <input
               type="date"
-              className="form-control jornadas-filtro-input"
+              className="form-control-sm jornadas-filtro-input"
               value={desde}
               onChange={(e) => setDesde(e.target.value)}
             />
           </div>
+
           <div className="jornadas-filtro-group">
             <label className="text-white fw-semibold" style={{ fontSize: 13 }}>
               Hasta
             </label>
             <input
               type="date"
-              className="form-control jornadas-filtro-input"
+              className="form-control-sm jornadas-filtro-input"
               value={hasta}
               onChange={(e) => setHasta(e.target.value)}
             />
           </div>
+
           <button
-            className="btn btn-light jornadas-filtro-limpiar"
+            className="btn btn-light btn-sm jornadas-filtro-limpiar"
             onClick={limpiarFiltros}
             disabled={!desde && !hasta}
           >
@@ -276,6 +281,15 @@ const JornadasTable = () => {
                     <th className="text-center">
                       <i className="bi bi-person-fill me-1"></i>Ing. Responsable
                     </th>
+
+                    <th
+                      className="text-white fw-semibold"
+                      style={{ fontSize: '0.875rem' }}
+                    >
+                      <i className="bi bi-file-earmark-bar-graph me-2"></i>
+                      Informe
+                    </th>
+
                     <th className="text-center">
                       <i className="bi bi-gear me-1"></i>Acciones
                     </th>
@@ -340,6 +354,28 @@ const JornadasTable = () => {
                           </span>
                         </td>
 
+                        <td className="text-center">
+                          {m.informe ? (
+                            <button
+                              className="btn btn-sm"
+                              style={{
+                                color: '#254154',
+                                fontSize: '1.5rem',
+                                padding: '0px',
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowViewer(true);
+                                setViewerUrl(
+                                  `/uploads/clientes/${cliente_id}/jornadas/${m.id}/${m.informe}`,
+                                );
+                              }}
+                            >
+                              <i className="bi bi-file-earmark-arrow-down"></i>
+                            </button>
+                          ) : null}
+                        </td>
+
                         <td>
                           <div className="table-actions">
                             {!isClosed && (
@@ -399,6 +435,9 @@ const JornadasTable = () => {
           servicio="jornada"
           cantidad={1}
         />
+      )}
+      {showViewer && (
+        <ModalImpresion setShowViewer={setShowViewer} viewerUrl={viewerUrl} />
       )}
 
       <Spinner msg={msg} loading={loading} />

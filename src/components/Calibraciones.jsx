@@ -321,11 +321,11 @@ export const Calibraciones = () => {
               {/* HEADER */}
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="fw-bold text-white mb-1">Calibraciones</h2>
+                  <h2 className="notas-header__title mb-0">Calibraciones</h2>
                   <p
                     style={{
-                      fontSize: '1.2em',
-                      fontWeight: '600',
+                      fontSize: '0.9em',
+                      fontWeight: '500',
                       color: 'rgba(248, 243, 243, 0.5)',
                       margin: '0px',
                     }}
@@ -333,7 +333,7 @@ export const Calibraciones = () => {
                     <strong>Máquina: </strong>
                     {selectedMaquina?.tipo.marca} {selectedMaquina?.tipo.modelo}
                   </p>
-                  <p className="text-white-50 mb-0">
+                  <p className="notas-header__subtitle mb-0">
                     {calibraciones?.calibraciones?.length || 0} calibraciones
                     encontradas
                   </p>
