@@ -9,6 +9,8 @@ import ModalEliminar from './ModalEliminar';
 import ModalInformativo from './ModalInformativo';
 import Spinner from './Spinner';
 import { Modal } from 'bootstrap';
+import { Dot } from './EstadoServicio';
+import { getEstadoColor } from '../utils/colors';
 
 const Pozos = ({ cliente_id }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -280,6 +282,26 @@ const Pozos = ({ cliente_id }) => {
                         <span className="pcard-row-val">
                           {pozo.latitud}, {pozo.longitud}
                         </span>
+                      </div>
+                    </div>
+
+                    <div className="d-flex justify-content-between align-items-center border-top pt-1 mt-1">
+                      <span className="pcard-row-label">
+                        Estado Muestra Agua
+                      </span>
+                      <div
+                        className="pcard-estado"
+                        title={
+                          pozo?.muestrasAgua?.[0]?.estado || 'Sin muestras'
+                        }
+                      >
+                        <Dot
+                          color={getEstadoColor(
+                            pozo?.muestrasAgua?.[0]?.estado,
+                          )}
+                          size={12}
+                        />
+                        {pozo?.muestrasAgua?.[0]?.estado || 'Sin muestras'}
                       </div>
                     </div>
                   </div>

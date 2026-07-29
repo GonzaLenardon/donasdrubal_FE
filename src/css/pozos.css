@@ -234,6 +234,19 @@
   margin: 0 0 10px;
 }
 
+.pcard-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: #e8efecf6;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #284c2f;
+  white-space: nowrap;
+}
+
 /* Botones de acción */
 .pcard-actions {
   display: flex;
