@@ -8,7 +8,7 @@ import ModalInformativo from './ModalInformativo';
 import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
 import { Dot, LeyendaEstados } from './EstadoServicio';
-import { stateColors } from '../utils/colors';
+import { getEstadoColor } from '../utils/colors';
 
 const Maquinas = ({ cliente_id }) => {
   const [maquinas, setMaquinas] = useState([]);
@@ -361,16 +361,11 @@ const Maquinas = ({ cliente_id }) => {
 
                       <td className="text-center">
                         <Dot
-                          color={
-                            maq?.calibracionesmaquina[0].estado === 'CERRADO'
-                              ? stateColors.COLOR_CERRADAS
-                              : maq?.calibracionesmaquina[0].estado ===
-                                  'EN PROCESO'
-                                ? stateColors.COLOR_PROCESO
-                                : stateColors.COLOR_PENDIENTES
-                          }
+                          color={getEstadoColor(
+                            maq?.calibracionesmaquina?.[0]?.estado,
+                          )}
                           size={20}
-                        ></Dot>
+                        />
                       </td>
 
                       {/* Acciones */}
