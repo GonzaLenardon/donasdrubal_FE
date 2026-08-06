@@ -112,14 +112,18 @@ const Alertas = () => {
   return (
     <div className="container-fluid py-4">
       {/* Header */}
-      <div className="mb-4">
-        <h2 className="fw-bold text-dark mb-2">
-          <Calendar className="me-2 mb-1" size={32} />
-          Nueva Campaña de Servicios
-        </h2>
-        <p className="text-muted">
-          Generación automática de alertas para clientes AAA
-        </p>
+
+      <div className="d-flex align-items-center gap-2 mb-3">
+        <div className="d-flex align-items-start gap-2">
+          <Calendar size={24} />
+        </div>
+
+        <div>
+          <h2 className="title"> Nueva Campaña de Servicios</h2>
+          <p className="text-muted m-0">
+            Generación automática de alertas para clientes AAA
+          </p>
+        </div>
       </div>
 
       {/* Alert de información */}
