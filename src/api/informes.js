@@ -82,11 +82,22 @@ export const apiGenerarInformeMuestras = async (muestra) => {
   return resp.data; // retorna el Blob directamente
 };
 
-export const resumenSemanal = async (fechaInicio, fechaFin) => {
-  const resp = await instance.post(
-    '/informes/resumen/rango',
-    { fechaInicio, fechaFin },
-    { responseType: 'blob' },
-  );
+export const resumenSemanal = async (
+  fechaInicio,
+  fechaFin,
+  clienteId = null,
+  ingenieroId = null,
+) => {
+  const payload = {
+    fechaInicio,
+    fechaFin,
+  };
+
+  if (clienteId) payload.clienteId = Number(clienteId);
+  if (ingenieroId) payload.ingenieroId = Number(ingenieroId);
+
+  const resp = await instance.post('/informes/resumen/rango', payload, {
+    responseType: 'blob',
+  });
   return resp.data;
 };

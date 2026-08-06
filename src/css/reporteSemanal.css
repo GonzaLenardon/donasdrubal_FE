@@ -1,0 +1,107 @@
+/* ─────────────────────────────────────────────
+   ReporteSemanal — wrapper verde (mismo patrón
+   que pozos-wrapper / maquinas-wrapper / etc.)
+───────────────────────────────────────────── */
+
+.reporte-semanal-wrapper {
+  background: #1a5c38;
+  padding: 1.5rem;
+  border-radius: 15px;
+}
+
+/* Labels e íconos siempre blancos dentro del wrapper */
+.reporte-semanal-wrapper label {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.reporte-semanal-wrapper label svg {
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+
+/* Leyenda descriptiva y de campos obligatorios */
+.reporte-semanal-desc {
+  padding-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.reporte-semanal-legend {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.85rem;
+  margin: 0px;
+  padding-top: 0.8rem;
+}
+
+/* Asegura que todos los campos midan lo mismo,
+   sin importar el largo del texto de sus opciones */
+.reporte-semanal-wrapper .form-control,
+.reporte-semanal-wrapper .form-select {
+  width: 100%;
+  min-height: 42px;
+}
+
+.reporte-semanal-field {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Barra de acciones: separa "Limpiar filtros" del
+   flujo principal con una línea divisoria sutil */
+.reporte-semanal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Botón "Limpiar filtros": outline sobre fondo oscuro,
+   visualmente distinto del botón primario de acción */
+.btn-clear-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.55rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.btn-clear-filters:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-clear-filters:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Responsive: en mobile, los botones ocupan todo el ancho
+   y se apilan en vez de quedar comprimidos */
+@media (max-width: 767px) {
+  .reporte-semanal-wrapper {
+    padding: 1.25rem;
+  }
+
+  .reporte-semanal-actions {
+    justify-content: stretch;
+  }
+
+  .btn-clear-filters {
+    width: 100%;
+    justify-content: center;
+  }
+}
