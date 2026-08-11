@@ -13,10 +13,13 @@ import ModalFinalizarServicios from './ModalFinalizarServicios';
 import ModalDetalleCalibracion from './ModalDetalleCalibracion';
 import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
+import CalibracionesMobileList from './CalibracionesMobileList';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { stateColors } from '../utils/colors';
 
 export const Calibraciones = () => {
   const { maquina_id, cliente_id } = useParams();
+  const isMobile = useIsMobile();
   const [calibraciones, setCalibraciones] = useState();
   const [calibracion, setCalibracion] = useState();
   const [modalCalibraciones, setModalCalibraciones] = useState(false);
@@ -316,11 +319,33 @@ export const Calibraciones = () => {
     <>
       <div className="min-h-screen bg-gray-50 p-0">
         <div className="mx-auto">
+        
           <div className="calibraciones-wrapper">
             <div style={{ margin: '0 auto' }}>
               {/* HEADER */}
-              <div className="flex items-center justify-between mb-6">
-                <div>
+             
+             
+              <div 
+              
+              
+              
+              className={
+                isMobile
+                  ? 'row gx-2 align-items-start mb-4'
+                  : 'd-flex justify-content-between align-items-center mb-4'
+              }
+              
+              
+              
+              
+              >
+
+
+
+
+
+               
+<div className={isMobile ? 'col-8' : ''}>
                   <h2 className="notas-header__title mb-0">Calibraciones</h2>
                   <p
                     style={{
@@ -340,7 +365,11 @@ export const Calibraciones = () => {
                 </div>
 
                 {/* ── Botones del header ── */}
-                <div className="d-flex align-items-center gap-2">
+                <div  className={
+      isMobile
+        ? 'col-4 d-flex flex-column align-items-end gap-2'
+        : 'd-flex align-items-center gap-2'
+    }>
                   {/* Botón seleccionar — solo Admin */}
                   {isAdmin && (
                     <button
@@ -364,7 +393,9 @@ export const Calibraciones = () => {
                     className="btn text-white d-flex align-items-center gap-2 shadow-lg calibracion-btn-nuevo"
                   >
                     <Plus className="w-5 h-5" />
-                    Nueva Calibración
+
+                    {!isMobile ? 'Nueva Calibración':''}
+                    
                   </button>
                 </div>
               </div>
@@ -414,273 +445,307 @@ export const Calibraciones = () => {
                 </div>
               )}
 
-              {/* TABLA */}
-              <div
-                className="table-responsive"
-                style={{ borderRadius: '10px', overflow: 'hidden' }}
-              >
-                <table
-                  className="table table-dark table-hover mb-0"
-                  style={{ fontSize: '0.85rem' }}
-                >
-                  <thead
-                    style={{
-                      background: 'rgb(236, 19, 19)',
-                      position: 'sticky',
-                      top: 0,
-                      zIndex: 10,
+              {/* TABLA / CARDS */}
+              {isMobile ? (
+                <div className="container-table rounded shadow-lg">
+                  <CalibracionesMobileList
+                    calibraciones={calibraciones?.calibraciones || []}
+                    ingenieros={ingenieros}
+                    isAdmin={isAdmin}
+                    modoSeleccion={modoSeleccion}
+                    seleccionados={seleccionados}
+                    onToggleSeleccion={toggleSeleccion}
+                    onEditar={handleEditar}
+                    onReabrir={handleReabrir}
+                    onVerDetalle={(cal) => {
+                      setCalibracionDetalle(cal);
+                      setCalibracionDetalleIndex(
+                        calibraciones?.calibraciones?.findIndex(
+                          (c) => c.id === cal.id,
+                        ) ?? 0,
+                      );
                     }}
+                    onVerPdf={(cal) => {
+                      window.open(
+                        `${url}/calibraciones/${cal.id}/preview-pdf`,
+                        '_blank',
+                      );
+                    }}
+                  />
+                </div>
+              ) : (
+                <div
+                  className="table-responsive"
+                  style={{ borderRadius: '10px', overflow: 'hidden' }}
+                >
+                  <table
+                    className="table table-dark table-hover mb-0"
+                    style={{ fontSize: '0.85rem' }}
                   >
-                    <tr>
-                      {/* Columna checkbox — solo en modo selección */}
-                      {modoSeleccion && (
-                        <th
-                          style={{
-                            padding: '0.85rem 0.5rem 0.85rem 1rem',
-                            width: '40px',
-                          }}
-                        ></th>
-                      )}
-                      {[
-                        '#',
-                        'Fecha',
-                        'Responsable',
-                        'Estado máquina',
-                        'Observaciones',
-                        'Estado',
-                        'Acciones',
-                      ].map((col) => (
-                        <th
-                          key={col}
-                          style={{
-                            padding: '0.85rem 1rem',
-                            fontWeight: '700',
-                            fontSize: '0.78rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            whiteSpace: 'nowrap',
-                            borderBottom: '1px solid rgba(255,255,255,0.1)',
-                          }}
-                        >
-                          {col}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {calibraciones?.calibraciones?.map((cal, i) => {
-                      const fechaFormateada = new Date(
-                        cal.fecha,
-                      ).toLocaleDateString('es-AR', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                        timeZone: 'UTC',
-                      });
-                      const estadoMaquinaData = parseEstado(
-                        cal.id,
-                        cal.estado_maquina,
-                      );
-                      const ingResponsable = ingenieros.find(
-                        (ing) => ing.id === cal.responsable_id,
-                      );
-                      const isCerrado = cal.estado === 'CERRADO';
-                      const isChecked = seleccionados.includes(cal.id);
-
-                      const colorBadge =
-                        cal.estado === 'CERRADO'
-                          ? stateColors.COLOR_CERRADAS
-                          : cal.estado === 'EN PROCESO'
-                            ? stateColors.COLOR_PROCESO
-                            : stateColors.COLOR_PENDIENTES;
-
-                      return (
-                        <tr
-                          key={cal.id}
-                          style={{
-                            borderBottom: '1px solid rgba(255,255,255,0.06)',
-                            verticalAlign: 'middle',
-                            cursor: modoSeleccion ? 'pointer' : 'default',
-                            background: isChecked
-                              ? 'rgba(239,68,68,0.1)'
-                              : undefined,
-                          }}
-                          onClick={
-                            modoSeleccion
-                              ? () => toggleSeleccion(cal.id)
-                              : undefined
-                          }
-                        >
-                          {/* Checkbox — solo en modo selección */}
-                          {modoSeleccion && (
-                            <td
-                              style={{ padding: '0.85rem 0.5rem 0.85rem 1rem' }}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={isChecked}
-                                onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
-                                onChange={() => toggleSeleccion(cal.id)}
-                                style={{
-                                  width: '15px',
-                                  height: '15px',
-                                  cursor: 'pointer',
-                                  accentColor: '#ef4444',
-                                }}
-                              />
-                            </td>
-                          )}
-
-                          {/* # */}
-                          <td style={{ padding: '0.85rem 1rem' }}>
-                            <span className="fw-bold text-white">#{i + 1}</span>
-                          </td>
-
-                          {/* FECHA */}
-                          <td
+                    <thead
+                      style={{
+                        background: 'rgb(236, 19, 19)',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 10,
+                      }}
+                    >
+                      <tr>
+                        {/* Columna checkbox — solo en modo selección */}
+                        {modoSeleccion && (
+                          <th
+                            style={{
+                              padding: '0.85rem 0.5rem 0.85rem 1rem',
+                              width: '40px',
+                            }}
+                          ></th>
+                        )}
+                        {[
+                          '#',
+                          'Fecha',
+                          'Responsable',
+                          'Estado máquina',
+                          'Observaciones',
+                          'Estado',
+                          'Acciones',
+                        ].map((col) => (
+                          <th
+                            key={col}
                             style={{
                               padding: '0.85rem 1rem',
+                              fontWeight: '700',
+                              fontSize: '0.78rem',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px',
                               whiteSpace: 'nowrap',
+                              borderBottom: '1px solid rgba(255,255,255,0.1)',
                             }}
                           >
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="bi bi-calendar-event calibracion-icon"></i>
-                              <span className="text-white">
-                                {fechaFormateada}
-                              </span>
-                            </div>
-                          </td>
+                            {col}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {calibraciones?.calibraciones?.map((cal, i) => {
+                        const fechaFormateada = new Date(
+                          cal.fecha,
+                        ).toLocaleDateString('es-AR', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                          timeZone: 'UTC',
+                        });
+                        const estadoMaquinaData = parseEstado(
+                          cal.id,
+                          cal.estado_maquina,
+                        );
+                        const ingResponsable = ingenieros.find(
+                          (ing) => ing.id === cal.responsable_id,
+                        );
+                        const isCerrado = cal.estado === 'CERRADO';
+                        const isChecked = seleccionados.includes(cal.id);
 
-                          {/* RESPONSABLE */}
-                          <td
+                        const colorBadge =
+                          cal.estado === 'CERRADO'
+                            ? stateColors.COLOR_CERRADAS
+                            : cal.estado === 'EN PROCESO'
+                              ? stateColors.COLOR_PROCESO
+                              : stateColors.COLOR_PENDIENTES;
+
+                        return (
+                          <tr
+                            key={cal.id}
                             style={{
-                              padding: '0.85rem 1rem',
-                              whiteSpace: 'nowrap',
+                              borderBottom: '1px solid rgba(255,255,255,0.06)',
+                              verticalAlign: 'middle',
+                              cursor: modoSeleccion ? 'pointer' : 'default',
+                              background: isChecked
+                                ? 'rgba(239,68,68,0.1)'
+                                : undefined,
                             }}
+                            onClick={
+                              modoSeleccion
+                                ? () => toggleSeleccion(cal.id)
+                                : undefined
+                            }
                           >
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="bi bi-person-fill calibracion-icon"></i>
-                              <span className="text-white">
-                                {ingResponsable?.nombre ?? '—'}
-                              </span>
-                            </div>
-                          </td>
-
-                          {/* ESTADO MÁQUINA */}
-                          <td style={{ padding: '0.85rem 1rem' }}>
-                            <span
-                              className="badge"
-                              style={{
-                                backgroundColor: getEstadoColor(
-                                  estadoMaquinaData.estado,
-                                ).bg,
-                                border: `2px solid ${getEstadoColor(estadoMaquinaData.estado).border}`,
-                                color: getEstadoColor(estadoMaquinaData.estado)
-                                  .color,
-                                fontSize: '0.72rem',
-                                padding: '0.35rem 0.7rem',
-                                fontWeight: '600',
-                              }}
-                            >
-                              {estadoMaquinaData.estado || '—'}
-                            </span>
-                          </td>
-
-                          {/* OBSERVACIONES */}
-                          <td
-                            style={{
-                              padding: '0.85rem 1rem',
-                              maxWidth: '220px',
-                            }}
-                          >
-                            {cal.observaciones_generales ? (
-                              <span
-                                className="text-white-50"
+                            {/* Checkbox — solo en modo selección */}
+                            {modoSeleccion && (
+                              <td
                                 style={{
-                                  fontSize: '0.8rem',
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                  overflow: 'hidden',
+                                  padding: '0.85rem 0.5rem 0.85rem 1rem',
                                 }}
                               >
-                                {cal.observaciones_generales}
-                              </span>
-                            ) : (
-                              <span className="text-white-50 fst-italic">
-                                —
-                              </span>
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
+                                  onChange={() => toggleSeleccion(cal.id)}
+                                  style={{
+                                    width: '15px',
+                                    height: '15px',
+                                    cursor: 'pointer',
+                                    accentColor: '#ef4444',
+                                  }}
+                                />
+                              </td>
                             )}
-                          </td>
 
-                          {/* ESTADO ABIERTO/CERRADO */}
-                          <td style={{ padding: '0.85rem 1rem' }}>
-                            <span
-                              className="badge"
+                            {/* # */}
+                            <td style={{ padding: '0.85rem 1rem' }}>
+                              <span className="fw-bold text-white">
+                                #{i + 1}
+                              </span>
+                            </td>
+
+                            {/* FECHA */}
+                            <td
                               style={{
-                                fontSize: '0.72rem',
-                                padding: '0.35rem 0.7rem',
-                                backgroundColor: colorBadge,
+                                padding: '0.85rem 1rem',
+                                whiteSpace: 'nowrap',
                               }}
                             >
-                              {cal.estado}
-                            </span>
-                          </td>
+                              <div className="d-flex align-items-center gap-2">
+                                <i className="bi bi-calendar-event calibracion-icon"></i>
+                                <span className="text-white">
+                                  {fechaFormateada}
+                                </span>
+                              </div>
+                            </td>
 
-                          {/* ACCIONES */}
-                          <td style={{ padding: '0.85rem 1rem' }}>
-                            <div
-                              className="d-flex align-items-center gap-1"
-                              onClick={(e) => e.stopPropagation()}
+                            {/* RESPONSABLE */}
+                            <td
+                              style={{
+                                padding: '0.85rem 1rem',
+                                whiteSpace: 'nowrap',
+                              }}
                             >
-                              <button
-                                className="btn btn-sm calibracion-botones text-info"
-                                onClick={() => {
-                                  setCalibracionDetalle(cal);
-                                  setCalibracionDetalleIndex(i);
+                              <div className="d-flex align-items-center gap-2">
+                                <i className="bi bi-person-fill calibracion-icon"></i>
+                                <span className="text-white">
+                                  {ingResponsable?.nombre ?? '—'}
+                                </span>
+                              </div>
+                            </td>
+
+                            {/* ESTADO MÁQUINA */}
+                            <td style={{ padding: '0.85rem 1rem' }}>
+                              <span
+                                className="badge"
+                                style={{
+                                  backgroundColor: getEstadoColor(
+                                    estadoMaquinaData.estado,
+                                  ).bg,
+                                  border: `2px solid ${getEstadoColor(estadoMaquinaData.estado).border}`,
+                                  color: getEstadoColor(
+                                    estadoMaquinaData.estado,
+                                  ).color,
+                                  fontSize: '0.72rem',
+                                  padding: '0.35rem 0.7rem',
+                                  fontWeight: '600',
                                 }}
-                                title="Ver detalle completo"
                               >
-                                <i className="bi bi-eye"></i>
-                              </button>
+                                {estadoMaquinaData.estado || '—'}
+                              </span>
+                            </td>
 
-                              {!isCerrado && (
-                                <button
-                                  className="btn btn-sm calibracion-botones text-success"
-                                  onClick={() => handleEditar(cal)}
-                                  title="Editar calibración"
+                            {/* OBSERVACIONES */}
+                            <td
+                              style={{
+                                padding: '0.85rem 1rem',
+                                maxWidth: '220px',
+                              }}
+                            >
+                              {cal.observaciones_generales ? (
+                                <span
+                                  className="text-white-50"
+                                  style={{
+                                    fontSize: '0.8rem',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                  }}
                                 >
-                                  <i className="bi bi-pencil"></i>
-                                </button>
+                                  {cal.observaciones_generales}
+                                </span>
+                              ) : (
+                                <span className="text-white-50 fst-italic">
+                                  —
+                                </span>
                               )}
+                            </td>
 
-                              {isCerrado && isAdmin && (
-                                <button
-                                  className="btn btn-sm calibracion-botones text-warning"
-                                  onClick={() => handleReabrir(cal)}
-                                  title="Reabrir calibración"
-                                >
-                                  <i className="bi bi-arrow-repeat"></i>
-                                </button>
-                              )}
-
-                              <a
-                                href={`${url}/calibraciones/${cal.id}/preview-pdf`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn btn-sm calibracion-botones text-danger"
-                                title="Generar informe PDF"
+                            {/* ESTADO ABIERTO/CERRADO */}
+                            <td style={{ padding: '0.85rem 1rem' }}>
+                              <span
+                                className="badge"
+                                style={{
+                                  fontSize: '0.72rem',
+                                  padding: '0.35rem 0.7rem',
+                                  backgroundColor: colorBadge,
+                                }}
                               >
-                                <i className="bi bi-file-earmark-pdf-fill"></i>
-                              </a>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                                {cal.estado}
+                              </span>
+                            </td>
+
+                            {/* ACCIONES */}
+                            <td style={{ padding: '0.85rem 1rem' }}>
+                              <div
+                                className="d-flex align-items-center gap-1"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  className="btn btn-sm calibracion-botones text-info"
+                                  onClick={() => {
+                                    setCalibracionDetalle(cal);
+                                    setCalibracionDetalleIndex(i);
+                                  }}
+                                  title="Ver detalle completo"
+                                >
+                                  <i className="bi bi-eye"></i>
+                                </button>
+
+                                {!isCerrado && (
+                                  <button
+                                    className="btn btn-sm calibracion-botones text-success"
+                                    onClick={() => handleEditar(cal)}
+                                    title="Editar calibración"
+                                  >
+                                    <i className="bi bi-pencil"></i>
+                                  </button>
+                                )}
+
+                                {isCerrado && isAdmin && (
+                                  <button
+                                    className="btn btn-sm calibracion-botones text-warning"
+                                    onClick={() => handleReabrir(cal)}
+                                    title="Reabrir calibración"
+                                  >
+                                    <i className="bi bi-arrow-repeat"></i>
+                                  </button>
+                                )}
+
+                                <a
+                                  href={`${url}/calibraciones/${cal.id}/preview-pdf`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="btn btn-sm calibracion-botones text-danger"
+                                  title="Generar informe PDF"
+                                >
+                                  <i className="bi bi-file-earmark-pdf-fill"></i>
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>
