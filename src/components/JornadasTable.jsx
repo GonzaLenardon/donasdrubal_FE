@@ -135,14 +135,14 @@ const JornadasTable = () => {
         {/* ── Header ── */}
 
         {/* ── Header ── */}
-        <div className="jornadas-header mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-4">
           <div>
             <h2 className="notas-header__title mb-0">Gestión de Jornadas</h2>
             <p className="notas-header__subtitle mb-0">
               {jornadas.length} Jornadas
             </p>
           </div>
-          <div className="jornadas-header-actions">
+          <div className="d-flex align-items-center gap-2">
             {isAdmin && (
               <button
                 type="button"
@@ -158,15 +158,25 @@ const JornadasTable = () => {
             )}
             <button
               className="btn btn-sm text-white d-flex align-items-center gap-2 maquina-btn-nuevo"
+              className="btn btn-sm text-white d-flex align-items-center gap-2 maquina-btn-nuevo"
               onClick={(e) => {
                 e.stopPropagation();
                 setJornadaEdit({ cliente_id });
                 setIsOpen(true);
-              }}
+              }}  
             >
-              <i className="bi bi-plus-lg"></i>Nueva jornada
+              <i className="bi bi-plus-lg"></i>
+              
+              
+              
+              {!isMobile ? 'Nueva jornada' : ''}
             </button>
           </div>
+
+
+
+
+
         </div>
 
         {/* ── Filtros ── */}
@@ -242,15 +252,17 @@ const JornadasTable = () => {
 
         {/* ── Tabla (desktop) / Cards (mobile) ── */}
         {isMobile ? (
-          <JornadasMobileList
-            jornadas={jornadasFiltradas}
-            isAdmin={isAdmin}
-            modoSeleccion={modoSeleccion}
-            seleccionado={seleccionado}
-            onSeleccionar={setSeleccionado}
-            onEditar={handleEditarJornada}
-            onReabrir={setJornadaReabrir}
-          />
+          <div className="container-table rounded shadow-lg">
+            <JornadasMobileList
+              jornadas={jornadasFiltradas}
+              isAdmin={isAdmin}
+              modoSeleccion={modoSeleccion}
+              seleccionado={seleccionado}
+              onSeleccionar={setSeleccionado}
+              onEditar={handleEditarJornada}
+              onReabrir={setJornadaReabrir}
+            />
+          </div>
         ) : (
           <div className="container-table rounded shadow-lg">
             <div className="table-wrapper">

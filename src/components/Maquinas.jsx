@@ -9,12 +9,15 @@ import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
 import { Dot, LeyendaEstados } from './EstadoServicio';
 import { getEstadoColor } from '../utils/colors';
+import { useIsMobile } from '../hooks/useIsMobile';
+import MaquinasMobileList from './MaquinasMobileList';
 
 const Maquinas = ({ cliente_id }) => {
   const [maquinas, setMaquinas] = useState([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState('');
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [modal, setModal] = useState(false);
   const [maquinaEdit, setMaquinaEdit] = useState({});
   const [onlyView, setOnlyView] = useState(false);
@@ -102,6 +105,11 @@ const Maquinas = ({ cliente_id }) => {
     setSeleccionado(null);
   };
 
+  const handleVerCalibraciones = (maq) => {
+    setSelectedMaquina(maq);
+    navigate(`/clientes/${cliente_id}/maquinas/${maq.id}/calibraciones`);
+  };
+
   return (
     <div className="maquinas-wrapper">
       <div style={{ margin: '0 auto' }}>
@@ -141,7 +149,9 @@ const Maquinas = ({ cliente_id }) => {
               }}
             >
               <i className="bi bi-plus-lg"></i>
-              Nueva Máquina
+
+              {!isMobile ? 'Nueva Máquina' : ''}
+     
             </button>
           </div>
         </div>
@@ -183,225 +193,271 @@ const Maquinas = ({ cliente_id }) => {
           </div>
         )}
 
-        {/* TABLA */}
-        <div className="container-table rounded shadow-lg">
-          <LeyendaEstados className="bg-info" />
-          <div className="table-wrapper">
-            {maquinas.length === 0 ? (
-              <div className="p-5 text-center">
-                <i
-                  className="bi bi-inbox"
-                  style={{ fontSize: '3rem', color: 'var(--color-gray-300)' }}
-                ></i>
-                <h5
-                  className="mt-3 mb-2"
-                  style={{ color: 'var(--color-gray-700)' }}
-                >
-                  No hay máquinas
-                </h5>
-                <p className="mb-3" style={{ color: 'var(--color-gray-600)' }}>
-                  Aún no hay máquinas registradas para este cliente
-                </p>
-                <button
-                  className="btn-primary"
-                  onClick={() => {
-                    setMaquinaEdit({ cliente_id: cliente_id });
-                    setOnlyView(false);
-                    setModal(true);
-                  }}
-                >
-                  <i className="bi bi-plus-lg me-2"></i>
-                  Agregar primera máquina
-                </button>
-              </div>
-            ) : (
-              <table className="table mb-0">
-                <thead
-                  style={{
-                    background: 'rgba(206, 190, 110, 0.12)',
-                    position: 'sticky',
-                    top: 0,
-                    zIndex: 10,
-                  }}
-                >
-                  <tr>
-                    {modoSeleccion && (
-                      <th
-                        style={{
-                          padding: '0.85rem 0.5rem 0.85rem 1rem',
-                          width: '40px',
-                        }}
-                      ></th>
-                    )}
-                    <th>
-                      <i className="bi bi-award"></i>Marca
-                    </th>
-                    <th>
-                      <i className="bi bi-box-seam"></i>Modelo
-                    </th>
-                    <th>
-                      <i className="bi bi-tag-fill"></i>Tipo
-                    </th>
-                    <th>
-                      <i className="bi bi-arrows-expand"></i>Ancho
-                    </th>
-                    <th>
-                      <i className="bi bi-droplet-half"></i>Tanque
-                    </th>
-                    <th>
-                      <i className="bi bi-hash"></i>Picos
-                    </th>
-                    <th>
-                      <i className="bi bi-rulers"></i>Dist. Picos
-                    </th>
-                    <th>
-                      <i className="bi bi-scissors"></i>Corte
-                    </th>
-                    <th>
-                      <i className="bi bi-person-fill"></i>Operario
-                    </th>
-                    <th>
-                      <i className="bi bi-info-circle"></i>Calibracion
-                    </th>
-                    <th className="text-center">
-                      <i className="bi bi-gear"></i>Acciones
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {maquinas.map((maq) => (
-                    <tr
-                      key={maq.id}
-                      onClick={() => {
-                        setMaquinaEdit(maq);
-                        setModal(true);
-                        setOnlyView(true);
-                      }}
-                    >
+        {/* CONTENIDO — Tabla desktop / Cards mobile */}
+        {isMobile ? (
+          <div className="container-table rounded shadow-lg">
+            <div className="table-wrapper" >
+              {maquinas.length === 0 ? (
+                <div className="p-5 text-center">
+                  <i
+                    className="bi bi-inbox"
+                    style={{ fontSize: '3rem', color: 'var(--color-gray-300)' }}
+                  ></i>
+                  <h5
+                    className="mt-3 mb-2"
+                    style={{ color: 'var(--color-gray-700)' }}
+                  >
+                    No hay máquinas
+                  </h5>
+                  <p className="mb-3" style={{ color: 'var(--color-gray-600)' }}>
+                    Aún no hay máquinas registradas para este cliente
+                  </p>
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setMaquinaEdit({ cliente_id: cliente_id });
+                      setOnlyView(false);
+                      setModal(true);
+                    }}
+                  >
+                    <i className="bi bi-plus-lg me-2"></i>
+                    Agregar primera máquina
+                  </button>
+                </div>
+              ) : (
+                <MaquinasMobileList
+                  maquinas={maquinas}
+                  cliente_id={cliente_id}
+                  isAdmin={isAdmin}
+                  modoSeleccion={modoSeleccion}
+                  seleccionado={seleccionado}
+                  onSeleccionar={toggleSeleccion}
+                  onEditar={handleEditarMaquina}
+                  onVerCalibraciones={handleVerCalibraciones}
+                />
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="container-table rounded shadow-lg">
+            <LeyendaEstados className="bg-info" />
+            <div className="table-wrapper">
+              {maquinas.length === 0 ? (
+                <div className="p-5 text-center">
+                  <i
+                    className="bi bi-inbox"
+                    style={{ fontSize: '3rem', color: 'var(--color-gray-300)' }}
+                  ></i>
+                  <h5
+                    className="mt-3 mb-2"
+                    style={{ color: 'var(--color-gray-700)' }}
+                  >
+                    No hay máquinas
+                  </h5>
+                  <p className="mb-3" style={{ color: 'var(--color-gray-600)' }}>
+                    Aún no hay máquinas registradas para este cliente
+                  </p>
+                  <button
+                    className="btn-primary"
+                    onClick={() => {
+                      setMaquinaEdit({ cliente_id: cliente_id });
+                      setOnlyView(false);
+                      setModal(true);
+                    }}
+                  >
+                    <i className="bi bi-plus-lg me-2"></i>
+                    Agregar primera máquina
+                  </button>
+                </div>
+              ) : (
+                <table className="table mb-0">
+                  <thead
+                    style={{
+                      background: 'rgba(206, 190, 110, 0.12)',
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 10,
+                    }}
+                  >
+                    <tr>
                       {modoSeleccion && (
-                        <td style={{ padding: '0.85rem 0.5rem 0.85rem 1rem' }}>
-                          <input
-                            type="checkbox"
-                            checked={seleccionado === maq.id}
-                            onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
-                            onChange={() => toggleSeleccion(maq.id)}
-                            style={{
-                              width: '15px',
-                              height: '15px',
-                              cursor: 'pointer',
-                              accentColor: '#ef4444',
-                            }}
+                        <th
+                          style={{
+                            padding: '0.85rem 0.5rem 0.85rem 1rem',
+                            width: '40px',
+                          }}
+                        ></th>
+                      )}
+                      <th>
+                        <i className="bi bi-award"></i>Marca
+                      </th>
+                      <th>
+                        <i className="bi bi-box-seam"></i>Modelo
+                      </th>
+                      <th>
+                        <i className="bi bi-tag-fill"></i>Tipo
+                      </th>
+                      <th>
+                        <i className="bi bi-arrows-expand"></i>Ancho
+                      </th>
+                      <th>
+                        <i className="bi bi-droplet-half"></i>Tanque
+                      </th>
+                      <th>
+                        <i className="bi bi-hash"></i>Picos
+                      </th>
+                      <th>
+                        <i className="bi bi-rulers"></i>Dist. Picos
+                      </th>
+                      <th>
+                        <i className="bi bi-scissors"></i>Corte
+                      </th>
+                      <th>
+                        <i className="bi bi-person-fill"></i>Operario
+                      </th>
+                      <th>
+                        <i className="bi bi-info-circle"></i>Calibracion
+                      </th>
+                      <th className="text-center">
+                        <i className="bi bi-gear"></i>Acciones
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {maquinas.map((maq) => (
+                      <tr
+                        key={maq.id}
+                        onClick={() => {
+                          setMaquinaEdit(maq);
+                          setModal(true);
+                          setOnlyView(true);
+                        }}
+                      >
+                        {modoSeleccion && (
+                          <td style={{ padding: '0.85rem 0.5rem 0.85rem 1rem' }}>
+                            <input
+                              type="checkbox"
+                              checked={seleccionado === maq.id}
+                              onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
+                              onChange={() => toggleSeleccion(maq.id)}
+                              style={{
+                                width: '15px',
+                                height: '15px',
+                                cursor: 'pointer',
+                                accentColor: '#ef4444',
+                              }}
+                            />
+                          </td>
+                        )}
+
+                        {/* Marca */}
+                        <td>
+                          <span className="table-text fw-semibold">
+                            {maq.tipo.marca}
+                          </span>
+                        </td>
+
+                        {/* Modelo */}
+                        <td>
+                          <span className="table-text">{maq.tipo.modelo}</span>
+                        </td>
+
+                        {/* Tipo */}
+                        <td>
+                          <span className="table-badge-info">
+                            {maq.tipo.tipo}
+                          </span>
+                        </td>
+
+                        {/* Ancho Trabajo */}
+                        <td>
+                          <span className="table-badge-success">
+                            <i className="bi bi-arrows-expand me-1"></i>
+                            {maq.ancho_trabajo}
+                          </span>
+                        </td>
+
+                        {/* Capacidad Tanque */}
+                        <td>
+                          <span className="table-badge-primary">
+                            <i className="bi bi-droplet-fill me-1"></i>
+                            {maq.capacidad_tanque}
+                          </span>
+                        </td>
+
+                        {/* Número Picos */}
+                        <td>
+                          <span className="table-badge-warning">
+                            {maq.numero_picos}
+                          </span>
+                        </td>
+
+                        {/* Distancia entre Picos */}
+                        <td>
+                          <span className="table-badge-secondary">
+                            {maq.distancia_entrePicos}
+                          </span>
+                        </td>
+
+                        {/* Sistema Corte */}
+                        <td>
+                          <span className="table-badge-danger">
+                            {maq.sistema_corte}
+                          </span>
+                        </td>
+
+                        {/* Responsable */}
+                        <td>
+                          <span className="table-text">
+                            {maq.responsable || '-'}
+                          </span>
+                        </td>
+
+                        <td className="text-center">
+                          <Dot
+                            color={getEstadoColor(
+                              maq?.calibracionesmaquina?.[0]?.estado,
+                            )}
+                            size={20}
                           />
                         </td>
-                      )}
 
-                      {/* Marca */}
-                      <td>
-                        <span className="table-text fw-semibold">
-                          {maq.tipo.marca}
-                        </span>
-                      </td>
+                        {/* Acciones */}
+                        <td>
+                          <div className="table-actions">
+                            <button
+                              className="table-btn table-btn-edit"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditarMaquina(maq);
+                              }}
+                            >
+                              <i className="bi bi-pencil"></i>
+                            </button>
+                            <button
+                              className="table-btn table-btn-view"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedMaquina(maq);
 
-                      {/* Modelo */}
-                      <td>
-                        <span className="table-text">{maq.tipo.modelo}</span>
-                      </td>
-
-                      {/* Tipo */}
-                      <td>
-                        <span className="table-badge-info">
-                          {maq.tipo.tipo}
-                        </span>
-                      </td>
-
-                      {/* Ancho Trabajo */}
-                      <td>
-                        <span className="table-badge-success">
-                          <i className="bi bi-arrows-expand me-1"></i>
-                          {maq.ancho_trabajo}
-                        </span>
-                      </td>
-
-                      {/* Capacidad Tanque */}
-                      <td>
-                        <span className="table-badge-primary">
-                          <i className="bi bi-droplet-fill me-1"></i>
-                          {maq.capacidad_tanque}
-                        </span>
-                      </td>
-
-                      {/* Número Picos */}
-                      <td>
-                        <span className="table-badge-warning">
-                          {maq.numero_picos}
-                        </span>
-                      </td>
-
-                      {/* Distancia entre Picos */}
-                      <td>
-                        <span className="table-badge-secondary">
-                          {maq.distancia_entrePicos}
-                        </span>
-                      </td>
-
-                      {/* Sistema Corte */}
-                      <td>
-                        <span className="table-badge-danger">
-                          {maq.sistema_corte}
-                        </span>
-                      </td>
-
-                      {/* Responsable */}
-                      <td>
-                        <span className="table-text">
-                          {maq.responsable || '-'}
-                        </span>
-                      </td>
-
-                      <td className="text-center">
-                        <Dot
-                          color={getEstadoColor(
-                            maq?.calibracionesmaquina?.[0]?.estado,
-                          )}
-                          size={20}
-                        />
-                      </td>
-
-                      {/* Acciones */}
-                      <td>
-                        <div className="table-actions">
-                          <button
-                            className="table-btn table-btn-edit"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditarMaquina(maq);
-                            }}
-                          >
-                            <i className="bi bi-pencil"></i>
-                          </button>
-                          <button
-                            className="table-btn table-btn-view"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedMaquina(maq);
-
-                              navigate(
-                                `/clientes/${cliente_id}/maquinas/${maq.id}/calibraciones`,
-                              );
-                            }}
-                          >
-                            <i className="bi bi-eye"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                                navigate(
+                                  `/clientes/${cliente_id}/maquinas/${maq.id}/calibraciones`,
+                                );
+                              }}
+                            >
+                              <i className="bi bi-eye"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
       {/* MODAL */}
       {modal && (

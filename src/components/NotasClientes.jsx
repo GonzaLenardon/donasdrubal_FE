@@ -4,10 +4,11 @@ import { addNota, upNota, delNotas, notasCliente } from '../api/notas';
 import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
 import { formatFecha } from '../utils/formatFecha';
-
+import {useIsMobile} from '../hooks/useIsMobile';
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
 const getToday = () => new Date().toISOString().split('T')[0];
+
 
 const EMPTY_NOTA = {
   fecha: getToday(),
@@ -205,7 +206,7 @@ const NotasCliente = ({ clienteId, userId }) => {
   const [showEliminar, setShowEliminar] = useState(false);
   const [notaSelected, setNotaSelected] = useState(null);
   const [msg, setMsg] = useState('');
-
+  const isMobile = useIsMobile();
   // ── Carga de notas al montar ───────────────────────────────────────────────
 
   const fetchNotas = async () => {
@@ -361,7 +362,7 @@ const NotasCliente = ({ clienteId, userId }) => {
             onClick={handleNuevaNota}
           >
             <i className="bi bi-plus-lg"></i>
-            Nueva nota
+            {!isMobile ? 'Nueva nota' : ''}
           </button>
         </div>
 

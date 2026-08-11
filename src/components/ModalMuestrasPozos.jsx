@@ -20,6 +20,14 @@ const ModalMuestrasPozos = ({
 }) => {
   const { cliente, cliente_id } = useParams();
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   console.log('INGENIEROS', ingenieros);
   console.log('muestras', muestra);
 
@@ -646,7 +654,7 @@ const ModalMuestrasPozos = ({
               </h6>
               <div className="row g-3">
                 {/* pH */}
-                <div className="col">
+                <div className={isMobile ? 'col-6' : 'col'}>
                   <label className="form-label form-label--sm d-flex justify-content-between align-items-center">
                     <span>pH</span>
                     {formData.ph && getValorIndicador(formData.ph, 'ph') && (
@@ -683,7 +691,7 @@ const ModalMuestrasPozos = ({
                 </div>
 
                 {/* Dureza */}
-                <div className="col">
+                <div className={isMobile ? 'col-6' : 'col'}>
                   <label className="form-label form-label--sm d-flex justify-content-between align-items-center">
                     <span>Dureza (mg/L)</span>
                     {formData.dureza &&
@@ -725,7 +733,7 @@ const ModalMuestrasPozos = ({
                 </div>
 
                 {/* Alcalinidad */}
-                <div className="col">
+                <div className={isMobile ? 'col-6' : 'col'}>
                   <label className="form-label form-label--sm d-flex justify-content-between align-items-center">
                     <span>Alcalinidad (mg/L)</span>
                     {formData.alcalinidad &&
@@ -778,7 +786,7 @@ const ModalMuestrasPozos = ({
                 </div>
 
                 {/* Salinidad */}
-                <div className="col">
+                <div className={isMobile ? 'col-6' : 'col'}>
                   <label className="form-label form-label--sm d-flex justify-content-between align-items-center">
                     <span>Salinidad (mg/L)</span>
                     {formData.salinidad &&
@@ -822,7 +830,7 @@ const ModalMuestrasPozos = ({
                 </div>
 
                 {/* Fuerza Iónica */}
-                <div className="col">
+                <div className={isMobile ? 'col-6' : 'col'}>
                   <label className="form-label form-label--sm">
                     Fuerza Iónica
                   </label>

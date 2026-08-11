@@ -9,6 +9,7 @@ import ModalMuestrasPozos from './ModalMuestrasPozos';
 import { useCliente } from '../context/UserContext';
 import generarPDF from '../utils/generarPdf';
 import { formatFecha } from '../utils/formatFecha';
+import { stateColors } from '../utils/colors';
 
 import {
   Building2,
@@ -30,9 +31,12 @@ import { apiGenerarInformeMuestras } from '../api/informes';
 import ModalFinalizarServicios from './ModalFinalizarServicios';
 import Spinner from './Spinner';
 import ModalEliminar from './ModalEliminar';
+import MuestrasMobileList from './MuestrasMobileList';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const MuestrasPozos = () => {
   const { cliente_id, pozos_id } = useParams();
+  const isMobile = useIsMobile();
 
   const [muestras, setMuestras] = useState([]);
   const [cliente, setCliente] = useState([]);
@@ -215,53 +219,76 @@ const MuestrasPozos = () => {
         <div className="muestras-pozos-wrapper">
           <div style={{ margin: '0 auto' }}>
             {/* HEADER */}
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <div>
-                <h2 className="notas-header__title mb-0">Muestras de Agua</h2>
-                <p
-                  style={{
-                    fontSize: '0.9em',
-                    fontWeight: '500',
-                    color: 'rgba(248, 243, 243, 0.5)',
-                    margin: '0px',
-                  }}
-                >
-                  <strong>Pozo: </strong>
-                  {selectedPozo?.nombre} {selectedPozo?.establecimiento}
-                </p>
-                <p className="notas-header__subtitle mb-0">
-                  {muestras?.length || 0} muestras registradas
-                </p>
-              </div>
+     
+         {/* HEADER */}
+<div
+  className={
+    isMobile
+      ? 'row gx-2 align-items-start mb-4'
+      : 'd-flex justify-content-between align-items-center mb-4'
+  }
+>
+  <div className={isMobile ? 'col-8' : ''}>
+    <h2
+      className="notas-header__title mb-0 text-truncate"
+      style={isMobile ? { fontSize: '1.25rem' } : {}}
+    >
+      Muestras de Agua
+    </h2>
+    <p
+      className="text-truncate mb-0"
+      style={{
+        fontSize: '0.9em',
+        fontWeight: '500',
+        color: 'rgba(248, 243, 243, 0.5)',
+      }}
+    >
+      <strong>Pozo: </strong>
+      {selectedPozo?.nombre} {selectedPozo?.establecimiento}
+    </p>
+    <p className="notas-header__subtitle mb-0">
+      {muestras?.length || 0} muestras registradas
+    </p>
+  </div>
 
-              <div className="d-flex align-items-center gap-2">
-                {isAdmin && (
-                  <button
-                    type="button"
-                    className={`btn btn-sm d-flex align-items-center gap-2 ${
-                      modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
-                    }`}
-                    style={{ opacity: modoSeleccion ? 1 : 0.65 }}
-                    onClick={toggleModoSeleccion}
-                  >
-                    <i className="bi bi-trash3"></i>
-                    {modoSeleccion ? 'Cancelar' : 'Seleccionar'}
-                  </button>
-                )}
+  <div
+    className={
+      isMobile
+        ? 'col-4 d-flex flex-column align-items-end gap-2'
+        : 'd-flex align-items-center gap-2'
+    }
+  >
+    {isAdmin && (
+      <button
+        type="button"
+        className={`btn btn-sm d-flex align-items-center gap-2 ${
+          modoSeleccion ? 'btn-outline-danger' : 'btn-outline-light'
+        } ${isMobile ? 'w-100 justify-content-center' : ''}`}
+        style={{ opacity: modoSeleccion ? 1 : 0.65 }}
+        onClick={toggleModoSeleccion}
+      >
+        <i className="bi bi-trash3"></i>
+        {modoSeleccion ? 'Cancelar' : 'Seleccionar'}
+      </button>
+    )}
 
-                <button
-                  className="btn text-white d-flex align-items-center gap-2 shadow-lg muestra-pozo-btn-nuevo"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMuestraEdit({ pozo_id: pozos_id });
-                    setOnlyView(false);
-                    setIsOpen(true);
-                  }}
-                >
-                  <i className="bi bi-plus-lg me-2"></i>Nueva muestra
-                </button>
-              </div>
-            </div>
+    <button
+      className={`btn text-white d-flex align-items-center gap-2 shadow-lg muestra-pozo-btn-nuevo ${
+        isMobile ? 'w-100 justify-content-center' : ''
+      }`}
+      onClick={(e) => {
+        e.stopPropagation();
+        setMuestraEdit({ pozo_id: pozos_id });
+        setOnlyView(false);
+        setIsOpen(true);
+      }}
+    >
+      <i className="bi bi-plus-lg me-2"></i>
+      {!isMobile ? 'Nueva muestra' : ''}
+    </button>
+  </div>
+</div>
+       
 
             {/* FILTROS */}
             <div className="jornadas-filtros mb-4">
@@ -350,314 +377,341 @@ const MuestrasPozos = () => {
               </div>
             )}
 
-            {/* TABLA */}
+            {/* TABLA / CARDS */}
+            {isMobile ? (
+              <div className="container-table rounded shadow-lg">
+                <MuestrasMobileList
+                  muestras={muestrasFiltradas}
+                  isAdmin={isAdmin}
+                  modoSeleccion={modoSeleccion}
+                  seleccionados={seleccionados}
+                  onToggleSeleccion={toggleSeleccion}
+                  onEditar={handleEditarMuestra}
+                  onReabrir={setMuestraReabrir}
+                  onVerInforme={(m) => {
+                    setShowViewer(true);
+                    setViewerUrl(
+                      `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/${m.informe}`,
+                    );
+                  }}
+                  onVerMuestra={(m) => {
+                    setMuestraEdit(m);
+                    setOnlyView(true);
+                    setIsOpen(true);
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="container-table rounded shadow-lg">
+                {loading ? (
+                  <div className="text-center text-white py-5">
+                    <div className="spinner-border" />
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <table className="table table-hover mb-0">
+                      <thead>
+                        <tr>
+                          {modoSeleccion && (
+                            <th
+                              style={{
+                                padding: '0.85rem 0.5rem 0.85rem 1rem',
+                                width: '40px',
+                              }}
+                            ></th>
+                          )}
 
-            <div className="container-table rounded shadow-lg">
-              {loading ? (
-                <div className="text-center text-white py-5">
-                  <div className="spinner-border" />
-                </div>
-              ) : (
-                <div className="table-wrapper">
-                  <table className="table table-hover mb-0">
-                    <thead>
-                      <tr>
-                        {modoSeleccion && (
+                          <th>
+                            <i className="bi bi-calendar-event"></i>F. Muestras
+                          </th>
+
+                          <th>
+                            <i className="bi bi-calendar-event"></i>F. Analisis
+                          </th>
+
+                          <th>
+                            <i className="bi bi-droplet me-2"></i>pH
+                          </th>
                           <th
-                            style={{
-                              padding: '0.85rem 0.5rem 0.85rem 1rem',
-                              width: '40px',
-                            }}
-                          ></th>
-                        )}
-
-                        <th>
-                          <i className="bi bi-calendar-event"></i>F. Muestras
-                        </th>
-
-                        <th>
-                          <i className="bi bi-calendar-event"></i>F. Analisis
-                        </th>
-
-                        <th>
-                          <i className="bi bi-droplet me-2"></i>pH
-                        </th>
-                        <th
-                          className="text-white fw-semibold text-center"
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-shield-check me-2"></i>Dureza
-                        </th>
-                        <th
-                          className="text-white fw-semibold  text-center"
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-graph-up me-2"></i>Alcalinidad
-                        </th>
-                        <th
-                          className="text-white fw-semibold text-center"
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-water me-2"></i>Salinidad
-                        </th>
-                        <th
-                          className="text-white fw-semibold text-center"
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-lightning-charge me-2"></i>F.
-                          Iónica
-                        </th>
-                        <th
-                          className="text-white fw-semibold"
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-prescription2 me-2"></i>Dosis Hard
-                        </th>
-
-                        <th
-                          className="text-white fw-semibold "
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-activity me-2"></i>Estado
-                        </th>
-
-                        <th
-                          className="text-white fw-semibold"
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-file-earmark-bar-graph me-2"></i>
-                          Informe
-                        </th>
-
-                        <th
-                          className="text-white fw-semibold"
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-person-fill me-1"></i>Ing.
-                          Responsable
-                        </th>
-
-                        <th
-                          className="text-white fw-semibold text-center"
-                          style={{ fontSize: '0.875rem' }}
-                        >
-                          <i className="bi bi-gear me-2"></i>Acciones
-                        </th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {muestrasFiltradas.map((m) => {
-                        const ph = getValorColor(m.ph, 6.5, 8.5);
-                        const du = getValorColor(m.dureza, 0, 500);
-                        const al = getValorColor(m.alcalinidad, 0, 500);
-                        const sa = getValorColor(m.salinidad, 0, 1000);
-
-                        const isClose = m.estado === 'CERRADO';
-
-                        return (
-                          <tr
-                            key={m.id}
-                            style={{
-                              cursor: isClose ? 'not-allowed' : 'pointer',
-                            }}
-                            onClick={() => {
-                              if (m.estado !== 'CERRADO') {
-                                setMuestraEdit(m);
-                                setOnlyView(true);
-                                setIsOpen(true);
-                              }
-                            }}
+                            className="text-white fw-semibold text-center"
+                            style={{ fontSize: '0.875rem' }}
                           >
-                            {modoSeleccion && (
-                              <td
-                                style={{
-                                  padding: '0.85rem 0.5rem 0.85rem 1rem',
-                                }}
-                              >
-                                <input
-                                  type="checkbox"
-                                  /*  checked={isChecked} */
-                                  onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
-                                  onChange={() => toggleSeleccion(m.id)}
+                            <i className="bi bi-shield-check me-2"></i>Dureza
+                          </th>
+                          <th
+                            className="text-white fw-semibold  text-center"
+                            style={{ fontSize: '0.875rem' }}
+                          >
+                            <i className="bi bi-graph-up me-2"></i>Alcalinidad
+                          </th>
+                          <th
+                            className="text-white fw-semibold text-center"
+                            style={{ fontSize: '0.875rem' }}
+                          >
+                            <i className="bi bi-water me-2"></i>Salinidad
+                          </th>
+                          <th
+                            className="text-white fw-semibold text-center"
+                            style={{ fontSize: '0.875rem' }}
+                          >
+                            <i className="bi bi-lightning-charge me-2"></i>F.
+                            Iónica
+                          </th>
+                          <th
+                            className="text-white fw-semibold"
+                            style={{ fontSize: '0.875rem' }}
+                          >
+                            <i className="bi bi-prescription2 me-2"></i>Dosis Hard
+                          </th>
+
+                          <th
+                            className="text-white fw-semibold "
+                            style={{ fontSize: '0.875rem' }}
+                          >
+                            <i className="bi bi-activity me-2"></i>Estado
+                          </th>
+
+                          <th
+                            className="text-white fw-semibold"
+                            style={{ fontSize: '0.875rem' }}
+                          >
+                            <i className="bi bi-file-earmark-bar-graph me-2"></i>
+                            Informe
+                          </th>
+
+                          <th
+                            className="text-white fw-semibold"
+                            style={{ fontSize: '0.875rem' }}
+                          >
+                            <i className="bi bi-person-fill me-1"></i>Ing.
+                            Responsable
+                          </th>
+
+                          <th
+                            className="text-white fw-semibold text-center"
+                            style={{ fontSize: '0.875rem' }}
+                          >
+                            <i className="bi bi-gear me-2"></i>Acciones
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {muestrasFiltradas.map((m) => {
+                          const ph = getValorColor(m.ph, 6.5, 8.5);
+                          const du = getValorColor(m.dureza, 0, 500);
+                          const al = getValorColor(m.alcalinidad, 0, 500);
+                          const sa = getValorColor(m.salinidad, 0, 1000);
+
+                          const isClose = m.estado === 'CERRADO';
+
+                          return (
+                            <tr
+                              key={m.id}
+                              style={{
+                                cursor: isClose ? 'not-allowed' : 'pointer',
+                              }}
+                              onClick={() => {
+                                if (m.estado !== 'CERRADO') {
+                                  setMuestraEdit(m);
+                                  setOnlyView(true);
+                                  setIsOpen(true);
+                                }
+                              }}
+                            >
+                              {modoSeleccion && (
+                                <td
                                   style={{
-                                    width: '15px',
-                                    height: '15px',
-                                    cursor: 'pointer',
-                                    accentColor: '#ef4444',
-                                  }}
-                                />
-                              </td>
-                            )}
-
-                            {/* Fecha */}
-                            <td className="py-2 px-3">
-                              <span
-                                className="fw-semibold"
-                                style={{ fontSize: '0.85rem' }}
-                              >
-                                {formatFecha(m.fecha_muestra)}
-                              </span>
-                            </td>
-
-                            <td className="">
-                              <span
-                                className="fw-semibold"
-                                style={{ fontSize: '0.85rem' }}
-                              >
-                                {formatFecha(m.fecha_analisis)}
-                              </span>
-                            </td>
-
-                            {/* pH, Dureza, Alcalinidad, Salinidad */}
-                            {[
-                              { v: m.ph, c: ph },
-                              { v: m.dureza, c: du },
-                              { v: m.alcalinidad, c: al },
-                              { v: m.salinidad, c: sa },
-                            ].map((x, i) => (
-                              <td key={i} className="text-center ">
-                                <span
-                                  className="rounded px-2 py-1"
-                                  style={{
-                                    background: x.c.bg,
-                                    /*    color: x.c.color, */
-                                    fontWeight: 600,
-                                    fontSize: '0.75rem',
-                                    display: 'inline-block',
-                                    lineHeight: 1.2,
+                                    padding: '0.85rem 0.5rem 0.85rem 1rem',
                                   }}
                                 >
-                                  {getValorIcon(x.v, 0, 9999)} {x.v ?? '-'}
-                                </span>
-                              </td>
-                            ))}
-
-                            {/* Fuerza Iónica */}
-                            <td className="text-center py-2 px-3">
-                              <span>{m.fuerza_ionica ?? '-'}</span>
-                            </td>
-
-                            {/* Dosis */}
-                            <td className="py-2 px-3">
-                              <span>{m.dosis || '-'}</span>
-                            </td>
-
-                            {/* ESTADO ABIERTO/CERRADO */}
-                            <td style={{ padding: '0.85rem 1rem' }}>
-                              {m.estado === 'CERRADO' && (
-                                <span
-                                  className="badge bg-danger"
-                                  style={{
-                                    fontSize: '0.72rem',
-                                    padding: '0.35rem 0.7rem',
-                                  }}
-                                >
-                                  CERRADO
-                                </span>
-                              )}
-
-                              {m.estado === 'PENDIENTE' && (
-                                <span
-                                  className="badge bg-success"
-                                  style={{
-                                    fontSize: '0.72rem',
-                                    padding: '0.35rem 0.7rem',
-                                  }}
-                                >
-                                  PENDIENTE
-                                </span>
-                              )}
-
-                              {m.estado === 'EN PROCESO' && (
-                                <span
-                                  className="badge bg-warning"
-                                  style={{
-                                    fontSize: '0.72rem',
-                                    padding: '0.35rem 0.7rem',
-                                  }}
-                                >
-                                  EN PROCESO
-                                </span>
-                              )}
-                            </td>
-
-                            <td className="text-center">
-                              {m.informe ? (
-                                <button
-                                  className="btn btn-sm"
-                                  style={{
-                                    color: '#254154',
-                                    fontSize: '1.5rem',
-                                    padding: '0px',
-                                  }}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowViewer(true);
-                                    setViewerUrl(
-                                      `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` +
-                                        m.informe,
-                                    );
-                                  }}
-                                >
-                                  <i className="bi bi-file-earmark-arrow-down"></i>
-                                </button>
-                              ) : null}
-                            </td>
-
-                            <td className="text-center py-2 px-3">
-                              <span>{m.responsable?.nombre}</span>
-                            </td>
-
-                            {/* Acciones */}
-                            <td className="text-center py-2 px-3">
-                              <div className="d-flex gap-2 justify-content-center align-items-center">
-                                {m.estado !== 'CERRADO' && (
-                                  <button
-                                    className="btn btn-sm maquina-btn-editar"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleEditarMuestra(m);
+                                  <input
+                                    type="checkbox"
+                                    /*  checked={isChecked} */
+                                    onClick={(e) => e.stopPropagation()} // evita que suba al <tr>
+                                    onChange={() => toggleSeleccion(m.id)}
+                                    style={{
+                                      width: '15px',
+                                      height: '15px',
+                                      cursor: 'pointer',
+                                      accentColor: '#ef4444',
                                     }}
-                                    disabled={m.estado === 'CERRADO'}
+                                  />
+                                </td>
+                              )}
+
+                              {/* Fecha */}
+                              <td className="py-2 px-3">
+                                <span
+                                  className="fw-semibold"
+                                  style={{ fontSize: '0.85rem' }}
+                                >
+                                  {formatFecha(m.fecha_muestra)}
+                                </span>
+                              </td>
+
+                              <td className="">
+                                <span
+                                  className="fw-semibold"
+                                  style={{ fontSize: '0.85rem' }}
+                                >
+                                  {formatFecha(m.fecha_analisis)}
+                                </span>
+                              </td>
+
+                              {/* pH, Dureza, Alcalinidad, Salinidad */}
+                              {[
+                                { v: m.ph, c: ph },
+                                { v: m.dureza, c: du },
+                                { v: m.alcalinidad, c: al },
+                                { v: m.salinidad, c: sa },
+                              ].map((x, i) => (
+                                <td key={i} className="text-center ">
+                                  <span
+                                    className="rounded px-2 py-1"
+                                    style={{
+                                      background: x.c.bg,
+                                      /*    color: x.c.color, */
+                                      fontWeight: 600,
+                                      fontSize: '0.75rem',
+                                      display: 'inline-block',
+                                      lineHeight: 1.2,
+                                    }}
                                   >
-                                    <i className="bi bi-pencil"></i>
-                                  </button>
+                                    {getValorIcon(x.v, 0, 9999)} {x.v ?? '-'}
+                                  </span>
+                                </td>
+                              ))}
+
+                              {/* Fuerza Iónica */}
+                              <td className="text-center py-2 px-3">
+                                <span>{m.fuerza_ionica ?? '-'}</span>
+                              </td>
+
+                              {/* Dosis */}
+                              <td className="py-2 px-3">
+                                <span>{m.dosis || '-'}</span>
+                              </td>
+
+                              {/* ESTADO ABIERTO/CERRADO */}
+                              <td style={{ padding: '0.85rem 1rem' }}>
+                                {m.estado === 'CERRADO' && (
+                                  <span
+                                    className="badge"
+                                    style={{
+                                      fontSize: '0.72rem',
+                                      padding: '0.35rem 0.7rem',
+                                      backgroundColor: stateColors.COLOR_CERRADAS,
+                                    }}
+                                  >
+                                    CERRADO
+                                  </span>
                                 )}
 
-                                {m.estado === 'CERRADO' &&
-                                user.rol === 'Administrador' ? (
+                                {m.estado === 'PENDIENTE' && (
+                                  <span
+                                    className="badge"
+                                    style={{
+                                      fontSize: '0.72rem',
+                                      padding: '0.35rem 0.7rem',
+                                      backgroundColor: stateColors.COLOR_PENDIENTES,
+                                    }}
+                                  >
+                                    PENDIENTE
+                                  </span>
+                                )}
+
+                                {m.estado === 'EN PROCESO' && (
+                                  <span
+                                    className="badge"
+                                    style={{
+                                      fontSize: '0.72rem',
+                                      padding: '0.35rem 0.7rem',
+                                      backgroundColor: stateColors.COLOR_PROCESO,
+                                    }}
+                                  >
+                                    EN PROCESO
+                                  </span>
+                                )}
+                              </td>
+
+                              <td className="text-center">
+                                {m.informe ? (
                                   <button
-                                    className="btn btn-sm maquina-btn-reabrir"
+                                    className="btn btn-sm"
+                                    style={{
+                                      color: '#254154',
+                                      fontSize: '1.5rem',
+                                      padding: '0px',
+                                    }}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      setMuestraReabrir(m);
+                                      setShowViewer(true);
+                                      setViewerUrl(
+                                        `/uploads/clientes/${cliente_id}/pozos/${pozos_id}/muestras/${m.id}/` +
+                                          m.informe,
+                                      );
                                     }}
-                                    title="CambiarEstado"
                                   >
-                                    <i className="bi bi-arrow-repeat"></i>
+                                    <i className="bi bi-file-earmark-arrow-down"></i>
                                   </button>
                                 ) : null}
+                              </td>
 
-                                <button
-                                  className="btn btn-sm muestrasPdf"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    generarInformeMuestra(m);
-                                  }}
-                                >
-                                  <i className="bi bi-file-earmark-pdf-fill"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+                              <td className="text-center py-2 px-3">
+                                <span>{m.responsable?.nombre}</span>
+                              </td>
+
+                              {/* Acciones */}
+                              <td className="text-center py-2 px-3">
+                                <div className="d-flex gap-2 justify-content-center align-items-center">
+                                  {m.estado !== 'CERRADO' && (
+                                    <button
+                                      className="btn btn-sm maquina-btn-editar"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditarMuestra(m);
+                                      }}
+                                      disabled={m.estado === 'CERRADO'}
+                                    >
+                                      <i className="bi bi-pencil"></i>
+                                    </button>
+                                  )}
+
+                                  {m.estado === 'CERRADO' &&
+                                  user.rol === 'Administrador' ? (
+                                    <button
+                                      className="btn btn-sm maquina-btn-reabrir"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setMuestraReabrir(m);
+                                      }}
+                                      title="CambiarEstado"
+                                    >
+                                      <i className="bi bi-arrow-repeat"></i>
+                                    </button>
+                                  ) : null}
+
+                                  <button
+                                    className="btn btn-sm muestrasPdf"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      generarInformeMuestra(m);
+                                    }}
+                                  >
+                                    <i className="bi bi-file-earmark-pdf-fill"></i>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <ModalMuestrasPozos

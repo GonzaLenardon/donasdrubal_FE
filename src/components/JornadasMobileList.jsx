@@ -1,16 +1,14 @@
-// src/components/JornadasMobileList.jsx
-
-const badgeConfig = {
-  CERRADO: { className: 'badge bg-danger', label: 'Cerrado' },
-  PENDIENTE: { className: 'badge bg-success', label: 'Pendiente' },
-  'EN PROCESO': {
-    className: 'badge bg-warning text-dark',
-    label: 'En proceso',
-  },
-};
+import { stateColors } from '../utils/colors';
 
 const formatFecha = (fecha) =>
-  fecha ? new Date(fecha).toLocaleDateString('es-AR') : '-';
+  fecha
+    ? new Date(fecha).toLocaleDateString('es-AR', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'UTC',
+      })
+    : '-';
 
 const JornadasMobileList = ({
   jornadas,
@@ -23,28 +21,24 @@ const JornadasMobileList = ({
 }) => {
   if (jornadas.length === 0) {
     return (
-      <p
-        style={{
-          textAlign: 'center',
-          color: 'rgba(255,255,255,0.4)',
-          padding: '1.5rem 0',
-          fontSize: 14,
-        }}
-      >
+      <p className="text-center text-white-50 py-3" style={{ fontSize: 14 }}>
         Sin jornadas registradas
       </p>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div className="jornadas-mobile-grid">
       {jornadas.map((m) => {
         const isClosed = m.estado === 'CERRADO';
-        const badge = badgeConfig[m.estado] ?? {
-          className: 'badge bg-secondary',
-          label: m.estado,
-        };
         const isSelected = seleccionado === m.id;
+
+        const colorBadge =
+          m.estado === 'CERRADO'
+            ? stateColors.COLOR_CERRADAS
+            : m.estado === 'EN PROCESO'
+              ? stateColors.COLOR_PROCESO
+              : stateColors.COLOR_PENDIENTES;
 
         return (
           <div
@@ -55,51 +49,47 @@ const JornadasMobileList = ({
           >
             {/* Header */}
             <div className="jornada-card__header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                {modoSeleccion && (
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => onSeleccionar(m.id)}
-                    onClick={(e) => e.stopPropagation()}
-                    style={{
-                      width: 15,
-                      height: 15,
-                      cursor: 'pointer',
-                      accentColor: '#ef4444',
-                    }}
-                  />
-                )}
-                <span className="jornada-card__fecha">
-                  {formatFecha(m.fecha_jornada)}
-                </span>
-              </div>
-              <div className="jornada-card__meta">
-                <span
-                  className={badge.className}
-                  style={{ fontSize: '0.72rem', padding: '0.35rem 0.7rem' }}
-                >
-                  {badge.label}
-                </span>
-                <span className="jornada-card__id">#{m.id}</span>
-              </div>
+              {modoSeleccion && (
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => onSeleccionar(m.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="jornada-card__checkbox"
+                />
+              )}
+              <span className="jornada-card__id">#{m.id}</span>
+              <span
+                className="jornada-card__badge"
+                style={{ backgroundColor: colorBadge }}
+              >
+                {m.estado}
+              </span>
             </div>
 
-            {/* Body */}
-            <div className="jornada-card__body">
-              <p className="jornada-card__motivo">{m.motivo || '-'}</p>
-              {m.observaciones && (
-                <p className="jornada-card__obs">{m.observaciones}</p>
-              )}
-            </div>
+            {/* Fecha */}
+            <span className="jornada-card__fecha">
+              {formatFecha(m.fecha_jornada)}
+            </span>
+
+            {/* Motivo */}
+            <p className="jornada-card__motivo">{m.motivo || '-'}</p>
+
+            {/* Responsable */}
+            {m.responsable?.nombre && (
+              <div className="jornada-card__responsable">
+                <i className="bi bi-person-fill me-1"></i>
+                {m.responsable.nombre}
+              </div>
+            )}
 
             {/* Footer */}
-            {!modoSeleccion && (
+            {!modoSeleccion && (!isClosed || isAdmin) && (
               <div className="jornada-card__footer">
                 {!isClosed && (
                   <button
                     className="btn btn-sm btn-outline-light"
-                    style={{ fontSize: 12, opacity: 0.8, padding: '3px 10px' }}
+                    style={{ fontSize: 11, padding: '2px 8px', flex: 1 }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onEditar(m);
@@ -111,7 +101,7 @@ const JornadasMobileList = ({
                 {isClosed && isAdmin && (
                   <button
                     className="btn btn-sm btn-outline-warning"
-                    style={{ fontSize: 12, padding: '3px 10px' }}
+                    style={{ fontSize: 11, padding: '2px 8px' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onReabrir(m);

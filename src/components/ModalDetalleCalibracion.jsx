@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Lightbulb } from 'lucide-react';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const ModalDetalleCalibracion = ({
   cal,
@@ -18,6 +19,9 @@ const ModalDetalleCalibracion = ({
   setViewerUrl,
   setShowViewer,
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const isMobile = useIsMobile();
+
   if (!cal) return null;
 
   const fechaFormateada = new Date(cal.fecha).toLocaleDateString('es-AR', {
@@ -89,8 +93,8 @@ const ModalDetalleCalibracion = ({
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(15, 1fr)',
-              gap: '5px',
+              gridTemplateColumns: isMobile ? 'repeat(5, 1fr)' : 'repeat(10, 1fr)',
+              gap: isMobile ? '4px' : '5px',
             }}
           >
             {Array.from({ length: 30 }, (_, idx) => {
@@ -103,7 +107,7 @@ const ModalDetalleCalibracion = ({
                   key={num}
                   style={{
                     borderRadius: '6px',
-                    padding: '6px 4px',
+                    padding: isMobile ? '5px 2px' : '6px 4px',
                     textAlign: 'center',
                     background: tieneDato
                       ? 'rgba(139,92,246,0.2)'
@@ -115,19 +119,19 @@ const ModalDetalleCalibracion = ({
                 >
                   <div
                     style={{
-                      fontSize: '0.58rem',
+                      fontSize: isMobile ? '0.5rem' : '0.58rem',
                       color: tieneDato
                         ? 'rgba(196,181,253,0.6)'
                         : 'rgba(255,255,255,0.2)',
                       lineHeight: 1,
-                      marginBottom: '3px',
+                      marginBottom: '2px',
                     }}
                   >
-                    Sec {num}
+                    {isMobile ? `S${num}` : `Sec ${num}`}
                   </div>
                   <div
                     style={{
-                      fontSize: '0.85rem',
+                      fontSize: isMobile ? '0.75rem' : '0.85rem',
                       fontWeight: tieneDato ? '700' : '400',
                       color: tieneDato ? '#c4b5fd' : 'rgba(255,255,255,0.12)',
                       lineHeight: 1.1,
@@ -135,7 +139,7 @@ const ModalDetalleCalibracion = ({
                   >
                     {tieneDato ? parseFloat(valor).toFixed(1) : '—'}
                   </div>
-                  {tieneDato && (
+                  {tieneDato && !isMobile && (
                     <div
                       style={{
                         fontSize: '0.55rem',
@@ -156,7 +160,7 @@ const ModalDetalleCalibracion = ({
           <div
             style={{
               display: 'flex',
-              gap: '8px',
+              gap: isMobile ? '4px' : '8px',
               flexWrap: 'wrap',
               marginTop: '0.75rem',
               paddingTop: '0.75rem',
@@ -175,8 +179,8 @@ const ModalDetalleCalibracion = ({
                   background: 'rgba(139,92,246,0.15)',
                   border: '1px solid rgba(139,92,246,0.3)',
                   borderRadius: '6px',
-                  padding: '4px 12px',
-                  fontSize: '0.72rem',
+                  padding: isMobile ? '3px 8px' : '4px 12px',
+                  fontSize: isMobile ? '0.65rem' : '0.72rem',
                   color: 'rgba(255,255,255,0.5)',
                 }}
               >
@@ -302,7 +306,7 @@ const ModalDetalleCalibracion = ({
     );
   };
 
-  // ── Tabla de componentes ───────────────────────────────────────────────────
+  // ── Tabla de componentes (desktop) ─────────────────────────────────────────
   const renderTablaComponentes = () => (
     <div
       className="table-responsive"
@@ -625,13 +629,171 @@ const ModalDetalleCalibracion = ({
     </div>
   );
 
+  // ── Cards de componentes (mobile) ─────────────────────────────────────────
+  const renderTablaComponentesMobile = () => (
+    <div className="d-flex flex-column gap-3">
+      {Object.keys(formateo).map((key) => {
+        if (formateo[key] === 'Estado General') return null;
+
+        const estadoData = parseEstado(cal.id, cal[key]);
+        if (!estadoData.estado) return null;
+
+        const isFiltro = formateo[key].includes('Filtro');
+        const isBomba = formateo[key] === 'Bomba';
+
+        return (
+          <div
+            key={key}
+            style={{
+              background: '#212529',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '10px',
+              padding: '12px',
+            }}
+          >
+            {/* Header */}
+            <div className="d-flex align-items-center justify-content-between mb-2">
+              <div className="d-flex align-items-center gap-2">
+                <i
+                  className={`${getComponentIcon(formateo[key])} text-info`}
+                  style={{ fontSize: '1rem' }}
+                ></i>
+                <span className="fw-bold text-white" style={{ fontSize: '0.9rem' }}>
+                  {formateo[key]}
+                </span>
+              </div>
+              <span
+                className="badge"
+                style={{
+                  backgroundColor: getEstadoColor(estadoData.estado).bg,
+                  border: `1px solid ${getEstadoColor(estadoData.estado).border}`,
+                  color: getEstadoColor(estadoData.estado).color,
+                  fontSize: '0.7rem',
+                  padding: '0.3rem 0.6rem',
+                  fontWeight: '600',
+                }}
+              >
+                {estadoData.estado}
+              </span>
+            </div>
+
+            {/* Observación */}
+            {estadoData.observacion && (
+              <div className="mb-2">
+                <span className="text-white-50" style={{ fontSize: '0.75rem' }}>
+                  <i className="bi bi-chat-left-text me-1"></i>Observación:
+                </span>
+                <p className="mb-0 text-white" style={{ fontSize: '0.8rem' }}>
+                  {estadoData.observacion}
+                </p>
+              </div>
+            )}
+
+            {/* Detalles */}
+            {(isBomba || isFiltro) && (
+              <div className="mb-2 d-flex flex-column gap-1">
+                {isBomba && estadoData.modelo && (
+                  <span className="text-white-50" style={{ fontSize: '0.75rem' }}>
+                    <i className="bi bi-tag text-info me-1"></i>
+                    Modelo: <strong className="text-white">{estadoData.modelo}</strong>
+                  </span>
+                )}
+                {isBomba && estadoData.materiales && (
+                  <span className="text-white-50" style={{ fontSize: '0.75rem' }}>
+                    <i className="bi bi-box-seam text-info me-1"></i>
+                    Material: <strong className="text-white">{estadoData.materiales}</strong>
+                  </span>
+                )}
+                {isFiltro && estadoData.color && (
+                  <span className="text-white-50" style={{ fontSize: '0.75rem' }}>
+                    <span
+                      style={{
+                        display: 'inline-block',
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        backgroundColor: getColorHex(estadoData.color),
+                        border: '1px solid rgba(255,255,255,0.4)',
+                        marginRight: '4px',
+                      }}
+                    ></span>
+                    Color: <strong className="text-white">{estadoData.color}</strong>
+                  </span>
+                )}
+                {isFiltro && estadoData.numero !== '' && estadoData.numero !== null && (
+                  <span className="text-white-50" style={{ fontSize: '0.75rem' }}>
+                    <i className="bi bi-123 text-info me-1"></i>
+                    Nº: <strong className="text-white" style={{ fontFamily: 'Courier New, monospace' }}>{estadoData.numero}</strong>
+                  </span>
+                )}
+                {isFiltro && estadoData.presenciaORing && (
+                  <span
+                    className={`badge ${estadoData.presenciaORing === 'Si' ? 'bg-success' : 'bg-secondary'}`}
+                    style={{ fontSize: '0.65rem', padding: '0.2rem 0.4rem', width: 'fit-content' }}
+                  >
+                    <i className={`bi ${estadoData.presenciaORing === 'Si' ? 'bi-check-circle-fill' : 'bi-x-circle'} me-1`}></i>
+                    {estadoData.presenciaORing === 'Si' ? 'Con O-Ring' : 'Sin O-Ring'}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Recomendaciones */}
+            {estadoData.recomendaciones?.length > 0 && (
+              <div className="mb-2">
+                <span className="text-white-50 d-block mb-1" style={{ fontSize: '0.75rem' }}>
+                  <i className="bi bi-lightbulb me-1"></i>Recomendaciones:
+                </span>
+                <div className="d-flex flex-column gap-1">
+                  {estadoData.recomendaciones.map((rec, idx) => (
+                    <div
+                      key={rec.id || idx}
+                      className="d-flex align-items-start gap-2"
+                      style={{
+                        background: 'rgba(13,202,240,0.1)',
+                        padding: '0.3rem 0.5rem',
+                        borderRadius: '4px',
+                        border: '1px solid rgba(13,202,240,0.2)',
+                      }}
+                    >
+                      <i
+                        className="bi bi-check-circle-fill"
+                        style={{ color: '#0dcaf0', fontSize: '0.65rem', marginTop: '2px', flexShrink: 0 }}
+                      ></i>
+                      <span className="text-white" style={{ fontSize: '0.75rem', lineHeight: '1.4' }}>
+                        {rec.texto}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Archivo */}
+            {estadoData.nombreArchivo && (
+              <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <BtnArchivo
+                  archivo={{ path: estadoData.path, nombreArchivo: estadoData.nombreArchivo }}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+
   // ── Render principal ───────────────────────────────────────────────────────
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
         className="modal-container cal-modal-detalle"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '90%', maxHeight: '95vh', overflowY: 'auto' }}
+        style={{
+          maxWidth: isMobile ? '98%' : '90%',
+          maxHeight: '95vh',
+          overflowY: 'auto',
+        }}
       >
         {/* HEADER */}
         <div className="modal-header">
@@ -657,42 +819,130 @@ const ModalDetalleCalibracion = ({
 
         {/* BODY */}
         <div className="modal-body" style={{ padding: '1.5rem' }}>
-          {/* IMAGEN DEL INFORME */}
-          {cal.imagen && (
-            <div className="mb-4">
-              <p
-                className="mb-2 fw-semibold text-white-50"
-                style={{
-                  fontSize: '0.8rem',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                }}
-              >
-                <i className="bi bi-image-fill me-2 text-info"></i>
-                Imagen del Informe
-              </p>
-              <img
-                src={`${import.meta.env.VITE_API_URL}/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/${cal.imagen}`}
-                alt="Imagen del informe"
-                className="rounded"
-                style={{
-                  maxHeight: '200px',
-                  maxWidth: '100%',
-                  objectFit: 'contain',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                }}
-              />
+          {/* Paginación mobile */}
+          {isMobile && (
+            <div className="d-flex justify-content-center gap-2 mb-3">
+              {[
+                { number: 1, label: 'Resumen', icon: 'bi-clipboard2-check' },
+                { number: 2, label: 'Componentes', icon: 'bi-list-check' },
+                { number: 3, label: 'Datos', icon: 'bi-speedometer2' },
+              ].map((page) => (
+                <button
+                  key={page.number}
+                  type="button"
+                  className={`btn btn-sm ${currentPage === page.number ? 'btn-success' : 'btn-outline-secondary'}`}
+                  onClick={() => setCurrentPage(page.number)}
+                  style={{ fontSize: '0.7rem', padding: '4px 10px' }}
+                >
+                  <i className={`${page.icon} me-1`}></i>
+                  {page.label}
+                </button>
+              ))}
             </div>
           )}
 
+          {/* Contenido según página (mobile) o todo (desktop) */}
+          {(isMobile ? currentPage === 1 : true) && (
+            <>
+              {/* IMAGEN DEL INFORME */}
+              {cal.imagen && (
+                <div className="mb-4">
+                  <p
+                    className="mb-2 fw-semibold text-white-50"
+                    style={{
+                      fontSize: '0.8rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px',
+                    }}
+                  >
+                    <i className="bi bi-image-fill me-2 text-info"></i>
+                    Imagen del Informe
+                  </p>
+                  <img
+                    src={`${import.meta.env.VITE_API_URL}/uploads/clientes/${cliente_id}/maquinas/${maquina_id}/calibraciones/${cal.id}/${cal.imagen}`}
+                    alt="Imagen del informe"
+                    className="rounded"
+                    style={{
+                      maxHeight: '200px',
+                      maxWidth: '100%',
+                      objectFit: 'contain',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Resumen en mobile (solo en página 1) */}
+              {isMobile && (
+                <div
+                  className="p-3 rounded-3 mb-3"
+                  style={{
+                    background: '#212529',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                >
+                  <div className="d-flex flex-column gap-2">
+                    <div className="d-flex justify-content-between">
+                      <span className="text-white-50" style={{ fontSize: '0.8rem' }}>
+                        <i className="bi bi-calendar me-2"></i>Fecha
+                      </span>
+                      <span className="text-white fw-semibold" style={{ fontSize: '0.8rem' }}>
+                        {fechaFormateada}
+                      </span>
+                    </div>
+                    {ingResponsable?.nombre && (
+                      <div className="d-flex justify-content-between">
+                        <span className="text-white-50" style={{ fontSize: '0.8rem' }}>
+                          <i className="bi bi-person me-2"></i>Responsable
+                        </span>
+                        <span className="text-white fw-semibold" style={{ fontSize: '0.8rem' }}>
+                          {ingResponsable.nombre}
+                        </span>
+                      </div>
+                    )}
+                    <div className="d-flex justify-content-between">
+                      <span className="text-white-50" style={{ fontSize: '0.8rem' }}>
+                        <i className="bi bi-clipboard-check me-2"></i>Estado
+                      </span>
+                      <span
+                        className="badge"
+                        style={{
+                          fontSize: '0.7rem',
+                          padding: '0.3rem 0.6rem',
+                          backgroundColor: cal.estado === 'CERRADO' ? '#dc3545' : cal.estado === 'EN PROCESO' ? '#ffc107' : '#198754',
+                        }}
+                      >
+                        {cal.estado}
+                      </span>
+                    </div>
+                    {cal.observaciones_generales && (
+                      <div className="mt-2 pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                        <span className="text-white-50 d-block mb-1" style={{ fontSize: '0.75rem' }}>
+                          <i className="bi bi-chat-left-text me-2"></i>Observaciones
+                        </span>
+                        <span className="text-white" style={{ fontSize: '0.8rem' }}>
+                          {cal.observaciones_generales}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           {/* TABLA COMPONENTES */}
-          {renderTablaComponentes()}
+          {(isMobile ? currentPage === 2 : true) && (
+            isMobile ? renderTablaComponentesMobile() : renderTablaComponentes()
+          )}
 
-          {/* SECCIONES */}
-          {renderSecciones()}
-
-          {/* PRESIONES */}
-          {renderPresiones()}
+          {/* SECCIONES + PRESIONES */}
+          {(isMobile ? currentPage === 3 : true) && (
+            <>
+              {renderSecciones()}
+              {renderPresiones()}
+            </>
+          )}
         </div>
       </div>
     </div>

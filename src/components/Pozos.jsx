@@ -9,8 +9,8 @@ import ModalEliminar from './ModalEliminar';
 import ModalInformativo from './ModalInformativo';
 import Spinner from './Spinner';
 import { Modal } from 'bootstrap';
-import { Dot } from './EstadoServicio';
-import { getEstadoColor } from '../utils/colors';
+import { stateColors } from '../utils/colors';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const Pozos = ({ cliente_id }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +24,7 @@ const Pozos = ({ cliente_id }) => {
   const [msg, setMsg] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showInformativo, setShowInformativo] = useState(false);
+  const isMobile = useIsMobile();
 
   // ── Borrado ───────────────────────────────────────────────────────────────
   const [pozoAEliminar, setPozoAEliminar] = useState(null);
@@ -178,7 +179,7 @@ const Pozos = ({ cliente_id }) => {
               }}
             >
               <i className="bi bi-plus-lg" style={{ fontSize: '13px' }}></i>
-              Nuevo Pozo
+              {!isMobile ? 'Nuevo Pozo' : ''}
             </button>
           </div>
 
@@ -220,6 +221,17 @@ const Pozos = ({ cliente_id }) => {
           <div className="pozos-grid">
             {pozos.map((pozo) => {
               const isSelected = pozoId.includes(pozo.id);
+              const estado = pozo?.muestrasAgua?.[0]?.estado;
+
+              const colorBadge =
+                estado === 'CERRADO'
+                  ? stateColors.COLOR_CERRADAS
+                  : estado === 'EN PROCESO'
+                    ? stateColors.COLOR_PROCESO
+                    : estado === 'PENDIENTE'
+                      ? stateColors.COLOR_PENDIENTES
+                      : '#6b7280';
+
               return (
                 <div
                   key={pozo.id}
@@ -231,37 +243,34 @@ const Pozos = ({ cliente_id }) => {
                     setOnlyView(true);
                   }}
                 >
-                  {/* Top: nombre + checkbox informe */}
+                  {/* Top: checkbox + nombre + badge */}
                   <div className="pcard-top">
-                    <div>
-                      {isSelected && (
-                        <div className="pcard-sel-indicator">
-                          <i className="bi bi-check-circle-fill"></i>
-                          En informe
-                        </div>
-                      )}
-                      <p className="pcard-name">{pozo.nombre}</p>
-                      <p className="pcard-id">#{pozo.id}</p>
-                    </div>
-
-                    <label
-                      className="pcard-chk-label"
-                      onClick={(e) => e.stopPropagation()}
-                      title="Informe múltiple"
-                    >
+                    <div className="pcard-top-left">
                       <input
                         type="checkbox"
                         className="pcard-chk-input"
                         checked={isSelected}
                         onChange={(e) => handleToggleInforme(e, pozo.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ width: 14, height: 14, cursor: 'pointer', accentColor: '#ef4444' }}
                       />
-                      <span className="pcard-chk-box">
+                      <div>
                         {isSelected && (
-                          <i className="bi bi-check-lg pcard-chk-icon"></i>
+                          <div className="pcard-sel-indicator">
+                            <i className="bi bi-check-circle-fill"></i>
+                            En informe
+                          </div>
                         )}
-                      </span>
-                      <span className="pcard-chk-text">Informe</span>
-                    </label>
+                        <p className="pcard-name">{pozo.nombre}</p>
+                        <p className="pcard-id">#{pozo.id}</p>
+                      </div>
+                    </div>
+                    <span
+                      className="pcard-badge"
+                      style={{ backgroundColor: colorBadge }}
+                    >
+                      {estado || 'Sin muestras'}
+                    </span>
                   </div>
 
                   {/* Datos */}
@@ -284,35 +293,13 @@ const Pozos = ({ cliente_id }) => {
                         </span>
                       </div>
                     </div>
-
-                    <div className="d-flex justify-content-between align-items-center border-top pt-1 mt-1">
-                      <span className="pcard-row-label">
-                        Estado Muestra Agua
-                      </span>
-                      <div
-                        className="pcard-estado"
-                        title={
-                          pozo?.muestrasAgua?.[0]?.estado || 'Sin muestras'
-                        }
-                      >
-                        <Dot
-                          color={getEstadoColor(
-                            pozo?.muestrasAgua?.[0]?.estado,
-                          )}
-                          size={12}
-                        />
-                        {pozo?.muestrasAgua?.[0]?.estado || 'Sin muestras'}
-                      </div>
-                    </div>
                   </div>
 
-                  <hr className="pcard-divider" />
-
-                  {/* ── Acciones ── */}
-                  <div className="pcard-actions">
+                  {/* Footer */}
+                  <div className="pcard-footer">
                     <button
-                      className="pcard-icon-btn pozo-btn-ver"
-                      title="Ver muestras"
+                      className="btn btn-sm btn-outline-info"
+                      style={{ fontSize: 11, padding: '2px 8px', flex: 1 }}
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedPozo(pozo);
@@ -321,12 +308,11 @@ const Pozos = ({ cliente_id }) => {
                         );
                       }}
                     >
-                      <i className="bi bi-eye"></i>
+                      <i className="bi bi-eye me-1"></i>Ver
                     </button>
-
                     <button
-                      className="pcard-icon-btn pozo-btn-editar"
-                      title="Editar pozo"
+                      className="btn btn-sm btn-outline-light"
+                      style={{ fontSize: 11, padding: '2px 8px', flex: 1 }}
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedPozo(pozo);
@@ -334,14 +320,12 @@ const Pozos = ({ cliente_id }) => {
                         setIsOpen(true);
                       }}
                     >
-                      <i className="bi bi-pencil"></i>
+                      <i className="bi bi-pencil me-1"></i>Editar
                     </button>
-
-                    {/* Eliminar — solo Admin */}
                     {isAdmin && (
                       <button
-                        className="pcard-icon-btn pozo-btn-eliminar"
-                        title="Eliminar pozo"
+                        className="btn btn-sm btn-outline-danger"
+                        style={{ fontSize: 11, padding: '2px 8px' }}
                         onClick={(e) => {
                           e.stopPropagation();
                           setPozoAEliminar(pozo);
