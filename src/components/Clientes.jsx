@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { addCliente, allCliente, upCliente } from '../api/clientes.js';
+import {
+  addCliente,
+  allCliente,
+  delCliente,
+  upCliente,
+} from '../api/clientes.js';
 import Spinner from './Spinner.jsx';
 import { useNavigate } from 'react-router-dom';
 import { allIngenieros } from '../api/users.js';
 import { allTipoClientes } from '../api/tipoClientes.js';
-import { Radius } from 'lucide-react';
 import { useCliente } from '../context/UserContext.jsx';
-import ModalNotas from './ModalNotas.jsx';
+import ModalEliminar from './ModalEliminar.jsx';
+import ModalInformativo from './ModalInformativo.jsx';
 
 const Clientes = () => {
   const [clienteList, setClienteList] = useState([]);
@@ -22,10 +27,15 @@ const Clientes = () => {
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [onlyView, setOnlyView] = useState(false);
+  const [clienteAEliminar, setClienteAEliminar] = useState(null);
+  const [showConfirmarDelete, setShowConfirmarDelete] = useState(false);
+  const [showInformativo, setShowInformativo] = useState(false);
   /*  const [showNotas, setShowNotas] = useState(false); */
   const [msg, setMsg] = useState('');
   const navigate = useNavigate();
   const { setSelectedCliente } = useCliente();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const isAdmin = user?.rol === 'Administrador';
 
   /* const user = JSON.parse(localStorage.getItem('user')); */
 
@@ -264,7 +274,44 @@ const Clientes = () => {
 
     setSelectedCliente(cliente);
     navigate(`/clientes/${cliente.id}`);
-  }
+  };
+
+  const handleConfirmarBorrado = async () => {
+    if (!clienteAEliminar?.id) return;
+
+    try {
+      setShowConfirmarDelete(false);
+      setLoading(true);
+      setMsg('Eliminando cliente ...');
+
+      const resp = await delCliente(clienteAEliminar.id);
+
+      setClienteAEliminar(null);
+      setMsg(resp?.mensaje ?? 'Cliente eliminado correctamente');
+      await getAllCliente();
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    } catch (error) {
+      const status = error.response?.status;
+
+      if (status === 409) {
+        setShowInformativo(true);
+        return;
+      }
+
+      if (status === 404) {
+        alert('El cliente no existe');
+        return;
+      }
+
+      alert(
+        error.response?.data?.mensaje ??
+          'Error inesperado al eliminar el cliente',
+      );
+    } finally {
+      setLoading(false);
+      setMsg('');
+    }
+  };
 
   const cantidadErrores = Object.keys(errors).length;
 
@@ -482,6 +529,18 @@ const Clientes = () => {
                         >
                           <i className="bi bi-eye"></i>
                         </button>
+                        {isAdmin && (
+                          <button
+                            className="table-btn table-btn-delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setClienteAEliminar(cliente);
+                              setShowConfirmarDelete(true);
+                            }}
+                          >
+                            <i className="bi bi-trash3"></i>
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1232,6 +1291,27 @@ const Clientes = () => {
           userId={user.id}
         />
       )} */}
+
+      {showConfirmarDelete && (
+        <ModalEliminar
+          handleEliminar={handleConfirmarBorrado}
+          onCancelar={() => {
+            setShowConfirmarDelete(false);
+            setClienteAEliminar(null);
+          }}
+          servicio="cliente"
+          detalle={clienteAEliminar?.razon_social}
+          cantidad={1}
+        />
+      )}
+
+      {showInformativo && (
+        <ModalInformativo
+          onClose={() => setShowInformativo(false)}
+          tipo="el cliente"
+          dependencias="máquinas, pozos o jornadas"
+        />
+      )}
 
       <Spinner loading={loading} msg={msg} />
     </>

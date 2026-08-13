@@ -24,6 +24,11 @@ export const upCliente = async (cliente) => {
   return res.data;
 };
 
+export const delCliente = async (cliente_id) => {
+  const res = await instance.delete(`/clientes/${cliente_id}`);
+  return res.data;
+};
+
 export const getCliente = async (cliente_id) => {
   const res = await instance.get(`/clientes/${cliente_id}`);
   return res.data;
