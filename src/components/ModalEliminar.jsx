@@ -30,6 +30,7 @@ const ModalEliminar = ({
       muestra: esPlural ? 'muestras' : 'muestra',
       maquina: esPlural ? 'maquinas' : 'maquina',
       pozo: esPlural ? 'pozos' : 'pozo',
+      cliente: esPlural ? 'clientes' : 'cliente',
       jornada: esPlural ? 'jornadas' : 'jornada',
       notificacion: esPlural ? 'notificaciones' : 'notificacion',
       nota: esPlural ? 'notas' : 'nota',
@@ -44,6 +45,7 @@ const ModalEliminar = ({
       muestra: esPlural ? 'las' : 'la',
       maquina: esPlural ? 'las' : 'la',
       pozo: esPlural ? 'los' : 'el',
+      cliente: esPlural ? 'los' : 'el',
       jornada: esPlural ? 'las' : 'la',
       notificacion: esPlural ? 'las' : 'la',
       nota: esPlural ? 'las' : 'la',
@@ -51,9 +53,24 @@ const ModalEliminar = ({
     return textos[servicio];
   };
 
+  const getEliminadoTexto = (servicio, esPlural) => {
+    const textos = {
+      calibracion: esPlural ? 'eliminadas' : 'eliminada',
+      muestra: esPlural ? 'eliminadas' : 'eliminada',
+      maquina: esPlural ? 'eliminadas' : 'eliminada',
+      pozo: esPlural ? 'eliminados' : 'eliminado',
+      cliente: esPlural ? 'eliminados' : 'eliminado',
+      jornada: esPlural ? 'eliminadas' : 'eliminada',
+      notificacion: esPlural ? 'eliminadas' : 'eliminada',
+      nota: esPlural ? 'eliminadas' : 'eliminada',
+    };
+    return textos[servicio] ?? (esPlural ? 'eliminados' : 'eliminado');
+  };
+
   const s = getServicioTexto(servicio, esPlural);
 
   const art = getArticulo(servicio, esPlural);
+  const eliminado = getEliminadoTexto(servicio, esPlural);
 
   return (
     <div
@@ -117,8 +134,8 @@ const ModalEliminar = ({
         {/* ── Mensaje ── */}
         <p className="text-white-50 text-center mb-3">
           {esPlural
-            ? `${art.charAt(0).toUpperCase() + art.slice(1)} ${cantidadNum} ${s} seleccionadas serán eliminadas`
-            : `${art.charAt(0).toUpperCase() + art.slice(1)} ${servicio} será eliminada`}{' '}
+            ? `${art.charAt(0).toUpperCase() + art.slice(1)} ${cantidadNum} ${s} serán ${eliminado}`
+            : `${art.charAt(0).toUpperCase() + art.slice(1)} ${s} será ${eliminado}`}{' '}
           de forma{' '}
           <strong className="text-white">permanente e irreversible</strong>.
         </p>
