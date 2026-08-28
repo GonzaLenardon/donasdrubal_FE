@@ -243,17 +243,9 @@ const Pozos = ({ cliente_id }) => {
                     setOnlyView(true);
                   }}
                 >
-                  {/* Top: checkbox + nombre + badge */}
+                  {/* Top: nombre + badge */}
                   <div className="pcard-top">
                     <div className="pcard-top-left">
-                      <input
-                        type="checkbox"
-                        className="pcard-chk-input"
-                        checked={isSelected}
-                        onChange={(e) => handleToggleInforme(e, pozo.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ width: 14, height: 14, cursor: 'pointer', accentColor: '#ef4444' }}
-                      />
                       <div>
                         {isSelected && (
                           <div className="pcard-sel-indicator">
@@ -271,6 +263,24 @@ const Pozos = ({ cliente_id }) => {
                     >
                       {estado || 'Sin muestras'}
                     </span>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <label
+                        className="pcard-chk-label"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <input
+                          type="checkbox"
+                          className="pcard-chk-input"
+                          checked={isSelected}
+                          onChange={(e) => handleToggleInforme(e, pozo.id)}
+                        />
+                        <span className="pcard-chk-box">
+                          <i className="bi bi-check pcard-chk-icon"></i>
+                        </span>
+                        <span className="pcard-chk-text">Informe</span>
+                      </label>
                   </div>
 
                   {/* Datos */}
