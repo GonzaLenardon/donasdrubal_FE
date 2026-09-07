@@ -18,6 +18,13 @@ import DashboardUser from './components/DashboardUser.jsx';
 import Notifications from './components/Notifications.jsx';
 import ReporteSemanal from './components/ReporteSemanal.jsx';
 import Herramientas from './components/Herramientas.jsx';
+import Productos from './components/Productos.jsx';
+import Depositos from './components/Depositos.jsx';
+import Proveedores from './components/Proveedores.jsx';
+import Stock from './components/Stock.jsx';
+import Compras from './components/Compras.jsx';
+import Remitos from './components/Remitos.jsx';
+import Presentaciones from './components/Presentaciones.jsx';
 
 function App() {
   return (
@@ -75,6 +82,15 @@ function App() {
 
           {/* Tipo de Maquinas */}
           <Route path="maquinasTipos" element={<MaquinaTipo />} />
+
+          {/* Stock / Remitos */}
+          <Route path="stock/productos" element={<Productos />} />
+          <Route path="stock/presentaciones" element={<Presentaciones />} />
+          <Route path="stock/depositos" element={<Depositos />} />
+          <Route path="stock/proveedores" element={<Proveedores />} />
+          <Route path="stock/saldo" element={<Stock />} />
+          <Route path="stock/compras" element={<Compras />} />
+          <Route path="stock/remitos" element={<Remitos />} />
 
           {/* Página no encontrada (dentro del dashboard) */}
           <Route path="*" element={<NotFound />} />

@@ -1,0 +1,164 @@
+/* ══════════════════════════════════════════════════════════════════════
+   MODAL COMPRAS — estilos para búsqueda de producto y secciones
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Sección de producto (búsqueda + cantidad) ──────────────────────── */
+.cmp-section-producto {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.cmp-section-producto .section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c757d;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Sección de lotes ───────────────────────────────────────────────── */
+.cmp-section-lotes {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.cmp-section-lotes .section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #856404;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Sección de destinos ────────────────────────────────────────────── */
+.cmp-section-destinos {
+  background: #d1ecf1;
+  border: 1px solid #bee5eb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.cmp-section-destinos .section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #0c5460;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Buscador de producto ───────────────────────────────────────────── */
+.cmp-search-wrapper {
+  position: relative;
+}
+
+.cmp-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cmp-search-results .cmp-search-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cmp-search-results .cmp-search-item:last-child {
+  border-bottom: none;
+}
+
+.cmp-search-results .cmp-search-item:hover {
+  background: #e9ecef;
+}
+
+.cmp-search-results .cmp-search-item.selected {
+  background: #0d6efd;
+  color: #fff;
+}
+
+.cmp-search-results .cmp-search-no-results {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+  font-style: italic;
+}
+
+/* ── Badge de distribución ──────────────────────────────────────────── */
+.cmp-dist-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.cmp-dist-ok {
+  background: #d4edda;
+  color: #155724;
+}
+
+.cmp-dist-pendiente {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* ── Header del ítem ────────────────────────────────────────────────── */
+.cmp-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cmp-item-header .cmp-item-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: #495057;
+  background: #e9ecef;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ── Compact inputs ─────────────────────────────────────────────────── */
+.cmp-compact-input {
+  font-size: 13px;
+  padding: 4px 8px;
+  height: auto;
+}
+
+.cmp-compact-select {
+  font-size: 13px;
+  padding: 4px 8px;
+  height: auto;
+}

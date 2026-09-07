@@ -1,0 +1,497 @@
+================================================================================
+        MÓDULO REMITOS — DON ASDRÚBAL
+        Documento de Planificación para el Equipo de Desarrollo
+        Fecha: 04/09/2026
+================================================================================
+
+1. CONTEXTO DEL PROYECTO
+================================================================================
+
+Don Asdrúbal es un CRM agronómico/de laboratorio (clientes, calibraciones
+de maquinaria, pulverizadoras, análisis de agua/pozos, jornadas de trabajo).
+A partir de un mapa completo de arquitectura de la organización (19 circuitos),
+se decidió construir un ERP alrededor de ese CRM, empezando por el módulo de
+Remitos como primera fase.
+
+Remitos es el circuito comercial de entrega de producto físico (medido en
+litros) a clientes. Es un circuito totalmente independiente de Jornadas
+(que son visitas de servicio/calibración) — no comparten datos entre sí,
+aunque puedan estar involucrados los mismos roles de la empresa.
+
+Hoy el proceso es 100% en papel; se está digitalizando desde cero.
+
+
+2. ALCANCE DE ESTA FASE
+================================================================================
+
+✅ INCLUYE:
+   - Proveedores
+   - Productos (con presentaciones)
+   - Depósitos
+   - Stock (saldo por depósito + producto + lote)
+   - Compras (ingreso mínimo para alimentar stock)
+   - Remitos (oficial / no oficial)
+   - Manejo de lotes con FIFO
+   - Numeración de remitos por depósito
+
+❌ NO INCLUYE (fases siguientes):
+   - Facturación
+   - Cobranzas
+   - Tesorería
+   - Contabilidad
+   - Cuenta corriente de litros (queda preparado para la próxima etapa)
+   - Tarifas de productos o transporte
+
+
+3. STACK TECNOLÓGICO
+================================================================================
+
+FRONTEND:
+   - React 19 + Vite
+   - Bootstrap 5 + Bootstrap Icons
+   - React Router v7
+   - Axios (cliente HTTP)
+   - Existe en: C:\Job\Don Asdrubal\donAsdrubal\
+
+BACKEND:
+   - Node.js + Express 5
+   - Sequelize 6 (ORM)
+   - MariaDB / MySQL
+   - Migraciones con Sequelize CLI
+   - Existe en: C:\Job\Don Asdrubal\backend\
+
+
+4. MODELO DE DATOS (TABLAS)
+================================================================================
+
+4.1 PRODUCTS (Productos)
+------------------------
+   id              BIGINT PK AUTO_INCREMENT
+   nombre          VARCHAR(255) NOT NULL
+   codigo          VARCHAR(255) UNIQUE NOT NULL
+   activo          BOOLEAN DEFAULT TRUE
+   createdAt       DATETIME
+   updatedAt       DATETIME
+
+4.2 PRODUCT_PRESENTATIONS (Presentaciones de Producto)
+------------------------------------------------------
+   id                    BIGINT PK AUTO_INCREMENT
+   product_id            BIGINT NOT NULL (FK → products)
+   descripcion           VARCHAR(255)         -- "Bidón 20L", "Frasco 1L"
+   unidad_medida         VARCHAR(50)          -- litros, kg, unidades
+   cantidad              NUMERIC              -- cantidad por unidad
+   activo                BOOLEAN DEFAULT TRUE
+   createdAt             DATETIME
+   updatedAt             DATETIME
+
+4.3 PRODUCT_LOTS (Lotes)
+-------------------------
+   id                      BIGINT PK AUTO_INCREMENT
+   product_id              BIGINT NOT NULL (FK → products)
+   product_presentation_id BIGINT (FK → product_presentations)
+   lot_number              VARCHAR(255) NOT NULL  -- número de partida
+   manufacturing_date      DATE                    -- fecha de fabricación
+   expiration_date         DATE                    -- fecha de vencimiento
+   createdAt               DATETIME
+   updatedAt               DATETIME
+
+4.4 WAREHOUSES (Depósitos)
+---------------------------
+   id              BIGINT PK AUTO_INCREMENT
+   company_id      BIGINT NOT NULL DEFAULT 1
+   nombre          VARCHAR(255) NOT NULL
+   codigo          VARCHAR(10) NOT NULL       -- "01", "02" (informativo)
+   direccion       VARCHAR(255)
+   activo          BOOLEAN DEFAULT TRUE
+   createdAt       DATETIME
+   updatedAt       DATETIME
+
+   NOTA: Varios depósitos pueden tener el mismo código. El código es
+   solo informativo. La numeración de remitos usa el ID del depósito.
+
+4.5 PROVIDERS (Proveedores)
+----------------------------
+   id              BIGINT PK AUTO_INCREMENT
+   nombre          VARCHAR(255) NOT NULL
+   cuit            VARCHAR(20)
+   email           VARCHAR(255)
+   telefono        VARCHAR(50)
+   activo          BOOLEAN DEFAULT TRUE
+   createdAt       DATETIME
+   updatedAt       DATETIME
+
+4.6 WAREHOUSE_STOCK (Stock por depósito + producto + lote)
+----------------------------------------------------------
+   id                  BIGINT PK AUTO_INCREMENT
+   warehouse_id        BIGINT NOT NULL (FK → warehouses)
+   product_id          BIGINT NOT NULL (FK → products)
+   product_lot_id      BIGINT NOT NULL (FK → product_lots)
+   quantity            NUMERIC DEFAULT 0
+   createdAt           DATETIME
+   updatedAt           DATETIME
+
+   UNIQUE INDEX: (warehouse_id, product_id, product_lot_id)
+
+4.7 PURCHASES (Compras)
+------------------------
+   id              BIGINT PK AUTO_INCREMENT
+   provider_id     BIGINT NOT NULL (FK → providers)
+   warehouse_id    BIGINT NOT NULL (FK → warehouses)  -- depósito destino
+   purchase_date   DATE NOT NULL
+   notes           TEXT
+   created_by      BIGINT (FK → users)
+   createdAt       DATETIME
+   updatedAt       DATETIME
+
+4.8 PURCHASE_ITEMS (Ítems de Compra)
+-------------------------------------
+   id                        BIGINT PK AUTO_INCREMENT
+   purchase_id               BIGINT NOT NULL (FK → purchases)
+   product_id                BIGINT NOT NULL (FK → products)
+   product_presentation_id   BIGINT (FK → product_presentations)
+   quantity                  NUMERIC NOT NULL
+   createdAt                 DATETIME
+   updatedAt                 DATETIME
+
+4.9 PURCHASE_ITEM_LOTS (Lotes generados por compra)
+----------------------------------------------------
+   id                  BIGINT PK AUTO_INCREMENT
+   purchase_item_id    BIGINT NOT NULL (FK → purchase_items)
+   product_lot_id      BIGINT NOT NULL (FK → product_lots)
+   quantity            NUMERIC NOT NULL
+   createdAt           DATETIME
+   updatedAt           DATETIME
+
+4.10 REMITOS
+------------
+   id                      BIGINT PK AUTO_INCREMENT
+   company_id              BIGINT NOT NULL DEFAULT 1
+   remito_number           VARCHAR(20) NOT NULL    -- "REM-0001-0001"
+   type                    VARCHAR(20) NOT NULL     -- 'OFICIAL' / 'NO_OFICIAL'
+   status                  VARCHAR(20) NOT NULL DEFAULT 'PENDIENTE'
+   origin_warehouse_id     BIGINT NOT NULL (FK → warehouses)
+   destination_client_id   BIGINT NOT NULL (FK → clients)
+   issued_at               DATETIME
+   dispatched_at           DATETIME
+   received_at             DATETIME
+   created_by              BIGINT (FK → users)
+   received_by             BIGINT (FK → users)
+   notes                   TEXT
+   createdAt               DATETIME
+   updatedAt               DATETIME
+
+   UNIQUE INDEX: (company_id, origin_warehouse_id, remito_number)
+   Estados: PENDIENTE → DESPACHADO → RECIBIDO / ANULADO
+
+4.11 REMITO_ITEMS (Ítems de Remito)
+------------------------------------
+   id                        BIGINT PK AUTO_INCREMENT
+   remito_id                 BIGINT NOT NULL (FK → remitos)
+   product_id                BIGINT NOT NULL (FK → products)
+   product_presentation_id   BIGINT (FK → product_presentations)
+   quantity_requested        NUMERIC
+   quantity_dispatched       NUMERIC
+   description               VARCHAR(255)
+   createdAt                 DATETIME
+   updatedAt                 DATETIME
+
+4.12 REMITO_ITEM_LOTS (Lotes usados en remito — FIFO)
+-----------------------------------------------------
+   id                    BIGINT PK AUTO_INCREMENT
+   remito_item_id        BIGINT NOT NULL (FK → remito_items)
+   product_lot_id        BIGINT NOT NULL (FK → product_lots)
+   quantity_dispatched   NUMERIC NOT NULL
+   createdAt             DATETIME
+   updatedAt             DATETIME
+
+4.13 STOCK_MOVEMENTS (Movimientos de Stock)
+-------------------------------------------
+   id                  BIGINT PK AUTO_INCREMENT
+   company_id          BIGINT NOT NULL DEFAULT 1
+   warehouse_id        BIGINT NOT NULL (FK → warehouses)
+   product_id          BIGINT NOT NULL (FK → products)
+   product_lot_id      BIGINT NOT NULL (FK → product_lots)
+   movement_type       VARCHAR(20) NOT NULL    -- 'ENTRADA' / 'SALIDA'
+   quantity            NUMERIC NOT NULL
+   reference_type      VARCHAR(50)             -- 'COMPRA' / 'REMITO'
+   reference_id        BIGINT
+   movement_date       DATETIME
+   created_by          BIGINT (FK → users)
+   notes               TEXT
+   createdAt           DATETIME
+   updatedAt           DATETIME
+
+
+5. NUMERACIÓN DE REMITOS
+================================================================================
+
+Formato: REM-{warehouse_id:4d}-{correlativo:4d}
+
+Ejemplos:
+   Depósito ID=1 (código "01"): REM-0001-0001, REM-0001-0002, REM-0001-0003...
+   Depósito ID=2 (código "01"): REM-0002-0001, REM-0002-0002...
+   Depósito ID=3 (código "02"): REM-0003-0001...
+
+REGLAS:
+   - Cada depósito tiene su propia correlatividad
+   - El correlativo es secuencial por depósito
+   - La generación del número es atómica (SELECT FOR UPDATE) para evitar
+     choques si dos personas cargan al mismo tiempo
+   - El código del depósito es solo informativo, no forma parte del número
+   - El número es único por empresa + depósito (UNIQUE INDEX)
+
+
+6. MANEJO DE LOTES — ALGORITMO FIFO
+================================================================================
+
+6.1 CREACIÓN DE LOTES (al comprar)
+-----------------------------------
+   1. Se carga una Compra con proveedor, depósito destino, fecha e ítems
+   2. Por cada ítem de compra, se crea automáticamente un registro en
+      product_lots con:
+      - lot_number: generado o ingresado por el usuario
+      - expiration_date: fecha de vencimiento
+      - product_id: producto comprado
+   3. Se crea un registro en purchase_item_lots vinculando ítem de compra
+      con el lote creado
+   4. Se crea un stock_movement tipo ENTRADA
+   5. Se crea o actualiza warehouse_stock (sumar cantidad)
+
+6.2 DEDUCCIÓN DE STOCK (al crear remito — FIFO)
+------------------------------------------------
+   1. Para cada ítem del remito, buscar lotes con stock > 0 en el
+      depósito de origen
+   2. Ordenar lotes por fecha de compra ascendente (más viejo primero)
+   3. Ir descontando del lote más antiguo hasta cubrir la cantidad
+   4. Si un lote no alcanza, pasar al siguiente
+   5. Registrar en remito_item_lots qué lotes se usaron y cuánto de cada uno
+   6. Crear stock_movements tipo SALIDA por cada lote afectado
+   7. Actualizar warehouse_stock (restar cantidad)
+
+6.3 EJEMPLO PRÁCTICO
+---------------------
+   COMPRA 1: 1000L Producto A (Lote 1, partida "LP-001", vence 2027-06-30)
+   COMPRA 2: 1000L Producto B (Lote 2, partida "LP-002", vence 2027-12-31)
+   → Stock: A=1000 (lote1), B=1000 (lote2)
+
+   REMITO 1: 600L A + 500L B
+   → Descontar 600L del lote 1 → lote 1 queda con 400L
+   → Descontar 500L del lote 2 → lote 2 queda con 500L
+   → Stock: A=400 (lote1), B=500 (lote2)
+
+   COMPRA 3: 2000L Producto A (Lote 3, partida "LP-003", vence 2028-03-15)
+   → Stock: A=400 (lote1) + 2000 (lote3) = 2400L, B=500 (lote2)
+
+   REMITO 2: 1000L Producto A
+   → FIFO: primero lote 1 (400L) → lote 1 AGOTADO
+   → Luego lote 3 (600L) → lote 3 queda con 1400L
+   → Stock: A=1400 (lote3), B=500 (lote2)
+
+6.4 ANULACIÓN DE REMITO
+------------------------
+   1. Buscar todos los remito_item_lots asociados
+   2. Para cada uno, crear un stock_movement tipo ENTRADA (revertir)
+   3. Sumar la cantidad de vuelta al warehouse_stock
+   4. Cambiar estado del remito a ANULADO
+
+
+7. API ENDPOINTS (BACKEND)
+================================================================================
+
+7.1 PRODUCTOS
+-------------
+   GET    /api/productos                          → listar
+   POST   /api/productos                          → crear
+   PUT    /api/productos/:id                      → editar
+   DELETE /api/productos/:id                      → eliminar (soft delete)
+   GET    /api/productos/:id/presentaciones       → listar presentaciones
+   POST   /api/productos/:id/presentaciones       → agregar presentación
+   PUT    /api/productos/presentaciones/:id       → editar presentación
+   DELETE /api/productos/presentaciones/:id       → eliminar presentación
+
+7.2 DEPÓSITOS
+--------------
+   GET    /api/depositos                          → listar
+   POST   /api/depositos                          → crear
+   PUT    /api/depositos/:id                      → editar
+   DELETE /api/depositos/:id                      → eliminar
+
+7.3 PROVEEDORES
+----------------
+   GET    /api/proveedores                        → listar
+   POST   /api/proveedores                        → crear
+   PUT    /api/proveedores/:id                    → editar
+   DELETE /api/proveedores/:id                    → eliminar
+
+7.4 STOCK
+----------
+   GET    /api/stock                              → saldos agrupados
+   GET    /api/stock/movimientos                  → historial con filtros
+   GET    /api/stock/deposito/:warehouse_id       → stock de un depósito
+   GET    /api/stock/disponible/:warehouse_id/:product_id → disponible
+
+7.5 COMPRAS
+------------
+   GET    /api/compras                            → listar
+   POST   /api/compras                            → crear (genera lotes + entrada)
+   GET    /api/compras/:id                        → detalle con ítems y lotes
+
+7.6 REMITOS
+------------
+   GET    /api/remitos                            → listar (filtros)
+   POST   /api/remitos                            → crear (FIFO + salida stock)
+   GET    /api/remitos/:id                        → detalle completo
+   PUT    /api/remitos/:id                        → editar (solo PENDIENTE)
+   DELETE /api/remitos/:id                        → anular (revertir stock)
+   PUT    /api/remitos/:id/despachar              → marcar DESPACHADO
+   PUT    /api/remitos/:id/recibir                → marcar RECIBIDO
+   GET    /api/remitos/proximo-numero/:warehouse_id → siguiente número
+
+
+8. FRONTEND — ARCHIVOS A CREAR
+================================================================================
+
+8.1 API (src/api/)
+------------------
+   productos.js
+   depositos.js
+   proveedores.js
+   stock.js
+   compras.js
+   remitos.js
+
+8.2 COMPONENTES (src/components/)
+----------------------------------
+   Productos.jsx + ProductosMobileList.jsx + ModalProductos.jsx
+   Depositos.jsx + DepositosMobileList.jsx + ModalDepositos.jsx
+   Proveedores.jsx + ProveedoresMobileList.jsx + ModalProveedores.jsx
+   Stock.jsx + StockMobileList.jsx
+   Compras.jsx + ComprasMobileList.jsx + ModalCompras.jsx
+   Remitos.jsx + RemitosMobileList.jsx + ModalRemitos.jsx + ModalVerRemito.jsx
+
+8.3 ESTILOS (src/css/)
+-----------------------
+   productos.css
+   depositos.css
+   proveedores.css
+   stock.css
+   compras.css
+   remitos.css
+
+
+9. FORMULARIOS
+================================================================================
+
+9.1 PRODUCTO
+   Nombre* | Código* | Activo
+   ────── Presentaciones ──────
+   [+] Agregar presentación
+   └ Descripción | Unidad medida | Cantidad | [Eliminar]
+
+9.2 DEPÓSITO
+   Nombre* | Código* | Dirección | Activo
+
+9.3 PROVEEDOR
+   Nombre / Razón Social* | CUIT | Email | Teléfono | Activo
+
+9.4 COMPRA
+   Proveedor* (select) | Depósito destino* (select) | Fecha*
+   ────── Ítems ──────
+   [+] Agregar producto
+   └ Producto* (select) | Presentación* (select) | Cantidad*
+   Lotes generados automáticamente al guardar
+
+9.5 REMITO
+   Serie: Oficial / No Oficial* | Depósito origen* (select)
+   Cliente* (select) | Fecha*
+   ────── Ítems ──────
+   [+] Agregar producto
+   └ Producto* (select) | Presentación* (select)
+      Cantidad solicitada* | Cantidad despachada*
+      Stock disponible mostrado en tiempo real
+   Notas
+
+
+10. NAVEGACIÓN Y RUTAS
+================================================================================
+
+10.1 SIDEBAR (nuevos items)
+   📦 Stock
+      ├── Productos
+      ├── Depósitos
+      ├── Proveedores
+      └── Stock (consulta saldos)
+
+   📋 Operaciones
+      ├── Compras
+      └── Remitos
+
+10.2 RUTAS EN APP.JSX
+   /stock/productos        → <Productos />
+   /stock/depositos        → <Depositos />
+   /stock/proveedores      → <Proveedores />
+   /stock/saldo            → <Stock />
+   /stock/compras          → <Compras />
+   /stock/remitos          → <Remitos />
+
+
+11. ORDEN DE IMPLEMENTACIÓN
+================================================================================
+
+   #   PASO                          FRONTEND  BACKEND   DB
+   ──  ────────────────────────────  ────────  ────────  ──
+   1   Migración DB (todas tablas)     —         —       ✅
+   2   Modelos Sequelize + Asociac.    —        ✅        —
+   3   Productos CRUD                  ✅       ✅        —
+   4   Depósitos CRUD                  ✅       ✅        —
+   5   Proveedores CRUD                ✅       ✅        —
+   6   Compras + Lotes                 ✅       ✅        —
+   7   Stock (consulta saldos)         ✅       ✅        —
+   8   Remitos (FIFO)                  ✅       ✅        —
+
+
+12. REGLAS DE NEGOCIO
+================================================================================
+
+   1. El stock NUNCA puede ser negativo
+   2. La numeración de remitos es por depósito (correlativa)
+   3. FIFO obligatorio: siempre descontar del lote más antiguo
+   4. Los lotes se crean automáticamente al registrar una compra
+   5. Solo se puede editar un remito si su estado es PENDIENTE
+   6. Al anular un remito se revierte el stock automáticamente
+   7. El código de depósito es informativo (puede repetirse)
+   8. La empresa (company_id) es siempre 1 por ahora
+   9. Los clientes son los mismos del CRM existente
+  10. No se manejan tarifas ni precios en esta fase
+  11. Cuenta corriente de litros queda preparada para la próxima etapa
+
+
+13. ROLES Y PERMISOS
+================================================================================
+
+   Roles existentes:
+   - Administrador
+   - Cliente
+   - Operador
+
+   Por ahora no se agregan nuevos roles. Los tres roles actuales pueden
+   acceder al módulo de remitos. Se puede restringir en el futuro si
+   es necesario.
+
+
+14. NOTAS TÉCNICAS
+================================================================================
+
+   - Las migraciones se ejecutan con Sequelize CLI (npx sequelize-cli db:migrate)
+   - El backend usa ES Modules (import/export)
+   - Los modelos usan class extends Model + init()
+   - Las asociaciones se definen en src/models/index.js
+   - Las rutas van todas en src/routes/index.js
+   - El frontend usa useIsMobile() para responsive
+   - Los componentes siguen el patrón: List + MobileList + Modal
+   - Cada módulo tiene su archivo CSS en src/css/
+
+
+================================================================================
+                    FIN DEL DOCUMENTO
+================================================================================
