@@ -96,7 +96,7 @@ const Pozos = ({ cliente_id }) => {
         return;
       }
       const filename = `informe_${cliente_id}_pozos_${pozoId.join('_')}.pdf`;
-      generarPDF(blob, filename, 'preview');
+      generarPDF(blob, filename, 'download');
       handleCerrarModalConclusion();
       setPozoId([]);
     } catch (error) {

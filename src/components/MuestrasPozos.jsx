@@ -144,7 +144,7 @@ const MuestrasPozos = () => {
       const nombrePozo = muestra?.nombrePozo || 'sin_nombre';
       const filename = `InformeMuestra_Pozo_${nombrePozo}.pdf`;
 
-      generarPDF(blob, filename, 'preview'); // 'download' o 'preview'
+      generarPDF(blob, filename, 'download'); // 'download' o 'preview'
     } catch (error) {
       console.error(
         'Error al previsualizar PDF:',
