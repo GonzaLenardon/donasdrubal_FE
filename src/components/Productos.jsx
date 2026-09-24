@@ -116,15 +116,6 @@ const Productos = () => {
                     {producto.nombre}
                   </h6>
                   <small className="text-muted">{producto.codigo}</small>
-                  {producto.presentacion && (
-                    <div>
-                      <small className="text-muted">
-                        {producto.unidadBase
-                          ? `${producto.presentacion.nombre} (${producto.presentacion.cantidad_base} ${producto.unidadBase.nombre})`
-                          : producto.presentacion.nombre}
-                      </small>
-                    </div>
-                  )}
                 </div>
                 <div className="d-flex gap-2">
                   <button
@@ -160,7 +151,6 @@ const Productos = () => {
               <tr>
                 <th>Nombre</th>
                 <th>Código</th>
-                <th>Presentación</th>
                 <th>Estado</th>
                 <th className="text-end">Acciones</th>
               </tr>
@@ -178,13 +168,6 @@ const Productos = () => {
                 >
                   <td>{producto.nombre}</td>
                   <td>{producto.codigo}</td>
-                  <td>
-                    {producto.presentacion
-                      ? producto.unidadBase
-                        ? `${producto.presentacion.nombre} (${producto.presentacion.cantidad_base} ${producto.unidadBase.nombre})`
-                        : producto.presentacion.nombre
-                      : '—'}
-                  </td>
                   <td>
                     <span
                       className={`badge ${producto.activo ? 'bg-success' : 'bg-secondary'}`}

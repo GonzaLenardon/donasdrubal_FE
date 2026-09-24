@@ -1,21 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import { allPresentations } from '../api/productos';
 
 const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
   const [form, setForm] = useState({
     nombre: '',
     codigo: '',
-    product_presentation_id: '',
     activo: true,
   });
-  const [presentaciones, setPresentaciones] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
-
-  useEffect(() => {
-    cargarPresentaciones();
-  }, []);
 
   useEffect(() => {
     if (producto) {
@@ -23,20 +16,10 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
         id: producto.id,
         nombre: producto.nombre || '',
         codigo: producto.codigo || '',
-        product_presentation_id: producto.product_presentation_id || '',
         activo: producto.activo ?? true,
       });
     }
   }, [producto]);
-
-  const cargarPresentaciones = async () => {
-    try {
-      const res = await allPresentations();
-      setPresentaciones(res.data);
-    } catch (error) {
-      console.error('Error al cargar presentaciones:', error);
-    }
-  };
 
   const validate = () => {
     const newErrors = {};
@@ -51,25 +34,12 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
     if (!validate()) return;
     try {
       setIsSubmitting(true);
-      const dataToSend = {
-        ...form,
-        product_presentation_id: form.product_presentation_id
-          ? parseInt(form.product_presentation_id)
-          : null,
-      };
-      await onSave(dataToSend);
+      await onSave(form);
     } catch (error) {
       console.error('Error al guardar:', error);
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const getPresentacionLabel = (p) => {
-    if (p.unidadBase) {
-      return `${p.nombre} (${p.cantidad_base} ${p.unidadBase.nombre})`;
-    }
-    return p.nombre;
   };
 
   return (
@@ -111,24 +81,6 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
             <Form.Control.Feedback type="invalid">
               {errors.codigo}
             </Form.Control.Feedback>
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Presentación</Form.Label>
-            <Form.Select
-              value={form.product_presentation_id}
-              onChange={(e) =>
-                setForm({ ...form, product_presentation_id: e.target.value })
-              }
-              disabled={onlyView}
-            >
-              <option value="">Sin presentación</option>
-              {presentaciones.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {getPresentacionLabel(p)}
-                </option>
-              ))}
-            </Form.Select>
           </Form.Group>
 
           <Form.Group className="mb-3">

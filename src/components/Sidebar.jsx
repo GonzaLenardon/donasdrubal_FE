@@ -47,7 +47,11 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       icon: 'bi-box-seam-fill',
       children: [
         { title: 'Productos', path: '/stock/productos', icon: 'bi-tag-fill' },
-        { title: 'Presentaciones', path: '/stock/presentaciones', icon: 'bi-rulers' },
+        {
+          title: 'Presentaciones',
+          path: '/stock/presentaciones',
+          icon: 'bi-rulers',
+        },
         { title: 'Depósitos', path: '/stock/depositos', icon: 'bi-building' },
         { title: 'Proveedores', path: '/stock/proveedores', icon: 'bi-truck' },
         { title: 'Saldos', path: '/stock/saldo', icon: 'bi-clipboard-data' },
@@ -58,7 +62,11 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       icon: 'bi-cart-fill',
       children: [
         { title: 'Compras', path: '/stock/compras', icon: 'bi-bag-plus-fill' },
-        { title: 'Remitos', path: '/stock/remitos', icon: 'bi-file-earmark-text-fill' },
+        {
+          title: 'Remitos',
+          path: '/stock/remitos',
+          icon: 'bi-file-earmark-text-fill',
+        },
       ],
     },
     {

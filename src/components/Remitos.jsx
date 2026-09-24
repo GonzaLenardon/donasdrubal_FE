@@ -3,6 +3,7 @@ import { allRemitos, dispatchRemito, receiveRemito, cancelRemito } from '../api/
 import { allWarehouses } from '../api/depositos';
 import { allProducts } from '../api/productos';
 import { allCliente } from '../api/clientes';
+import { getAllStock } from '../api/stock';
 import Spinner from './Spinner';
 import ModalRemitos from './ModalRemitos';
 import ModalVerRemito from './ModalVerRemito';
@@ -20,6 +21,7 @@ const Remitos = () => {
   const [depositos, setDepositos] = useState([]);
   const [productos, setProductos] = useState([]);
   const [clientes, setClientes] = useState([]);
+  const [stock, setStock] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [verRemito, setVerRemito] = useState(null);
@@ -33,17 +35,19 @@ const Remitos = () => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [remitosRes, depositosRes, productosRes, clientesRes] =
+      const [remitosRes, depositosRes, productosRes, clientesRes, stockRes] =
         await Promise.all([
           allRemitos(),
           allWarehouses(),
           allProducts(),
           allCliente(),
+          getAllStock(),
         ]);
       setRemitos(remitosRes.data);
       setDepositos(depositosRes.data);
       setProductos(productosRes.data);
       setClientes(clientesRes.data);
+      setStock(stockRes.data);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
@@ -304,6 +308,7 @@ const Remitos = () => {
           depositos={depositos}
           productos={productos}
           clientes={clientes}
+          stock={stock}
           onClose={() => setIsOpen(false)}
           onSave={async () => {
             setIsOpen(false);

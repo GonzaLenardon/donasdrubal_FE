@@ -102,26 +102,47 @@ const ModalVerRemito = ({ remito, depositos, clientes, onClose }) => {
             <hr />
             <h6>Ítems</h6>
             {detalle?.items?.length > 0 ? (
-              <table className="table table-sm">
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th>Cant. Solicitada</th>
-                    <th>Cant. Despachada</th>
-                    <th>Descripción</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detalle.items.map((item) => (
-                    <tr key={item.id}>
-                      <td>{item.producto?.nombre || `#${item.product_id}`}</td>
-                      <td>{parseFloat(item.quantity_requested).toFixed(2)}</td>
-                      <td>{parseFloat(item.quantity_dispatched || 0).toFixed(2)}</td>
-                      <td>{item.description || '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              detalle.items.map((item) => (
+                <div key={item.id} className="card mb-2 p-3">
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <strong>{item.producto?.nombre || `#${item.product_id}`}</strong>
+                      {item.description && (
+                        <small className="text-muted ms-2">({item.description})</small>
+                      )}
+                    </div>
+                    <span className="badge bg-primary">
+                      {parseFloat(item.quantity_dispatched || 0).toFixed(2)} unidades base
+                    </span>
+                  </div>
+
+                  {item.lotes?.length > 0 ? (
+                    <div className="ms-3">
+                      <small className="text-muted d-block mb-1">Lotes consumidos:</small>
+                      <table className="table table-sm mb-0" style={{ fontSize: 13 }}>
+                        <thead>
+                          <tr>
+                            <th>Lote</th>
+                            <th className="text-end">Cantidad despachada</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {item.lotes.map((loteItem) => (
+                            <tr key={loteItem.id}>
+                              <td>{loteItem.lote?.lot_number || `#${loteItem.product_lot_id}`}</td>
+                              <td className="text-end">
+                                {parseFloat(loteItem.quantity_dispatched).toFixed(2)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <small className="text-muted ms-3">Sin detalle de lotes</small>
+                  )}
+                </div>
+              ))
             ) : (
               <p className="text-muted">Sin ítems</p>
             )}

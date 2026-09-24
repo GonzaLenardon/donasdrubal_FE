@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { allPurchases, addPurchase } from '../api/compras';
 import { allProviders } from '../api/proveedores';
 import { allWarehouses } from '../api/depositos';
-import { allProducts } from '../api/productos';
+import { allProducts, allPresentations } from '../api/productos';
 import Spinner from './Spinner';
 import ModalCompras from './ModalCompras';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -12,6 +12,7 @@ const Compras = () => {
   const [proveedores, setProveedores] = useState([]);
   const [depositos, setDepositos] = useState([]);
   const [productos, setProductos] = useState([]);
+  const [presentaciones, setPresentaciones] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -23,17 +24,19 @@ const Compras = () => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [comprasRes, proveedoresRes, depositosRes, productosRes] =
+      const [comprasRes, proveedoresRes, depositosRes, productosRes, presentacionesRes] =
         await Promise.all([
           allPurchases(),
           allProviders(),
           allWarehouses(),
           allProducts(),
+          allPresentations(),
         ]);
       setCompras(comprasRes.data);
       setProveedores(proveedoresRes.data);
       setDepositos(depositosRes.data);
       setProductos(productosRes.data);
+      setPresentaciones(presentacionesRes.data);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
@@ -174,6 +177,7 @@ const Compras = () => {
           proveedores={proveedores}
           depositos={depositos}
           productos={productos}
+          presentaciones={presentaciones}
           onClose={() => setIsOpen(false)}
           onSave={handleGuardar}
         />

@@ -1,71 +1,378 @@
 /* ══════════════════════════════════════════════════════════════════════
-   MODAL COMPRAS — estilos para búsqueda de producto y secciones
+   MODAL COMPRAS — Diseño tipo factura comercial
    ══════════════════════════════════════════════════════════════════════ */
 
-/* ── Sección de producto (búsqueda + cantidad) ──────────────────────── */
-.cmp-section-producto {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
+/* ── Variables ───────────────────────────────────────────────────────── */
+:root {
+  --cmp-green: rgba(27, 89, 49, 0.99);
+  --cmp-green-soft: rgba(27, 89, 49, 0.08);
+  --cmp-green-border: rgba(27, 89, 49, 0.25);
+  --cmp-blue: #3b82f6;
+  --cmp-blue-soft: rgba(59, 130, 246, 0.06);
+  --cmp-blue-border: rgba(59, 130, 246, 0.2);
+  --cmp-gray-bg: #f8f9fa;
+  --cmp-gray-border: #e5e7eb;
+  --cmp-text: #1f2937;
+  --cmp-text-muted: #6b7280;
+  --cmp-radius: 10px;
 }
 
-.cmp-section-producto .section-title {
-  font-size: 11px;
+/* ── Modal más ancho ─────────────────────────────────────────────────── */
+.cmp-modal-wide .modal-dialog {
+  max-width: 98vw;
+  margin: 10px;
+}
+
+/* ── Header del modal ────────────────────────────────────────────────── */
+.cmp-modal-header {
+  background: var(--cmp-green);
+  color: white;
+  border-bottom: none;
+  padding: 14px 20px;
+}
+
+.cmp-modal-header .modal-title {
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #6c757d;
-  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.cmp-modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+/* ── Body del modal ──────────────────────────────────────────────────── */
+.cmp-modal-body {
+  background: #f0f2f5;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Footer del modal ────────────────────────────────────────────────── */
+.cmp-modal-footer {
+  background: white;
+  border-top: 1px solid var(--cmp-gray-border);
+  padding: 12px 20px;
+}
+
+.cmp-modal-footer .btn-success {
+  background: var(--cmp-green);
+  border-color: var(--cmp-green);
+  font-weight: 600;
+}
+
+.cmp-modal-footer .btn-success:hover {
+  background: #1a6b30;
+  border-color: #1a6b30;
+}
+
+/* ── Secciones ───────────────────────────────────────────────────────── */
+.cmp-section {
+  border-radius: var(--cmp-radius);
+}
+
+.cmp-section-title {
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-/* ── Sección de lotes ───────────────────────────────────────────────── */
-.cmp-section-lotes {
-  background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
-}
-
-.cmp-section-lotes .section-title {
-  font-size: 11px;
+  gap: 8px;
+  font-size: 13px;
   font-weight: 700;
+  color: var(--cmp-text);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--cmp-gray-border);
+  background: white;
+}
+
+.cmp-section-title i {
+  font-size: 15px;
+  color: var(--cmp-green);
+}
+
+.cmp-badge-count {
+  background: var(--cmp-green);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  margin-left: 4px;
+}
+
+/* ── Sección 1: Cabecera ─────────────────────────────────────────────── */
+.cmp-section-header {
+  background: white;
+  border: 1px solid var(--cmp-gray-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cmp-header-grid {
+  display: grid;
+  grid-template-columns: 2.5fr 1.2fr 1.5fr 2fr;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.cmp-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cmp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+
+/* ── Sección 2: Ítems ────────────────────────────────────────────────── */
+.cmp-section-items {
+  background: white;
+  border: 1px solid var(--cmp-green-border);
+  border-left: 4px solid var(--cmp-green);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cmp-empty-state {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--cmp-text-muted);
+}
+
+.cmp-empty-state i {
+  font-size: 32px;
+  color: #d1d5db;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.cmp-empty-state p {
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--cmp-text);
+}
+
+.cmp-empty-state small {
+  font-size: 12px;
+}
+
+/* ── Tabla de ítems — Header ─────────────────────────────────────────── */
+.cmp-items-table-header {
+  display: grid;
+  grid-template-columns: 36px 2fr 1.2fr 110px 100px 130px 36px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+  background: var(--cmp-green-soft);
+  border-bottom: 1px solid var(--cmp-green-border);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--cmp-green);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #856404;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
-/* ── Sección de destinos ────────────────────────────────────────────── */
+/* ── Tabla de ítems — Filas ──────────────────────────────────────────── */
+.cmp-items-row {
+  display: grid;
+  grid-template-columns: 36px 2fr 1.2fr 110px 100px 130px 36px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 14px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.15s;
+}
+
+.cmp-items-row:hover {
+  background: #fafbfc;
+}
+
+.cmp-items-row:last-child {
+  border-bottom: none;
+}
+
+/* ── Columnas de la tabla ────────────────────────────────────────────── */
+.cmp-col-num {
+  text-align: center;
+}
+
+.cmp-row-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: var(--cmp-green);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.cmp-col-producto .cmp-search-wrapper {
+  width: 100%;
+}
+
+.cmp-col-cantidad {
+  position: relative;
+}
+
+.cmp-conversion {
+  display: block;
+  font-size: 10px;
+  color: var(--cmp-green);
+  font-weight: 600;
+  margin-top: 1px;
+}
+
+/* ── Botón eliminar ítem ─────────────────────────────────────────────── */
+.cmp-btn-eliminar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 12px;
+}
+
+.cmp-btn-eliminar:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+/* ── Sección 3: Destinos ─────────────────────────────────────────────── */
 .cmp-section-destinos {
-  background: #d1ecf1;
-  border: 1px solid #bee5eb;
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
+  background: white;
+  border: 1px solid var(--cmp-blue-border);
+  border-left: 4px solid var(--cmp-blue);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.cmp-section-destinos .section-title {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #0c5460;
-  margin-bottom: 10px;
+.cmp-section-destinos .cmp-section-title i {
+  color: var(--cmp-blue);
+}
+
+/* ── Grupo de destino por ítem ───────────────────────────────────────── */
+.cmp-destino-group {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.cmp-destino-group:last-child {
+  border-bottom: none;
+}
+
+.cmp-destino-group-header {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cmp-text);
 }
 
-/* ── Buscador de producto ───────────────────────────────────────────── */
+.cmp-destino-item-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--cmp-blue);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cmp-destino-item-name {
+  flex: 1;
+}
+
+.cmp-destino-item-pres {
+  font-weight: 400;
+  color: var(--cmp-text-muted);
+  font-size: 12px;
+}
+
+.cmp-destino-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cmp-destino-ok {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.cmp-destino-pend {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ── Fila de destino ─────────────────────────────────────────────────── */
+.cmp-destino-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* ── Botón agregar destino ───────────────────────────────────────────── */
+.cmp-btn-add-destino {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px dashed var(--cmp-blue-border);
+  border-radius: 6px;
+  color: var(--cmp-blue);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 4px;
+}
+
+.cmp-btn-add-destino:hover {
+  background: var(--cmp-blue-soft);
+  border-color: var(--cmp-blue);
+}
+
+/* ── Botón eliminar destino ──────────────────────────────────────────── */
+.cmp-btn-eliminar-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.cmp-btn-eliminar-sm:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+/* ── Buscador de producto ────────────────────────────────────────────── */
 .cmp-search-wrapper {
   position: relative;
 }
@@ -75,21 +382,22 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1050;
-  background: #fff;
-  border: 1px solid #dee2e6;
+  z-index: 1060;
+  background: white;
+  border: 1px solid var(--cmp-gray-border);
   border-top: none;
   border-radius: 0 0 6px 6px;
   max-height: 200px;
   overflow-y: auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .cmp-search-results .cmp-search-item {
   padding: 8px 12px;
   cursor: pointer;
   font-size: 13px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.1s;
 }
 
 .cmp-search-results .cmp-search-item:last-child {
@@ -97,60 +405,23 @@
 }
 
 .cmp-search-results .cmp-search-item:hover {
-  background: #e9ecef;
+  background: #f9fafb;
 }
 
 .cmp-search-results .cmp-search-item.selected {
-  background: #0d6efd;
-  color: #fff;
+  background: var(--cmp-green);
+  color: white;
 }
 
 .cmp-search-results .cmp-search-no-results {
-  padding: 8px 12px;
+  padding: 10px 12px;
   font-size: 12px;
-  color: #999;
+  color: #9ca3af;
   text-align: center;
   font-style: italic;
 }
 
-/* ── Badge de distribución ──────────────────────────────────────────── */
-.cmp-dist-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
-.cmp-dist-ok {
-  background: #d4edda;
-  color: #155724;
-}
-
-.cmp-dist-pendiente {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-/* ── Header del ítem ────────────────────────────────────────────────── */
-.cmp-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.cmp-item-header .cmp-item-num {
-  font-size: 12px;
-  font-weight: 700;
-  color: #495057;
-  background: #e9ecef;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-/* ── Compact inputs ─────────────────────────────────────────────────── */
+/* ── Compact inputs ──────────────────────────────────────────────────── */
 .cmp-compact-input {
   font-size: 13px;
   padding: 4px 8px;
@@ -161,4 +432,90 @@
   font-size: 13px;
   padding: 4px 8px;
   height: auto;
+}
+
+/* ── Animación spinner ───────────────────────────────────────────────── */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 992px) {
+  .cmp-header-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cmp-items-table-header {
+    display: none;
+  }
+
+  .cmp-items-row {
+    grid-template-columns: 30px 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 6px;
+    padding: 10px 14px;
+  }
+
+  .cmp-col-num {
+    grid-row: 1;
+  }
+
+  .cmp-col-producto {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .cmp-col-presentacion {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .cmp-col-lote {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .cmp-col-cantidad {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+
+  .cmp-col-vencimiento {
+    grid-column: 1 / -1;
+    grid-row: 5;
+  }
+
+  .cmp-col-accion {
+    position: absolute;
+    right: 14px;
+    top: 10px;
+  }
+
+  .cmp-items-row {
+    position: relative;
+  }
+
+  .cmp-destino-row {
+    grid-template-columns: 1fr 1fr auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .cmp-modal-wide .modal-dialog {
+    max-width: 100%;
+    margin: 8px;
+  }
+
+  .cmp-header-grid {
+    grid-template-columns: 1fr;
+  }
 }

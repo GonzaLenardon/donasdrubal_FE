@@ -1,7 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-const ProductSearch = ({ productos, value, onSelect, isInvalid, errorText }) => {
+const ProductSearch = ({
+  productos,
+  value,
+  onSelect,
+  isInvalid,
+  errorText,
+}) => {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
@@ -30,14 +36,10 @@ const ProductSearch = ({ productos, value, onSelect, isInvalid, errorText }) => 
     if (!open || filtered.length === 0) return;
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setHighlightIndex((prev) =>
-        prev < filtered.length - 1 ? prev + 1 : 0,
-      );
+      setHighlightIndex((prev) => (prev < filtered.length - 1 ? prev + 1 : 0));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setHighlightIndex((prev) =>
-        prev > 0 ? prev - 1 : filtered.length - 1,
-      );
+      setHighlightIndex((prev) => (prev > 0 ? prev - 1 : filtered.length - 1));
     } else if (e.key === 'Enter' && highlightIndex >= 0) {
       e.preventDefault();
       onSelect(filtered[highlightIndex].id);
@@ -56,38 +58,29 @@ const ProductSearch = ({ productos, value, onSelect, isInvalid, errorText }) => 
         ref={inputRef}
         size="sm"
         className="cmp-compact-input"
-        placeholder={selectedProduct ? selectedProduct.nombre : 'Buscar producto...'}
-        value={query}
+        placeholder="Buscar producto..."
+        value={selectedProduct ? selectedProduct.nombre : query}
         onChange={(e) => {
           setQuery(e.target.value);
           setOpen(true);
           setHighlightIndex(-1);
         }}
         onFocus={() => {
-          if (query.trim()) setOpen(true);
+          if (selectedProduct) {
+            setQuery(selectedProduct.nombre);
+            onSelect('');
+          }
+          setOpen(true);
+          setTimeout(() => inputRef.current?.select(), 0);
         }}
         onKeyDown={handleKeyDown}
         isInvalid={isInvalid}
       />
-      {selectedProduct && (
-        <div className="d-flex align-items-center mt-1">
-          <small className="text-muted me-2">
-            <i className="bi bi-check-circle-fill text-success me-1"></i>
-            {selectedProduct.nombre}
-          </small>
-          <Button
-            variant="link"
-            size="sm"
-            className="p-0 text-danger"
-            style={{ fontSize: 11 }}
-            onClick={() => onSelect('')}
-          >
-            <i className="bi bi-x"></i>
-          </Button>
-        </div>
-      )}
       {isInvalid && (
-        <div className="invalid-feedback" style={{ display: 'block', fontSize: 11 }}>
+        <div
+          className="invalid-feedback"
+          style={{ display: 'block', fontSize: 11 }}
+        >
           {errorText}
         </div>
       )}
@@ -118,9 +111,17 @@ const ProductSearch = ({ productos, value, onSelect, isInvalid, errorText }) => 
   );
 };
 
-const ModalCompras = ({ proveedores, depositos, productos, onClose, onSave }) => {
+const ModalCompras = ({
+  proveedores,
+  depositos,
+  productos,
+  presentaciones,
+  onClose,
+  onSave,
+}) => {
   const [form, setForm] = useState({
     provider_id: '',
+    warehouse_id: '',
     purchase_date: new Date().toISOString().split('T')[0],
     notes: '',
     items: [],
@@ -138,37 +139,27 @@ const ModalCompras = ({ proveedores, depositos, productos, onClose, onSave }) =>
           product_presentation_id: '',
           quantity: '',
           lotes: [{ lot_number: '', quantity: '', expiration_date: '' }],
-          destinos: [{ warehouse_id: '', quantity: '' }],
+          destinos: [{ warehouse_id: form.warehouse_id || '', quantity: '' }],
         },
       ],
     });
   };
 
   const removeItem = (index) => {
-    const newItems = form.items.filter((_, i) => i !== index);
-    setForm({ ...form, items: newItems });
+    setForm({ ...form, items: form.items.filter((_, i) => i !== index) });
   };
 
   const updateItem = (index, field, value) => {
     const newItems = [...form.items];
     newItems[index] = { ...newItems[index], [field]: value };
-    setForm({ ...form, items: newItems });
-  };
-
-  const addLote = (itemIndex) => {
-    const newItems = [...form.items];
-    newItems[itemIndex].lotes = [
-      ...newItems[itemIndex].lotes,
-      { lot_number: '', quantity: '', expiration_date: '' },
-    ];
-    setForm({ ...form, items: newItems });
-  };
-
-  const removeLote = (itemIndex, loteIndex) => {
-    const newItems = [...form.items];
-    newItems[itemIndex].lotes = newItems[itemIndex].lotes.filter(
-      (_, i) => i !== loteIndex,
-    );
+    if (field === 'quantity') {
+      if (newItems[index].lotes.length > 0) {
+        newItems[index].lotes[0].quantity = value;
+      }
+      if (newItems[index].destinos.length === 1) {
+        newItems[index].destinos[0].quantity = value;
+      }
+    }
     setForm({ ...form, items: newItems });
   };
 
@@ -207,18 +198,27 @@ const ModalCompras = ({ proveedores, depositos, productos, onClose, onSave }) =>
     setForm({ ...form, items: newItems });
   };
 
-  const getDistribuido = (item) => {
-    return item.destinos.reduce(
-      (sum, d) => sum + (parseFloat(d.quantity) || 0),
-      0,
+  const getDistribuido = (item) =>
+    item.destinos.reduce((sum, d) => sum + (parseFloat(d.quantity) || 0), 0);
+
+  const getConversion = (item) => {
+    const pres = presentaciones.find(
+      (p) => p.id === parseInt(item.product_presentation_id),
     );
+    if (!pres?.cantidad_base) return null;
+    const qty = parseFloat(item.quantity) || 0;
+    const unidad = pres.unidadBase?.nombre || '';
+    return `= ${(qty * parseFloat(pres.cantidad_base)).toFixed(2)} ${unidad}`;
   };
 
-  const getLotesQty = (item) => {
-    return item.lotes.reduce(
-      (sum, l) => sum + (parseFloat(l.quantity) || 0),
-      0,
-    );
+  const getProductName = (id) =>
+    productos.find((p) => p.id === parseInt(id))?.nombre || '';
+  const getPresentacionName = (id) => {
+    const p = presentaciones.find((pr) => pr.id === parseInt(id));
+    if (!p) return '';
+    return p.unidadBase
+      ? `${p.nombre} (${p.cantidad_base} ${p.unidadBase.nombre})`
+      : p.nombre;
   };
 
   const validate = () => {
@@ -227,22 +227,23 @@ const ModalCompras = ({ proveedores, depositos, productos, onClose, onSave }) =>
     if (!form.purchase_date) newErrors.purchase_date = 'La fecha es requerida';
     if (form.items.length === 0) newErrors.items = 'Agregue al menos un ítem';
     form.items.forEach((item, i) => {
-      if (!item.product_id) newErrors[`item_${i}_product`] = 'Seleccione un producto';
+      if (!item.product_id)
+        newErrors[`item_${i}_product`] = 'Seleccione un producto';
+      if (!item.product_presentation_id)
+        newErrors[`item_${i}_presentation`] = 'Seleccione presentación';
       if (!item.quantity || parseFloat(item.quantity) <= 0)
         newErrors[`item_${i}_quantity`] = 'Cantidad inválida';
-      item.lotes.forEach((lote, j) => {
-        if (!lote.lot_number)
-          newErrors[`item_${i}_lote_${j}_number`] = 'Nro de lote requerido';
-        if (!lote.quantity || parseFloat(lote.quantity) <= 0)
-          newErrors[`item_${i}_lote_${j}_quantity`] = 'Cantidad inválida';
-      });
+      const lote = item.lotes[0];
+      if (!lote?.lot_number)
+        newErrors[`item_${i}_lote_number`] = 'Nro de lote requerido';
       if (item.destinos.length === 0) {
         newErrors[`item_${i}_destinos`] = 'Agregue al menos un destino';
       } else {
         const distribuido = getDistribuido(item);
         const total = parseFloat(item.quantity) || 0;
         if (Math.abs(distribuido - total) > 0.01) {
-          newErrors[`item_${i}_destinos`] = `Distribuido: ${distribuido} ≠ Total: ${total}`;
+          newErrors[`item_${i}_destinos`] =
+            `Distribuido: ${distribuido} ≠ Total: ${total}`;
         }
         item.destinos.forEach((destino, j) => {
           if (!destino.warehouse_id)
@@ -264,17 +265,15 @@ const ModalCompras = ({ proveedores, depositos, productos, onClose, onSave }) =>
       await onSave({
         ...form,
         provider_id: parseInt(form.provider_id),
+        warehouse_id: form.warehouse_id ? parseInt(form.warehouse_id) : null,
         items: form.items.map((item) => ({
           ...item,
           product_id: parseInt(item.product_id),
-          product_presentation_id: item.product_presentation_id
-            ? parseInt(item.product_presentation_id)
-            : null,
+          product_presentation_id: parseInt(item.product_presentation_id),
           quantity: parseFloat(item.quantity),
-          lotes: item.lotes.map((l) => ({
-            ...l,
-            quantity: parseFloat(l.quantity),
-          })),
+          lotes: item.lotes
+            .filter((l) => l.lot_number)
+            .map((l) => ({ ...l, quantity: parseFloat(item.quantity) })),
           destinos: item.destinos.map((d) => ({
             warehouse_id: parseInt(d.warehouse_id),
             quantity: parseFloat(d.quantity),
@@ -288,216 +287,298 @@ const ModalCompras = ({ proveedores, depositos, productos, onClose, onSave }) =>
     }
   };
 
+  const presentacionesActivas = presentaciones.filter((p) => p.activo);
+
   return (
-    <Modal show onHide={onClose} centered size="xl">
-      <Modal.Header closeButton>
-        <Modal.Title>Nueva Compra</Modal.Title>
+    <Modal
+      show
+      onHide={onClose}
+      centered
+      size="xl"
+      dialogClassName="cmp-modal-wide"
+    >
+      <Modal.Header closeButton className="cmp-modal-header">
+        <Modal.Title>
+          <i className="bi bi-bag-plus me-2"></i>Nueva Compra
+        </Modal.Title>
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
-        <Modal.Body>
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <Form.Label>Proveedor *</Form.Label>
-              <Form.Select
-                value={form.provider_id}
-                onChange={(e) => setForm({ ...form, provider_id: e.target.value })}
-                isInvalid={!!errors.provider_id}
-              >
-                <option value="">Seleccionar proveedor</option>
-                {proveedores.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.nombre}
-                  </option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                {errors.provider_id}
-              </Form.Control.Feedback>
+        <Modal.Body className="cmp-modal-body">
+          {/* SECCIÓN 1: CABECERA */}
+          <div className="cmp-section cmp-section-header">
+            <div className="cmp-section-title">
+              <i className="bi bi-file-earmark-text"></i>
+              Datos de la compra
             </div>
-            <div className="col-md-6 mb-3">
-              <Form.Label>Fecha *</Form.Label>
-              <Form.Control
-                type="date"
-                value={form.purchase_date}
-                onChange={(e) => setForm({ ...form, purchase_date: e.target.value })}
-                isInvalid={!!errors.purchase_date}
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.purchase_date}
-              </Form.Control.Feedback>
-            </div>
-          </div>
-
-          <div className="mb-3">
-            <Form.Label>Notas</Form.Label>
-            <Form.Control
-              type="text"
-              size="sm"
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            />
-          </div>
-
-          <hr />
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h6 className="mb-0">Ítems de compra</h6>
-            <Button variant="outline-primary" size="sm" onClick={addItem}>
-              <i className="bi bi-plus-lg me-1"></i>Agregar producto
-            </Button>
-          </div>
-
-          {errors.items && (
-            <div className="text-danger mb-2" style={{ fontSize: 12 }}>
-              {errors.items}
-            </div>
-          )}
-
-          {form.items.map((item, i) => (
-            <div key={i} className="card mb-3" style={{ border: '1px solid #dee2e6' }}>
-              {/* Header del ítem */}
-              <div
-                className="d-flex justify-content-between align-items-center px-3 py-2"
-                style={{ background: '#f8f9fa', borderBottom: '1px solid #dee2e6' }}
-              >
-                <span className="cmp-item-num">Ítem {i + 1}</span>
-                <Button
-                  variant="outline-danger"
+            <div className="cmp-header-grid">
+              <div>
+                <label className="cmp-label">Proveedor *</label>
+                <Form.Select
                   size="sm"
-                  onClick={() => removeItem(i)}
+                  className="cmp-compact-select"
+                  value={form.provider_id}
+                  onChange={(e) =>
+                    setForm({ ...form, provider_id: e.target.value })
+                  }
+                  isInvalid={!!errors.provider_id}
                 >
-                  <i className="bi bi-trash"></i>
-                </Button>
+                  <option value="">Seleccionar</option>
+                  {proveedores.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback type="invalid">
+                  {errors.provider_id}
+                </Form.Control.Feedback>
               </div>
+              <div>
+                <label className="cmp-label">Fecha *</label>
+                <Form.Control
+                  size="sm"
+                  className="cmp-compact-input"
+                  type="date"
+                  value={form.purchase_date}
+                  onChange={(e) =>
+                    setForm({ ...form, purchase_date: e.target.value })
+                  }
+                  isInvalid={!!errors.purchase_date}
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.purchase_date}
+                </Form.Control.Feedback>
+              </div>
+              <div>
+                <label className="cmp-label">Depósito default</label>
+                <Form.Select
+                  size="sm"
+                  className="cmp-compact-select"
+                  value={form.warehouse_id}
+                  onChange={(e) =>
+                    setForm({ ...form, warehouse_id: e.target.value })
+                  }
+                >
+                  <option value="">Seleccionar</option>
+                  {depositos.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.nombre} ({d.codigo})
+                    </option>
+                  ))}
+                </Form.Select>
+              </div>
+              <div>
+                <label className="cmp-label">Notas</label>
+                <Form.Control
+                  size="sm"
+                  className="cmp-compact-input"
+                  type="text"
+                  placeholder="Observaciones..."
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
 
-              <div className="p-3">
-                {/* SECCIÓN 1: Producto + Cantidad */}
-                <div className="cmp-section-producto">
-                  <div className="section-title">
-                    <i className="bi bi-box-seam"></i> Producto y cantidad
-                  </div>
-                  <div className="row">
-                    <div className="col-md-8 mb-2">
-                      <Form.Label>Producto *</Form.Label>
-                      <ProductSearch
-                        productos={productos}
-                        value={item.product_id}
-                        onSelect={(id) => updateItem(i, 'product_id', id)}
-                        isInvalid={!!errors[`item_${i}_product`]}
-                        errorText={errors[`item_${i}_product`]}
-                      />
-                    </div>
-                    <div className="col-md-4 mb-2">
-                      <Form.Label>Cantidad total *</Form.Label>
-                      <Form.Control
-                        size="sm"
-                        className="cmp-compact-input"
-                        type="number"
-                        step="0.01"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(i, 'quantity', e.target.value)}
-                        isInvalid={!!errors[`item_${i}_quantity`]}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors[`item_${i}_quantity`]}
-                      </Form.Control.Feedback>
-                    </div>
-                  </div>
+          {/* SECCIÓN 2: ÍTEMS */}
+          <div className="cmp-section cmp-section-items">
+            <div className="cmp-section-title">
+              <i className="bi bi-box-seam"></i>
+              Ítems de compra
+              {form.items.length > 0 && (
+                <span className="cmp-badge-count">{form.items.length}</span>
+              )}
+              <Button
+                variant="success"
+                size="sm"
+                className="ms-auto"
+                onClick={addItem}
+              >
+                <i className="bi bi-plus-lg me-1"></i>Agregar
+              </Button>
+            </div>
+
+            {errors.items && (
+              <div className="text-danger mb-2" style={{ fontSize: 12 }}>
+                {errors.items}
+              </div>
+            )}
+
+            {form.items.length === 0 ? (
+              <div className="cmp-empty-state">
+                <i className="bi bi-inbox"></i>
+                <p>Sin ítems cargados</p>
+                <small>Hacé clic en "Agregar" para cargar productos</small>
+              </div>
+            ) : (
+              <>
+                {/* Header de la tabla */}
+                <div className="cmp-items-table-header">
+                  <span className="cmp-col-num">#</span>
+                  <span className="cmp-col-producto">Producto</span>
+                  <span className="cmp-col-presentacion">Presentación</span>
+                  <span className="cmp-col-lote">Lote</span>
+                  <span className="cmp-col-cantidad">Cantidad</span>
+                  <span className="cmp-col-vencimiento">Vencimiento</span>
+                  <span className="cmp-col-accion"></span>
                 </div>
 
-                {/* SECCIÓN 2: Lotes */}
-                <div className="cmp-section-lotes">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div className="section-title mb-0">
-                      <i className="bi bi-tag"></i> Lotes
-                      {item.quantity && (
-                        <span className="ms-2 fw-normal" style={{ fontSize: 10 }}>
-                          (ingresados: {getLotesQty(item)} / total: {item.quantity})
-                        </span>
-                      )}
-                    </div>
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      onClick={() => addLote(i)}
-                    >
-                      <i className="bi bi-plus"></i> Lote
-                    </Button>
-                  </div>
-
-                  {item.lotes.map((lote, j) => (
-                    <div key={j} className="row mb-2 mt-2">
-                      <div className="col-md-3">
+                {/* Filas de ítems */}
+                {form.items.map((item, i) => {
+                  const conversion = getConversion(item);
+                  return (
+                    <div key={i} className="cmp-items-row">
+                      <span className="cmp-col-num">
+                        <span className="cmp-row-num">{i + 1}</span>
+                      </span>
+                      <span className="cmp-col-producto">
+                        <ProductSearch
+                          productos={productos}
+                          value={item.product_id}
+                          onSelect={(id) => updateItem(i, 'product_id', id)}
+                          isInvalid={!!errors[`item_${i}_product`]}
+                          errorText={errors[`item_${i}_product`]}
+                        />
+                      </span>
+                      <span className="cmp-col-presentacion">
+                        <Form.Select
+                          size="sm"
+                          className="cmp-compact-select"
+                          value={item.product_presentation_id}
+                          onChange={(e) =>
+                            updateItem(
+                              i,
+                              'product_presentation_id',
+                              e.target.value,
+                            )
+                          }
+                          isInvalid={!!errors[`item_${i}_presentation`]}
+                        >
+                          <option value="">--</option>
+                          {presentacionesActivas.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.nombre}
+                              {p.unidadBase ? ` (${p.cantidad_base})` : ''}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </span>
+                      <span className="cmp-col-lote">
                         <Form.Control
                           size="sm"
                           className="cmp-compact-input"
-                          placeholder="Nro lote *"
-                          value={lote.lot_number}
-                          onChange={(e) => updateLote(i, j, 'lot_number', e.target.value)}
-                          isInvalid={!!errors[`item_${i}_lote_${j}_number`]}
+                          type="text"
+                          placeholder="LP-001"
+                          value={item.lotes[0]?.lot_number || ''}
+                          onChange={(e) =>
+                            updateLote(i, 0, 'lot_number', e.target.value)
+                          }
+                          isInvalid={!!errors[`item_${i}_lote_number`]}
                         />
-                      </div>
-                      <div className="col-md-3">
+                      </span>
+                      <span className="cmp-col-cantidad">
                         <Form.Control
                           size="sm"
                           className="cmp-compact-input"
                           type="number"
                           step="0.01"
-                          placeholder="Cantidad *"
-                          value={lote.quantity}
-                          onChange={(e) => updateLote(i, j, 'quantity', e.target.value)}
-                          isInvalid={!!errors[`item_${i}_lote_${j}_quantity`]}
+                          placeholder="0"
+                          value={item.quantity}
+                          onChange={(e) =>
+                            updateItem(i, 'quantity', e.target.value)
+                          }
+                          isInvalid={!!errors[`item_${i}_quantity`]}
                         />
-                      </div>
-                      <div className="col-md-5">
+                        {conversion && (
+                          <small className="cmp-conversion">{conversion}</small>
+                        )}
+                      </span>
+                      <span className="cmp-col-vencimiento">
                         <Form.Control
                           size="sm"
                           className="cmp-compact-input"
                           type="date"
-                          value={lote.expiration_date}
+                          value={item.lotes[0]?.expiration_date || ''}
                           onChange={(e) =>
-                            updateLote(i, j, 'expiration_date', e.target.value)
+                            updateLote(i, 0, 'expiration_date', e.target.value)
                           }
                         />
-                      </div>
-                      <div className="col-md-1">
-                        {item.lotes.length > 1 && (
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => removeLote(i, j)}
-                          >
-                            <i className="bi bi-x"></i>
-                          </Button>
+                      </span>
+                      <span className="cmp-col-accion">
+                        <button
+                          type="button"
+                          className="cmp-btn-eliminar"
+                          onClick={() => removeItem(i)}
+                          title="Eliminar ítem"
+                        >
+                          <i className="bi bi-trash"></i>
+                        </button>
+                      </span>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </div>
+
+          {/* SECCIÓN 3: DESTINOS */}
+          {form.items.length > 0 && (
+            <div className="cmp-section cmp-section-destinos">
+              <div className="cmp-section-title">
+                <i className="bi bi-geo-alt"></i>
+                Destinos de entrega
+              </div>
+
+              {form.items.map((item, i) => {
+                const distribuido = getDistribuido(item);
+                const total = parseFloat(item.quantity) || 0;
+                const distOk = Math.abs(distribuido - total) < 0.01;
+                const productName = getProductName(item.product_id);
+                const presName = getPresentacionName(
+                  item.product_presentation_id,
+                );
+
+                return (
+                  <div key={i} className="cmp-destino-group">
+                    <div className="cmp-destino-group-header">
+                      <span className="cmp-destino-item-num">{i + 1}</span>
+                      <span className="cmp-destino-item-name">
+                        {productName}
+                        {presName && (
+                          <span className="cmp-destino-item-pres">
+                            {' '}
+                            — {presName}
+                          </span>
                         )}
+                      </span>
+                      <span
+                        className={`cmp-destino-status ${distOk ? 'cmp-destino-ok' : 'cmp-destino-pend'}`}
+                      >
+                        {distOk ? (
+                          <>
+                            <i className="bi bi-check-circle-fill"></i> OK
+                          </>
+                        ) : (
+                          <>
+                            <i className="bi bi-exclamation-circle-fill"></i>{' '}
+                            Pendiente: {(total - distribuido).toFixed(2)}
+                          </>
+                        )}
+                      </span>
+                    </div>
+
+                    {errors[`item_${i}_destinos`] && (
+                      <div
+                        className="text-danger mb-1"
+                        style={{ fontSize: 11 }}
+                      >
+                        {errors[`item_${i}_destinos`]}
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    )}
 
-                {/* SECCIÓN 3: Destinos */}
-                <div className="cmp-section-destinos">
-                  <div className="d-flex justify-content-between align-items-center">
-                    <div className="section-title mb-0">
-                      <i className="bi bi-geo-alt"></i> Destinos
-                    </div>
-                    <Button
-                      variant="outline-success"
-                      size="sm"
-                      onClick={() => addDestino(i)}
-                    >
-                      <i className="bi bi-plus"></i> Depósito
-                    </Button>
-                  </div>
-
-                  {errors[`item_${i}_destinos`] && (
-                    <div className="text-danger mt-2" style={{ fontSize: 11 }}>
-                      {errors[`item_${i}_destinos`]}
-                    </div>
-                  )}
-
-                  {item.destinos.map((destino, j) => (
-                    <div key={j} className="row mb-2 mt-2 align-items-center">
-                      <div className="col-md-6">
+                    {item.destinos.map((destino, j) => (
+                      <div key={j} className="cmp-destino-row">
                         <Form.Select
                           size="sm"
                           className="cmp-compact-select"
@@ -514,74 +595,57 @@ const ModalCompras = ({ proveedores, depositos, productos, onClose, onSave }) =>
                             </option>
                           ))}
                         </Form.Select>
-                        <Form.Control.Feedback type="invalid">
-                          {errors[`item_${i}_dest_${j}_wh`]}
-                        </Form.Control.Feedback>
-                      </div>
-                      <div className="col-md-5">
                         <Form.Control
                           size="sm"
                           className="cmp-compact-input"
                           type="number"
                           step="0.01"
-                          placeholder="Cantidad *"
+                          placeholder="Cantidad"
                           value={destino.quantity}
                           onChange={(e) =>
                             updateDestino(i, j, 'quantity', e.target.value)
                           }
                           isInvalid={!!errors[`item_${i}_dest_${j}_qty`]}
                         />
-                        <Form.Control.Feedback type="invalid">
-                          {errors[`item_${i}_dest_${j}_qty`]}
-                        </Form.Control.Feedback>
-                      </div>
-                      <div className="col-md-1">
                         {item.destinos.length > 1 && (
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
+                          <button
+                            type="button"
+                            className="cmp-btn-eliminar-sm"
                             onClick={() => removeDestino(i, j)}
                           >
                             <i className="bi bi-x"></i>
-                          </Button>
+                          </button>
                         )}
                       </div>
-                    </div>
-                  ))}
+                    ))}
 
-                  {/* Resumen distribución */}
-                  {item.quantity && (
-                    <div className="text-end mt-2">
-                      <span
-                        className={`cmp-dist-badge ${
-                          Math.abs(getDistribuido(item) - (parseFloat(item.quantity) || 0)) < 0.01
-                            ? 'cmp-dist-ok'
-                            : 'cmp-dist-pendiente'
-                        }`}
-                      >
-                        {Math.abs(getDistribuido(item) - (parseFloat(item.quantity) || 0)) < 0.01 ? (
-                          <>
-                            <i className="bi bi-check-circle-fill"></i> OK ({getDistribuido(item)} / {item.quantity})
-                          </>
-                        ) : (
-                          <>
-                            <i className="bi bi-exclamation-circle-fill"></i> Pendiente: {((parseFloat(item.quantity) || 0) - getDistribuido(item)).toFixed(2)}
-                          </>
-                        )}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
+                    <button
+                      type="button"
+                      className="cmp-btn-add-destino"
+                      onClick={() => addDestino(i)}
+                    >
+                      <i className="bi bi-plus"></i> Agregar destino
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          )}
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="cmp-modal-footer">
           <Button variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" variant="primary" disabled={isSubmitting}>
-            {isSubmitting ? 'Guardando...' : 'Guardar Compra'}
+          <Button type="submit" variant="success" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <i className="bi bi-arrow-repeat spin me-1"></i>Guardando...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-check-lg me-1"></i>Guardar Compra
+              </>
+            )}
           </Button>
         </Modal.Footer>
       </Form>
