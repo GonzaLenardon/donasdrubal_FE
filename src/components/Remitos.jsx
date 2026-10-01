@@ -1,30 +1,28 @@
 import { useState, useEffect } from 'react';
-import { allRemitos, dispatchRemito, receiveRemito, cancelRemito } from '../api/remitos';
+import { allRemitos, cancelRemito, confirmRemito } from '../api/remitos';
 import { allWarehouses } from '../api/depositos';
-import { allProducts } from '../api/productos';
 import { allCliente } from '../api/clientes';
-import { getAllStock } from '../api/stock';
 import Spinner from './Spinner';
-import ModalRemitos from './ModalRemitos';
+import ModalRemitoCatalogo from './ModalRemitoCatalogo';
 import ModalVerRemito from './ModalVerRemito';
+import UploadRemitoPhoto from './UploadRemitoPhoto';
 import { useIsMobile } from '../hooks/useIsMobile';
 
 const STATUS_COLORS = {
   PENDIENTE: '#EF9F27',
-  DESPACHADO: '#3b82f6',
-  RECIBIDO: '#146c43',
+  REVISION: '#3b82f6',
+  COMPLETADO: '#146c43',
   ANULADO: '#dc3545',
 };
 
 const Remitos = () => {
   const [remitos, setRemitos] = useState([]);
   const [depositos, setDepositos] = useState([]);
-  const [productos, setProductos] = useState([]);
   const [clientes, setClientes] = useState([]);
-  const [stock, setStock] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [verRemito, setVerRemito] = useState(null);
+  const [subirFotoRemito, setSubirFotoRemito] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('');
   const isMobile = useIsMobile();
 
@@ -35,42 +33,18 @@ const Remitos = () => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [remitosRes, depositosRes, productosRes, clientesRes, stockRes] =
-        await Promise.all([
-          allRemitos(),
-          allWarehouses(),
-          allProducts(),
-          allCliente(),
-          getAllStock(),
-        ]);
+      const [remitosRes, depositosRes, clientesRes] = await Promise.all([
+        allRemitos(),
+        allWarehouses(),
+        allCliente(),
+      ]);
       setRemitos(remitosRes.data);
       setDepositos(depositosRes.data);
-      setProductos(productosRes.data);
       setClientes(clientesRes.data);
-      setStock(stockRes.data);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleDespachar = async (id) => {
-    try {
-      await dispatchRemito(id);
-      await cargarDatos();
-    } catch (error) {
-      console.error('Error al despachar:', error);
-    }
-  };
-
-  const handleRecibir = async (id) => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user'));
-      await receiveRemito(id, user?.id);
-      await cargarDatos();
-    } catch (error) {
-      console.error('Error al recibir:', error);
     }
   };
 
@@ -81,6 +55,16 @@ const Remitos = () => {
       await cargarDatos();
     } catch (error) {
       console.error('Error al anular:', error);
+    }
+  };
+
+  const handleConfirmar = async (id) => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      await confirmRemito(id, user?.id);
+      await cargarDatos();
+    } catch (error) {
+      console.error('Error al confirmar:', error);
     }
   };
 
@@ -124,7 +108,7 @@ const Remitos = () => {
       </div>
 
       <div className="d-flex gap-2 mb-3 flex-wrap">
-        {['', 'PENDIENTE', 'DESPACHADO', 'RECIBIDO', 'ANULADO'].map((estado) => (
+        {['', 'PENDIENTE', 'REVISION', 'COMPLETADO', 'ANULADO'].map((estado) => (
           <button
             key={estado}
             className={`btn btn-sm ${filtroEstado === estado ? 'btn-dark' : 'btn-outline-dark'}`}
@@ -162,7 +146,7 @@ const Remitos = () => {
                       </small>
                     </div>
                     <div>
-                      <small className="text-muted">{formatDate(remito.issued_at)}</small>
+                      <small className="text-muted">{formatDate(remito.createdAt)}</small>
                     </div>
                   </div>
                   <div className="d-flex flex-column align-items-end gap-1">
@@ -172,18 +156,18 @@ const Remitos = () => {
                     >
                       {remito.status}
                     </span>
-                    <div className="d-flex gap-1">
+                    <div className="d-flex gap-1 flex-wrap justify-content-end">
                       {remito.status === 'PENDIENTE' && (
                         <>
                           <button
                             className="btn btn-sm btn-outline-primary"
-                            title="Despachar"
+                            title="Subir foto"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDespachar(remito.id);
+                              setSubirFotoRemito(remito);
                             }}
                           >
-                            <i className="bi bi-truck"></i>
+                            <i className="bi bi-camera"></i>
                           </button>
                           <button
                             className="btn btn-sm btn-outline-danger"
@@ -197,17 +181,39 @@ const Remitos = () => {
                           </button>
                         </>
                       )}
-                      {remito.status === 'DESPACHADO' && (
-                        <button
-                          className="btn btn-sm btn-outline-success"
-                          title="Recibir"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRecibir(remito.id);
-                          }}
-                        >
-                          <i className="bi bi-check-lg"></i>
-                        </button>
+                      {remito.status === 'REVISION' && (
+                        <>
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            title="Reemplazar foto"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSubirFotoRemito(remito);
+                            }}
+                          >
+                            <i className="bi bi-camera"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-success"
+                            title="Confirmar"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleConfirmar(remito.id);
+                            }}
+                          >
+                            <i className="bi bi-check-lg"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            title="Anular"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAnular(remito.id);
+                            }}
+                          >
+                            <i className="bi bi-x-lg"></i>
+                          </button>
+                        </>
                       )}
                     </div>
                   </div>
@@ -248,7 +254,7 @@ const Remitos = () => {
                     <td>{remito.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}</td>
                     <td>{getNombreDeposito(remito.origin_warehouse_id)}</td>
                     <td>{getNombreCliente(remito.destination_client_id)}</td>
-                    <td>{formatDate(remito.issued_at)}</td>
+                    <td>{formatDate(remito.createdAt)}</td>
                     <td>
                       <span
                         className="badge"
@@ -262,13 +268,13 @@ const Remitos = () => {
                         <>
                           <button
                             className="btn btn-sm btn-outline-primary me-1"
-                            title="Despachar"
+                            title="Subir foto del remito firmado"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleDespachar(remito.id);
+                              setSubirFotoRemito(remito);
                             }}
                           >
-                            <i className="bi bi-truck"></i>
+                            <i className="bi bi-camera"></i>
                           </button>
                           <button
                             className="btn btn-sm btn-outline-danger"
@@ -282,17 +288,39 @@ const Remitos = () => {
                           </button>
                         </>
                       )}
-                      {remito.status === 'DESPACHADO' && (
-                        <button
-                          className="btn btn-sm btn-outline-success"
-                          title="Recibir"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRecibir(remito.id);
-                          }}
-                        >
-                          <i className="bi bi-check-lg"></i>
-                        </button>
+                      {remito.status === 'REVISION' && (
+                        <>
+                          <button
+                            className="btn btn-sm btn-outline-primary me-1"
+                            title="Reemplazar foto"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSubirFotoRemito(remito);
+                            }}
+                          >
+                            <i className="bi bi-camera"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-success me-1"
+                            title="Confirmar remito"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleConfirmar(remito.id);
+                            }}
+                          >
+                            <i className="bi bi-check-lg"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-outline-danger"
+                            title="Anular"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAnular(remito.id);
+                            }}
+                          >
+                            <i className="bi bi-x-lg"></i>
+                          </button>
+                        </>
                       )}
                     </td>
                   </tr>
@@ -304,11 +332,9 @@ const Remitos = () => {
       )}
 
       {isOpen && (
-        <ModalRemitos
+        <ModalRemitoCatalogo
           depositos={depositos}
-          productos={productos}
           clientes={clientes}
-          stock={stock}
           onClose={() => setIsOpen(false)}
           onSave={async () => {
             setIsOpen(false);
@@ -323,6 +349,28 @@ const Remitos = () => {
           depositos={depositos}
           clientes={clientes}
           onClose={() => setVerRemito(null)}
+          onAnular={() => {
+            setVerRemito(null);
+            cargarDatos();
+          }}
+          onConfirmar={() => {
+            setVerRemito(null);
+            cargarDatos();
+          }}
+          onSubirFoto={() => {
+            setSubirFotoRemito(verRemito);
+          }}
+        />
+      )}
+
+      {subirFotoRemito && (
+        <UploadRemitoPhoto
+          remito={subirFotoRemito}
+          onClose={() => setSubirFotoRemito(null)}
+          onSuccess={() => {
+            setSubirFotoRemito(null);
+            cargarDatos();
+          }}
         />
       )}
     </div>

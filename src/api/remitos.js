@@ -15,17 +15,26 @@ export const addRemito = async (remito) => {
   return res;
 };
 
-export const dispatchRemito = async (id) => {
-  const res = await instance.put(`/stock/remitos/${id}/dispatch`);
+export const cancelRemito = async (id, cancelled_by) => {
+  const res = await instance.put(`/stock/remitos/${id}/cancel`, { cancelled_by });
   return res;
 };
 
-export const receiveRemito = async (id, received_by) => {
-  const res = await instance.put(`/stock/remitos/${id}/receive`, { received_by });
+export const confirmRemito = async (id, confirmed_by) => {
+  const res = await instance.put(`/stock/remitos/${id}/confirm`, { confirmed_by });
   return res;
 };
 
-export const cancelRemito = async (id) => {
-  const res = await instance.put(`/stock/remitos/${id}/cancel`);
+export const getCatalogo = async (warehouseId) => {
+  const res = await instance.get(`/stock/remitos/catalogo/${warehouseId}`);
+  return res;
+};
+
+export const uploadPhoto = async (id, formData) => {
+  const res = await instance.put(`/stock/remitos/${id}/photo`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return res;
 };

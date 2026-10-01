@@ -41,3 +41,17 @@ export const delPresentation = async (id) => {
   const res = await instance.delete(`/stock/presentations/${id}`);
   return res;
 };
+
+export const uploadProductImage = async (id, formData) => {
+  const res = await instance.put(`/stock/products/${id}/image`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return res;
+};
+
+export const deleteProductImage = async (id) => {
+  const res = await instance.delete(`/stock/products/${id}/image`);
+  return res;
+};
