@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   addCliente,
   allCliente,
@@ -12,11 +12,25 @@ import { allTipoClientes } from '../api/tipoClientes.js';
 import { useCliente } from '../context/UserContext.jsx';
 import ModalEliminar from './ModalEliminar.jsx';
 import ModalInformativo from './ModalInformativo.jsx';
+import {
+  allPaises,
+  ciudadesPorProvincia,
+  provinciasPorPais,
+} from '../api/ubicaciones.js';
 
 const Clientes = () => {
   const [clienteList, setClienteList] = useState([]);
   const [ingenieros, setIngenieros] = useState([]);
   const [tipoClientes, setTipoClientes] = useState([]);
+  const [paises, setPaises] = useState([]);
+  const [provincias, setProvincias] = useState([]);
+  const [ciudades, setCiudades] = useState([]);
+  const [paisSeleccionado, setPaisSeleccionado] = useState('');
+  const [provinciaSeleccionada, setProvinciaSeleccionada] = useState('');
+  const [ciudadSeleccionada, setCiudadSeleccionada] = useState('');
+  const [ubicacionesCargando, setUbicacionesCargando] = useState(false);
+  const [errorUbicaciones, setErrorUbicaciones] = useState('');
+  const ubicacionesRequest = useRef(0);
   const [ingenierosSeleccionados, setIngenierosSeleccionados] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [ingenieroPlrincipal, setIngenieroPlrincipal] = useState(null);
@@ -24,6 +38,7 @@ const Clientes = () => {
   const [modal, setModal] = useState(false);
   const [modalValidacion, setModalValidacion] = useState(false);
   const [newCliente, SetNewCliente] = useState({});
+  const [ubicacionInicial, setUbicacionInicial] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [onlyView, setOnlyView] = useState(false);
@@ -44,11 +59,182 @@ const Clientes = () => {
       getAllCliente();
       getAllIngenieros();
       getAllTipoClientes();
+      getPaises();
     };
 
     all();
     setSelectedCliente();
-  }, []);
+  }, [setSelectedCliente]);
+
+  useEffect(() => {
+    if (!modal || !ubicacionInicial || paises.length === 0) return;
+
+    const requestId = ++ubicacionesRequest.current;
+    const findByName = (items, name, property) =>
+      items.find(
+        (item) =>
+          item[property]?.trim().toLocaleLowerCase() ===
+          name?.trim().toLocaleLowerCase(),
+      );
+
+    const cargarUbicacionCliente = async () => {
+      try {
+        setUbicacionesCargando(true);
+        setErrorUbicaciones('');
+        const pais = findByName(paises, ubicacionInicial.pais, 'pais_nombre');
+        if (!pais) {
+          throw new Error(
+            'No se encontró el país guardado para este cliente. Selecciona nuevamente su ubicación.',
+          );
+        }
+
+        setPaisSeleccionado(String(pais.pais_id));
+        const provinciasPais = await provinciasPorPais(pais.pais_id);
+        if (requestId !== ubicacionesRequest.current) return;
+        setProvincias(provinciasPais);
+
+        const provincia = findByName(
+          provinciasPais,
+          ubicacionInicial.provincia,
+          'nombre',
+        );
+        if (!provincia) return;
+
+        setProvinciaSeleccionada(String(provincia.id));
+        const ciudadesProvincia = await ciudadesPorProvincia(provincia.id);
+        if (requestId !== ubicacionesRequest.current) return;
+        setCiudades(ciudadesProvincia);
+
+        const ciudad = findByName(
+          ciudadesProvincia,
+          ubicacionInicial.ciudad,
+          'nombre',
+        );
+        if (ciudad) setCiudadSeleccionada(String(ciudad.id));
+      } catch (error) {
+        if (requestId === ubicacionesRequest.current) {
+          console.error('Error al cargar la ubicación del cliente:', error);
+          setErrorUbicaciones(
+            error.response?.data?.message ??
+              error.message ??
+              'No se pudo cargar la ubicación del cliente.',
+          );
+        }
+      } finally {
+        if (requestId === ubicacionesRequest.current) {
+          setUbicacionesCargando(false);
+        }
+      }
+    };
+
+    cargarUbicacionCliente();
+
+    return () => {
+      if (requestId === ubicacionesRequest.current) {
+        ubicacionesRequest.current += 1;
+      }
+    };
+  }, [modal, ubicacionInicial, paises]);
+
+  const getPaises = async () => {
+    try {
+      setUbicacionesCargando(true);
+      setErrorUbicaciones('');
+      setPaises(await allPaises());
+    } catch (error) {
+      console.error('Error al obtener países:', error);
+      setErrorUbicaciones(
+        error.response?.data?.message ?? 'No se pudieron cargar los países.',
+      );
+    } finally {
+      setUbicacionesCargando(false);
+    }
+  };
+
+  const handlePaisChange = async (e) => {
+    const paisId = e.target.value;
+    const requestId = ++ubicacionesRequest.current;
+    const pais = paises.find((item) => String(item.pais_id) === paisId);
+
+    setPaisSeleccionado(paisId);
+    setProvinciaSeleccionada('');
+    setCiudadSeleccionada('');
+    setProvincias([]);
+    setCiudades([]);
+    SetNewCliente((prev) => ({
+      ...prev,
+      pais: pais?.pais_nombre ?? '',
+      provincia: '',
+      ciudad: '',
+    }));
+    setErrors((prev) => ({ ...prev, pais: '', provincia: '', ciudad: '' }));
+    setErrorUbicaciones('');
+    if (!paisId) return;
+
+    try {
+      setUbicacionesCargando(true);
+      const data = await provinciasPorPais(paisId);
+      if (requestId === ubicacionesRequest.current) setProvincias(data);
+    } catch (error) {
+      if (requestId === ubicacionesRequest.current) {
+        console.error('Error al obtener provincias:', error);
+        setErrorUbicaciones(
+          error.response?.data?.message ??
+            'No se pudieron cargar las provincias.',
+        );
+      }
+    } finally {
+      if (requestId === ubicacionesRequest.current) {
+        setUbicacionesCargando(false);
+      }
+    }
+  };
+
+  const handleProvinciaChange = async (e) => {
+    const provinciaId = e.target.value;
+    const requestId = ++ubicacionesRequest.current;
+    const provincia = provincias.find(
+      (item) => String(item.id) === provinciaId,
+    );
+
+    setProvinciaSeleccionada(provinciaId);
+    setCiudadSeleccionada('');
+    setCiudades([]);
+    SetNewCliente((prev) => ({
+      ...prev,
+      provincia: provincia?.nombre ?? '',
+      ciudad: '',
+    }));
+    setErrors((prev) => ({ ...prev, provincia: '', ciudad: '' }));
+    setErrorUbicaciones('');
+    if (!provinciaId) return;
+
+    try {
+      setUbicacionesCargando(true);
+      const data = await ciudadesPorProvincia(provinciaId);
+      if (requestId === ubicacionesRequest.current) setCiudades(data);
+    } catch (error) {
+      if (requestId === ubicacionesRequest.current) {
+        console.error('Error al obtener ciudades:', error);
+        setErrorUbicaciones(
+          error.response?.data?.message ?? 'No se pudieron cargar las ciudades.',
+        );
+      }
+    } finally {
+      if (requestId === ubicacionesRequest.current) {
+        setUbicacionesCargando(false);
+      }
+    }
+  };
+
+  const handleCiudadChange = (e) => {
+    const ciudadId = e.target.value;
+    const ciudad = ciudades.find((item) => String(item.id) === ciudadId);
+
+    setCiudadSeleccionada(ciudadId);
+    SetNewCliente((prev) => ({ ...prev, ciudad: ciudad?.nombre ?? '' }));
+    setErrors((prev) => ({ ...prev, ciudad: '' }));
+  };
 
   const getAllCliente = async () => {
     try {
@@ -111,15 +297,15 @@ const Clientes = () => {
       newErrors.email = 'Email inválido';
     }
 
-    if (!newCliente.ciudad?.trim()) {
+    if (!ciudadSeleccionada) {
       newErrors.ciudad = 'La ciudad es requerida';
     }
 
-    if (!newCliente.provincia?.trim()) {
+    if (!provinciaSeleccionada) {
       newErrors.provincia = 'La provincia es requerida';
     }
 
-    if (!newCliente.pais?.trim()) {
+    if (!paisSeleccionado) {
       newErrors.pais = 'El país es requerido';
     }
 
@@ -189,7 +375,19 @@ const Clientes = () => {
 
   const modalUpCliente = (cliente) => {
     console.log('cliente a editar', cliente);
+    ubicacionesRequest.current += 1;
     SetNewCliente(cliente);
+    setUbicacionInicial({
+      pais: cliente.pais,
+      provincia: cliente.provincia,
+      ciudad: cliente.ciudad,
+    });
+    setPaisSeleccionado('');
+    setProvinciaSeleccionada('');
+    setCiudadSeleccionada('');
+    setProvincias([]);
+    setCiudades([]);
+    setErrorUbicaciones('');
 
     if (cliente.ingenieros?.length > 0) {
       const ingenierosIds = cliente.ingenieros.map((ing) =>
@@ -261,8 +459,16 @@ const Clientes = () => {
   };
 
   const modalClose = () => {
+    ubicacionesRequest.current += 1;
     setModal(false);
     SetNewCliente({});
+    setUbicacionInicial(null);
+    setPaisSeleccionado('');
+    setProvinciaSeleccionada('');
+    setCiudadSeleccionada('');
+    setProvincias([]);
+    setCiudades([]);
+    setErrorUbicaciones('');
     setIngenierosSeleccionados([]);
     setIngenieroPlrincipal(null);
     setOnlyView(false);
@@ -364,7 +570,15 @@ const Clientes = () => {
             <button
               className="btn-primary"
               onClick={() => {
-                SetNewCliente({});
+                  ubicacionesRequest.current += 1;
+                  SetNewCliente({});
+                  setUbicacionInicial(null);
+                  setPaisSeleccionado('');
+                  setProvinciaSeleccionada('');
+                  setCiudadSeleccionada('');
+                  setProvincias([]);
+                  setCiudades([]);
+                  setErrorUbicaciones('');
                 setIngenierosSeleccionados([]);
                 setIngenieroPlrincipal(null);
                 setErrors({});
@@ -667,27 +881,38 @@ const Clientes = () => {
                 </div>
               </div>
 
-              {/* Fila 2: Ciudad, Provincia, País */}
+              {/* Fila 2: País, Provincia, Ciudad */}
               <div className="row g-3">
                 <div className="col-md-4">
                   <div className="form-group">
-                    <label htmlFor="ciudad" className="form-label">
-                      <i className="bi bi-building-fill-add me-2"></i>Ciudad *
+                    <label htmlFor="pais" className="form-label">
+                      <i className="bi bi-globe me-2"></i>País *
                     </label>
-                    <input
-                      type="text"
-                      id="ciudad"
-                      name="ciudad"
-                      className={`form-control ${errors.ciudad ? 'is-invalid' : ''}`}
-                      placeholder="Ej: Paraná"
-                      value={newCliente?.ciudad || ''}
-                      onChange={handleCliente}
-                      disabled={isSubmitting}
-                    />
-                    {errors.ciudad && (
+                    <select
+                      id="pais"
+                      name="pais"
+                      className={`form-select ${errors.pais ? 'is-invalid' : ''}`}
+                      value={paisSeleccionado}
+                      onChange={handlePaisChange}
+                      disabled={isSubmitting || ubicacionesCargando}
+                    >
+                      <option value="">
+                        {ubicacionesCargando && paises.length === 0
+                          ? 'Cargando países...'
+                          : paises.length === 0
+                            ? 'No hay países disponibles'
+                            : 'Selecciona un país'}
+                      </option>
+                      {paises.map((pais) => (
+                        <option key={pais.pais_id} value={pais.pais_id}>
+                          {pais.pais_nombre}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.pais && (
                       <div className="invalid-feedback">
                         <i className="bi bi-exclamation-circle me-1"></i>
-                        {errors.ciudad}
+                        {errors.pais}
                       </div>
                     )}
                   </div>
@@ -698,16 +923,27 @@ const Clientes = () => {
                     <label htmlFor="provincia" className="form-label">
                       <i className="bi bi-map me-2"></i>Provincia *
                     </label>
-                    <input
-                      type="text"
+                    <select
                       id="provincia"
                       name="provincia"
-                      className={`form-control ${errors.provincia ? 'is-invalid' : ''}`}
-                      placeholder="Ej: Entre Ríos"
-                      value={newCliente?.provincia || ''}
-                      onChange={handleCliente}
-                      disabled={isSubmitting}
-                    />
+                      className={`form-select ${errors.provincia ? 'is-invalid' : ''}`}
+                      value={provinciaSeleccionada}
+                      onChange={handleProvinciaChange}
+                      disabled={
+                        isSubmitting || ubicacionesCargando || !paisSeleccionado
+                      }
+                    >
+                      <option value="">
+                        {paisSeleccionado
+                          ? 'Selecciona una provincia'
+                          : 'Primero selecciona un país'}
+                      </option>
+                      {provincias.map((provincia) => (
+                        <option key={provincia.id} value={provincia.id}>
+                          {provincia.nombre}
+                        </option>
+                      ))}
+                    </select>
                     {errors.provincia && (
                       <div className="invalid-feedback">
                         <i className="bi bi-exclamation-circle me-1"></i>
@@ -719,28 +955,46 @@ const Clientes = () => {
 
                 <div className="col-md-4">
                   <div className="form-group">
-                    <label htmlFor="pais" className="form-label">
-                      <i className="bi bi-globe me-2"></i>País *
+                    <label htmlFor="ciudad" className="form-label">
+                      <i className="bi bi-building-fill-add me-2"></i>Ciudad *
                     </label>
-                    <input
-                      type="text"
-                      id="pais"
-                      name="pais"
-                      className={`form-control ${errors.pais ? 'is-invalid' : ''}`}
-                      placeholder="Ej: Argentina"
-                      value={newCliente?.pais || ''}
-                      onChange={handleCliente}
-                      disabled={isSubmitting}
-                    />
-                    {errors.pais && (
+                    <select
+                      id="ciudad"
+                      name="ciudad"
+                      className={`form-select ${errors.ciudad ? 'is-invalid' : ''}`}
+                      value={ciudadSeleccionada}
+                      onChange={handleCiudadChange}
+                      disabled={
+                        isSubmitting ||
+                        ubicacionesCargando ||
+                        !provinciaSeleccionada
+                      }
+                    >
+                      <option value="">
+                        {provinciaSeleccionada
+                          ? 'Selecciona una ciudad'
+                          : 'Primero selecciona una provincia'}
+                      </option>
+                      {ciudades.map((ciudad) => (
+                        <option key={ciudad.id} value={ciudad.id}>
+                          {ciudad.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.ciudad && (
                       <div className="invalid-feedback">
                         <i className="bi bi-exclamation-circle me-1"></i>
-                        {errors.pais}
+                        {errors.ciudad}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
+              {errorUbicaciones && (
+                <div className="alert alert-danger mt-3 mb-0" role="alert">
+                  {errorUbicaciones}
+                </div>
+              )}
 
               {/* Fila 3: CUIL/CUIT, Condición IVA, Teléfono */}
               <div className="row g-3">
