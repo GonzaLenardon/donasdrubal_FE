@@ -9,7 +9,15 @@ const STATUS_COLORS = {
   ANULADO: '#dc3545',
 };
 
-const ModalVerRemito = ({ remito, depositos, clientes, onClose, onAnular, onConfirmar, onSubirFoto }) => {
+const ModalVerRemito = ({
+  remito,
+  depositos,
+  clientes,
+  onClose,
+  onAnular,
+  onConfirmar,
+  onSubirFoto,
+}) => {
   const [detalle, setDetalle] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +65,9 @@ const ModalVerRemito = ({ remito, depositos, clientes, onClose, onAnular, onConf
             <div className="row mb-3">
               <div className="col-md-6">
                 <small className="text-muted">Número</small>
-                <div><strong>{remito.remito_number}</strong></div>
+                <div>
+                  <strong>{remito.remito_number}</strong>
+                </div>
               </div>
               <div className="col-md-6">
                 <small className="text-muted">Estado</small>
@@ -74,7 +84,9 @@ const ModalVerRemito = ({ remito, depositos, clientes, onClose, onAnular, onConf
             <div className="row mb-3">
               <div className="col-md-6">
                 <small className="text-muted">Tipo</small>
-                <div>{remito.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}</div>
+                <div>
+                  {remito.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}
+                </div>
               </div>
               <div className="col-md-6">
                 <small className="text-muted">Depósito Origen</small>
@@ -97,11 +109,16 @@ const ModalVerRemito = ({ remito, depositos, clientes, onClose, onAnular, onConf
                 <small className="text-muted">Foto del remito firmado</small>
                 <div className="mt-2">
                   <img
-                    src={remito.photo_path}
+                    src={`${import.meta.env.VITE_API_URL}/${remito.photo_path}`}
                     alt="Remito firmado"
                     className="img-thumbnail"
                     style={{ maxHeight: '300px', cursor: 'pointer' }}
-                    onClick={() => window.open(remito.photo_path, '_blank')}
+                    onClick={() =>
+                      window.open(
+                        `${import.meta.env.VITE_API_URL}/${remito.photo_path}`,
+                        '_blank',
+                      )
+                    }
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'block';
@@ -122,8 +139,10 @@ const ModalVerRemito = ({ remito, depositos, clientes, onClose, onAnular, onConf
             {(remito.confirmed_at || remito.confirmadoPor) && (
               <div className="alert alert-success py-2 mb-3">
                 <small>
-                  <strong>Confirmado</strong> el {formatDateTime(remito.confirmed_at)}
-                  {remito.confirmadoPor && ` por ${remito.confirmadoPor.nombre || remito.confirmadoPor.email}`}
+                  <strong>Confirmado</strong> el{' '}
+                  {formatDateTime(remito.confirmed_at)}
+                  {remito.confirmadoPor &&
+                    ` por ${remito.confirmadoPor.nombre || remito.confirmadoPor.email}`}
                 </small>
               </div>
             )}
@@ -131,8 +150,10 @@ const ModalVerRemito = ({ remito, depositos, clientes, onClose, onAnular, onConf
             {(remito.cancelled_at || remito.canceladoPor) && (
               <div className="alert alert-danger py-2 mb-3">
                 <small>
-                  <strong>Anulado</strong> el {formatDateTime(remito.cancelled_at)}
-                  {remito.canceladoPor && ` por ${remito.canceladoPor.nombre || remito.canceladoPor.email}`}
+                  <strong>Anulado</strong> el{' '}
+                  {formatDateTime(remito.cancelled_at)}
+                  {remito.canceladoPor &&
+                    ` por ${remito.canceladoPor.nombre || remito.canceladoPor.email}`}
                 </small>
               </div>
             )}
@@ -151,23 +172,35 @@ const ModalVerRemito = ({ remito, depositos, clientes, onClose, onAnular, onConf
                 <div key={item.id} className="card mb-2 p-3">
                   <div className="d-flex justify-content-between align-items-start mb-2">
                     <div>
-                      <strong>{item.producto?.nombre || `#${item.product_id}`}</strong>
+                      <strong>
+                        {item.producto?.nombre || `#${item.product_id}`}
+                      </strong>
                       {item.presentacion && (
-                        <small className="text-muted ms-2">({item.presentacion.nombre})</small>
+                        <small className="text-muted ms-2">
+                          ({item.presentacion.nombre})
+                        </small>
                       )}
                       {item.description && (
-                        <small className="text-muted ms-2">({item.description})</small>
+                        <small className="text-muted ms-2">
+                          ({item.description})
+                        </small>
                       )}
                     </div>
                     <span className="badge bg-primary">
-                      {parseFloat(item.quantity_dispatched || 0).toFixed(2)} unidades base
+                      {parseFloat(item.quantity_dispatched || 0).toFixed(2)}{' '}
+                      unidades base
                     </span>
                   </div>
 
                   {item.lotes?.length > 0 ? (
                     <div className="ms-3">
-                      <small className="text-muted d-block mb-1">Lotes consumidos:</small>
-                      <table className="table table-sm mb-0" style={{ fontSize: 13 }}>
+                      <small className="text-muted d-block mb-1">
+                        Lotes consumidos:
+                      </small>
+                      <table
+                        className="table table-sm mb-0"
+                        style={{ fontSize: 13 }}
+                      >
                         <thead>
                           <tr>
                             <th>Lote</th>
@@ -177,15 +210,24 @@ const ModalVerRemito = ({ remito, depositos, clientes, onClose, onAnular, onConf
                         <tbody>
                           {item.lotes.map((loteItem) => (
                             <tr key={loteItem.id}>
-                              <td>{loteItem.lote?.lot_number || `#${loteItem.product_lot_id}`}</td>
-                              <td>{parseFloat(loteItem.quantity_dispatched).toFixed(2)}</td>
+                              <td>
+                                {loteItem.lote?.lot_number ||
+                                  `#${loteItem.product_lot_id}`}
+                              </td>
+                              <td>
+                                {parseFloat(
+                                  loteItem.quantity_dispatched,
+                                ).toFixed(2)}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
                     </div>
                   ) : (
-                    <small className="text-muted ms-3">Sin detalle de lotes</small>
+                    <small className="text-muted ms-3">
+                      Sin detalle de lotes
+                    </small>
                   )}
                 </div>
               ))

@@ -1,5 +1,6 @@
 import axios from 'axios';
-const url = import.meta.env.VITE_API_URL || 'https://apis.donasdrubal.com.ar';
+// const url = import.meta.env.VITE_API_URL || 'https://apis.donasdrubal.com.ar';
+const url = import.meta.env.VITE_API_URL || 'https://dapis.d-meter.com.ar';
 
 const instance = axios.create({
   baseURL: url,
@@ -11,21 +12,21 @@ const instance = axios.create({
 });
 
 // Estado global para el spinner
-let isShowingSessionExpired = false;
+// let isShowingSessionExpired = false;
 
 // Request interceptor
-instance.interceptors.request.use(
-  (config) => {
-    if (import.meta.env.DEV) {
-      console.log(`📤 ${config.method.toUpperCase()} ${config.url}`);
-    }
-    return config;
-  },
-  (error) => {
-    console.error('❌ Error en request:', error);
-    return Promise.reject(error);
-  },
-);
+// instance.interceptors.request.use(
+//   (config) => {
+//     if (import.meta.env.DEV) {
+//       console.log(`📤 ${config.method.toUpperCase()} ${config.url}`);
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     console.error('❌ Error en request:', error);
+//     return Promise.reject(error);
+//   },
+// );
 
 // Response interceptor
 /* instance.interceptors.response.use(
@@ -45,12 +46,12 @@ instance.interceptors.request.use(
       const spinnerOverlay = document.createElement('div');
       spinnerOverlay.id = 'session-expired-spinner';
       spinnerOverlay.innerHTML = `
-  <div 
-    class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column 
+  <div
+    class="position-fixed top-0 start-0 w-100 h-100 d-flex flex-column
            justify-content-center align-items-center"
     style="background-color: rgba(0,0,0,.9); z-index:9999;"
   >
-    <div 
+    <div
       class="spinner-border text-success"
       role="status"
       style="width:3rem; height:3rem;"
@@ -93,10 +94,12 @@ instance.interceptors.response.use(
   },
   (error) => {
     const status = error.response?.status;
-    const isLoginRequest = error.config.url.includes('/login');
+    const requestUrl = error.config?.url ?? '';
+    const isLoginOrVerifyRequest =
+      requestUrl.includes('/login') || requestUrl.includes('/auth/verify');
 
-    // SOLO sesión expirada global
-    if (status === 401 && !isLoginRequest) {
+    // ProtectedRoute maneja la sesión ausente de /auth/verify sin recargar la página.
+    if (status === 401 && !isLoginOrVerifyRequest) {
       localStorage.clear();
       window.location.href = '/login';
     }
