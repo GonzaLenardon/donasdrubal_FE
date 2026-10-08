@@ -26,6 +26,10 @@ const NotaCard = ({
   deletingId,
 }) => {
   const fechaFormateada = nota.fecha ? formatFecha(nota.fecha) : '—';
+  const usuarioNombre = nota.usuario?.nombre_completo
+    ?? nota.usuario?.nombre
+    ?? nota.usuario_nombre
+    ?? (nota.usuario_id ? `Usuario ${nota.usuario_id}` : 'Usuario no identificado');
   const isDeleting = deletingId === nota.id;
 
   return (
@@ -64,6 +68,7 @@ const NotaCard = ({
           </button>
         </div>
       </div>
+      <span className="nc-card__autor">Creada por: {usuarioNombre}</span>
       <p className="nc-card__comentario">{nota.comentario}</p>
     </div>
   );
