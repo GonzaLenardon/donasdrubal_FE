@@ -18,6 +18,8 @@ import DashboardUser from './components/DashboardUser.jsx';
 import Notifications from './components/Notifications.jsx';
 import ReporteSemanal from './components/ReporteSemanal.jsx';
 import Herramientas from './components/Herramientas.jsx';
+import RegistroProspecto from './components/RegistroProspecto.jsx';
+import Prospectos from './components/Prospectos.jsx';
 
 function App() {
   return (
@@ -32,6 +34,7 @@ function App() {
             </PublicRoute>
           }
         />
+        <Route path="/registro-prospecto/:token" element={<RegistroProspecto />} />
 
         {/* PROTEGIDAS */}
         <Route
@@ -52,6 +55,7 @@ function App() {
           <Route path="maquinas" element={<Maquinas />} />
           <Route path="varios" element={<Varios />} />
           <Route path="clientes" element={<Clientes />} />
+          <Route path="prospectos" element={<Prospectos />} />
           <Route path="notificaciones" element={<Notifications />} />
           <Route path="herramientas" element={<Herramientas />} />
           <Route path="campañas" element={<Alertas />} />

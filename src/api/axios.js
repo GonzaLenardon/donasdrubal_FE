@@ -96,7 +96,7 @@ instance.interceptors.response.use(
     const isLoginRequest = error.config.url.includes('/login');
 
     // SOLO sesión expirada global
-    if (status === 401 && !isLoginRequest) {
+    if (status === 401 && !isLoginRequest && !error.config?.skipAuthRedirect) {
       localStorage.clear();
       window.location.href = '/login';
     }
