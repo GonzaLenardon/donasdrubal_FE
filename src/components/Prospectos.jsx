@@ -3,6 +3,9 @@ import {
   addProspecto,
   allProspectos,
   crearInvitacionProspecto,
+  getProspecto,
+  upProspecto,
+  convertirProspecto,
 } from '../api/prospectos.js';
 import {
   allPaises,
@@ -48,6 +51,9 @@ const Prospectos = () => {
   const [busqueda, setBusqueda] = useState('');
   const [cargando, setCargando] = useState(true);
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [prospectoEditando, setProspectoEditando] = useState(null);
+  const usuario = JSON.parse(localStorage.getItem('user') || 'null');
+  const isAdmin = usuario?.rol === 'Administrador';
   const [formulario, setFormulario] = useState(FORMULARIO_VACIO);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
@@ -99,6 +105,7 @@ const Prospectos = () => {
   }, [busqueda, prospectos]);
 
   const abrirAlta = () => {
+    setProspectoEditando(null);
     setFormulario(FORMULARIO_VACIO);
     setPaisId('');
     setProvinciaId('');
@@ -108,6 +115,30 @@ const Prospectos = () => {
     if (paises.length) setErrorUbicaciones('');
     setError('');
     setModalAbierto(true);
+  };
+
+  const abrirEdicion = async (prospecto) => {
+    try {
+      const respuesta = await getProspecto(prospecto.id);
+      const datos = respuesta.prospecto ?? respuesta.data;
+      setProspectoEditando(datos);
+      setFormulario({ ...FORMULARIO_VACIO, ...datos, iva_id: String(datos.iva_id ?? '') });
+      setError('');
+      setModalAbierto(true);
+    } catch (err) {
+      setError(mensajeError(err, 'No se pudieron cargar los datos del prospecto.'));
+    }
+  };
+
+  const convertirEnCliente = async (prospecto) => {
+    if (!window.confirm('Convertir a ' + prospecto.razon_social + ' en cliente?')) return;
+    setError('');
+    try {
+      await convertirProspecto(prospecto.id);
+      await cargarProspectos();
+    } catch (err) {
+      setError(mensajeError(err, 'No se pudo convertir el prospecto.'));
+    }
   };
 
   const cambiarCampo = (event) => {
@@ -179,8 +210,10 @@ const Prospectos = () => {
       iva_id: Number(formulario.iva_id),
     };
     try {
-      await addProspecto(datos);
+      if (prospectoEditando) await upProspecto(prospectoEditando.id, datos);
+      else await addProspecto(datos);
       setModalAbierto(false);
+      setProspectoEditando(null);
       await cargarProspectos();
     } catch (err) {
       const coincidencias = err.response?.data?.coincidencias;
@@ -266,7 +299,11 @@ const Prospectos = () => {
                     <td><span>{prospecto.email || '—'}</span><small>{prospecto.telefono || 'Teléfono no informado'}</small></td>
                     <td><span className="prospectos-status">{prospecto.estado || 'Nuevo'}</span></td>
                     <td>{fecha(prospecto.createdAt)}</td>
-                    <td><button className="prospectos-button prospectos-button--outline" onClick={() => generarInvitacion(prospecto)} disabled={invitacionCargandoId === prospecto.id}>{invitacionCargandoId === prospecto.id ? 'Generando…' : 'Generar invitación'}</button></td>
+                    <td className="prospectos-table__actions">
+                      <button className="prospectos-button prospectos-button--outline" onClick={() => abrirEdicion(prospecto)}>Editar</button>
+                      <button className="prospectos-button prospectos-button--outline" onClick={() => generarInvitacion(prospecto)} disabled={invitacionCargandoId === prospecto.id}>{invitacionCargandoId === prospecto.id ? 'Generando...' : 'Generar enlace'}</button>
+                      {isAdmin && <button className="prospectos-button prospectos-button--primary" onClick={() => convertirEnCliente(prospecto)}>Convertir en cliente</button>}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -279,7 +316,7 @@ const Prospectos = () => {
         <div className="prospectos-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !guardando) setModalAbierto(false); }}>
           <section className="prospectos-modal" role="dialog" aria-modal="true" aria-labelledby="nuevo-prospecto-titulo">
             <header className="prospectos-modal__header">
-              <div><span>CRM · Prospectos</span><h2 id="nuevo-prospecto-titulo">Nuevo prospecto</h2></div>
+              <div><span>CRM · Prospectos</span><h2 id="nuevo-prospecto-titulo">{prospectoEditando ? 'Editar prospecto' : 'Nuevo prospecto'}</h2></div>
               <button className="prospectos-icon-button" onClick={() => setModalAbierto(false)} aria-label="Cerrar" disabled={guardando}><i className="bi bi-x-lg" /></button>
             </header>
             <form onSubmit={guardarProspecto}>
@@ -288,16 +325,21 @@ const Prospectos = () => {
                 <div className="prospectos-form-grid">
                   {CAMPOS.slice(0, 2).map((campo) => <label className="prospectos-field" key={campo.name}>{campo.label}{campo.required && <span> *</span>}<input name={campo.name} value={formulario[campo.name]} onChange={cambiarCampo} required={campo.required} maxLength="255" /></label>)}
                   <label className="prospectos-field">Condición de IVA <span>*</span><select name="iva_id" value={formulario.iva_id} onChange={cambiarCampo} required><option value="">Selecciona una condición</option><option value="1">Responsable Inscripto</option><option value="2">Monotributo</option><option value="3">Exento</option></select></label>
-                  {CAMPOS.slice(2).map((campo) => <label className="prospectos-field" key={campo.name}>{campo.label}{campo.required && <span> *</span>}<input name={campo.name} type={campo.type ?? 'text'} value={formulario[campo.name]} onChange={cambiarCampo} required={campo.required} maxLength="255" /></label>)}
-                  <label className="prospectos-field">País<select value={paisId} onChange={cambiarPais} disabled={paisesCargando || cargandoUbicaciones}><option value="">{paisesCargando ? 'Cargando países…' : 'Selecciona un país'}</option>{paises.map((pais) => <option key={pais.pais_id} value={pais.pais_id}>{pais.pais_nombre}</option>)}</select></label>
-                  <label className="prospectos-field">Provincia<select value={provinciaId} onChange={cambiarProvincia} disabled={!paisId || cargandoUbicaciones}><option value="">{paisId ? 'Selecciona una provincia' : 'Primero selecciona un país'}</option>{provincias.map((provincia) => <option key={provincia.id} value={provincia.id}>{provincia.nombre}</option>)}</select></label>
-                  <label className="prospectos-field">Ciudad<select value={ciudadId} onChange={cambiarCiudad} disabled={!provinciaId || cargandoUbicaciones}><option value="">{provinciaId ? 'Selecciona una ciudad' : 'Primero selecciona una provincia'}</option>{ciudades.map((ciudad) => <option key={ciudad.id} value={ciudad.id}>{ciudad.nombre}</option>)}</select></label>
+                  {CAMPOS.slice(2).map((campo) => <label className="prospectos-field" key={campo.name}>{campo.label}{campo.required && <span> *</span>}<input name={campo.name} type={campo.type ?? 'text'} value={formulario[campo.name]} onChange={cambiarCampo} required={campo.required} maxLength="255" /></label>)} 
+                  {prospectoEditando ? (
+                    ['pais', 'provincia', 'ciudad'].map((campo) => <label className="prospectos-field" key={campo}>{campo[0].toUpperCase() + campo.slice(1)}<input name={campo} value={formulario[campo] ?? ''} onChange={cambiarCampo} maxLength="255" /></label>)
+                  ) : <>
+                    <label className="prospectos-field">País<select value={paisId} onChange={cambiarPais} disabled={paisesCargando || cargandoUbicaciones}><option value="">{paisesCargando ? 'Cargando países…' : 'Selecciona un país'}</option>{paises.map((pais) => <option key={pais.pais_id} value={pais.pais_id}>{pais.pais_nombre}</option>)}</select></label>
+                    <label className="prospectos-field">Provincia<select value={provinciaId} onChange={cambiarProvincia} disabled={!paisId || cargandoUbicaciones}><option value="">{paisId ? 'Selecciona una provincia' : 'Primero selecciona un país'}</option>{provincias.map((provincia) => <option key={provincia.id} value={provincia.id}>{provincia.nombre}</option>)}</select></label>
+                    <label className="prospectos-field">Ciudad<select value={ciudadId} onChange={cambiarCiudad} disabled={!provinciaId || cargandoUbicaciones}><option value="">{provinciaId ? 'Selecciona una ciudad' : 'Primero selecciona una provincia'}</option>{ciudades.map((ciudad) => <option key={ciudad.id} value={ciudad.id}>{ciudad.nombre}</option>)}</select></label>
+                  </>}
+                  {prospectoEditando && <label className="prospectos-field">Estado<select name="estado" value={formulario.estado ?? 'Nuevo'} onChange={cambiarCampo}>{['Nuevo', 'Contactado', 'Interesado', 'En negociación', 'Datos recibidos', 'Activo', 'No interesado', 'Descartado'].map((estado) => <option key={estado} value={estado}>{estado}</option>)}</select></label>}
                   <label className="prospectos-field prospectos-field--wide">Notas<textarea name="notas" value={formulario.notas} onChange={cambiarCampo} rows="3" /></label>
                 </div>
                 {errorUbicaciones && <p className="prospectos-alert" role="alert">{errorUbicaciones}</p>}
                 {error && <p className="prospectos-alert" role="alert">{error}</p>}
               </div>
-              <footer className="prospectos-modal__footer"><button type="button" className="prospectos-button prospectos-button--outline" onClick={() => setModalAbierto(false)} disabled={guardando}>Cancelar</button><button type="submit" className="prospectos-button prospectos-button--primary" disabled={guardando}>{guardando ? 'Guardando…' : 'Crear prospecto'}</button></footer>
+              <footer className="prospectos-modal__footer"><button type="button" className="prospectos-button prospectos-button--outline" onClick={() => setModalAbierto(false)} disabled={guardando}>Cancelar</button><button type="submit" className="prospectos-button prospectos-button--primary" disabled={guardando}>{guardando ? 'Guardando...' : prospectoEditando ? 'Guardar cambios' : 'Crear prospecto'}</button></footer>
             </form>
           </section>
         </div>
