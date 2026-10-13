@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   getRegistroProspecto,
   upRegistroProspecto,
 } from '../api/registroProspecto.js';
+import { allPaises, ciudadesPorProvincia, provinciasPorPais } from '../api/ubicaciones.js';
 import './RegistroProspecto.css';
 
 const CAMPOS = [
@@ -13,9 +14,6 @@ const CAMPOS = [
   { name: 'email', label: 'Correo electrónico', type: 'email', required: true },
   { name: 'direccion_fiscal', label: 'Dirección fiscal' },
   { name: 'direccion', label: 'Dirección' },
-  { name: 'ciudad', label: 'Ciudad' },
-  { name: 'provincia', label: 'Provincia' },
-  { name: 'pais', label: 'País' },
 ];
 
 const obtenerDatos = (respuesta) =>
@@ -32,6 +30,14 @@ const RegistroProspecto = () => {
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
   const [enviado, setEnviado] = useState(false);
+  const [paises, setPaises] = useState([]);
+  const [provincias, setProvincias] = useState([]);
+  const [ciudades, setCiudades] = useState([]);
+  const [paisId, setPaisId] = useState('');
+  const [provinciaId, setProvinciaId] = useState('');
+  const [ciudadId, setCiudadId] = useState('');
+  const [errorUbicaciones, setErrorUbicaciones] = useState('');
+  const ubicacionInicializada = useRef(false);
 
   useEffect(() => {
     const cargarFormulario = async () => {
@@ -51,6 +57,73 @@ const RegistroProspecto = () => {
 
     cargarFormulario();
   }, [token]);
+
+  useEffect(() => {
+    allPaises()
+      .then(setPaises)
+      .catch(() => setErrorUbicaciones('No se pudieron cargar los países.'));
+  }, []);
+
+  useEffect(() => {
+    if (!paises.length || !formulario.pais || ubicacionInicializada.current) return undefined;
+    let cancelado = false;
+    const normalizar = (valor) => String(valor ?? '').trim().toLocaleLowerCase();
+    const precargarUbicacion = async () => {
+      try {
+        const pais = paises.find((item) => normalizar(item.pais_nombre) === normalizar(formulario.pais));
+        if (!pais) { ubicacionInicializada.current = true; return; }
+        const idPais = String(pais.pais_id);
+        const listaProvincias = await provinciasPorPais(idPais);
+        const provincia = listaProvincias.find((item) => normalizar(item.nombre) === normalizar(formulario.provincia));
+        const listaCiudades = provincia ? await ciudadesPorProvincia(String(provincia.id)) : [];
+        const ciudad = listaCiudades.find((item) => normalizar(item.nombre) === normalizar(formulario.ciudad));
+        if (cancelado) return;
+        setPaisId(idPais);
+        setProvincias(listaProvincias);
+        setProvinciaId(provincia ? String(provincia.id) : '');
+        setCiudades(listaCiudades);
+        setCiudadId(ciudad ? String(ciudad.id) : '');
+        ubicacionInicializada.current = true;
+      } catch {
+        if (!cancelado) setErrorUbicaciones('No se pudo precargar la ubicación guardada.');
+      }
+    };
+    precargarUbicacion();
+    return () => { cancelado = true; };
+  }, [formulario.pais, formulario.provincia, formulario.ciudad, paises]);
+
+  const cambiarPais = async (event) => {
+    const id = event.target.value;
+    const pais = paises.find((item) => String(item.pais_id) === id);
+    setPaisId(id);
+    setProvinciaId('');
+    setCiudadId('');
+    setProvincias([]);
+    setCiudades([]);
+    setFormulario((actual) => ({ ...actual, pais: pais?.pais_nombre ?? '', provincia: '', ciudad: '' }));
+    if (!id) return;
+    try { setProvincias(await provinciasPorPais(id)); }
+    catch { setErrorUbicaciones('No se pudieron cargar las provincias.'); }
+  };
+
+  const cambiarProvincia = async (event) => {
+    const id = event.target.value;
+    const provincia = provincias.find((item) => String(item.id) === id);
+    setProvinciaId(id);
+    setCiudadId('');
+    setCiudades([]);
+    setFormulario((actual) => ({ ...actual, provincia: provincia?.nombre ?? '', ciudad: '' }));
+    if (!id) return;
+    try { setCiudades(await ciudadesPorProvincia(id)); }
+    catch { setErrorUbicaciones('No se pudieron cargar las ciudades.'); }
+  };
+
+  const cambiarCiudad = (event) => {
+    const id = event.target.value;
+    const ciudad = ciudades.find((item) => String(item.id) === id);
+    setCiudadId(id);
+    setFormulario((actual) => ({ ...actual, ciudad: ciudad?.nombre ?? '' }));
+  };
 
   const cambiarCampo = (event) => {
     const { name, value } = event.target;
@@ -130,6 +203,28 @@ const RegistroProspecto = () => {
                 <input name={campo.name} type={campo.type ?? 'text'} value={formulario[campo.name] ?? ''} onChange={cambiarCampo} required={campo.required} />
               </label>
             ))}
+            <label className="registro-prospecto__campo">
+              País
+              <select value={paisId} onChange={cambiarPais}>
+                <option value="">Selecciona un país</option>
+                {paises.map((pais) => <option key={pais.pais_id} value={pais.pais_id}>{pais.pais_nombre}</option>)}
+              </select>
+            </label>
+            <label className="registro-prospecto__campo">
+              Provincia
+              <select value={provinciaId} onChange={cambiarProvincia} disabled={!paisId}>
+                <option value="">{paisId ? 'Selecciona una provincia' : 'Primero selecciona un país'}</option>
+                {provincias.map((provincia) => <option key={provincia.id} value={provincia.id}>{provincia.nombre}</option>)}
+              </select>
+            </label>
+            <label className="registro-prospecto__campo">
+              Ciudad
+              <select value={ciudadId} onChange={cambiarCiudad} disabled={!provinciaId}>
+                <option value="">{provinciaId ? 'Selecciona una ciudad' : 'Primero selecciona una provincia'}</option>
+                {ciudades.map((ciudad) => <option key={ciudad.id} value={ciudad.id}>{ciudad.nombre}</option>)}
+              </select>
+            </label>
+            {errorUbicaciones && <p className="registro-prospecto__error" role="alert">{errorUbicaciones}</p>}
             <label className="registro-prospecto__campo registro-prospecto__campo--ancho">
               Notas
               <textarea name="notas" rows="3" value={formulario.notas ?? ''} onChange={cambiarCampo} />
