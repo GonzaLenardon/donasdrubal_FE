@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Package } from 'lucide-react';
 import { getAllStock } from '../api/stock';
 import { allWarehouses } from '../api/depositos';
 import { allProducts } from '../api/productos';
 import Spinner from './Spinner';
 import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const Stock = () => {
   const [stock, setStock] = useState([]);
@@ -128,10 +130,11 @@ const Stock = () => {
   return (
     <div className="container-fluid py-4">
       <div className="mb-4">
-        <h2 className="mb-0" style={{ fontWeight: 600, color: '#1a1a2e' }}>
+        <h2 className="page-header__title">
+          <Package size={22} className="page-header__icon" />
           Stock
         </h2>
-        <p className="text-muted mb-0">Saldos por depósito, producto y lote</p>
+        <p className="page-header__subtitle">Saldos por depósito, producto y lote</p>
       </div>
 
       <div className="row mb-3">

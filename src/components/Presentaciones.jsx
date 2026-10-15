@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Package } from 'lucide-react';
 import {
   allPresentations,
   addPresentation,
@@ -9,6 +10,7 @@ import Spinner from './Spinner';
 import ModalPresentaciones from './ModalPresentaciones';
 import ModalEliminar from './ModalEliminar';
 import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const Presentaciones = () => {
   const [presentaciones, setPresentaciones] = useState([]);
@@ -81,22 +83,23 @@ const Presentaciones = () => {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 className="mb-0" style={{ fontWeight: 600, color: '#1a1a2e' }}>
+          <h2 className="page-header__title">
+            <Package size={22} className="page-header__icon" />
             Presentaciones
           </h2>
-          <p className="text-muted mb-0">
+          <p className="page-header__subtitle">
             {presentaciones.length} presentaciones registradas
           </p>
         </div>
         <button
-          className="btn btn-primary d-flex align-items-center gap-2"
+          className="btn-primary"
           onClick={() => {
             setPresentacionSeleccionada(null);
             setOnlyView(false);
             setIsOpen(true);
           }}
         >
-          <i className="bi bi-plus-lg" style={{ fontSize: 13 }}></i>
+          <i className="bi bi-plus-lg"></i>
           {!isMobile && 'Nueva Presentación'}
         </button>
       </div>

@@ -7,7 +7,9 @@ import {
   Calendar,
   Users,
   FileText,
+  Bell,
 } from 'lucide-react';
+import '../css/page-header.css';
 
 const Alertas = () => {
   const [fechas, setFechas] = useState({
@@ -112,15 +114,13 @@ const Alertas = () => {
   return (
     <div className="container-fluid py-4">
       {/* Header */}
-
-      <div className="d-flex align-items-center gap-2 mb-3">
-        <div className="d-flex align-items-start gap-2">
-          <Calendar size={24} />
-        </div>
-
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <h2 className="title"> Nueva Campaña de Servicios</h2>
-          <p className="text-muted m-0">
+          <h2 className="page-header__title">
+            <Bell size={22} className="page-header__icon" />
+            Nueva Campaña de Servicios
+          </h2>
+          <p className="page-header__subtitle">
             Generación automática de alertas para clientes AAA
           </p>
         </div>

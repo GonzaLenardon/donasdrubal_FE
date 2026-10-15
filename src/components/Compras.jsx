@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ShoppingCart } from 'lucide-react';
 import { allPurchases, addPurchase } from '../api/compras';
 import { allProviders } from '../api/proveedores';
 import { allWarehouses } from '../api/depositos';
@@ -6,6 +7,7 @@ import { allProducts, allPresentations } from '../api/productos';
 import Spinner from './Spinner';
 import ModalCompras from './ModalCompras';
 import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const Compras = () => {
   const [compras, setCompras] = useState([]);
@@ -24,14 +26,19 @@ const Compras = () => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [comprasRes, proveedoresRes, depositosRes, productosRes, presentacionesRes] =
-        await Promise.all([
-          allPurchases(),
-          allProviders(),
-          allWarehouses(),
-          allProducts(),
-          allPresentations(),
-        ]);
+      const [
+        comprasRes,
+        proveedoresRes,
+        depositosRes,
+        productosRes,
+        presentacionesRes,
+      ] = await Promise.all([
+        allPurchases(),
+        allProviders(),
+        allWarehouses(),
+        allProducts(),
+        allPresentations(),
+      ]);
       setCompras(comprasRes.data);
       setProveedores(proveedoresRes.data);
       setDepositos(depositosRes.data);
@@ -86,18 +93,19 @@ const Compras = () => {
 
   return (
     <div className="container-fluid py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
-          <h2 className="mb-0" style={{ fontWeight: 600, color: '#1a1a2e' }}>
+          <h2 className="page-header__title">
+            <ShoppingCart size={22} className="page-header__icon" />
             Compras
           </h2>
-          <p className="text-muted mb-0">{compras.length} compras registradas</p>
+          <p className="page-header__subtitle">
+            {compras.length} compras registradas
+          </p>
         </div>
-        <button
-          className="btn btn-primary d-flex align-items-center gap-2"
-          onClick={() => setIsOpen(true)}
-        >
-          <i className="bi bi-plus-lg" style={{ fontSize: 13 }}></i>
+
+        <button className="btn-primary" onClick={() => setIsOpen(true)}>
+          <i className="bi bi-plus-lg"></i>
           {!isMobile && 'Nueva Compra'}
         </button>
       </div>
@@ -105,7 +113,9 @@ const Compras = () => {
       {isMobile ? (
         <div className="d-flex flex-column gap-2">
           {compras.length === 0 ? (
-            <p className="text-center text-muted py-4">Sin compras registradas</p>
+            <p className="text-center text-muted py-4">
+              Sin compras registradas
+            </p>
           ) : (
             compras.map((compra) => (
               <div key={compra.id} className="card p-3">
@@ -125,7 +135,8 @@ const Compras = () => {
                     {compra.items && (
                       <div>
                         <small className="text-muted">
-                          {compra.items.length} ítem{compra.items.length !== 1 ? 's' : ''}
+                          {compra.items.length} ítem
+                          {compra.items.length !== 1 ? 's' : ''}
                         </small>
                       </div>
                     )}

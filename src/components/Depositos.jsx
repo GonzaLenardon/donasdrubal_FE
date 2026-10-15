@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Building } from 'lucide-react';
 import { allWarehouses, addWarehouse, upWarehouse, delWarehouse } from '../api/depositos';
 import Spinner from './Spinner';
 import ModalDepositos from './ModalDepositos';
 import ModalEliminar from './ModalEliminar';
 import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const Depositos = () => {
   const [depositos, setDepositos] = useState([]);
@@ -71,20 +73,21 @@ const Depositos = () => {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 className="mb-0" style={{ fontWeight: 600, color: '#1a1a2e' }}>
+          <h2 className="page-header__title">
+            <Building size={22} className="page-header__icon" />
             Depósitos
           </h2>
-          <p className="text-muted mb-0">{depositos.length} depósitos registrados</p>
+          <p className="page-header__subtitle">{depositos.length} depósitos registrados</p>
         </div>
         <button
-          className="btn btn-primary d-flex align-items-center gap-2"
+          className="btn-primary"
           onClick={() => {
             setDepositoSeleccionado(null);
             setOnlyView(false);
             setIsOpen(true);
           }}
         >
-          <i className="bi bi-plus-lg" style={{ fontSize: 13 }}></i>
+          <i className="bi bi-plus-lg"></i>
           {!isMobile && 'Nuevo Depósito'}
         </button>
       </div>

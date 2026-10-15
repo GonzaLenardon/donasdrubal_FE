@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { User } from 'lucide-react';
 import { addUser, allUsers, upUser } from '../api/users.js';
 import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
@@ -6,6 +7,8 @@ import { allRoles } from '../api/roles.js';
 import { notasUsuario } from '../api/notas.js';
 import ModalNotasUsuario from './ModalNotasUsuario.jsx';
 import DrawerNotasUsuario from './DrawerNotasUsuario.jsx';
+import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const Users = () => {
   const [userList, setUserList] = useState([]);
@@ -18,6 +21,7 @@ const Users = () => {
   const [msg, setMsg] = useState('');
   const [errors, setErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  const isMobile = useIsMobile();
   // 2. Estado unificado (reemplaza notas, userSelected y notasModal)
   const [drawerNotas, setDrawerNotas] = useState({
     open: false,
@@ -215,14 +219,17 @@ const Users = () => {
           {/* HEADER */}
           <div className="header">
             <div>
-              <h2 className="title">Usuarios</h2>
-              <p className="subtitle">
-                {userList.length} Usuarios ddddd registrados
+              <h2 className="page-header__title">
+                <User size={22} className="page-header__icon" />
+                Usuarios
+              </h2>
+              <p className="page-header__subtitle">
+                {userList.length} Usuarios registrados
               </p>
             </div>
             <button className="btn-primary" onClick={modalNewUser}>
               <i className="bi bi-plus-lg"></i>
-              Nuevo Usuario
+              {!isMobile && 'Nuevo Usuario'}
             </button>
           </div>
 

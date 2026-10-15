@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { Truck } from 'lucide-react';
 import { allProviders, addProvider, upProvider, delProvider } from '../api/proveedores';
 import Spinner from './Spinner';
 import ModalProveedores from './ModalProveedores';
 import ModalEliminar from './ModalEliminar';
 import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const Proveedores = () => {
   const [proveedores, setProveedores] = useState([]);
@@ -71,20 +73,21 @@ const Proveedores = () => {
     <div className="container-fluid py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 className="mb-0" style={{ fontWeight: 600, color: '#1a1a2e' }}>
+          <h2 className="page-header__title">
+            <Truck size={22} className="page-header__icon" />
             Proveedores
           </h2>
-          <p className="text-muted mb-0">{proveedores.length} proveedores registrados</p>
+          <p className="page-header__subtitle">{proveedores.length} proveedores registrados</p>
         </div>
         <button
-          className="btn btn-primary d-flex align-items-center gap-2"
+          className="btn-primary"
           onClick={() => {
             setProveedorSeleccionado(null);
             setOnlyView(false);
             setIsOpen(true);
           }}
         >
-          <i className="bi bi-plus-lg" style={{ fontSize: 13 }}></i>
+          <i className="bi bi-plus-lg"></i>
           {!isMobile && 'Nuevo Proveedor'}
         </button>
       </div>
