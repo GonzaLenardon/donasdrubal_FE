@@ -37,6 +37,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
 
   const basicSelectores = [
     { title: 'Clientes', path: '/clientes', icon: 'bi-person-fill' },
+    { title: 'Prospectos', path: '/prospectos', icon: 'bi-person-plus-fill', roles: ['Administrador', 'Ingeniero'] },
     {
       title: 'Notificaciones',
       path: '/notificaciones',

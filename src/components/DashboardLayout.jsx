@@ -13,6 +13,7 @@ const breadcrumbNames = {
   dashboard: 'Dashboard',
   cliente: 'Clientes',
   clientes: 'Clientes',
+  prospectos: 'Prospectos',
   notificaciones: 'Notificaciones',
   herramientas: 'Herramientas',
   pozos: 'Pozos',
