@@ -19,6 +19,7 @@ import './css/notas.css';
 import './css/drawerNotasUsuario.css';
 import './css/notasclientes.css';
 import './css/reporteSemanal.css';
+import './css/compras.css';
 
 createRoot(document.getElementById('root')).render(
   <UserProvider>

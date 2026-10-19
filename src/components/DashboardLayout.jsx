@@ -19,6 +19,14 @@ const breadcrumbNames = {
   pozos: 'Pozos',
   jornadas: 'Jornadas',
   reportes: 'Reportes',
+  stock: 'Stock',
+  productos: 'Productos',
+  presentaciones: 'Presentaciones',
+  depositos: 'Depósitos',
+  proveedores: 'Proveedores',
+  saldo: 'Saldos',
+  compras: 'Compras',
+  remitos: 'Remitos',
 };
 
 const tabBreadcrumbNames = {

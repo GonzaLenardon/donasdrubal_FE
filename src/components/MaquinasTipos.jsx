@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Settings } from 'lucide-react';
 import {
   addMaquinaTipo,
   allMaquinaTipo,
@@ -7,6 +8,8 @@ import {
 import Spinner from './Spinner.jsx';
 import { ToastContainer, Slide, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const MaquinaTipo = () => {
   const [maquinaTipoList, setMaquinaTipoList] = useState([]);
@@ -17,6 +20,7 @@ const MaquinaTipo = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -149,14 +153,17 @@ const MaquinaTipo = () => {
           {/* HEADER */}
           <div className="header">
             <div>
-              <h2 className="title">Tipos de Máquinas</h2>
-              <p className="subtitle">
+              <h2 className="page-header__title">
+                <Settings size={22} className="page-header__icon" />
+                Tipos de Máquinas
+              </h2>
+              <p className="page-header__subtitle">
                 {maquinaTipoList.length} Tipos de máquinas registrados
               </p>
             </div>
             <button className="btn-primary" onClick={modalNewMaquinaTipo}>
               <i className="bi bi-plus-lg"></i>
-              Nuevo Tipo Máquina
+              {!isMobile && 'Nuevo Tipo Máquina'}
             </button>
           </div>
 

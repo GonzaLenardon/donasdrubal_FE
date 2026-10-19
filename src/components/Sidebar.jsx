@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { logout } from '../api/users';
 import { useCliente } from '../context/UserContext';
@@ -22,9 +22,10 @@ const toArray = (value) => {
 
 const Sidebar = ({ isMobileOpen, closeSidebar }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [openConfig, setOpenConfig] = useState(false);
+  const [openConfig, setOpenConfig] = useState(null);
   const [showCliente, setShowCliente] = useState(false);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,33 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       title: 'Notificaciones',
       path: '/notificaciones',
       icon: 'bi-bell-fill',
+    },
+    {
+      title: 'Stock',
+      icon: 'bi-box-seam-fill',
+      children: [
+        { title: 'Productos', path: '/stock/productos', icon: 'bi-tag-fill' },
+        {
+          title: 'Presentaciones',
+          path: '/stock/presentaciones',
+          icon: 'bi-rulers',
+        },
+        { title: 'Depósitos', path: '/stock/depositos', icon: 'bi-building' },
+        { title: 'Proveedores', path: '/stock/proveedores', icon: 'bi-truck' },
+        { title: 'Saldos', path: '/stock/saldo', icon: 'bi-clipboard-data' },
+      ],
+    },
+    {
+      title: 'Operaciones',
+      icon: 'bi-cart-fill',
+      children: [
+        { title: 'Compras', path: '/stock/compras', icon: 'bi-bag-plus-fill' },
+        {
+          title: 'Remitos',
+          path: '/stock/remitos',
+          icon: 'bi-file-earmark-text-fill',
+        },
+      ],
     },
     {
       title: 'Herramientas',
@@ -209,74 +237,90 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           )}
 
           {/* ================= MENÚ ================= */}
-          <ul className="sidebar-menu">
-            {basicSelectores.map((item, index) => {
-              if (!hasAccess(item)) return null;
+          <div className="sidebar-menu-container">
+            <ul className="sidebar-menu">
+              {basicSelectores.map((item, index) => {
+                if (!hasAccess(item)) return null;
 
-              if (item.children) {
-                const filteredChildren = item.children.filter(hasAccess);
-                if (!filteredChildren.length) return null;
+                if (item.children) {
+                  const filteredChildren = item.children.filter(hasAccess);
+                  if (!filteredChildren.length) return null;
+
+                  const isOpen = openConfig === item.title;
+
+                  return (
+                    <li
+                      key={index}
+                      className={`sidebar-menu-group ${isOpen ? 'is-open' : ''}`}
+                    >
+                      <button
+                        className={`sidebar-link sidebar-link-parent ${isOpen ? 'is-expanded' : ''}`}
+                        onClick={() =>
+                          setOpenConfig(isOpen ? null : item.title)
+                        }
+                      >
+                        <i className={`bi ${item.icon} sidebar-icon`} />
+                        {item.title}
+                        <i
+                          className={`bi bi-chevron-${
+                            isOpen ? 'down' : 'right'
+                          } sidebar-arrow`}
+                        />
+                      </button>
+
+                      {isOpen && (
+                        <ul className="sidebar-submenu">
+                          {filteredChildren.map((child, i) => (
+                            <li key={i}>
+                              <Link
+                                to={child.path}
+                                className={`sidebar-link sidebar-sublink ${
+                                  location.pathname === child.path ||
+                                  location.pathname.startsWith(`${child.path}/`)
+                                    ? 'is-active'
+                                    : ''
+                                }`}
+                                onClick={closeSidebar}
+                              >
+                                <i
+                                  className={`bi ${child.icon} sidebar-icon`}
+                                />
+                                {child.title}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                }
 
                 return (
                   <li key={index}>
-                    <button
-                      className="sidebar-link sidebar-link-parent"
-                      onClick={() => setOpenConfig(!openConfig)}
+                    <Link
+                      to={item.path}
+                      className="sidebar-link"
+                      onClick={closeSidebar}
                     >
                       <i className={`bi ${item.icon} sidebar-icon`} />
-                      {item.title}
-                      <i
-                        className={`bi bi-chevron-${
-                          openConfig ? 'down' : 'right'
-                        } sidebar-arrow`}
-                      />
-                    </button>
-
-                    {openConfig && (
-                      <ul className="sidebar-submenu">
-                        {filteredChildren.map((child, i) => (
-                          <li key={i}>
-                            <Link
-                              to={child.path}
-                              className="sidebar-link sidebar-sublink"
-                              onClick={closeSidebar}
-                            >
-                              <i className={`bi ${child.icon} sidebar-icon`} />
-                              {child.title}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                      <span className="sidebar-link-label">{item.title}</span>
+                      {item.title === 'Notificaciones' &&
+                        pendingNotifications > 0 && (
+                          <span
+                            className="sidebar-notification-badge"
+                            title={`${pendingNotifications} notificaciones pendientes`}
+                          >
+                            {pendingNotifications > 99
+                              ? '99+'
+                              : pendingNotifications}
+                          </span>
+                        )}
+                    </Link>
                   </li>
                 );
-              }
-
-              return (
-                <li key={index}>
-                  <Link
-                    to={item.path}
-                    className="sidebar-link"
-                    onClick={closeSidebar}
-                  >
-                    <i className={`bi ${item.icon} sidebar-icon`} />
-                    <span className="sidebar-link-label">{item.title}</span>
-                    {item.title === 'Notificaciones' &&
-                      pendingNotifications > 0 && (
-                        <span
-                          className="sidebar-notification-badge"
-                          title={`${pendingNotifications} notificaciones pendientes`}
-                        >
-                          {pendingNotifications > 99
-                            ? '99+'
-                            : pendingNotifications}
-                        </span>
-                      )}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+              })}
+            </ul>
+          </div>
 
           <div className="sidebar-user">
             <div className="sidebar-avatar" />
@@ -289,8 +333,13 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           <div className="sidebar-bottom">
             <ul className="sidebar-menu">
               <li>
-                <button className="sidebar-link" onClick={handleLogoutClick}>
-                  Cerrar Sesión
+                <button
+                  className="sidebar-link sidebar-logout-link"
+                  onClick={handleLogoutClick}
+                  type="button"
+                >
+                  <i className="bi bi-box-arrow-right sidebar-icon" />
+                  <span>Cerrar Sesión</span>
                 </button>
               </li>
             </ul>

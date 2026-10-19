@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Users } from 'lucide-react';
 import {
   addCliente,
   allCliente,
@@ -17,6 +18,8 @@ import {
   ciudadesPorProvincia,
   provinciasPorPais,
 } from '../api/ubicaciones.js';
+import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const Clientes = () => {
   const [clienteList, setClienteList] = useState([]);
@@ -51,6 +54,8 @@ const Clientes = () => {
   const { setSelectedCliente } = useCliente();
   const user = JSON.parse(localStorage.getItem('user'));
   const isAdmin = user?.rol === 'Administrador';
+
+  const isMobile = useIsMobile();
 
   /* const user = JSON.parse(localStorage.getItem('user')); */
 
@@ -217,7 +222,8 @@ const Clientes = () => {
       if (requestId === ubicacionesRequest.current) {
         console.error('Error al obtener ciudades:', error);
         setErrorUbicaciones(
-          error.response?.data?.message ?? 'No se pudieron cargar las ciudades.',
+          error.response?.data?.message ??
+            'No se pudieron cargar las ciudades.',
         );
       }
     } finally {
@@ -561,8 +567,11 @@ const Clientes = () => {
           {/* HEADER */}
           <div className="header">
             <div>
-              <h2 className="title">Clientes</h2>
-              <p className="subtitle">
+              <h2 className="page-header__title">
+                <Users size={22} className="page-header__icon" />
+                Clientes
+              </h2>
+              <p className="page-header__subtitle">
                 {clienteList.length} Clientes registrados
               </p>
             </div>
@@ -570,15 +579,15 @@ const Clientes = () => {
             <button
               className="btn-primary"
               onClick={() => {
-                  ubicacionesRequest.current += 1;
-                  SetNewCliente({});
-                  setUbicacionInicial(null);
-                  setPaisSeleccionado('');
-                  setProvinciaSeleccionada('');
-                  setCiudadSeleccionada('');
-                  setProvincias([]);
-                  setCiudades([]);
-                  setErrorUbicaciones('');
+                ubicacionesRequest.current += 1;
+                SetNewCliente({});
+                setUbicacionInicial(null);
+                setPaisSeleccionado('');
+                setProvinciaSeleccionada('');
+                setCiudadSeleccionada('');
+                setProvincias([]);
+                setCiudades([]);
+                setErrorUbicaciones('');
                 setIngenierosSeleccionados([]);
                 setIngenieroPlrincipal(null);
                 setErrors({});
@@ -586,7 +595,8 @@ const Clientes = () => {
               }}
             >
               <i className="bi bi-plus-lg"></i>
-              Nuevo Cliente
+
+              {!isMobile && 'Nuevo Cliente'}
             </button>
           </div>
 
