@@ -528,11 +528,97 @@
   overflow: hidden;
 }
 
-.remitos-visor__img {
+.remitos-visor__content {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
+}
+
+.remitos-visor__principal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 240px;
+  padding: 8px;
+}
+
+.remitos-visor__select {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  max-width: calc(100% - 16px);
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.remitos-visor__img {
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
   object-fit: contain;
   cursor: pointer;
+}
+
+.remitos-visor__footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 8px 0;
+  gap: 8px;
+}
+
+.remitos-visor__footer small {
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remitos-visor__pdfs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid #dee2e6;
+  background: #f8f9fa;
+}
+
+.remitos-visor__pdf-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.remitos-visor__pdf-card:hover {
+  background: #e9ecef;
+}
+
+.remitos-visor__pdf-card i {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.remitos-visor__pdf-info {
+  overflow: hidden;
+  flex: 1;
+}
+
+.remitos-visor__pdf-info small {
+  font-size: 0.78rem;
 }
 
 .remitos-visor__empty {

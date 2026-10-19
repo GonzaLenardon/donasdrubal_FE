@@ -3,7 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { allPurchases, addPurchase } from '../api/compras';
 import { allProviders } from '../api/proveedores';
 import { allWarehouses } from '../api/depositos';
-import { allProducts, allPresentations } from '../api/productos';
+import { getFullVariants } from '../api/productVariants';
 import Spinner from './Spinner';
 import ModalCompras from './ModalCompras';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -13,8 +13,7 @@ const Compras = () => {
   const [compras, setCompras] = useState([]);
   const [proveedores, setProveedores] = useState([]);
   const [depositos, setDepositos] = useState([]);
-  const [productos, setProductos] = useState([]);
-  const [presentaciones, setPresentaciones] = useState([]);
+  const [variantes, setVariantes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useIsMobile();
@@ -30,20 +29,17 @@ const Compras = () => {
         comprasRes,
         proveedoresRes,
         depositosRes,
-        productosRes,
-        presentacionesRes,
+        variantesRes,
       ] = await Promise.all([
         allPurchases(),
         allProviders(),
         allWarehouses(),
-        allProducts(),
-        allPresentations(),
+        getFullVariants(),
       ]);
       setCompras(comprasRes.data);
       setProveedores(proveedoresRes.data);
       setDepositos(depositosRes.data);
-      setProductos(productosRes.data);
-      setPresentaciones(presentacionesRes.data);
+      setVariantes(variantesRes.data);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
@@ -187,8 +183,7 @@ const Compras = () => {
         <ModalCompras
           proveedores={proveedores}
           depositos={depositos}
-          productos={productos}
-          presentaciones={presentaciones}
+          variantes={variantes}
           onClose={() => setIsOpen(false)}
           onSave={handleGuardar}
         />

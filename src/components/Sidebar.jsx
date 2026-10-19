@@ -53,6 +53,12 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           path: '/stock/presentaciones',
           icon: 'bi-rulers',
         },
+        { title: 'Rubros', path: '/stock/rubros', icon: 'bi-bookmark-fill' },
+        {
+          title: 'Subrubros',
+          path: '/stock/subrubros',
+          icon: 'bi-bookmarks-fill',
+        },
         { title: 'Depósitos', path: '/stock/depositos', icon: 'bi-building' },
         { title: 'Proveedores', path: '/stock/proveedores', icon: 'bi-truck' },
         { title: 'Saldos', path: '/stock/saldo', icon: 'bi-clipboard-data' },
@@ -343,6 +349,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
               </li>
             </ul>
           </div>
+          <div className="sidebar-version">V.1.0.0</div>
         </div>
       </aside>
 

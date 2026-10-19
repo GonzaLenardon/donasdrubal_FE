@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Package } from 'lucide-react';
 import { getAllStock } from '../api/stock';
 import { allWarehouses } from '../api/depositos';
-import { allProducts } from '../api/productos';
+import { getFullVariants } from '../api/productVariants';
 import Spinner from './Spinner';
 import { useIsMobile } from '../hooks/useIsMobile';
 import '../css/page-header.css';
@@ -10,10 +10,10 @@ import '../css/page-header.css';
 const Stock = () => {
   const [stock, setStock] = useState([]);
   const [depositos, setDepositos] = useState([]);
-  const [productos, setProductos] = useState([]);
+  const [variantes, setVariantes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtroDeposito, setFiltroDeposito] = useState('');
-  const [filtroProducto, setFiltroProducto] = useState('');
+  const [filtroVariante, setFiltroVariante] = useState('');
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -23,14 +23,14 @@ const Stock = () => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [stockRes, depositosRes, productosRes] = await Promise.all([
+      const [stockRes, depositosRes, variantesRes] = await Promise.all([
         getAllStock(),
         allWarehouses(),
-        allProducts(),
+        getFullVariants(),
       ]);
       setStock(stockRes.data);
       setDepositos(depositosRes.data);
-      setProductos(productosRes.data);
+      setVariantes(variantesRes.data);
     } catch (error) {
       console.error('Error al cargar stock:', error);
     } finally {
@@ -40,7 +40,7 @@ const Stock = () => {
 
   const stockFiltrado = stock.filter((s) => {
     if (filtroDeposito && s.warehouse_id !== parseInt(filtroDeposito)) return false;
-    if (filtroProducto && s.product_id !== parseInt(filtroProducto)) return false;
+    if (filtroVariante && s.lote?.product_variant_id !== parseInt(filtroVariante)) return false;
     return true;
   });
 
@@ -49,16 +49,12 @@ const Stock = () => {
     return d ? `${d.nombre} (${d.codigo})` : `Depósito #${id}`;
   };
 
-  const getProducto = (id) => productos.find((p) => p.id === id);
-
-  const getNombreProducto = (id) => {
-    const p = getProducto(id);
-    return p ? p.nombre : `Producto #${id}`;
-  };
+  const getVariante = (id) => variantes.find((v) => v.id === id);
 
   const formatLoteInfo = (item) => {
     const qty = parseFloat(item.quantity);
-    const presentacion = item.lote?.presentacion;
+    const variante = item.lote?.variante;
+    const presentacion = variante?.presentacion;
     const unidadBase = presentacion?.unidadBase;
     const lotNumber = item.lote?.lot_number || `#${item.product_lot_id}`;
     const vencimiento = item.lote?.expiration_date
@@ -93,52 +89,62 @@ const Stock = () => {
     };
   };
 
-  // Agrupar stock por producto
-  const stockPorProducto = stockFiltrado.reduce((acc, item) => {
-    const pid = item.product_id;
-    if (!acc[pid]) {
-      acc[pid] = {
-        producto: getProducto(pid) || { id: pid, nombre: getNombreProducto(pid) },
+  // Agrupar stock por variante
+  const stockPorVariante = stockFiltrado.reduce((acc, item) => {
+    const vid = item.lote?.product_variant_id;
+    if (!vid) return acc;
+
+    if (!acc[vid]) {
+      const variante = getVariante(vid);
+      acc[vid] = {
+        variante: variante || { id: vid, codigo: `Variante #${vid}` },
         totalBase: 0,
         depositos: {},
       };
     }
     const qty = parseFloat(item.quantity);
-    acc[pid].totalBase += qty;
+    acc[vid].totalBase += qty;
 
     // Agrupar también por depósito
     const wid = item.warehouse_id;
-    if (!acc[pid].depositos[wid]) {
-      acc[pid].depositos[wid] = { deposito: getNombreDeposito(wid), total: 0, lotes: [] };
+    if (!acc[vid].depositos[wid]) {
+      acc[vid].depositos[wid] = { deposito: getNombreDeposito(wid), total: 0, lotes: [] };
     }
-    acc[pid].depositos[wid].total += qty;
-    acc[pid].depositos[wid].lotes.push(item);
+    acc[vid].depositos[wid].total += qty;
+    acc[vid].depositos[wid].lotes.push(item);
 
     return acc;
   }, {});
 
   // Obtener unidad base del primer lote con presentación
-  const getUnidadBase = (producto) => {
-    const p = producto;
-    if (p?.presentacion?.unidadBase) return p.presentacion.unidadBase.nombre;
-    // Buscar en el stock agrupado
-    return null;
+  const getUnidadBase = (varianteData) => {
+    for (const dep of Object.values(varianteData.depositos)) {
+      for (const lote of dep.lotes) {
+        const unidadBase = lote.lote?.variante?.presentacion?.unidadBase?.nombre;
+        if (unidadBase) return unidadBase;
+      }
+    }
+    return '';
   };
 
   if (loading) return <Spinner />;
 
   return (
     <div className="container-fluid py-4">
-      <div className="mb-4">
-        <h2 className="page-header__title">
-          <Package size={22} className="page-header__icon" />
-          Stock
-        </h2>
-        <p className="page-header__subtitle">Saldos por depósito, producto y lote</p>
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 className="page-header__title">
+            <Package size={22} className="page-header__icon" />
+            Stock
+          </h2>
+          <p className="page-header__subtitle">
+            {Object.keys(stockPorVariante).length} variantes con stock
+          </p>
+        </div>
       </div>
 
-      <div className="row mb-3">
-        <div className="col-md-4 mb-2">
+      <div className="row g-2 mb-3">
+        <div className="col-md-6">
           <select
             className="form-select"
             value={filtroDeposito}
@@ -146,120 +152,93 @@ const Stock = () => {
           >
             <option value="">Todos los depósitos</option>
             {depositos.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.nombre} ({d.codigo})
-              </option>
+              <option key={d.id} value={d.id}>{d.nombre} ({d.codigo})</option>
             ))}
           </select>
         </div>
-        <div className="col-md-4 mb-2">
+        <div className="col-md-6">
           <select
             className="form-select"
-            value={filtroProducto}
-            onChange={(e) => setFiltroProducto(e.target.value)}
+            value={filtroVariante}
+            onChange={(e) => setFiltroVariante(e.target.value)}
           >
-            <option value="">Todos los productos</option>
-            {productos.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nombre}
-              </option>
+            <option value="">Todas las variantes</option>
+            {variantes.map((v) => (
+              <option key={v.id} value={v.id}>{v.codigo} - {v.presentacion?.nombre}</option>
             ))}
           </select>
         </div>
       </div>
 
-      {Object.keys(stockPorProducto).length === 0 ? (
-        <p className="text-center text-muted py-4">Sin stock registrado</p>
-      ) : (
-        <div className="d-flex flex-column gap-3">
-          {Object.entries(stockPorProducto).map(([pid, data]) => {
-            const unidadBase = getUnidadBase(data.producto);
+      {isMobile ? (
+        <div className="d-flex flex-column gap-2">
+          {Object.entries(stockPorVariante).map(([vid, data]) => {
+            const unidadBase = getUnidadBase(data);
             return (
-              <div key={pid} className="card">
-                <div
-                  className="card-header d-flex justify-content-between align-items-center"
-                  style={{ background: '#f8f9fa' }}
-                >
-                  <div>
-                    <h6 className="mb-0" style={{ fontWeight: 600 }}>
-                      {data.producto.nombre}
-                    </h6>
-                    <small className="text-muted">{data.producto.codigo}</small>
+              <div key={vid} className="card p-3">
+                <h6 className="mb-1" style={{ fontWeight: 600 }}>
+                  {data.variante.producto?.nombre || data.variante.codigo}
+                </h6>
+                <small className="text-muted">
+                  {data.variante.codigo} - {data.variante.presentacion?.nombre || 'Sin presentación'}
+                </small>
+                <div className="mt-2">
+                  <strong>
+                    {data.totalBase.toFixed(2)} {unidadBase}
+                  </strong>
+                </div>
+                {Object.entries(data.depositos).map(([wid, dep]) => (
+                  <div key={wid} className="mt-1">
+                    <small className="text-muted">{dep.deposito}: {dep.total.toFixed(2)}</small>
                   </div>
-                  <span className="badge bg-primary" style={{ fontSize: 14, padding: '6px 14px' }}>
-                    Total: {data.totalBase.toFixed(2)} {unidadBase || 'unidades'}
-                  </span>
-                </div>
-                <div className="card-body p-0">
-                  {Object.entries(data.depositos).map(([wid, dep]) => (
-                    <div key={wid} className="border-bottom p-3">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <strong style={{ fontSize: 13 }}>
-                          <i className="bi bi-building me-1"></i>
-                          {dep.deposito}
-                        </strong>
-                        <small className="text-muted">
-                          Subtotal: {dep.total.toFixed(2)} {unidadBase || 'unidades'}
-                        </small>
-                      </div>
-                      {isMobile ? (
-                        <div className="d-flex flex-column gap-2">
-                          {dep.lotes.map((item) => {
-                            const info = formatLoteInfo(item);
-                            return (
-                              <div key={item.id} className="d-flex justify-content-between align-items-start p-2" style={{ background: '#fafafa', borderRadius: 6 }}>
-                                <div>
-                                  <small className="text-muted">Lote: {info.lote}</small>
-                                  {info.vencimiento && (
-                                    <div><small className="text-muted">{info.vencimiento}</small></div>
-                                  )}
-                                </div>
-                                <div className="text-end">
-                                  <strong style={{ fontSize: 14 }}>{info.stock}</strong>
-                                  {info.equivalencia && (
-                                    <div><small className="text-muted">{info.equivalencia}</small></div>
-                                  )}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <table className="table table-sm mb-0">
-                          <thead>
-                            <tr>
-                              <th>Lote</th>
-                              <th>Vencimiento</th>
-                              <th className="text-end">Stock</th>
-                              <th className="text-end">Equivalencia</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {dep.lotes.map((item) => {
-                              const info = formatLoteInfo(item);
-                              return (
-                                <tr key={item.id}>
-                                  <td>{info.lote}</td>
-                                  <td className="text-muted">{info.vencimiento || '—'}</td>
-                                  <td className="text-end">
-                                    <strong>{info.stock}</strong>
-                                  </td>
-                                  <td className="text-end text-muted">
-                                    {info.equivalencia || '—'}
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                ))}
               </div>
             );
           })}
         </div>
+      ) : (
+        <div className="table-responsive">
+          <table className="table table-hover">
+            <thead>
+              <tr>
+                <th>Variante</th>
+                <th>Presentación</th>
+                <th>Depósito</th>
+                <th className="text-end">Stock</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(stockPorVariante).map(([vid, data]) => {
+                const unidadBase = getUnidadBase(data);
+                const depEntries = Object.entries(data.depositos);
+                return depEntries.map(([wid, dep], idx) => (
+                  <tr key={`${vid}_${wid}`}>
+                    {idx === 0 && (
+                      <>
+                        <td rowSpan={depEntries.length}>
+                          <strong>{data.variante.producto?.nombre || data.variante.codigo}</strong>
+                          <br />
+                          <small className="text-muted">{data.variante.codigo}</small>
+                        </td>
+                        <td rowSpan={depEntries.length}>
+                          {data.variante.presentacion?.nombre || '-'}
+                        </td>
+                      </>
+                    )}
+                    <td>{dep.deposito}</td>
+                    <td className="text-end">
+                      {dep.total.toFixed(2)} {unidadBase}
+                    </td>
+                  </tr>
+                ));
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {Object.keys(stockPorVariante).length === 0 && (
+        <p className="text-center text-muted py-4">No hay stock disponible</p>
       )}
     </div>
   );

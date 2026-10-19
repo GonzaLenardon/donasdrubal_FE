@@ -38,3 +38,22 @@ export const uploadPhoto = async (id, formData) => {
   });
   return res;
 };
+
+export const getArchivos = async (remitoId) => {
+  const res = await instance.get(`/stock/remitos/${remitoId}/archivos`);
+  return res;
+};
+
+export const uploadArchivos = async (remitoId, formData) => {
+  const res = await instance.post(`/stock/remitos/${remitoId}/archivos`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return res;
+};
+
+export const deleteArchivo = async (remitoId, archivoId) => {
+  const res = await instance.delete(`/stock/remitos/${remitoId}/archivos/${archivoId}`);
+  return res;
+};
