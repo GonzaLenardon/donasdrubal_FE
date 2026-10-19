@@ -778,7 +778,12 @@ const ClienteDashboard = ({ cliente }) => {
                   <NotaItem
                     key={nota.id}
                     fecha={nota.fecha}
-                    usuario_nombre={nota.usuario.nombre}
+                    usuario_nombre={
+                      nota.usuario?.nombre_completo
+                      ?? nota.usuario?.nombre
+                      ?? nota.usuario_nombre
+                      ?? (nota.usuario_id ? `Usuario ${nota.usuario_id}` : 'Usuario no identificado')
+                    }
                     comentario={nota.comentario}
                   />
                 ))}

@@ -136,6 +136,11 @@
   align-items: center;
 }
 
+.notas-container .nc-card__autor {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.75rem;
+}
+
 .notas-container .nc-card__actions {
   display: flex;
   gap: 0.4rem;
