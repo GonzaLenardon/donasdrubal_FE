@@ -66,6 +66,15 @@ const Presentaciones = () => {
     }
   };
 
+  const handleToggleActivo = async (presentacion) => {
+    try {
+      await upPresentation({ ...presentacion, activo: !presentacion.activo });
+      await getPresentaciones();
+    } catch (error) {
+      console.error('Error al cambiar estado:', error);
+    }
+  };
+
   const getPresentacionLabel = (p) => {
     if (p.unidadBase) {
       return `${p.nombre} (${p.cantidad_base} ${p.unidadBase.nombre})`;
@@ -142,7 +151,18 @@ const Presentaciones = () => {
                       </small>
                     )}
                   </div>
-                  <div className="d-flex gap-2">
+                  <div className="d-flex gap-2 align-items-center">
+                    <div className="form-check form-switch mb-0">
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        checked={presentacion.activo}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleToggleActivo(presentacion);
+                        }}
+                      />
+                    </div>
                     <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={(e) => {
@@ -204,11 +224,17 @@ const Presentaciones = () => {
                     <td>{presentacion.unidadBase?.nombre || '—'}</td>
                     <td>{presentacion.cantidad_base || '—'}</td>
                     <td>
-                      <span
-                        className={`badge ${presentacion.activo ? 'bg-success' : 'bg-secondary'}`}
-                      >
-                        {presentacion.activo ? 'Activo' : 'Inactivo'}
-                      </span>
+                      <div className="form-check form-switch">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          checked={presentacion.activo}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            handleToggleActivo(presentacion);
+                          }}
+                        />
+                      </div>
                     </td>
                     <td className="text-end">
                       <button

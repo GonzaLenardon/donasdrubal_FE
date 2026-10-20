@@ -17,6 +17,7 @@ import {
   cancelRemito,
   confirmRemito,
   getRemito,
+  getArchivos,
 } from '../api/remitos';
 import { allWarehouses } from '../api/depositos';
 import { allCliente } from '../api/clientes';
@@ -52,6 +53,8 @@ const Remitos = () => {
   const [selectedRemitoId, setSelectedRemitoId] = useState(null);
   const [remitoDetalle, setRemitoDetalle] = useState(null);
   const [loadingDetalle, setLoadingDetalle] = useState(false);
+  const [archivos, setArchivos] = useState([]);
+  const [selectedArchivoIdx, setSelectedArchivoIdx] = useState(0);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -87,8 +90,13 @@ const Remitos = () => {
   const cargarDetalleRemito = async (id) => {
     try {
       setLoadingDetalle(true);
-      const res = await getRemito(id);
+      const [res, resArchivos] = await Promise.all([
+        getRemito(id),
+        getArchivos(id),
+      ]);
       setRemitoDetalle(res.data);
+      setArchivos(resArchivos.data || []);
+      setSelectedArchivoIdx(0);
     } catch (error) {
       console.error('Error al cargar detalle:', error);
     } finally {
@@ -176,7 +184,7 @@ const Remitos = () => {
         {remito.status === 'PENDIENTE' && (
           <button
             className="remitos-btn remitos-btn--icon remitos-btn--primary"
-            title="Subir foto del remito firmado"
+            title="Subir archivo del remito firmado"
             onClick={(e) => {
               e.stopPropagation();
               setSubirFotoRemito(remito);
@@ -254,11 +262,11 @@ const Remitos = () => {
               <tr key={item.id}>
                 <td>
                   <span className="remitos-items__nombre">
-                    {item.producto?.nombre || `#${item.product_id}`}
+                    {item.variante?.producto?.nombre || `Variante #${item.product_variant_id}`}
                   </span>
-                  {item.presentacion && (
+                  {item.variante?.presentacion && (
                     <span className="remitos-badge remitos-badge--neutral ms-2">
-                      {item.presentacion.nombre}
+                      {item.variante.presentacion.nombre}
                     </span>
                   )}
                   {item.lotes?.length > 0 && (
@@ -324,41 +332,33 @@ const Remitos = () => {
       {remitoSeleccionado.status === 'PENDIENTE' && (
         <div className="remitos-note">
           <Info size={14} />
-          <span>Falta subir la foto del remito firmado.</span>
+          <span>Falta subir el remito firmado.</span>
         </div>
       )}
 
       {remitoSeleccionado.status === 'REVISION' && (
         <div className="remitos-note">
           <Info size={14} />
-          <span>Foto cargada, falta confirmar.</span>
+          <span>Archivo(s) cargado(s), falta confirmar.</span>
         </div>
       )}
 
       <div className="remitos-box__acciones">
-        {remitoSeleccionado.status === 'PENDIENTE' && (
+        {(remitoSeleccionado.status === 'PENDIENTE' || remitoSeleccionado.status === 'REVISION') && (
           <button
             className="remitos-btn remitos-btn--primary"
             onClick={() => setSubirFotoRemito(remitoSeleccionado)}
           >
-            <Camera size={14} /> Subir foto
+            <Camera size={14} /> {archivos.length > 0 ? 'Agregar archivo' : 'Subir archivo'}
           </button>
         )}
         {remitoSeleccionado.status === 'REVISION' && (
-          <>
-            <button
-              className="remitos-btn remitos-btn--primary"
-              onClick={() => setSubirFotoRemito(remitoSeleccionado)}
-            >
-              <Camera size={14} /> Reemplazar foto
-            </button>
-            <button
-              className="remitos-btn remitos-btn--success"
-              onClick={() => handleConfirmar(remitoSeleccionado.id)}
-            >
-              <Check size={14} /> Confirmar
-            </button>
-          </>
+          <button
+            className="remitos-btn remitos-btn--success"
+            onClick={() => handleConfirmar(remitoSeleccionado.id)}
+          >
+            <Check size={14} /> Confirmar
+          </button>
         )}
         {(remitoSeleccionado.status === 'PENDIENTE' ||
           remitoSeleccionado.status === 'REVISION') && (
@@ -373,43 +373,99 @@ const Remitos = () => {
     </div>
   );
 
-  const renderRemitoImagen = () =>
-    remitoSeleccionado?.photo_path ? (
-      <>
-        <img
-          src={`${import.meta.env.VITE_API_URL}${remitoSeleccionado.photo_path}`}
-          alt="Remito físico"
-          className="remitos-visor__img"
-          onClick={() =>
-            window.open(
-              `${import.meta.env.VITE_API_URL}${remitoSeleccionado.photo_path}`,
-              '_blank',
-            )
-          }
-          onError={(e) => {
-            e.target.style.display = 'none';
-            e.target.nextSibling.style.display = 'flex';
-          }}
-        />
-        <div className="remitos-visor__empty" style={{ display: 'none' }}>
+  const renderRemitoImagen = () => {
+    if (archivos.length === 0) {
+      return (
+        <div className="remitos-visor__empty">
           <ImageIcon size={44} />
-          <p>No se pudo cargar la imagen</p>
+          <p>Sin archivos adjuntos</p>
+          {(remitoSeleccionado?.status === 'PENDIENTE' || remitoSeleccionado?.status === 'REVISION') && (
+            <button
+              className="remitos-btn remitos-btn--primary"
+              onClick={() => setSubirFotoRemito(remitoSeleccionado)}
+            >
+              <Camera size={14} /> Subir archivo
+            </button>
+          )}
         </div>
-      </>
-    ) : (
-      <div className="remitos-visor__empty">
-        <ImageIcon size={44} />
-        <p>Sin imagen del remito físico</p>
-        {remitoSeleccionado?.status === 'PENDIENTE' && (
-          <button
-            className="remitos-btn remitos-btn--primary"
-            onClick={() => setSubirFotoRemito(remitoSeleccionado)}
-          >
-            <Camera size={14} /> Subir foto
-          </button>
+      );
+    }
+
+    const imagenes = archivos.filter((a) => a.mime_type?.startsWith('image/'));
+    const pdfs = archivos.filter((a) => a.mime_type === 'application/pdf');
+    const imagenSeleccionada = imagenes[selectedArchivoIdx] || imagenes[0];
+    const urlImagen = imagenSeleccionada
+      ? `${import.meta.env.VITE_API_URL}${imagenSeleccionada.path}`
+      : null;
+
+    return (
+      <div className="remitos-visor__content">
+        {/* Imagen principal */}
+        {imagenSeleccionada ? (
+          <div className="remitos-visor__principal">
+            {imagenes.length > 1 && (
+              <select
+                className="remitos-visor__select"
+                value={selectedArchivoIdx}
+                onChange={(e) => setSelectedArchivoIdx(parseInt(e.target.value))}
+              >
+                {imagenes.map((img, idx) => (
+                  <option key={img.id} value={idx}>
+                    {img.original_name}
+                  </option>
+                ))}
+              </select>
+            )}
+            <img
+              src={urlImagen}
+              alt={imagenSeleccionada.original_name}
+              className="remitos-visor__img"
+              onClick={() => window.open(urlImagen, '_blank')}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            <div className="remitos-visor__empty" style={{ display: 'none' }}>
+              <ImageIcon size={44} />
+              <p>No se pudo cargar la imagen</p>
+            </div>
+            <div className="remitos-visor__footer">
+              <small className="text-muted">{imagenSeleccionada.original_name}</small>
+              <small className="text-muted">{formatDateTime(imagenSeleccionada.uploaded_at)}</small>
+            </div>
+          </div>
+        ) : (
+          <div className="remitos-visor__principal remitos-visor__empty">
+            <ImageIcon size={44} />
+            <p>Sin imágenes</p>
+          </div>
+        )}
+
+        {/* PDFs debajo */}
+        {pdfs.length > 0 && (
+          <div className="remitos-visor__pdfs">
+            {pdfs.map((pdf) => {
+              const url = `${import.meta.env.VITE_API_URL}${pdf.path}`;
+              return (
+                <div
+                  key={pdf.id}
+                  className="remitos-visor__pdf-card"
+                  onClick={() => window.open(url, '_blank')}
+                >
+                  <i className="bi bi-file-earmark-pdf text-danger"></i>
+                  <div className="remitos-visor__pdf-info">
+                    <small className="d-block text-truncate">{pdf.original_name}</small>
+                    <small className="text-muted">{formatDateTime(pdf.uploaded_at)}</small>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
     );
+  };
 
   if (loading) return <Spinner />;
 
@@ -640,18 +696,17 @@ const Remitos = () => {
                 <div className="remitos-box__header">
                   <h4 className="remitos-box__title">
                     <ImageIcon size={16} />
-                    Remito físico
+                    Archivos
                   </h4>
                   <span className="remitos-box__meta">
-                    {remitoSeleccionado.remito_number}
+                    {archivos.length} archivo{archivos.length !== 1 ? 's' : ''}
                   </span>
                 </div>
                 <div className="remitos-visor">{renderRemitoImagen()}</div>
-                {remitoSeleccionado.photo_uploaded_at && (
+                {archivos.length > 0 && (
                   <div className="remitos-box__footer">
                     <Clock size={12} />
-                    Subida el{' '}
-                    {formatDateTime(remitoSeleccionado.photo_uploaded_at)}
+                    Último archivo: {formatDateTime(archivos[0]?.uploaded_at)}
                   </div>
                 )}
               </div>

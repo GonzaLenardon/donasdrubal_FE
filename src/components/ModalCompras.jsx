@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-const ProductSearch = ({
-  productos,
+const VariantSearch = ({
+  variantes,
   value,
   onSelect,
   isInvalid,
@@ -14,12 +14,13 @@ const ProductSearch = ({
   const wrapperRef = useRef(null);
   const inputRef = useRef(null);
 
-  const selectedProduct = productos.find((p) => p.id === value);
+  const selectedVariant = variantes.find((v) => v.id === value);
 
   const filtered = query.trim()
-    ? productos.filter((p) =>
-        p.nombre.toLowerCase().includes(query.toLowerCase()),
-      )
+    ? variantes.filter((v) => {
+        const label = `${v.producto?.nombre || ''} - ${v.presentacion?.nombre || ''}`.toLowerCase();
+        return label.includes(query.toLowerCase());
+      })
     : [];
 
   useEffect(() => {
@@ -52,6 +53,8 @@ const ProductSearch = ({
     }
   };
 
+  const getLabel = (v) => `${v.producto?.nombre || ''} - ${v.presentacion?.nombre || ''}`;
+
   return (
     <div className="cmp-search-wrapper" ref={wrapperRef}>
       <Form.Control
@@ -59,15 +62,15 @@ const ProductSearch = ({
         size="sm"
         className="cmp-compact-input"
         placeholder="Buscar producto..."
-        value={selectedProduct ? selectedProduct.nombre : query}
+        value={selectedVariant ? getLabel(selectedVariant) : query}
         onChange={(e) => {
           setQuery(e.target.value);
           setOpen(true);
           setHighlightIndex(-1);
         }}
         onFocus={() => {
-          if (selectedProduct) {
-            setQuery(selectedProduct.nombre);
+          if (selectedVariant) {
+            setQuery(getLabel(selectedVariant));
             onSelect('');
           }
           setOpen(true);
@@ -77,27 +80,24 @@ const ProductSearch = ({
         isInvalid={isInvalid}
       />
       {isInvalid && (
-        <div
-          className="invalid-feedback"
-          style={{ display: 'block', fontSize: 11 }}
-        >
+        <div className="invalid-feedback" style={{ display: 'block', fontSize: 11 }}>
           {errorText}
         </div>
       )}
       {open && filtered.length > 0 && (
         <div className="cmp-search-results">
-          {filtered.map((p, idx) => (
+          {filtered.map((v, idx) => (
             <div
-              key={p.id}
+              key={v.id}
               className={`cmp-search-item ${idx === highlightIndex ? 'selected' : ''}`}
               onClick={() => {
-                onSelect(p.id);
+                onSelect(v.id);
                 setQuery('');
                 setOpen(false);
                 setHighlightIndex(-1);
               }}
             >
-              {p.nombre}
+              {getLabel(v)}
             </div>
           ))}
         </div>
@@ -114,8 +114,7 @@ const ProductSearch = ({
 const ModalCompras = ({
   proveedores,
   depositos,
-  productos,
-  presentaciones,
+  variantes,
   onClose,
   onSave,
 }) => {
@@ -135,8 +134,7 @@ const ModalCompras = ({
       items: [
         ...form.items,
         {
-          product_id: '',
-          product_presentation_id: '',
+          product_variant_id: '',
           quantity: '',
           lotes: [{ lot_number: '', quantity: '', expiration_date: '' }],
           destinos: [{ warehouse_id: form.warehouse_id || '', quantity: '' }],
@@ -202,23 +200,17 @@ const ModalCompras = ({
     item.destinos.reduce((sum, d) => sum + (parseFloat(d.quantity) || 0), 0);
 
   const getConversion = (item) => {
-    const pres = presentaciones.find(
-      (p) => p.id === parseInt(item.product_presentation_id),
-    );
-    if (!pres?.cantidad_base) return null;
+    const variant = variantes.find((v) => v.id === parseInt(item.product_variant_id));
+    if (!variant?.presentacion?.cantidad_base) return null;
     const qty = parseFloat(item.quantity) || 0;
-    const unidad = pres.unidadBase?.nombre || '';
-    return `= ${(qty * parseFloat(pres.cantidad_base)).toFixed(2)} ${unidad}`;
+    const unidad = variant.presentacion.unidadBase?.nombre || '';
+    return `= ${(qty * parseFloat(variant.presentacion.cantidad_base)).toFixed(2)} ${unidad}`;
   };
 
-  const getProductName = (id) =>
-    productos.find((p) => p.id === parseInt(id))?.nombre || '';
-  const getPresentacionName = (id) => {
-    const p = presentaciones.find((pr) => pr.id === parseInt(id));
-    if (!p) return '';
-    return p.unidadBase
-      ? `${p.nombre} (${p.cantidad_base} ${p.unidadBase.nombre})`
-      : p.nombre;
+  const getVariantName = (id) => {
+    const v = variantes.find((v) => v.id === parseInt(id));
+    if (!v) return '';
+    return `${v.producto?.nombre || ''} - ${v.presentacion?.nombre || ''}`;
   };
 
   const validate = () => {
@@ -227,10 +219,8 @@ const ModalCompras = ({
     if (!form.purchase_date) newErrors.purchase_date = 'La fecha es requerida';
     if (form.items.length === 0) newErrors.items = 'Agregue al menos un ítem';
     form.items.forEach((item, i) => {
-      if (!item.product_id)
+      if (!item.product_variant_id)
         newErrors[`item_${i}_product`] = 'Seleccione un producto';
-      if (!item.product_presentation_id)
-        newErrors[`item_${i}_presentation`] = 'Seleccione presentación';
       if (!item.quantity || parseFloat(item.quantity) <= 0)
         newErrors[`item_${i}_quantity`] = 'Cantidad inválida';
       const lote = item.lotes[0];
@@ -243,14 +233,8 @@ const ModalCompras = ({
         const total = parseFloat(item.quantity) || 0;
         if (Math.abs(distribuido - total) > 0.01) {
           newErrors[`item_${i}_destinos`] =
-            `Distribuido: ${distribuido} ≠ Total: ${total}`;
+            `La suma de destinos (${distribuido}) debe igual la cantidad (${total})`;
         }
-        item.destinos.forEach((destino, j) => {
-          if (!destino.warehouse_id)
-            newErrors[`item_${i}_dest_${j}_wh`] = 'Seleccione depósito';
-          if (!destino.quantity || parseFloat(destino.quantity) <= 0)
-            newErrors[`item_${i}_dest_${j}_qty`] = 'Cantidad inválida';
-        });
       }
     });
     setErrors(newErrors);
@@ -268,8 +252,7 @@ const ModalCompras = ({
         warehouse_id: form.warehouse_id ? parseInt(form.warehouse_id) : null,
         items: form.items.map((item) => ({
           ...item,
-          product_id: parseInt(item.product_id),
-          product_presentation_id: parseInt(item.product_presentation_id),
+          product_variant_id: parseInt(item.product_variant_id),
           quantity: parseFloat(item.quantity),
           lotes: item.lotes
             .filter((l) => l.lot_number)
@@ -287,16 +270,10 @@ const ModalCompras = ({
     }
   };
 
-  const presentacionesActivas = presentaciones.filter((p) => p.activo);
+  const variantesActivas = variantes.filter((v) => v.activo && v.producto?.activo);
 
   return (
-    <Modal
-      show
-      onHide={onClose}
-      centered
-      size="xl"
-      dialogClassName="cmp-modal-wide"
-    >
+    <Modal show onHide={onClose} centered size="xl" dialogClassName="cmp-modal-wide">
       <Modal.Header closeButton className="cmp-modal-header">
         <Modal.Title>
           <i className="bi bi-bag-plus me-2"></i>Nueva Compra
@@ -304,7 +281,6 @@ const ModalCompras = ({
       </Modal.Header>
       <Form onSubmit={handleSubmit}>
         <Modal.Body className="cmp-modal-body">
-          {/* SECCIÓN 1: CABECERA */}
           <div className="cmp-section cmp-section-header">
             <div className="cmp-section-title">
               <i className="bi bi-file-earmark-text"></i>
@@ -317,21 +293,15 @@ const ModalCompras = ({
                   size="sm"
                   className="cmp-compact-select"
                   value={form.provider_id}
-                  onChange={(e) =>
-                    setForm({ ...form, provider_id: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, provider_id: e.target.value })}
                   isInvalid={!!errors.provider_id}
                 >
                   <option value="">Seleccionar</option>
                   {proveedores.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre}
-                    </option>
+                    <option key={p.id} value={p.id}>{p.nombre}</option>
                   ))}
                 </Form.Select>
-                <Form.Control.Feedback type="invalid">
-                  {errors.provider_id}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.provider_id}</Form.Control.Feedback>
               </div>
               <div>
                 <label className="cmp-label">Fecha *</label>
@@ -340,14 +310,10 @@ const ModalCompras = ({
                   className="cmp-compact-input"
                   type="date"
                   value={form.purchase_date}
-                  onChange={(e) =>
-                    setForm({ ...form, purchase_date: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, purchase_date: e.target.value })}
                   isInvalid={!!errors.purchase_date}
                 />
-                <Form.Control.Feedback type="invalid">
-                  {errors.purchase_date}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.purchase_date}</Form.Control.Feedback>
               </div>
               <div>
                 <label className="cmp-label">Depósito default</label>
@@ -355,15 +321,11 @@ const ModalCompras = ({
                   size="sm"
                   className="cmp-compact-select"
                   value={form.warehouse_id}
-                  onChange={(e) =>
-                    setForm({ ...form, warehouse_id: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, warehouse_id: e.target.value })}
                 >
                   <option value="">Seleccionar</option>
                   {depositos.map((d) => (
-                    <option key={d.id} value={d.id}>
-                      {d.nombre} ({d.codigo})
-                    </option>
+                    <option key={d.id} value={d.id}>{d.nombre} ({d.codigo})</option>
                   ))}
                 </Form.Select>
               </div>
@@ -381,7 +343,6 @@ const ModalCompras = ({
             </div>
           </div>
 
-          {/* SECCIÓN 2: ÍTEMS */}
           <div className="cmp-section cmp-section-items">
             <div className="cmp-section-title">
               <i className="bi bi-box-seam"></i>
@@ -389,20 +350,13 @@ const ModalCompras = ({
               {form.items.length > 0 && (
                 <span className="cmp-badge-count">{form.items.length}</span>
               )}
-              <Button
-                variant="success"
-                size="sm"
-                className="ms-auto"
-                onClick={addItem}
-              >
+              <Button variant="success" size="sm" className="ms-auto" onClick={addItem}>
                 <i className="bi bi-plus-lg me-1"></i>Agregar
               </Button>
             </div>
 
             {errors.items && (
-              <div className="text-danger mb-2" style={{ fontSize: 12 }}>
-                {errors.items}
-              </div>
+              <div className="text-danger mb-2" style={{ fontSize: 12 }}>{errors.items}</div>
             )}
 
             {form.items.length === 0 ? (
@@ -413,18 +367,15 @@ const ModalCompras = ({
               </div>
             ) : (
               <>
-                {/* Header de la tabla */}
                 <div className="cmp-items-table-header">
                   <span className="cmp-col-num">#</span>
-                  <span className="cmp-col-producto">Producto</span>
-                  <span className="cmp-col-presentacion">Presentación</span>
+                  <span className="cmp-col-producto">Producto - Presentación</span>
                   <span className="cmp-col-lote">Lote</span>
                   <span className="cmp-col-cantidad">Cantidad</span>
                   <span className="cmp-col-vencimiento">Vencimiento</span>
                   <span className="cmp-col-accion"></span>
                 </div>
 
-                {/* Filas de ítems */}
                 {form.items.map((item, i) => {
                   const conversion = getConversion(item);
                   return (
@@ -433,36 +384,13 @@ const ModalCompras = ({
                         <span className="cmp-row-num">{i + 1}</span>
                       </span>
                       <span className="cmp-col-producto">
-                        <ProductSearch
-                          productos={productos}
-                          value={item.product_id}
-                          onSelect={(id) => updateItem(i, 'product_id', id)}
+                        <VariantSearch
+                          variantes={variantesActivas}
+                          value={parseInt(item.product_variant_id) || ''}
+                          onSelect={(id) => updateItem(i, 'product_variant_id', id)}
                           isInvalid={!!errors[`item_${i}_product`]}
                           errorText={errors[`item_${i}_product`]}
                         />
-                      </span>
-                      <span className="cmp-col-presentacion">
-                        <Form.Select
-                          size="sm"
-                          className="cmp-compact-select"
-                          value={item.product_presentation_id}
-                          onChange={(e) =>
-                            updateItem(
-                              i,
-                              'product_presentation_id',
-                              e.target.value,
-                            )
-                          }
-                          isInvalid={!!errors[`item_${i}_presentation`]}
-                        >
-                          <option value="">--</option>
-                          {presentacionesActivas.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.nombre}
-                              {p.unidadBase ? ` (${p.cantidad_base})` : ''}
-                            </option>
-                          ))}
-                        </Form.Select>
                       </span>
                       <span className="cmp-col-lote">
                         <Form.Control
@@ -471,9 +399,7 @@ const ModalCompras = ({
                           type="text"
                           placeholder="LP-001"
                           value={item.lotes[0]?.lot_number || ''}
-                          onChange={(e) =>
-                            updateLote(i, 0, 'lot_number', e.target.value)
-                          }
+                          onChange={(e) => updateLote(i, 0, 'lot_number', e.target.value)}
                           isInvalid={!!errors[`item_${i}_lote_number`]}
                         />
                       </span>
@@ -485,14 +411,10 @@ const ModalCompras = ({
                           step="0.01"
                           placeholder="0"
                           value={item.quantity}
-                          onChange={(e) =>
-                            updateItem(i, 'quantity', e.target.value)
-                          }
+                          onChange={(e) => updateItem(i, 'quantity', e.target.value)}
                           isInvalid={!!errors[`item_${i}_quantity`]}
                         />
-                        {conversion && (
-                          <small className="cmp-conversion">{conversion}</small>
-                        )}
+                        {conversion && <small className="cmp-conversion">{conversion}</small>}
                       </span>
                       <span className="cmp-col-vencimiento">
                         <Form.Control
@@ -500,20 +422,13 @@ const ModalCompras = ({
                           className="cmp-compact-input"
                           type="date"
                           value={item.lotes[0]?.expiration_date || ''}
-                          onChange={(e) =>
-                            updateLote(i, 0, 'expiration_date', e.target.value)
-                          }
+                          onChange={(e) => updateLote(i, 0, 'expiration_date', e.target.value)}
                         />
                       </span>
                       <span className="cmp-col-accion">
-                        <button
-                          type="button"
-                          className="cmp-btn-eliminar"
-                          onClick={() => removeItem(i)}
-                          title="Eliminar ítem"
-                        >
+                        <Button variant="outline-danger" size="sm" onClick={() => removeItem(i)}>
                           <i className="bi bi-trash"></i>
-                        </button>
+                        </Button>
                       </span>
                     </div>
                   );
@@ -522,8 +437,7 @@ const ModalCompras = ({
             )}
           </div>
 
-          {/* SECCIÓN 3: DESTINOS */}
-          {form.items.length > 0 && (
+          {form.items.some((item) => item.product_variant_id && item.quantity) && (
             <div className="cmp-section cmp-section-destinos">
               <div className="cmp-section-title">
                 <i className="bi bi-geo-alt"></i>
@@ -534,65 +448,51 @@ const ModalCompras = ({
                 const distribuido = getDistribuido(item);
                 const total = parseFloat(item.quantity) || 0;
                 const distOk = Math.abs(distribuido - total) < 0.01;
-                const productName = getProductName(item.product_id);
-                const presName = getPresentacionName(
-                  item.product_presentation_id,
-                );
+                const variantName = getVariantName(item.product_variant_id);
+
+                if (!item.product_variant_id || !item.quantity) return null;
 
                 return (
                   <div key={i} className="cmp-destino-group">
                     <div className="cmp-destino-group-header">
                       <span className="cmp-destino-item-num">{i + 1}</span>
                       <span className="cmp-destino-item-name">
-                        {productName}
-                        {presName && (
-                          <span className="cmp-destino-item-pres">
-                            {' '}
-                            — {presName}
-                          </span>
-                        )}
+                        {variantName}
                       </span>
-                      <span
-                        className={`cmp-destino-status ${distOk ? 'cmp-destino-ok' : 'cmp-destino-pend'}`}
-                      >
+                      <span className={`cmp-destino-status ${distOk ? 'cmp-destino-ok' : 'cmp-destino-pend'}`}>
                         {distOk ? (
-                          <>
-                            <i className="bi bi-check-circle-fill"></i> OK
-                          </>
+                          <><i className="bi bi-check-circle-fill"></i> OK</>
                         ) : (
-                          <>
-                            <i className="bi bi-exclamation-circle-fill"></i>{' '}
-                            Pendiente: {(total - distribuido).toFixed(2)}
-                          </>
+                          <><i className="bi bi-exclamation-triangle"></i> {distribuido}/{total}</>
                         )}
                       </span>
+                      <Button
+                        variant="outline-success"
+                        size="sm"
+                        className="ms-auto"
+                        onClick={() => addDestino(i)}
+                      >
+                        <i className="bi bi-plus-lg"></i>
+                      </Button>
                     </div>
 
                     {errors[`item_${i}_destinos`] && (
-                      <div
-                        className="text-danger mb-1"
-                        style={{ fontSize: 11 }}
-                      >
+                      <div className="text-danger mb-1" style={{ fontSize: 11 }}>
                         {errors[`item_${i}_destinos`]}
                       </div>
                     )}
 
-                    {item.destinos.map((destino, j) => (
+                    {item.destinos.map((dest, j) => (
                       <div key={j} className="cmp-destino-row">
                         <Form.Select
                           size="sm"
                           className="cmp-compact-select"
-                          value={destino.warehouse_id}
-                          onChange={(e) =>
-                            updateDestino(i, j, 'warehouse_id', e.target.value)
-                          }
-                          isInvalid={!!errors[`item_${i}_dest_${j}_wh`]}
+                          value={dest.warehouse_id}
+                          onChange={(e) => updateDestino(i, j, 'warehouse_id', e.target.value)}
                         >
-                          <option value="">Seleccionar depósito</option>
+                          <option value="">Depósito</option>
                           {depositos.map((d) => (
-                            <option key={d.id} value={d.id}>
-                              {d.nombre} ({d.codigo})
-                            </option>
+                            <option key={d.id} value={d.id}>{d.nombre}</option>
                           ))}
                         </Form.Select>
                         <Form.Control
@@ -600,52 +500,31 @@ const ModalCompras = ({
                           className="cmp-compact-input"
                           type="number"
                           step="0.01"
-                          placeholder="Cantidad"
-                          value={destino.quantity}
-                          onChange={(e) =>
-                            updateDestino(i, j, 'quantity', e.target.value)
-                          }
-                          isInvalid={!!errors[`item_${i}_dest_${j}_qty`]}
+                          placeholder="Cant."
+                          value={dest.quantity}
+                          onChange={(e) => updateDestino(i, j, 'quantity', e.target.value)}
                         />
                         {item.destinos.length > 1 && (
-                          <button
-                            type="button"
-                            className="cmp-btn-eliminar-sm"
+                          <Button
+                            variant="outline-danger"
+                            size="sm"
                             onClick={() => removeDestino(i, j)}
                           >
                             <i className="bi bi-x"></i>
-                          </button>
+                          </Button>
                         )}
                       </div>
                     ))}
-
-                    <button
-                      type="button"
-                      className="cmp-btn-add-destino"
-                      onClick={() => addDestino(i)}
-                    >
-                      <i className="bi bi-plus"></i> Agregar destino
-                    </button>
                   </div>
                 );
               })}
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer className="cmp-modal-footer">
-          <Button variant="secondary" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button type="submit" variant="success" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <i className="bi bi-arrow-repeat spin me-1"></i>Guardando...
-              </>
-            ) : (
-              <>
-                <i className="bi bi-check-lg me-1"></i>Guardar Compra
-              </>
-            )}
+        <Modal.Footer>
+          <Button variant="secondary" onClick={onClose}>Cancelar</Button>
+          <Button type="submit" variant="primary" disabled={isSubmitting}>
+            {isSubmitting ? 'Guardando...' : 'Guardar Compra'}
           </Button>
         </Modal.Footer>
       </Form>
