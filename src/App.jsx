@@ -27,6 +27,8 @@ import Remitos from './components/Remitos.jsx';
 import Presentaciones from './components/Presentaciones.jsx';
 import Rubros from './components/Rubros.jsx';
 import Subrubros from './components/Subrubros.jsx';
+import RegistroProspecto from './components/RegistroProspecto.jsx';
+import Prospectos from './components/Prospectos.jsx';
 
 function App() {
   return (
@@ -41,6 +43,7 @@ function App() {
             </PublicRoute>
           }
         />
+        <Route path="/registro-prospecto/:token" element={<RegistroProspecto />} />
 
         {/* PROTEGIDAS */}
         <Route
@@ -61,6 +64,7 @@ function App() {
           <Route path="maquinas" element={<Maquinas />} />
           <Route path="varios" element={<Varios />} />
           <Route path="clientes" element={<Clientes />} />
+          <Route path="prospectos" element={<Prospectos />} />
           <Route path="notificaciones" element={<Notifications />} />
           <Route path="herramientas" element={<Herramientas />} />
           <Route path="campañas" element={<Alertas />} />

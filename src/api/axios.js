@@ -98,8 +98,8 @@ instance.interceptors.response.use(
     const isLoginOrVerifyRequest =
       requestUrl.includes('/login') || requestUrl.includes('/auth/verify');
 
-    // ProtectedRoute maneja la sesión ausente de /auth/verify sin recargar la página.
-    if (status === 401 && !isLoginOrVerifyRequest) {
+    // SOLO sesión expirada global
+    if (status === 401 && !isLoginRequest && !error.config?.skipAuthRedirect) {
       localStorage.clear();
       window.location.href = '/login';
     }
