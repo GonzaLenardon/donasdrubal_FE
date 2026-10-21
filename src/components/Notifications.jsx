@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Bell } from 'lucide-react';
 import Spinner from './Spinner.jsx';
 import { allUsers, allIngenieros } from '../api/users.js';
 import {
@@ -10,6 +11,8 @@ import {
 } from '../api/notificaciones.js';
 import ModalEliminar from './ModalEliminar.jsx';
 import Select from 'react-select';
+import { useIsMobile } from '../hooks/useIsMobile';
+import '../css/page-header.css';
 
 const ENTITY_TYPES_WITH_FRONT_URL = [
   'clientes',
@@ -169,6 +172,7 @@ const prettyValue = (value) => {
 const Notifications = () => {
   const sessionUser = useMemo(() => getSessionUser(), []);
   const sessionUserId = String(sessionUser?.id || '');
+  const isMobile = useIsMobile();
 
   const [tab, setTab] = useState(TAB_RECIBIDAS);
   const [modal, setModal] = useState(false);
@@ -738,8 +742,11 @@ if (editingNotificationId) {
         <div style={{ margin: '0 auto', width: '100%' }}>
           <div className="header">
             <div>
-              <h2 className="title">Notificaciones</h2>
-              <p className="subtitle">
+              <h2 className="page-header__title">
+                <Bell size={22} className="page-header__icon" />
+                Notificaciones
+              </h2>
+              <p className="page-header__subtitle">
                 {stats.recibidas} recibidas, {stats.enviadas} enviadas
               </p>
             </div>
@@ -756,7 +763,7 @@ if (editingNotificationId) {
 
               <button className="btn-primary" onClick={openModal}>
                 <i className="bi bi-plus-lg"></i>
-                Nueva Notificacion
+                {!isMobile && 'Nueva Notificacion'}
               </button>
             </div>
           </div>

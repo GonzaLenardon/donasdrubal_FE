@@ -228,7 +228,7 @@
 ========================================= */
 
 .btn-primary {
-  background: var(--gradient-primary);
+  background: var(--color-base);
   border: none;
   padding: 0.75rem 1.5rem;
   font-weight: 600;
@@ -1137,6 +1137,15 @@ input[type='radio'] {
   height: 45px;
 }
 
+.sidebar-version {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  font-size: 0.8rem;
+  color: rgba(234, 225, 225, 0.7);
+  margin-top: 0.1rem;
+}
+
 /* INFO */
 
 .cliente-info {
@@ -1225,13 +1234,14 @@ small.text-muted {
   }
 
   .header {
-    flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
   }
 
   .btn-primary {
-    width: 100%;
+    /*  width: 100%; */
+    width: auto;
+    padding: 0.5rem 0.75rem;
     justify-content: center;
   }
 

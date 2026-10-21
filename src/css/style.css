@@ -151,9 +151,9 @@ body {
    BOTONES
    ============================================ */
 
-.btn-primary {
-  background: linear-gradient(135deg, #5a7f2c 0%, #3f6b1a 100%) !important;
-}
+/* .btn-primary {
+  background: linear-gradient(135deg, #7d2354 0%, #b2a514 100%) !important;
+} */
 
 /* ============================================
    SIDEBAR
@@ -175,6 +175,56 @@ body {
   justify-content: space-between;
 } */
 
+.sidebar-menu-group {
+  border-radius: 10px;
+  transition: background-color 0.25s ease;
+}
+
+.sidebar-menu-group.is-open {
+  background: rgba(74, 222, 128, 0.075);
+  box-shadow: inset 2px 0 0 rgba(74, 222, 128, 0.45);
+  padding: 3px 4px 5px;
+  margin-left: -4px;
+  margin-right: -2px;
+}
+
+.sidebar-link-parent.is-expanded {
+  background-color: rgba(74, 222, 128, 0.12);
+  color: #86efac;
+}
+
+.sidebar-link-parent.is-expanded .sidebar-arrow {
+  opacity: 1;
+  color: #86efac;
+}
+
+.sidebar-menu-group.is-open .sidebar-submenu {
+  border-left-color: rgba(74, 222, 128, 0.28);
+  margin-left: 8px;
+  padding-left: 10px;
+}
+
+.sidebar-sublink.is-active {
+  background-color: rgba(74, 222, 128, 0.16);
+  color: #bbf7d0;
+  opacity: 1;
+  box-shadow: inset 2px 0 0 #4ade80;
+}
+.sidebar-logout-link {
+  width: 100%;
+  justify-content: flex-start;
+  background: rgba(248, 113, 113, 0.08);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  color: #fecaca;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+}
+
+.sidebar-logout-link:hover {
+  background: rgba(248, 113, 113, 0.16);
+  color: #fff;
+}
 .sidebar {
   min-width: 240px;
   width: 285px;
@@ -187,15 +237,44 @@ body {
 
 .abc {
   position: fixed;
+  top: 0; /* CAMBIO: anclar al borde superior de la ventana */
   width: 265px;
-
-  height: 100%;
-  display: flex;
-
+  height: 100vh; /* CAMBIO: fallback para navegadores sin dvh */
+  height: 100dvh; /* CAMBIO: altura real visible, también en mobile */
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  overflow: hidden;
   transition: transform 0.3s ease;
+}
+
+/* CAMBIO: las partes fijas nunca se achican; solo scrollea el menú */
+.abc > .sidebar-header,
+.abc > .sidebar-cliente,
+.abc > .sidebar-user,
+.abc > .sidebar-bottom {
+  flex-shrink: 0;
+}
+
+.sidebar-menu-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 2px;
+}
+
+.sidebar-menu-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-menu-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.sidebar-menu-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Header */
@@ -223,7 +302,9 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 25px;
+  margin-bottom: 12px; /* CAMBIO: antes 25px */
+  padding-top: 12px; /* CAMBIO: separa el pie fijo del menú que scrollea */
+  border-top: 1px solid rgba(255, 255, 255, 0.08); /* CAMBIO */
 }
 
 .sidebar-avatar {
@@ -349,11 +430,15 @@ body {
 
 /* Parte inferior */
 .sidebar-bottom {
-  margin-top: 40px;
+  margin-top: auto;
+  flex-shrink: 0;
+  padding-bottom: calc(
+    2px + env(safe-area-inset-bottom, 0px)
+  ); /* CAMBIO: respeta el notch/barra inferior en mobile */
 }
 
 .sidebar li > .sidebar-submenu {
-  margin-bottom: 8px;
+  margin-bottom: 2px;
 }
 
 .sidebar-button {
@@ -2543,6 +2628,23 @@ textarea:focus-visible {
   /* Dashboard */
   .dashboard-content {
     margin-left: 0;
+  }
+
+  .abc {
+    top: 5rem !important;
+    height: calc(100vh - 5rem);
+    height: calc(100dvh - 5rem);
+    max-height: calc(100dvh - 5rem);
+  }
+
+  .sidebar-bottom {
+    padding-top: 8px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sidebar-logout-link {
+    min-height: 44px;
+    padding: 12px;
   }
 
   .logoMobile {

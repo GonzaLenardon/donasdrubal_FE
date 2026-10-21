@@ -10,6 +10,7 @@ import {
 import { resumenSemanal } from '../api/informes';
 import { allCliente } from '../api/clientes';
 import { allIngenieros } from '../api/users';
+import '../css/page-header.css';
 
 const ReporteSemanal = () => {
   const [fechaInicio, setFechaInicio] = useState('');
@@ -145,12 +146,18 @@ const ReporteSemanal = () => {
   // ─────────────────────────────────────────────
 
   return (
-    <div className="container-fluid p-2 ">
+    <div className="container-fluid py-4">
       {/* ── Header ── */}
-
-      <div className="d-flex align-items-center gap-2 mb-3">
-        <FileBarChart className="me-2 mb-1" size={24} />
-        <h2 className="title">Resumen de actividad</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 className="page-header__title">
+            <FileBarChart size={22} className="page-header__icon" />
+            Resumen de actividad
+          </h2>
+          <p className="page-header__subtitle">
+            Reporte semanal de servicios
+          </p>
+        </div>
       </div>
 
       {/* ── Formulario ── */}
