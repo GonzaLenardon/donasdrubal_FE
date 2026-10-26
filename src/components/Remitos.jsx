@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   FileText,
   Plus,
@@ -11,6 +11,7 @@ import {
   User,
   Calendar,
   Clock,
+  Search,
 } from 'lucide-react';
 import {
   allRemitos,
@@ -21,6 +22,7 @@ import {
 } from '../api/remitos';
 import { allWarehouses } from '../api/depositos';
 import { allCliente } from '../api/clientes';
+import { allIngenieros } from '../api/users';
 import Spinner from './Spinner';
 import ModalRemitoCatalogo from './ModalRemitoCatalogo';
 import UploadRemitoPhoto from './UploadRemitoPhoto';
@@ -42,6 +44,15 @@ const FILTROS_ESTADO = [
   { value: 'ANULADO', label: 'Anulado', dot: '#F09595' },
 ];
 
+const normalizar = (str) =>
+  (str ?? '')
+    .toString()
+    .normalize('NFD')
+    .split('')
+    .filter((c) => c.charCodeAt(0) < 0x0300 || c.charCodeAt(0) > 0x036f)
+    .join('')
+    .toLowerCase();
+
 const Remitos = () => {
   const [remitos, setRemitos] = useState([]);
   const [depositos, setDepositos] = useState([]);
@@ -50,12 +61,22 @@ const Remitos = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [subirFotoRemito, setSubirFotoRemito] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('');
+  const [inputProducto, setInputProducto] = useState('');
+  const [busquedaProducto, setBusquedaProducto] = useState('');
+  const [busquedaNumero, setBusquedaNumero] = useState('');
+  const [filtroCliente, setFiltroCliente] = useState('');
+  const [filtroDeposito, setFiltroDeposito] = useState('');
+  const [filtroDesde, setFiltroDesde] = useState('');
+  const [filtroHasta, setFiltroHasta] = useState('');
+  const [filtroIngeniero, setFiltroIngeniero] = useState('');
+  const [ingenieros, setIngenieros] = useState([]);
   const [selectedRemitoId, setSelectedRemitoId] = useState(null);
   const [remitoDetalle, setRemitoDetalle] = useState(null);
   const [loadingDetalle, setLoadingDetalle] = useState(false);
   const [archivos, setArchivos] = useState([]);
   const [selectedArchivoIdx, setSelectedArchivoIdx] = useState(0);
   const isMobile = useIsMobile();
+  const isAdmin = JSON.parse(localStorage.getItem('user'))?.rol === 'Administrador';
 
   useEffect(() => {
     cargarDatos();
@@ -69,17 +90,25 @@ const Remitos = () => {
     }
   }, [selectedRemitoId]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setBusquedaProducto(inputProducto), 300);
+    return () => clearTimeout(timer);
+  }, [inputProducto]);
+
   const cargarDatos = async () => {
     try {
       setLoading(true);
-      const [remitosRes, depositosRes, clientesRes] = await Promise.all([
-        allRemitos(),
-        allWarehouses(),
-        allCliente(),
-      ]);
+      const [remitosRes, depositosRes, clientesRes, ingenierosRes] =
+        await Promise.all([
+          allRemitos(),
+          allWarehouses(),
+          allCliente(),
+          isAdmin ? allIngenieros() : Promise.resolve(null),
+        ]);
       setRemitos(remitosRes.data);
       setDepositos(depositosRes.data);
       setClientes(clientesRes.data);
+      setIngenieros(ingenierosRes?.data ?? []);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
@@ -159,12 +188,102 @@ const Remitos = () => {
     return new Date(dateStr).toLocaleString('es-AR');
   };
 
-  const contarPorEstado = (estado) =>
-    estado ? remitos.filter((r) => r.status === estado).length : remitos.length;
+  const hayFiltros = Boolean(
+    inputProducto ||
+      busquedaNumero ||
+      filtroCliente ||
+      filtroDeposito ||
+      filtroDesde ||
+      filtroHasta ||
+      filtroIngeniero ||
+      filtroEstado,
+  );
+
+  const limpiarFiltros = () => {
+    setInputProducto('');
+    setBusquedaProducto('');
+    setBusquedaNumero('');
+    setFiltroCliente('');
+    setFiltroDeposito('');
+    setFiltroDesde('');
+    setFiltroHasta('');
+    setFiltroIngeniero('');
+    setFiltroEstado('');
+  };
+
+  const remitosBase = useMemo(() => {
+    const queryProducto = normalizar(busquedaProducto.trim());
+    const queryNumero = normalizar(busquedaNumero.trim());
+
+    return remitos.filter((remito) => {
+      if (filtroCliente && remito.destination_client_id !== Number(filtroCliente))
+        return false;
+      if (filtroDeposito && remito.origin_warehouse_id !== Number(filtroDeposito))
+        return false;
+
+      if (queryNumero && !normalizar(remito.remito_number).includes(queryNumero))
+        return false;
+
+      if (queryProducto) {
+        const coincideProducto = (remito.items || []).some(
+          (item) =>
+            normalizar(item.variante?.producto?.nombre).includes(queryProducto) ||
+            normalizar(item.variante?.codigo).includes(queryProducto) ||
+            normalizar(item.variante?.presentacion?.nombre).includes(queryProducto),
+        );
+        if (!coincideProducto) return false;
+      }
+
+      if (filtroDesde || filtroHasta) {
+        const fecha = new Date(remito.createdAt);
+        if (filtroDesde && fecha < new Date(`${filtroDesde}T00:00:00`))
+          return false;
+        if (filtroHasta && fecha > new Date(`${filtroHasta}T23:59:59`))
+          return false;
+      }
+
+      if (filtroIngeniero) {
+        const ingId = Number(filtroIngeniero);
+        const cliente = clientes.find(
+          (c) => c.id === remito.destination_client_id,
+        );
+        const asignado = cliente?.ingenieros?.some(
+          (ing) => ing.user_id === ingId,
+        );
+        if (!asignado && remito.creadoPor?.id !== ingId) return false;
+      }
+
+      return true;
+    });
+  }, [
+    remitos,
+    clientes,
+    busquedaProducto,
+    busquedaNumero,
+    filtroCliente,
+    filtroDeposito,
+    filtroDesde,
+    filtroHasta,
+    filtroIngeniero,
+  ]);
 
   const remitosFiltrados = filtroEstado
-    ? remitos.filter((r) => r.status === filtroEstado)
-    : remitos;
+    ? remitosBase.filter((r) => r.status === filtroEstado)
+    : remitosBase;
+
+  const contarPorEstado = (estado) =>
+    estado
+      ? remitosBase.filter((r) => r.status === estado).length
+      : remitosBase.length;
+
+  useEffect(() => {
+    if (
+      selectedRemitoId &&
+      !remitosFiltrados.some((r) => r.id === selectedRemitoId)
+    ) {
+      setSelectedRemitoId(null);
+    }
+  }, [remitosFiltrados, selectedRemitoId]);
 
   const remitoSeleccionado = remitos.find((r) => r.id === selectedRemitoId);
 
@@ -478,7 +597,9 @@ const Remitos = () => {
             Remitos
           </h2>
           <p className="page-header__subtitle">
-            {remitos.length} remitos registrados
+            {hayFiltros
+              ? `${remitosFiltrados.length} de ${remitos.length} remitos`
+              : `${remitos.length} remitos registrados`}
           </p>
         </div>
 
@@ -516,11 +637,122 @@ const Remitos = () => {
           </div>
         </div>
 
+        <div className="remitos-filtros">
+          <div className="remitos-filtros__group remitos-filtros__group--grow">
+            <label className="remitos-filtros__label">Producto</label>
+            <div className="remitos-filtros__search">
+              <Search size={14} />
+              <input
+                type="text"
+                className="remitos-filtros__input"
+                placeholder="Buscar por producto..."
+                value={inputProducto}
+                onChange={(e) => setInputProducto(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="remitos-filtros__group">
+            <label className="remitos-filtros__label">N° Remito</label>
+            <input
+              type="text"
+              className="remitos-filtros__input remitos-filtros__input--numero"
+              placeholder="00000001"
+              value={busquedaNumero}
+              onChange={(e) => setBusquedaNumero(e.target.value)}
+            />
+          </div>
+
+          <div className="remitos-filtros__group">
+            <label className="remitos-filtros__label">Cliente</label>
+            <select
+              className="remitos-filtros__input"
+              value={filtroCliente}
+              onChange={(e) => setFiltroCliente(e.target.value)}
+            >
+              <option value="">Todos</option>
+              {clientes.map((cliente) => (
+                <option key={cliente.id} value={cliente.id}>
+                  {cliente.razon_social}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="remitos-filtros__group">
+            <label className="remitos-filtros__label">Depósito</label>
+            <select
+              className="remitos-filtros__input"
+              value={filtroDeposito}
+              onChange={(e) => setFiltroDeposito(e.target.value)}
+            >
+              <option value="">Todos</option>
+              {depositos.map((deposito) => (
+                <option key={deposito.id} value={deposito.id}>
+                  {deposito.nombre} ({deposito.codigo})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="remitos-filtros__group">
+            <label className="remitos-filtros__label">Desde</label>
+            <input
+              type="date"
+              className="remitos-filtros__input remitos-filtros__input--fecha"
+              value={filtroDesde}
+              onChange={(e) => setFiltroDesde(e.target.value)}
+            />
+          </div>
+
+          <div className="remitos-filtros__group">
+            <label className="remitos-filtros__label">Hasta</label>
+            <input
+              type="date"
+              className="remitos-filtros__input remitos-filtros__input--fecha"
+              value={filtroHasta}
+              onChange={(e) => setFiltroHasta(e.target.value)}
+            />
+          </div>
+
+          {isAdmin && (
+            <div className="remitos-filtros__group">
+              <label className="remitos-filtros__label">
+                Ingeniero / Empleado
+              </label>
+              <select
+                className="remitos-filtros__input"
+                value={filtroIngeniero}
+                onChange={(e) => setFiltroIngeniero(e.target.value)}
+              >
+                <option value="">Todos</option>
+                {ingenieros.map((ingeniero) => (
+                  <option key={ingeniero.id} value={ingeniero.id}>
+                    {ingeniero.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <button
+            className="remitos-filtros__limpiar"
+            onClick={limpiarFiltros}
+            disabled={!hayFiltros}
+          >
+            Limpiar filtros
+          </button>
+        </div>
+
         {isMobile ? (
           <div className="remitos-scroll">
             <div className="d-flex flex-column gap-2">
               {remitosFiltrados.length === 0 ? (
-                <p className="remitos-vacio">Sin remitos registrados</p>
+                <p className="remitos-vacio">
+                  {hayFiltros
+                    ? 'Sin resultados para los filtros aplicados'
+                    : 'Sin remitos registrados'}
+                </p>
               ) : (
                 remitosFiltrados.map((remito) => (
                   <div
@@ -587,7 +819,9 @@ const Remitos = () => {
                   {remitosFiltrados.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="remitos-vacio">
-                        Sin remitos registrados
+                        {hayFiltros
+                          ? 'Sin resultados para los filtros aplicados'
+                          : 'Sin remitos registrados'}
                       </td>
                     </tr>
                   ) : (
