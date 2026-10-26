@@ -44,7 +44,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       path: '/notificaciones',
       icon: 'bi-bell-fill',
     },
-    /* {
+    {
       title: 'Stock',
       icon: 'bi-box-seam-fill',
       children: [
@@ -64,8 +64,8 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
         { title: 'Proveedores', path: '/stock/proveedores', icon: 'bi-truck' },
         { title: 'Saldos', path: '/stock/saldo', icon: 'bi-clipboard-data' },
       ],
-    }, */
-    /* {
+    },
+    {
       title: 'Operaciones',
       icon: 'bi-cart-fill',
       children: [
@@ -76,7 +76,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           icon: 'bi-file-earmark-text-fill',
         },
       ],
-    }, */
+    },
     {
       title: 'Herramientas',
       path: '/herramientas',
@@ -350,7 +350,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
               </li>
             </ul>
           </div>
-          <div className="sidebar-version">V.1.0.0</div>
+          <div className="sidebar-version">V.1.0.1</div>
         </div>
       </aside>
 
