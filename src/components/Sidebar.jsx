@@ -104,6 +104,12 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           roles: ['Administrador'], // 🔐 Solo admin
         },
         {
+          title: 'Informe CRM',
+          path: '/reportes/crm',
+          icon: 'bi-file-earmark-spreadsheet-fill',
+          roles: ['Administrador'],
+        },
+        {
           title: 'Campañas',
           path: '/campañas',
           icon: 'bi bi-flower1',
