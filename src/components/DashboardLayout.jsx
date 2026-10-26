@@ -19,6 +19,7 @@ const breadcrumbNames = {
   pozos: 'Pozos',
   jornadas: 'Jornadas',
   reportes: 'Reportes',
+  crm: 'Informe CRM',
   stock: 'Stock',
   productos: 'Productos',
   presentaciones: 'Presentaciones',

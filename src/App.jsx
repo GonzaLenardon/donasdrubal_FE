@@ -29,6 +29,7 @@ import Rubros from './components/Rubros.jsx';
 import Subrubros from './components/Subrubros.jsx';
 import RegistroProspecto from './components/RegistroProspecto.jsx';
 import Prospectos from './components/Prospectos.jsx';
+import InformeCrm from './components/InformeCrm.jsx';
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
           <Route path="herramientas" element={<Herramientas />} />
           <Route path="campañas" element={<Alertas />} />
           <Route path="/reportes/resumen" element={<ReporteSemanal />} />
+          <Route path="reportes/crm" element={<InformeCrm />} />
 
           {/* Detalles */}
 
