@@ -102,7 +102,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           title: 'Faltantes de Remitos',
           path: '/reportes/remitos-faltantes',
           icon: 'bi-file-earmark-richtext-fill',
-          roles: ['Administrador'], // 🔐 Solo admin
+          roles: ['Administrador', 'Ingeniero'],
         },
       ],
     },

@@ -1,12 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, Download, Layers } from 'lucide-react';
-import {
-  analizarRemitos,
-  construirCsvFaltantes,
-  construirFilasGrupo,
-  formatNumeroRemito,
-  UMBRAL_GRUPADO_POR_DEFECTO,
-} from '../utils/remitosFaltantes';
+import { getRemitosFaltantes } from '../api/remitos';
+import Spinner from './Spinner';
 import '../css/page-header.css';
 import '../css/remitosFaltantes.css';
 
@@ -17,59 +12,86 @@ const STATUS_COLORS = {
   ANULADO: '#dc3545',
 };
 
-const OPCIONES_UMBRAL = [
-  { value: '3', label: 'Agrupar desde 3' },
-  { value: '5', label: 'Agrupar desde 5' },
-  { value: '10', label: 'Agrupar desde 10' },
-  { value: '999999', label: 'No agrupar' },
-];
-
 const formatDate = (dateStr) => {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('es-AR');
 };
 
-const RemitosFaltantesPanel = ({
-  remitos = [],
-  depositos = [],
-  clientes = [],
-  ingenieros = [],
-}) => {
+const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
   const [filtroDeposito, setFiltroDeposito] = useState('');
   const [filtroIngeniero, setFiltroIngeniero] = useState('');
-  const [umbral, setUmbral] = useState(String(UMBRAL_GRUPADO_POR_DEFECTO));
+  const [agrupar, setAgrupar] = useState(true);
   const [soloConFaltantes, setSoloConFaltantes] = useState(false);
+  const [datos, setDatos] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const getNombreDeposito = (id) => {
-    const deposito = depositos.find((dep) => dep.id === id);
-    return deposito ? `${deposito.nombre} (${deposito.codigo})` : `Depósito #${id}`;
-  };
+  const cargarInforme = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
 
-  const getNombreCliente = (id) => {
-    const cliente = clientes.find((cli) => cli.id === id);
-    return cliente ? cliente.razon_social : `Cliente #${id}`;
-  };
+      const res = await getRemitosFaltantes({
+        depositoId: filtroDeposito ? Number(filtroDeposito) : null,
+        ingenieroId: filtroIngeniero ? Number(filtroIngeniero) : null,
+        agrupar,
+      });
 
-  const analisis = useMemo(
-    () =>
-      analizarRemitos(
-        remitos,
-        {
-          depositoId: filtroDeposito,
-          ingenieroId: filtroIngeniero,
-          umbral: Number(umbral),
-        },
-        clientes,
-      ),
-    [remitos, clientes, filtroDeposito, filtroIngeniero, umbral],
-  );
+      setDatos(res.data ?? null);
+    } catch (err) {
+      console.error('Error al cargar faltantes de remitos:', err);
+      setDatos(null);
+      setError(
+        err.response?.data?.mensaje ||
+          err.response?.data?.message ||
+          err.message ||
+          'No se pudo cargar el informe de faltantes',
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [filtroDeposito, filtroIngeniero, agrupar]);
 
-  const gruposVisibles = useMemo(
+  useEffect(() => {
+    cargarInforme();
+  }, [cargarInforme]);
+
+  const gruposBase = useMemo(() => {
+    const lista = datos?.grupos ?? [];
+
+    if (filtroDeposito && filtroIngeniero) {
+      return lista.filter(
+        (grupo) => grupo.deposito_id === Number(filtroDeposito),
+      );
+    }
+
+    return lista;
+  }, [datos, filtroDeposito, filtroIngeniero]);
+
+  const grupos = useMemo(
     () =>
       soloConFaltantes
-        ? analisis.grupos.filter((grupo) => grupo.totalFaltantes > 0)
-        : analisis.grupos,
-    [analisis.grupos, soloConFaltantes],
+        ? gruposBase.filter((grupo) => grupo.total_faltantes > 0)
+        : gruposBase,
+    [gruposBase, soloConFaltantes],
+  );
+
+  const resumen = useMemo(
+    () => ({
+      total_remitos: gruposBase.reduce(
+        (acc, grupo) => acc + grupo.total_remitos,
+        0,
+      ),
+      total_faltantes: gruposBase.reduce(
+        (acc, grupo) => acc + grupo.total_faltantes,
+        0,
+      ),
+      depositos_con_faltantes: gruposBase.filter(
+        (grupo) => grupo.total_faltantes > 0,
+      ).length,
+      total_depositos: gruposBase.length,
+    }),
+    [gruposBase],
   );
 
   const hayFiltros = Boolean(filtroDeposito || filtroIngeniero);
@@ -80,7 +102,30 @@ const RemitosFaltantesPanel = ({
   };
 
   const exportarCsv = () => {
-    const csv = construirCsvFaltantes(analisis.grupos, getNombreDeposito);
+    const encabezado = ['Deposito', 'Desde', 'Hasta', 'Cantidad', 'Tipo'];
+    const filas = [];
+
+    gruposBase.forEach((grupo) => {
+      const nombre = grupo.deposito
+        ? `${grupo.deposito.nombre} (${grupo.deposito.codigo})`
+        : `Deposito #${grupo.deposito_id}`;
+
+      grupo.faltantes.forEach((faltante) => {
+        filas.push([
+          nombre,
+          faltante.desde_texto,
+          faltante.hasta_texto,
+          String(faltante.cantidad),
+          faltante.agrupado ? 'Rango' : 'Numero',
+        ]);
+      });
+    });
+
+    const escapar = (valor) => `"${String(valor ?? '').replace(/"/g, '""')}"`;
+    const csv = [encabezado, ...filas]
+      .map((fila) => fila.map(escapar).join(';'))
+      .join('\n');
+
     const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -131,17 +176,14 @@ const RemitosFaltantesPanel = ({
 
         <div className="remitos-filtros__group">
           <label className="remitos-filtros__label">Agrupación</label>
-          <select
-            className="remitos-filtros__input"
-            value={umbral}
-            onChange={(e) => setUmbral(e.target.value)}
-          >
-            {OPCIONES_UMBRAL.map((opcion) => (
-              <option key={opcion.value} value={opcion.value}>
-                {opcion.label}
-              </option>
-            ))}
-          </select>
+          <label className="faltantes-toggle">
+            <input
+              type="checkbox"
+              checked={agrupar}
+              onChange={(e) => setAgrupar(e.target.checked)}
+            />
+            Agrupar saltos mayores a 5
+          </label>
         </div>
 
         <label className="faltantes-toggle">
@@ -164,167 +206,201 @@ const RemitosFaltantesPanel = ({
         <button
           className="faltantes-btn"
           onClick={exportarCsv}
-          disabled={analisis.totalFaltantes === 0}
+          disabled={!resumen.total_faltantes}
         >
           <Download size={14} />
           Exportar CSV
         </button>
       </div>
 
-      <div className="faltantes-resumen">
-        <div className="faltantes-resumen__card">
-          <span className="faltantes-resumen__label">Remitos analizados</span>
-          <strong className="faltantes-resumen__valor">
-            {analisis.totalRemitos}
-          </strong>
-        </div>
-        <div className="faltantes-resumen__card faltantes-resumen__card--alerta">
-          <span className="faltantes-resumen__label">Números faltantes</span>
-          <strong className="faltantes-resumen__valor">
-            {analisis.totalFaltantes}
-          </strong>
-        </div>
-        <div className="faltantes-resumen__card">
-          <span className="faltantes-resumen__label">Depósitos con faltantes</span>
-          <strong className="faltantes-resumen__valor">
-            {analisis.depositosConFaltantes}
-          </strong>
-        </div>
-        <div className="faltantes-resumen__card">
-          <span className="faltantes-resumen__label">Próximo número esperado</span>
-          <strong className="faltantes-resumen__valor faltantes-resumen__valor--chico">
-            {filtroDeposito && analisis.grupos[0]?.siguienteNumero
-              ? formatNumeroRemito(
-                  analisis.grupos[0].siguienteNumero,
-                  analisis.grupos[0].ancho,
-                )
-              : 'Por depósito'}
-          </strong>
-        </div>
-      </div>
+      {error && (
+        <div className="faltantes-alerta faltantes-alerta--error">{error}</div>
+      )}
 
-      {gruposVisibles.length === 0 ? (
-        <div className="remitos-box">
-          <p className="remitos-vacio">
-            {hayFiltros
-              ? 'Sin resultados para los filtros aplicados'
-              : 'Sin remitos registrados'}
-          </p>
+      {datos?.scope === 'PARCIAL' && (
+        <div className="faltantes-alerta faltantes-alerta--warning">
+          <AlertTriangle size={14} />
+          Análisis parcial: solo se consideran los remitos de los clientes
+          asignados a tu usuario, por lo que los saltos detectados pueden no
+          ser reales.
+        </div>
+      )}
+
+      {datos && !error && (
+        <div className="faltantes-modo">
+          <span className="faltantes-chip">
+            {datos.modo === 'agrupados'
+              ? `Saltos agrupados (corridas de más de ${datos.umbral_agrupacion})`
+              : 'Cada número faltante por separado'}
+          </span>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="faltantes-cargando">
+          <Spinner />
         </div>
       ) : (
-        gruposVisibles.map((grupo) => {
-          const filas = construirFilasGrupo(grupo);
+        <>
+          <div className="faltantes-resumen">
+            <div className="faltantes-resumen__card">
+              <span className="faltantes-resumen__label">
+                Remitos analizados
+              </span>
+              <strong className="faltantes-resumen__valor">
+                {resumen.total_remitos}
+              </strong>
+            </div>
+            <div className="faltantes-resumen__card faltantes-resumen__card--alerta">
+              <span className="faltantes-resumen__label">
+                Números faltantes
+              </span>
+              <strong className="faltantes-resumen__valor">
+                {resumen.total_faltantes}
+              </strong>
+            </div>
+            <div className="faltantes-resumen__card">
+              <span className="faltantes-resumen__label">
+                Depósitos con faltantes
+              </span>
+              <strong className="faltantes-resumen__valor">
+                {resumen.depositos_con_faltantes}
+              </strong>
+            </div>
+            <div className="faltantes-resumen__card">
+              <span className="faltantes-resumen__label">
+                Depósitos analizados
+              </span>
+              <strong className="faltantes-resumen__valor">
+                {resumen.total_depositos}
+              </strong>
+            </div>
+          </div>
 
-          return (
-            <div className="remitos-box" key={grupo.depositoId}>
-              <div className="remitos-box__header">
-                <h4 className="remitos-box__title">
-                  <Layers size={16} />
-                  {getNombreDeposito(grupo.depositoId)}
-                </h4>
-                <div className="faltantes-box__meta">
-                  <span>{grupo.totalRemitos} remitos</span>
-                  {grupo.totalFaltantes > 0 ? (
-                    <span className="faltantes-chip faltantes-chip--alerta">
-                      <AlertTriangle size={12} />
-                      {grupo.totalFaltantes} faltantes
-                    </span>
-                  ) : (
-                    <span className="faltantes-chip faltantes-chip--ok">
-                      Sin faltantes
-                    </span>
-                  )}
-                  {grupo.siguienteNumero !== null && (
-                    <span>
-                      Próximo:{' '}
-                      {formatNumeroRemito(grupo.siguienteNumero, grupo.ancho)}
-                    </span>
-                  )}
+          {grupos.length === 0 ? (
+            <div className="remitos-box">
+              <p className="remitos-vacio">
+                {hayFiltros
+                  ? 'Sin resultados para los filtros aplicados'
+                  : 'Sin remitos registrados'}
+              </p>
+            </div>
+          ) : (
+            grupos.map((grupo) => (
+              <div className="remitos-box" key={grupo.deposito_id}>
+                <div className="remitos-box__header">
+                  <h4 className="remitos-box__title">
+                    <Layers size={16} />
+                    {grupo.deposito
+                      ? `${grupo.deposito.nombre} (${grupo.deposito.codigo})`
+                      : `Depósito #${grupo.deposito_id}`}
+                  </h4>
+                  <div className="faltantes-box__meta">
+                    <span>{grupo.total_remitos} remitos</span>
+                    {grupo.total_faltantes > 0 ? (
+                      <span className="faltantes-chip faltantes-chip--alerta">
+                        <AlertTriangle size={12} />
+                        {grupo.total_faltantes} faltantes
+                      </span>
+                    ) : (
+                      <span className="faltantes-chip faltantes-chip--ok">
+                        Sin faltantes
+                      </span>
+                    )}
+                    {grupo.numeracion_min && (
+                      <span>
+                        Serie: {grupo.numeracion_min} — {grupo.numeracion_max}
+                      </span>
+                    )}
+                    {grupo.siguiente_numero && (
+                      <span>Próximo: {grupo.siguiente_numero}</span>
+                    )}
+                    {grupo.truncado && (
+                      <span className="faltantes-chip faltantes-chip--alerta">
+                        Lista truncada: {grupo.total_faltantes} faltantes
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="remitos-scroll">
-                <table className="faltantes-tabla">
-                  <thead>
-                    <tr>
-                      <th>Número</th>
-                      <th>Tipo</th>
-                      <th>Cliente</th>
-                      <th>Fecha</th>
-                      <th>Estado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filas.map((fila, index) => {
-                      if (fila.tipo === 'faltante') {
+                <div className="remitos-scroll">
+                  <table className="faltantes-tabla">
+                    <thead>
+                      <tr>
+                        <th>Número</th>
+                        <th>Tipo</th>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {grupo.filas.map((fila, index) => {
+                        if (fila.tipo === 'faltante') {
+                          return (
+                            <tr
+                              key={`falta-${fila.desde}-${index}`}
+                              className="faltantes-fila faltantes-fila--falta"
+                            >
+                              <td className="faltantes-fila__numero">
+                                {fila.agrupado
+                                  ? `${fila.desde_texto} … ${fila.hasta_texto}`
+                                  : fila.desde_texto}
+                              </td>
+                              <td
+                                colSpan={4}
+                                className="faltantes-fila__detalle"
+                              >
+                                {fila.agrupado
+                                  ? `Faltante (${fila.cantidad} números)`
+                                  : 'Faltante'}
+                              </td>
+                            </tr>
+                          );
+                        }
+
                         return (
-                          <tr
-                            key={`falta-${fila.desde}-${index}`}
-                            className="faltantes-fila faltantes-fila--falta"
-                          >
+                          <tr key={fila.id} className="faltantes-fila">
                             <td className="faltantes-fila__numero">
-                              {fila.agrupado ? (
-                                <>
-                                  {formatNumeroRemito(fila.desde, grupo.ancho)}{' '}
-                                  …{' '}
-                                  {formatNumeroRemito(fila.hasta, grupo.ancho)}
-                                </>
-                              ) : (
-                                formatNumeroRemito(fila.desde, grupo.ancho)
-                              )}
+                              {fila.remito_number}
                             </td>
-                            <td colSpan={4} className="faltantes-fila__detalle">
-                              {fila.agrupado
-                                ? `Faltante (${fila.cantidad} números)`
-                                : 'Faltante'}
+                            <td>
+                              <span
+                                className={`remitos-badge ${
+                                  fila.type === 'OFICIAL'
+                                    ? 'remitos-badge--oficial'
+                                    : 'remitos-badge--no-oficial'
+                                }`}
+                              >
+                                {fila.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}
+                              </span>
+                            </td>
+                            <td>{fila.cliente ?? `Cliente #${fila.cliente_id}`}</td>
+                            <td>{formatDate(fila.createdAt)}</td>
+                            <td>
+                              <span
+                                className={`remitos-badge remitos-badge--${(
+                                  fila.status || 'PENDIENTE'
+                                ).toLowerCase()}`}
+                                style={{
+                                  backgroundColor:
+                                    STATUS_COLORS[fila.status] ??
+                                    STATUS_COLORS.PENDIENTE,
+                                }}
+                              >
+                                {fila.status || 'PENDIENTE'}
+                              </span>
                             </td>
                           </tr>
                         );
-                      }
-
-                      const remito = fila.remito;
-
-                      return (
-                        <tr key={remito.id} className="faltantes-fila">
-                          <td className="faltantes-fila__numero">
-                            {remito.remito_number}
-                          </td>
-                          <td>
-                            <span
-                              className={`remitos-badge ${
-                                remito.type === 'OFICIAL'
-                                  ? 'remitos-badge--oficial'
-                                  : 'remitos-badge--no-oficial'
-                              }`}
-                            >
-                              {remito.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}
-                            </span>
-                          </td>
-                          <td>{getNombreCliente(remito.destination_client_id)}</td>
-                          <td>{formatDate(remito.createdAt)}</td>
-                          <td>
-                            <span
-                              className={`remitos-badge remitos-badge--${(
-                                remito.status || 'PENDIENTE'
-                              ).toLowerCase()}`}
-                              style={{
-                                backgroundColor:
-                                  STATUS_COLORS[remito.status] ??
-                                  STATUS_COLORS.PENDIENTE,
-                              }}
-                            >
-                              {remito.status || 'PENDIENTE'}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          );
-        })
+            ))
+          )}
+        </>
       )}
     </div>
   );

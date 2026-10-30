@@ -640,9 +640,7 @@ const Remitos = () => {
 
       {vista === 'faltantes' && (
         <RemitosFaltantesPanel
-          remitos={remitos}
           depositos={depositos}
-          clientes={clientes}
           ingenieros={ingenieros}
         />
       )}
