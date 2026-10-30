@@ -10,6 +10,47 @@
   gap: 10px;
 }
 
+/* ===== Alertas y estados ===== */
+.faltantes-alerta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+}
+
+.faltantes-alerta--error {
+  background: var(--faltantes-rojo-bg);
+  border: 1px solid var(--faltantes-rojo);
+  color: var(--faltantes-rojo);
+}
+
+.faltantes-alerta--warning {
+  background: var(--faltantes-ambar-bg);
+  border: 1px solid var(--faltantes-ambar);
+  color: var(--faltantes-ambar);
+}
+
+.faltantes-cargando {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+/* ===== Modo de visualización ===== */
+.faltantes-modo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.faltantes-modo .faltantes-chip {
+  background: var(--remitos-sel, rgba(31, 58, 46, 0.08));
+  color: var(--remitos-text, #1f3a2e);
+}
+
 /* ===== Resumen ===== */
 .faltantes-resumen {
   display: grid;
