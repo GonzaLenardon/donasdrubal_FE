@@ -83,6 +83,30 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
       icon: 'bi-wrench',
     },
     {
+      title: 'Informes',
+      icon: 'bi-file-earmark-text-fill',
+      children: [
+        {
+          title: 'Informe Resumen',
+          path: '/reportes/resumen',
+          icon: 'bi-file-earmark-bar-graph-fill',
+          roles: ['Administrador'], // 🔐 Solo admin
+        },
+        {
+          title: 'Informe CRM',
+          path: '/reportes/crm',
+          icon: 'bi-file-earmark-spreadsheet-fill',
+          roles: ['Administrador'], // 🔐 Solo admin
+        },
+        {
+          title: 'Faltantes de Remitos',
+          path: '/reportes/remitos-faltantes',
+          icon: 'bi-file-earmark-richtext-fill',
+          roles: ['Administrador'], // 🔐 Solo admin
+        },
+      ],
+    },
+    {
       title: 'Configuración',
       icon: 'bi-gear-fill',
       children: [
@@ -96,18 +120,6 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           title: 'Tipos Máquinas',
           path: '/maquinasTipos',
           icon: 'bi-layers-fill',
-        },
-        {
-          title: 'Informe Resumen ',
-          path: '/reportes/resumen',
-          icon: 'bi-file-earmark-bar-graph-fill',
-          roles: ['Administrador'], // 🔐 Solo admin
-        },
-        {
-          title: 'Informe CRM',
-          path: '/reportes/crm',
-          icon: 'bi-file-earmark-spreadsheet-fill',
-          roles: ['Administrador'],
         },
         {
           title: 'Campañas',

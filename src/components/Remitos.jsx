@@ -12,6 +12,7 @@ import {
   Calendar,
   Clock,
   Search,
+  AlertTriangle,
 } from 'lucide-react';
 import {
   allRemitos,
@@ -26,6 +27,7 @@ import { allIngenieros } from '../api/users';
 import Spinner from './Spinner';
 import ModalRemitoCatalogo from './ModalRemitoCatalogo';
 import UploadRemitoPhoto from './UploadRemitoPhoto';
+import RemitosFaltantesPanel from './RemitosFaltantesPanel';
 import { useIsMobile } from '../hooks/useIsMobile';
 import '../css/page-header.css';
 
@@ -75,6 +77,7 @@ const Remitos = () => {
   const [loadingDetalle, setLoadingDetalle] = useState(false);
   const [archivos, setArchivos] = useState([]);
   const [selectedArchivoIdx, setSelectedArchivoIdx] = useState(0);
+  const [vista, setVista] = useState('listado');
   const isMobile = useIsMobile();
   const isAdmin = JSON.parse(localStorage.getItem('user'))?.rol === 'Administrador';
 
@@ -597,20 +600,56 @@ const Remitos = () => {
             Remitos
           </h2>
           <p className="page-header__subtitle">
-            {hayFiltros
-              ? `${remitosFiltrados.length} de ${remitos.length} remitos`
-              : `${remitos.length} remitos registrados`}
+            {vista === 'faltantes'
+              ? 'Control de saltos en la numeración por depósito'
+              : hayFiltros
+                ? `${remitosFiltrados.length} de ${remitos.length} remitos`
+                : `${remitos.length} remitos registrados`}
           </p>
         </div>
 
-        <button className="btn-primary" onClick={() => setIsOpen(true)}>
-          <i className="bi bi-plus-lg"></i>
+        {vista === 'listado' && (
+          <button className="btn-primary" onClick={() => setIsOpen(true)}>
+            <i className="bi bi-plus-lg"></i>
 
-          {!isMobile && 'Nuevo Remito'}
+            {!isMobile && 'Nuevo Remito'}
+          </button>
+        )}
+      </div>
+
+      <div className="remitos-pills mb-3">
+        <button
+          className={`remitos-pill ${
+            vista === 'listado' ? 'remitos-pill--active' : ''
+          }`}
+          onClick={() => setVista('listado')}
+        >
+          <ClipboardList size={13} />
+          Listado ({remitos.length})
+        </button>
+        <button
+          className={`remitos-pill ${
+            vista === 'faltantes' ? 'remitos-pill--active' : ''
+          }`}
+          onClick={() => setVista('faltantes')}
+        >
+          <AlertTriangle size={13} />
+          Faltantes de numeración
         </button>
       </div>
 
-      <div className="remitos-surface">
+      {vista === 'faltantes' && (
+        <RemitosFaltantesPanel
+          remitos={remitos}
+          depositos={depositos}
+          clientes={clientes}
+          ingenieros={ingenieros}
+        />
+      )}
+
+      <div
+        className={`remitos-surface ${vista === 'faltantes' ? 'd-none' : ''}`}
+      >
         <div className="remitos-surface__header">
           <h3 className="remitos-surface__title">
             <ClipboardList size={16} />
