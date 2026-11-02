@@ -30,6 +30,7 @@ import Subrubros from './components/Subrubros.jsx';
 import RegistroProspecto from './components/RegistroProspecto.jsx';
 import Prospectos from './components/Prospectos.jsx';
 import InformeCrm from './components/InformeCrm.jsx';
+import InformeRemitosFaltantes from './components/InformeRemitosFaltantes.jsx';
 
 function App() {
   return (
@@ -71,6 +72,10 @@ function App() {
           <Route path="campañas" element={<Alertas />} />
           <Route path="/reportes/resumen" element={<ReporteSemanal />} />
           <Route path="reportes/crm" element={<InformeCrm />} />
+          <Route
+            path="reportes/remitos-faltantes"
+            element={<InformeRemitosFaltantes />}
+          />
 
           {/* Detalles */}
 

@@ -30,6 +30,27 @@ export const getCatalogo = async (warehouseId) => {
   return res;
 };
 
+export const getRemitosFaltantes = async ({
+  depositoId = null,
+  ingenieroId = null,
+  agrupar = false,
+} = {}) => {
+  let url = '/stock/remitos/faltantes';
+
+  if (ingenieroId) {
+    url += `/ingeniero/${ingenieroId}`;
+  } else if (depositoId) {
+    url += `/deposito/${depositoId}`;
+  }
+
+  if (agrupar) {
+    url += '/agrupados';
+  }
+
+  const res = await instance.get(url);
+  return res;
+};
+
 export const uploadPhoto = async (id, formData) => {
   const res = await instance.put(`/stock/remitos/${id}/photo`, formData, {
     headers: {
