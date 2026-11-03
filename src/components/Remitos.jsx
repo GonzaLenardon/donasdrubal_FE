@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
   FileText,
-  Plus,
   ClipboardList,
   Image as ImageIcon,
   Camera,
@@ -13,6 +12,7 @@ import {
   Clock,
   Search,
   AlertTriangle,
+  ArrowLeftRight,
 } from 'lucide-react';
 import {
   allRemitos,
@@ -26,6 +26,7 @@ import { allCliente } from '../api/clientes';
 import { allIngenieros } from '../api/users';
 import Spinner from './Spinner';
 import ModalRemitoCatalogo from './ModalRemitoCatalogo';
+import ModalRemitoInterno from './ModalRemitoInterno';
 import UploadRemitoPhoto from './UploadRemitoPhoto';
 import RemitosFaltantesPanel from './RemitosFaltantesPanel';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -55,18 +56,22 @@ const normalizar = (str) =>
     .join('')
     .toLowerCase();
 
+const getFechaRemito = (remito) => remito.issued_at || remito.createdAt;
+
 const Remitos = () => {
   const [remitos, setRemitos] = useState([]);
   const [depositos, setDepositos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [isInternalOpen, setIsInternalOpen] = useState(false);
   const [subirFotoRemito, setSubirFotoRemito] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState('');
   const [inputProducto, setInputProducto] = useState('');
   const [busquedaProducto, setBusquedaProducto] = useState('');
   const [busquedaNumero, setBusquedaNumero] = useState('');
   const [filtroCliente, setFiltroCliente] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('');
   const [filtroDeposito, setFiltroDeposito] = useState('');
   const [filtroDesde, setFiltroDesde] = useState('');
   const [filtroHasta, setFiltroHasta] = useState('');
@@ -141,10 +146,12 @@ const Remitos = () => {
   };
 
   const handleAnular = async (id) => {
+    const remito = remitos.find((item) => item.id === id);
+    const confirmMessage = remito?.destination_warehouse_id
+      ? `¿Está seguro de anular la transferencia entre ${getNombreDeposito(remito.origin_warehouse_id)} y ${getNombreDeposito(remito.destination_warehouse_id)}? El stock volverá al origen solo si continúa disponible en el destino.`
+      : '¿Está seguro de anular este remito? Se revertirá el stock.';
     if (
-      !window.confirm(
-        '¿Está seguro de anular este remito? Se revertirá el stock.',
-      )
+      !window.confirm(confirmMessage)
     )
       return;
     try {
@@ -155,6 +162,7 @@ const Remitos = () => {
       }
     } catch (error) {
       console.error('Error al anular:', error);
+      window.alert(error.response?.data?.message || 'No se pudo anular el remito.');
     }
   };
 
@@ -181,6 +189,11 @@ const Remitos = () => {
     return c ? c.razon_social : `Cliente #${id}`;
   };
 
+  const getDestinoRemito = (remito) =>
+    remito.destination_warehouse_id
+      ? getNombreDeposito(remito.destination_warehouse_id)
+      : getNombreCliente(remito.destination_client_id);
+
   const formatDate = (dateStr) => {
     if (!dateStr) return '—';
     return new Date(dateStr).toLocaleDateString('es-AR');
@@ -195,6 +208,7 @@ const Remitos = () => {
     inputProducto ||
       busquedaNumero ||
       filtroCliente ||
+    filtroTipo ||
       filtroDeposito ||
       filtroDesde ||
       filtroHasta ||
@@ -207,6 +221,7 @@ const Remitos = () => {
     setBusquedaProducto('');
     setBusquedaNumero('');
     setFiltroCliente('');
+    setFiltroTipo('');
     setFiltroDeposito('');
     setFiltroDesde('');
     setFiltroHasta('');
@@ -221,7 +236,11 @@ const Remitos = () => {
     return remitos.filter((remito) => {
       if (filtroCliente && remito.destination_client_id !== Number(filtroCliente))
         return false;
-      if (filtroDeposito && remito.origin_warehouse_id !== Number(filtroDeposito))
+      if (
+        filtroDeposito &&
+        remito.origin_warehouse_id !== Number(filtroDeposito) &&
+        remito.destination_warehouse_id !== Number(filtroDeposito)
+      )
         return false;
 
       if (queryNumero && !normalizar(remito.remito_number).includes(queryNumero))
@@ -238,7 +257,7 @@ const Remitos = () => {
       }
 
       if (filtroDesde || filtroHasta) {
-        const fecha = new Date(remito.createdAt);
+        const fecha = new Date(getFechaRemito(remito));
         if (filtroDesde && fecha < new Date(`${filtroDesde}T00:00:00`))
           return false;
         if (filtroHasta && fecha > new Date(`${filtroHasta}T23:59:59`))
@@ -270,13 +289,30 @@ const Remitos = () => {
     filtroIngeniero,
   ]);
 
-  const remitosFiltrados = filtroEstado
-    ? remitosBase.filter((r) => r.status === filtroEstado)
+  const remitosPorTipo = filtroTipo
+    ? remitosBase.filter((remito) =>
+        filtroTipo === 'internos'
+          ? Boolean(remito.destination_warehouse_id)
+          : !remito.destination_warehouse_id,
+      )
     : remitosBase;
+
+  const remitosFiltrados = filtroEstado
+    ? remitosPorTipo.filter((r) => r.status === filtroEstado)
+    : remitosPorTipo;
 
   const contarPorEstado = (estado) =>
     estado
-      ? remitosBase.filter((r) => r.status === estado).length
+      ? remitosPorTipo.filter((r) => r.status === estado).length
+      : remitosPorTipo.length;
+
+  const contarPorTipo = (tipo) =>
+    tipo
+      ? remitosBase.filter((remito) =>
+          tipo === 'internos'
+            ? Boolean(remito.destination_warehouse_id)
+            : !remito.destination_warehouse_id,
+        ).length
       : remitosBase.length;
 
   useEffect(() => {
@@ -296,14 +332,17 @@ const Remitos = () => {
   );
 
   const renderAccionesFila = (remito, vertical = false) => {
-    if (remito.status !== 'PENDIENTE' && remito.status !== 'REVISION') {
+    const esInterno = Boolean(remito.destination_warehouse_id);
+    const puedeOperar = remito.status === 'PENDIENTE' || remito.status === 'REVISION';
+    const puedeAnularTransferencia = esInterno && remito.status === 'COMPLETADO';
+    if (!puedeOperar && !puedeAnularTransferencia) {
       return null;
     }
     return (
       <div
         className={`remitos-acciones ${vertical ? 'remitos-acciones--col' : ''}`}
       >
-        {remito.status === 'PENDIENTE' && (
+        {!esInterno && remito.status === 'PENDIENTE' && (
           <button
             className="remitos-btn remitos-btn--icon remitos-btn--primary"
             title="Subir archivo del remito firmado"
@@ -315,7 +354,7 @@ const Remitos = () => {
             <Camera size={14} />
           </button>
         )}
-        {remito.status === 'REVISION' && (
+        {!esInterno && remito.status === 'REVISION' && (
           <button
             className="remitos-btn remitos-btn--icon remitos-btn--success"
             title="Confirmar remito"
@@ -356,18 +395,47 @@ const Remitos = () => {
             {remitoSeleccionado.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}
           </span>
         </dd>
-        <dt>Cliente</dt>
-        <dd>{getNombreCliente(remitoSeleccionado.destination_client_id)}</dd>
-        <dt>Depósito</dt>
-        <dd>{getNombreDeposito(remitoSeleccionado.origin_warehouse_id)}</dd>
-        <dt>Creación</dt>
-        <dd>{formatDateTime(remitoSeleccionado.createdAt)}</dd>
+        {remitoSeleccionado.destination_warehouse_id ? (
+          <>
+            <dt>Traslado</dt>
+            <dd>
+              {getNombreDeposito(remitoSeleccionado.origin_warehouse_id)}
+              {' → '}
+              {getNombreDeposito(remitoSeleccionado.destination_warehouse_id)}
+              <span className="remitos-badge remitos-badge--neutral ms-2">Interno</span>
+            </dd>
+          </>
+        ) : (
+          <>
+            <dt>Cliente</dt>
+            <dd>{getNombreCliente(remitoSeleccionado.destination_client_id)}</dd>
+            <dt>Depósito</dt>
+            <dd>{getNombreDeposito(remitoSeleccionado.origin_warehouse_id)}</dd>
+          </>
+        )}
+        <dt>{remitoSeleccionado.destination_warehouse_id ? 'Fecha del traslado' : 'Creación'}</dt>
+        <dd>
+          {remitoSeleccionado.destination_warehouse_id
+            ? formatDate(getFechaRemito(remitoSeleccionado))
+            : formatDateTime(remitoSeleccionado.createdAt)}
+        </dd>
       </dl>
 
       {remitoSeleccionado.notes && (
         <div className="remitos-note remitos-note--warning">
           <Info size={14} />
           <span>{remitoSeleccionado.notes}</span>
+        </div>
+      )}
+
+      {remitoSeleccionado.destination_warehouse_id && (
+        <div className="remitos-note remitos-note--ok">
+          <ArrowLeftRight size={14} />
+          <span>
+            Transferencia aplicada entre {getNombreDeposito(remitoSeleccionado.origin_warehouse_id)}
+            {' y '}{getNombreDeposito(remitoSeleccionado.destination_warehouse_id)}.
+            La anulación revierte ambos movimientos si hay stock disponible en destino.
+          </span>
         </div>
       )}
 
@@ -466,7 +534,8 @@ const Remitos = () => {
       )}
 
       <div className="remitos-box__acciones">
-        {(remitoSeleccionado.status === 'PENDIENTE' || remitoSeleccionado.status === 'REVISION') && (
+        {(!remitoSeleccionado.destination_warehouse_id &&
+          (remitoSeleccionado.status === 'PENDIENTE' || remitoSeleccionado.status === 'REVISION')) && (
           <button
             className="remitos-btn remitos-btn--primary"
             onClick={() => setSubirFotoRemito(remitoSeleccionado)}
@@ -474,7 +543,8 @@ const Remitos = () => {
             <Camera size={14} /> {archivos.length > 0 ? 'Agregar archivo' : 'Subir archivo'}
           </button>
         )}
-        {remitoSeleccionado.status === 'REVISION' && (
+        {!remitoSeleccionado.destination_warehouse_id &&
+          remitoSeleccionado.status === 'REVISION' && (
           <button
             className="remitos-btn remitos-btn--success"
             onClick={() => handleConfirmar(remitoSeleccionado.id)}
@@ -483,7 +553,9 @@ const Remitos = () => {
           </button>
         )}
         {(remitoSeleccionado.status === 'PENDIENTE' ||
-          remitoSeleccionado.status === 'REVISION') && (
+          remitoSeleccionado.status === 'REVISION' ||
+          (remitoSeleccionado.destination_warehouse_id &&
+            remitoSeleccionado.status === 'COMPLETADO')) && (
           <button
             className="remitos-btn remitos-btn--danger"
             onClick={() => handleAnular(remitoSeleccionado.id)}
@@ -609,11 +681,21 @@ const Remitos = () => {
         </div>
 
         {vista === 'listado' && (
-          <button className="btn-primary" onClick={() => setIsOpen(true)}>
-            <i className="bi bi-plus-lg"></i>
-
-            {!isMobile && 'Nuevo Remito'}
-          </button>
+          <div className="d-flex flex-wrap justify-content-end gap-2">
+            <button
+              className="btn btn-outline-primary"
+              onClick={() => setIsInternalOpen(true)}
+              title="Transferir productos entre depósitos"
+              aria-label="Transferir productos entre depósitos"
+            >
+              <ArrowLeftRight size={16} className={isMobile ? '' : 'me-2'} />
+              {!isMobile && 'Transferir entre depósitos'}
+            </button>
+            <button className="btn-primary" onClick={() => setIsOpen(true)}>
+              <i className="bi bi-plus-lg"></i>
+              {!isMobile && 'Nuevo Remito'}
+            </button>
+          </div>
         )}
       </div>
 
@@ -653,6 +735,23 @@ const Remitos = () => {
             <ClipboardList size={16} />
             Registros
           </h3>
+          <div className="remitos-pills">
+            {[
+              { value: '', label: 'Todos' },
+              { value: 'clientes', label: 'Clientes' },
+              { value: 'internos', label: 'Internos' },
+            ].map((filtro) => (
+              <button
+                key={filtro.value || 'todos'}
+                className={`remitos-pill ${
+                  filtroTipo === filtro.value ? 'remitos-pill--active' : ''
+                }`}
+                onClick={() => setFiltroTipo(filtro.value)}
+              >
+                {filtro.label} ({contarPorTipo(filtro.value)})
+              </button>
+            ))}
+          </div>
           <div className="remitos-pills">
             {FILTROS_ESTADO.map((filtro) => (
               <button
@@ -818,16 +917,26 @@ const Remitos = () => {
                           </span>
                         </div>
                         <small className="remitos-card__dato">
-                          {remito.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}{' '}
-                          · {getNombreDeposito(remito.origin_warehouse_id)}
+                          {remito.destination_warehouse_id
+                            ? 'Interno · No Oficial'
+                            : remito.type === 'OFICIAL'
+                              ? 'Oficial'
+                              : 'No Oficial'}
+                          {' · '}{getNombreDeposito(remito.origin_warehouse_id)}
                         </small>
                         <small className="remitos-card__dato">
-                          <User size={12} />
-                          {getNombreCliente(remito.destination_client_id)}
+                          {remito.destination_warehouse_id ? (
+                            <ArrowLeftRight size={12} />
+                          ) : (
+                            <User size={12} />
+                          )}
+                          {remito.destination_warehouse_id
+                            ? `Destino: ${getDestinoRemito(remito)}`
+                            : getDestinoRemito(remito)}
                         </small>
                         <small className="remitos-card__dato">
                           <Calendar size={12} />
-                          {formatDate(remito.createdAt)}
+                          {formatDate(getFechaRemito(remito))}
                         </small>
                       </div>
                       {renderAccionesFila(remito, true)}
@@ -846,7 +955,7 @@ const Remitos = () => {
                     <th>Número</th>
                     <th>Tipo</th>
                     <th>Depósito Origen</th>
-                    <th>Cliente</th>
+                    <th>Destino</th>
                     <th>Fecha</th>
                     <th>Estado</th>
                     <th className="text-end">Acciones</th>
@@ -893,9 +1002,12 @@ const Remitos = () => {
                         </td>
                         <td>{getNombreDeposito(remito.origin_warehouse_id)}</td>
                         <td>
-                          {getNombreCliente(remito.destination_client_id)}
+                          {remito.destination_warehouse_id && (
+                            <span className="remitos-badge remitos-badge--neutral me-2">Interno</span>
+                          )}
+                          {getDestinoRemito(remito)}
                         </td>
-                        <td>{formatDate(remito.createdAt)}</td>
+                        <td>{formatDate(getFechaRemito(remito))}</td>
                         <td>
                           <span
                             className={`remitos-badge remitos-badge--${remito.status.toLowerCase()}`}
@@ -998,6 +1110,18 @@ const Remitos = () => {
           onSave={async () => {
             setIsOpen(false);
             await cargarDatos();
+          }}
+        />
+      )}
+
+      {isInternalOpen && (
+        <ModalRemitoInterno
+          depositos={depositos}
+          onClose={() => setIsInternalOpen(false)}
+          onSave={async (remito) => {
+            setIsInternalOpen(false);
+            await cargarDatos();
+            if (remito?.id) setSelectedRemitoId(remito.id);
           }}
         />
       )}

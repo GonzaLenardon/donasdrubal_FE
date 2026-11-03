@@ -15,6 +15,11 @@ export const addRemito = async (remito) => {
   return res;
 };
 
+export const addRemitoInterno = async (remito) => {
+  const res = await instance.post('/stock/remitos/internos', remito);
+  return res;
+};
+
 export const cancelRemito = async (id, cancelled_by) => {
   const res = await instance.put(`/stock/remitos/${id}/cancel`, { cancelled_by });
   return res;
