@@ -683,7 +683,7 @@ const Remitos = () => {
         {vista === 'listado' && (
           <div className="d-flex flex-wrap justify-content-end gap-2">
             <button
-              className="btn btn-outline-primary"
+              className="btn-primary"
               onClick={() => setIsInternalOpen(true)}
               title="Transferir productos entre depósitos"
               aria-label="Transferir productos entre depósitos"

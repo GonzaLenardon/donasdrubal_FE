@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Col, Form, Modal, Row, Spinner } from 'react-bootstrap';
+import Select from 'react-select';
 import { addRemitoInterno, getCatalogo } from '../api/remitos';
 
 const normalizarBusqueda = (valor) =>
@@ -57,16 +58,35 @@ const ModalRemitoInterno = ({ depositos, onClose, onSave }) => {
     };
   }, [origenId]);
 
-  const productosFiltrados = useMemo(() => {
+  const productosFavoritosFiltrados = useMemo(() => {
+    const favoritos = catalogo.filter((producto) => Number(producto.ranking) === 5);
     const texto = normalizarBusqueda(busqueda);
-    if (!texto) return catalogo;
-    return catalogo.filter((producto) => {
-      const datosProducto = normalizarBusqueda(
-        `${producto.product_name} ${producto.product_code} ${producto.presentation_name}`,
-      );
-      return datosProducto.includes(texto);
-    });
-  }, [busqueda, catalogo]);
+    if (texto) {
+      return favoritos.filter((producto) => {
+        const datosProducto = normalizarBusqueda(
+          `${producto.product_name} ${producto.product_code} ${producto.presentation_name}`,
+        );
+        return datosProducto.includes(texto);
+      });
+    }
+    if (productoId) {
+      return favoritos.filter((producto) => producto.product_variant_id === Number(productoId));
+    }
+    return favoritos;
+  }, [busqueda, catalogo, productoId]);
+
+  const cantidadFavoritos = useMemo(
+    () => catalogo.filter((producto) => Number(producto.ranking) === 5).length,
+    [catalogo],
+  );
+
+  const opcionesProductos = useMemo(
+    () => catalogo.map((producto) => ({
+      value: String(producto.product_variant_id),
+      label: `${producto.product_name} · ${producto.presentation_name} · ${producto.product_code}`,
+    })),
+    [catalogo],
+  );
 
   const productoSeleccionado = catalogo.find(
     (producto) => producto.product_variant_id === Number(productoId),
@@ -243,111 +263,165 @@ const ModalRemitoInterno = ({ depositos, onClose, onSave }) => {
             ) : catalogo.length === 0 ? (
               <p className="text-muted mb-0">No hay productos con stock en este depósito.</p>
             ) : (
-              <Row className="g-2 align-items-end">
-                <Col md={5}>
-                  <Form.Label>Buscar producto o código de variante</Form.Label>
-                  <Form.Control
-                    className="mb-1"
-                    placeholder="Escribí el nombre, presentación o código"
-                    value={busqueda}
-                    onChange={(event) => {
-                      setBusqueda(event.target.value);
+              <>
+                <Form.Label htmlFor="buscar-producto-transferencia">
+                  Buscar y seleccionar producto
+                </Form.Label>
+                <Select
+                  inputId="buscar-producto-transferencia"
+                  aria-label="Buscar y seleccionar producto"
+                  classNamePrefix="react-select"
+                  placeholder="Escribí el nombre, presentación o código"
+                  noOptionsMessage={() => 'No hay productos que coincidan'}
+                  options={opcionesProductos}
+                  value={opcionesProductos.find((opcion) => opcion.value === productoId) || null}
+                  styles={{ menu: (base) => ({ ...base, zIndex: 1060 }) }}
+                  inputValue={busqueda}
+                  onInputChange={(valor, accion) => {
+                    if (accion.action === 'input-change') {
+                      setBusqueda(valor);
                       setProductoId('');
-                    }}
-                    autoComplete="off"
-                    disabled={isSubmitting}
-                  />
-                  <Form.Text className="d-block mb-2">
-                    Escribí para filtrar y luego elegí una presentación de la lista.
-                  </Form.Text>
-                  <div
-                    className="list-group"
-                    role="list"
-                    aria-label="Resultados de búsqueda de productos"
-                    style={{ maxHeight: 230, overflowY: 'auto' }}
-                  >
-                    {productosFiltrados.length > 0 ? (
-                      productosFiltrados.map((producto) => {
+                    }
+                    return valor;
+                  }}
+                  onChange={(opcion) => {
+                    setProductoId(opcion?.value || '');
+                    setBusqueda('');
+                    setCantidad('1');
+                    setError('');
+                  }}
+                  isClearable
+                  isDisabled={isSubmitting}
+                />
+                <Form.Text className="d-block mt-1 mb-3">
+                  {productosFavoritosFiltrados.length} de {cantidadFavoritos} productos favoritos
+                </Form.Text>
+
+                {productosFavoritosFiltrados.length > 0 ? (
+                  <div className="mb-3">
+                    <h6 className="text-primary mb-2">
+                      <i className="bi bi-star-fill me-1" />
+                      Favoritos (Ranking 5)
+                    </h6>
+                    <Row>
+                      {productosFavoritosFiltrados.map((producto) => {
                         const seleccionado =
                           producto.product_variant_id === Number(productoId);
                         return (
-                          <button
+                          <Col
+                            md={6}
+                            lg={4}
+                            xl={3}
+                            className="mb-3"
                             key={producto.product_variant_id}
-                            type="button"
-                            aria-pressed={seleccionado}
-                            className={`list-group-item list-group-item-action text-start ${
-                              seleccionado ? 'active' : ''
-                            }`}
-                            onClick={() => {
-                              setProductoId(String(producto.product_variant_id));
-                              setCantidad('1');
-                              setError('');
-                            }}
-                            disabled={isSubmitting}
                           >
-                            <span className="d-flex justify-content-between align-items-start gap-2">
-                              <span>
+                            <button
+                              type="button"
+                              aria-pressed={seleccionado}
+                              className={`card h-100 w-100 p-0 text-start text-body ${
+                                seleccionado ? 'border-primary' : ''
+                              }`}
+                              style={{ cursor: 'pointer' }}
+                              onClick={() => {
+                                setProductoId(String(producto.product_variant_id));
+                                setBusqueda('');
+                                setCantidad('1');
+                                setError('');
+                              }}
+                              disabled={isSubmitting}
+                            >
+                              {producto.product_image && (
+                                <span
+                                  style={{
+                                    display: 'block',
+                                    height: 100,
+                                    overflow: 'hidden',
+                                    backgroundColor: '#f8f9fa',
+                                  }}
+                                >
+                                  <img
+                                    src={producto.product_image}
+                                    alt={producto.product_name}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    onError={(event) => {
+                                      event.currentTarget.style.display = 'none';
+                                    }}
+                                  />
+                                </span>
+                              )}
+                              <span className="card-body">
                                 <strong className="d-block">{producto.product_name}</strong>
-                                <small>
-                                  {producto.presentation_name} · Código {producto.product_code}
+                                <small className="text-muted d-block">{producto.product_code}</small>
+                                <span className="d-block mt-2">
+                                  <strong>{producto.presentation_name}</strong>
+                                </span>
+                                <small className="text-success d-block mt-2">
+                                  Stock: {producto.stock_en_presentacion.toFixed(2)} (
+                                  {producto.unidad_base})
                                 </small>
+                                {seleccionado && (
+                                  <small className="text-primary d-block mt-2">
+                                    Producto seleccionado
+                                  </small>
+                                )}
                               </span>
-                              <small className="text-nowrap">
-                                Stock: {producto.stock_en_presentacion.toFixed(2)}
-                              </small>
-                            </span>
-                          </button>
+                            </button>
+                          </Col>
                         );
-                      })
-                    ) : (
-                      <div className="list-group-item text-muted">
-                        No hay productos que coincidan con “{busqueda}”.
-                      </div>
-                    )}
+                      })}
+                    </Row>
                   </div>
-                  <Form.Text className="d-block mt-1">
-                    {productosFiltrados.length} de {catalogo.length} presentaciones disponibles
-                  </Form.Text>
-                </Col>
-                <Col md={3}>
-                  <Form.Label>Cantidad</Form.Label>
-                  <Form.Control
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    max={stockRestante}
-                    value={cantidad}
-                    onChange={(event) => setCantidad(event.target.value)}
-                    disabled={isSubmitting || !productoSeleccionado || stockRestante <= 0}
-                  />
-                </Col>
-                <Col md={2}>
-                  <div className="small text-muted mb-2">
-                    Disponible
-                    <strong className="d-block text-dark">
-                      {productoSeleccionado
-                        ? `${stockRestante.toFixed(2)} ${productoSeleccionado.presentation_name}`
-                        : '—'}
-                    </strong>
-                    {productoEnCarrito && (
-                      <small className="d-block">
-                        Ya agregado: {productoEnCarrito.quantity_requested.toFixed(2)}
-                      </small>
-                    )}
-                  </div>
-                </Col>
-                <Col md={2}>
-                  <Button
-                    type="button"
-                    variant="outline-primary"
-                    className="w-100"
-                    onClick={agregarProducto}
-                    disabled={isSubmitting || !productoSeleccionado}
-                  >
-                    Agregar
-                  </Button>
-                </Col>
-              </Row>
+                ) : (
+                  <p className="text-muted mb-3">
+                    {busqueda
+                      ? `No hay productos favoritos que coincidan con “${busqueda}”.`
+                      : productoSeleccionado
+                        ? 'El producto seleccionado no está marcado como favorito. Puede agregarlo igualmente.'
+                        : 'No hay productos marcados como favoritos en este depósito.'}
+                  </p>
+                )}
+
+                <Row className="g-2 align-items-end">
+                  <Col md={3}>
+                    <Form.Label>Cantidad</Form.Label>
+                    <Form.Control
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      max={stockRestante}
+                      value={cantidad}
+                      onChange={(event) => setCantidad(event.target.value)}
+                      disabled={isSubmitting || !productoSeleccionado || stockRestante <= 0}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <div className="small text-muted mb-2">
+                      Disponible
+                      <strong className="d-block text-dark">
+                        {productoSeleccionado
+                          ? `${stockRestante.toFixed(2)} ${productoSeleccionado.presentation_name}`
+                          : '—'}
+                      </strong>
+                      {productoEnCarrito && (
+                        <small className="d-block">
+                          Ya agregado: {productoEnCarrito.quantity_requested.toFixed(2)}
+                        </small>
+                      )}
+                    </div>
+                  </Col>
+                  <Col md={5}>
+                    <Button
+                      type="button"
+                      variant="outline-primary"
+                      className="w-100"
+                      onClick={agregarProducto}
+                      disabled={isSubmitting || !productoSeleccionado}
+                    >
+                      Agregar
+                    </Button>
+                  </Col>
+                </Row>
+              </>
             )}
           </section>
 
