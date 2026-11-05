@@ -148,6 +148,7 @@ const Productos = () => {
     const matchSearch =
       v.producto?.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.producto?.codigo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      v.producto?.brand?.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       v.presentacion?.nombre?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchRubro =
       !filtroRubro || String(v.producto?.rubro_id) === filtroRubro;
@@ -308,6 +309,11 @@ const Productos = () => {
                         ` / ${v.producto.subrubro.nombre}`}
                     </small>
                   )}
+                  {v.producto?.brand?.nombre && (
+                    <small className="text-muted d-block">
+                      Marca: {v.producto.brand.nombre}
+                    </small>
+                  )}
                 </div>
                 <div className="d-flex flex-column align-items-end gap-1">
                   <div
@@ -348,6 +354,7 @@ const Productos = () => {
               <tr>
                 <th style={{ width: '50px' }}>Img</th>
                 <th>Producto</th>
+                <th>Marca</th>
                 <th>Código</th>
                 <th>Presentación</th>
                 <th>Rubro</th>
@@ -392,6 +399,7 @@ const Productos = () => {
                     )}
                   </td>
                   <td>{v.producto?.nombre}</td>
+                  <td>{v.producto?.brand?.nombre || '-'}</td>
                   <td>
                     <small className="text-muted">{v.codigo}</small>
                   </td>

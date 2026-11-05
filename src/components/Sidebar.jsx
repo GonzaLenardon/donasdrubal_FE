@@ -54,6 +54,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           path: '/stock/presentaciones',
           icon: 'bi-rulers',
         },
+        { title: 'Marcas', path: '/stock/marcas', icon: 'bi-award-fill' },
         { title: 'Rubros', path: '/stock/rubros', icon: 'bi-bookmark-fill' },
         {
           title: 'Subrubros',
