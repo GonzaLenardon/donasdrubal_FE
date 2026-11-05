@@ -340,11 +340,11 @@ const Remitos = () => {
     }
     return (
       <div
-        className={`remitos-acciones ${vertical ? 'remitos-acciones--col' : ''}`}
+        className={`lista-acciones ${vertical ? 'lista-acciones--col' : ''}`}
       >
         {!esInterno && remito.status === 'PENDIENTE' && (
           <button
-            className="remitos-btn remitos-btn--icon remitos-btn--primary"
+            className="lista-btn lista-btn--icon lista-btn--primary"
             title="Subir archivo del remito firmado"
             onClick={(e) => {
               e.stopPropagation();
@@ -356,7 +356,7 @@ const Remitos = () => {
         )}
         {!esInterno && remito.status === 'REVISION' && (
           <button
-            className="remitos-btn remitos-btn--icon remitos-btn--success"
+            className="lista-btn lista-btn--icon lista-btn--success"
             title="Confirmar remito"
             onClick={(e) => {
               e.stopPropagation();
@@ -367,7 +367,7 @@ const Remitos = () => {
           </button>
         )}
         <button
-          className="remitos-btn remitos-btn--icon remitos-btn--danger"
+          className="lista-btn lista-btn--icon lista-btn--danger"
           title="Anular"
           onClick={(e) => {
             e.stopPropagation();
@@ -381,15 +381,15 @@ const Remitos = () => {
   };
 
   const renderRemitoDatos = () => (
-    <div className="remitos-box__body">
-      <dl className="remitos-kv">
+    <div className="lista-box__body">
+      <dl className="lista-kv">
         <dt>Tipo</dt>
         <dd>
           <span
-            className={`remitos-badge ${
+            className={`lista-badge ${
               remitoSeleccionado.type === 'OFICIAL'
-                ? 'remitos-badge--oficial'
-                : 'remitos-badge--no-oficial'
+                ? 'lista-badge--oficial'
+                : 'lista-badge--no-oficial'
             }`}
           >
             {remitoSeleccionado.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}
@@ -402,7 +402,7 @@ const Remitos = () => {
               {getNombreDeposito(remitoSeleccionado.origin_warehouse_id)}
               {' → '}
               {getNombreDeposito(remitoSeleccionado.destination_warehouse_id)}
-              <span className="remitos-badge remitos-badge--neutral ms-2">Interno</span>
+              <span className="lista-badge lista-badge--neutral ms-2">Interno</span>
             </dd>
           </>
         ) : (
@@ -422,14 +422,14 @@ const Remitos = () => {
       </dl>
 
       {remitoSeleccionado.notes && (
-        <div className="remitos-note remitos-note--warning">
+        <div className="lista-note lista-note--warning">
           <Info size={14} />
           <span>{remitoSeleccionado.notes}</span>
         </div>
       )}
 
       {remitoSeleccionado.destination_warehouse_id && (
-        <div className="remitos-note remitos-note--ok">
+        <div className="lista-note lista-note--ok">
           <ArrowLeftRight size={14} />
           <span>
             Transferencia aplicada entre {getNombreDeposito(remitoSeleccionado.origin_warehouse_id)}
@@ -439,7 +439,7 @@ const Remitos = () => {
         </div>
       )}
 
-      <table className="remitos-items">
+      <table className="lista-items">
         <thead>
           <tr>
             <th>Artículo</th>
@@ -451,16 +451,16 @@ const Remitos = () => {
             remitoDetalle.items.map((item) => (
               <tr key={item.id}>
                 <td>
-                  <span className="remitos-items__nombre">
+                  <span className="lista-items__nombre">
                     {item.variante?.producto?.nombre || `Variante #${item.product_variant_id}`}
                   </span>
                   {item.variante?.presentacion && (
-                    <span className="remitos-badge remitos-badge--neutral ms-2">
+                    <span className="lista-badge lista-badge--neutral ms-2">
                       {item.variante.presentacion.nombre}
                     </span>
                   )}
                   {item.lotes?.length > 0 && (
-                    <div className="remitos-items__lotes">
+                    <div className="lista-items__lotes">
                       {item.lotes
                         .map(
                           (loteItem) =>
@@ -473,14 +473,14 @@ const Remitos = () => {
                     </div>
                   )}
                 </td>
-                <td className="text-end remitos-items__cantidad">
+                <td className="text-end lista-items__cantidad">
                   {parseFloat(item.quantity_dispatched || 0).toFixed(2)} ud
                 </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={2} className="remitos-vacio">
+              <td colSpan={2} className="lista-vacio">
                 Sin ítems
               </td>
             </tr>
@@ -498,7 +498,7 @@ const Remitos = () => {
 
       {(remitoSeleccionado.confirmed_at ||
         remitoSeleccionado.confirmadoPor) && (
-        <div className="remitos-note remitos-note--ok">
+        <div className="lista-note lista-note--ok">
           <Check size={14} />
           <span>
             Confirmado el {formatDateTime(remitoSeleccionado.confirmed_at)}
@@ -509,7 +509,7 @@ const Remitos = () => {
       )}
 
       {(remitoSeleccionado.cancelled_at || remitoSeleccionado.canceladoPor) && (
-        <div className="remitos-note remitos-note--danger">
+        <div className="lista-note lista-note--danger">
           <X size={14} />
           <span>
             Anulado el {formatDateTime(remitoSeleccionado.cancelled_at)}
@@ -520,24 +520,24 @@ const Remitos = () => {
       )}
 
       {remitoSeleccionado.status === 'PENDIENTE' && (
-        <div className="remitos-note">
+        <div className="lista-note">
           <Info size={14} />
           <span>Falta subir el remito firmado.</span>
         </div>
       )}
 
       {remitoSeleccionado.status === 'REVISION' && (
-        <div className="remitos-note">
+        <div className="lista-note">
           <Info size={14} />
           <span>Archivo(s) cargado(s), falta confirmar.</span>
         </div>
       )}
 
-      <div className="remitos-box__acciones">
+      <div className="lista-box__acciones">
         {(!remitoSeleccionado.destination_warehouse_id &&
           (remitoSeleccionado.status === 'PENDIENTE' || remitoSeleccionado.status === 'REVISION')) && (
           <button
-            className="remitos-btn remitos-btn--primary"
+            className="lista-btn lista-btn--primary"
             onClick={() => setSubirFotoRemito(remitoSeleccionado)}
           >
             <Camera size={14} /> {archivos.length > 0 ? 'Agregar archivo' : 'Subir archivo'}
@@ -546,7 +546,7 @@ const Remitos = () => {
         {!remitoSeleccionado.destination_warehouse_id &&
           remitoSeleccionado.status === 'REVISION' && (
           <button
-            className="remitos-btn remitos-btn--success"
+            className="lista-btn lista-btn--success"
             onClick={() => handleConfirmar(remitoSeleccionado.id)}
           >
             <Check size={14} /> Confirmar
@@ -557,7 +557,7 @@ const Remitos = () => {
           (remitoSeleccionado.destination_warehouse_id &&
             remitoSeleccionado.status === 'COMPLETADO')) && (
           <button
-            className="remitos-btn remitos-btn--danger"
+            className="lista-btn lista-btn--danger"
             onClick={() => handleAnular(remitoSeleccionado.id)}
           >
             <X size={14} /> Anular
@@ -570,12 +570,12 @@ const Remitos = () => {
   const renderRemitoImagen = () => {
     if (archivos.length === 0) {
       return (
-        <div className="remitos-visor__empty">
+        <div className="lista-visor__empty">
           <ImageIcon size={44} />
           <p>Sin archivos adjuntos</p>
           {(remitoSeleccionado?.status === 'PENDIENTE' || remitoSeleccionado?.status === 'REVISION') && (
             <button
-              className="remitos-btn remitos-btn--primary"
+              className="lista-btn lista-btn--primary"
               onClick={() => setSubirFotoRemito(remitoSeleccionado)}
             >
               <Camera size={14} /> Subir archivo
@@ -593,13 +593,13 @@ const Remitos = () => {
       : null;
 
     return (
-      <div className="remitos-visor__content">
+      <div className="lista-visor__content">
         {/* Imagen principal */}
         {imagenSeleccionada ? (
-          <div className="remitos-visor__principal">
+          <div className="lista-visor__principal">
             {imagenes.length > 1 && (
               <select
-                className="remitos-visor__select"
+                className="lista-visor__select"
                 value={selectedArchivoIdx}
                 onChange={(e) => setSelectedArchivoIdx(parseInt(e.target.value))}
               >
@@ -613,24 +613,24 @@ const Remitos = () => {
             <img
               src={urlImagen}
               alt={imagenSeleccionada.original_name}
-              className="remitos-visor__img"
+              className="lista-visor__img"
               onClick={() => window.open(urlImagen, '_blank')}
               onError={(e) => {
                 e.target.style.display = 'none';
                 e.target.nextSibling.style.display = 'flex';
               }}
             />
-            <div className="remitos-visor__empty" style={{ display: 'none' }}>
+            <div className="lista-visor__empty" style={{ display: 'none' }}>
               <ImageIcon size={44} />
               <p>No se pudo cargar la imagen</p>
             </div>
-            <div className="remitos-visor__footer">
+            <div className="lista-visor__footer">
               <small className="text-muted">{imagenSeleccionada.original_name}</small>
               <small className="text-muted">{formatDateTime(imagenSeleccionada.uploaded_at)}</small>
             </div>
           </div>
         ) : (
-          <div className="remitos-visor__principal remitos-visor__empty">
+          <div className="lista-visor__principal lista-visor__empty">
             <ImageIcon size={44} />
             <p>Sin imágenes</p>
           </div>
@@ -638,17 +638,17 @@ const Remitos = () => {
 
         {/* PDFs debajo */}
         {pdfs.length > 0 && (
-          <div className="remitos-visor__pdfs">
+          <div className="lista-visor__pdfs">
             {pdfs.map((pdf) => {
               const url = `${import.meta.env.VITE_API_URL}${pdf.path}`;
               return (
                 <div
                   key={pdf.id}
-                  className="remitos-visor__pdf-card"
+                  className="lista-visor__pdf-card"
                   onClick={() => window.open(url, '_blank')}
                 >
                   <i className="bi bi-file-earmark-pdf text-danger"></i>
-                  <div className="remitos-visor__pdf-info">
+                  <div className="lista-visor__pdf-info">
                     <small className="d-block text-truncate">{pdf.original_name}</small>
                     <small className="text-muted">{formatDateTime(pdf.uploaded_at)}</small>
                   </div>
@@ -664,7 +664,7 @@ const Remitos = () => {
   if (loading) return <Spinner />;
 
   return (
-    <div className="remitos py-4">
+    <div className="lista py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h2 className="page-header__title">
@@ -699,10 +699,10 @@ const Remitos = () => {
         )}
       </div>
 
-      <div className="remitos-pills mb-3">
+      <div className="lista-pills mb-3">
         <button
-          className={`remitos-pill ${
-            vista === 'listado' ? 'remitos-pill--active' : ''
+          className={`lista-pill ${
+            vista === 'listado' ? 'lista-pill--active' : ''
           }`}
           onClick={() => setVista('listado')}
         >
@@ -710,8 +710,8 @@ const Remitos = () => {
           Listado ({remitos.length})
         </button>
         <button
-          className={`remitos-pill ${
-            vista === 'faltantes' ? 'remitos-pill--active' : ''
+          className={`lista-pill ${
+            vista === 'faltantes' ? 'lista-pill--active' : ''
           }`}
           onClick={() => setVista('faltantes')}
         >
@@ -728,14 +728,14 @@ const Remitos = () => {
       )}
 
       <div
-        className={`remitos-surface ${vista === 'faltantes' ? 'd-none' : ''}`}
+        className={`lista-surface ${vista === 'faltantes' ? 'd-none' : ''}`}
       >
-        <div className="remitos-surface__header">
-          <h3 className="remitos-surface__title">
+        <div className="lista-surface__header">
+          <h3 className="lista-surface__title">
             <ClipboardList size={16} />
             Registros
           </h3>
-          <div className="remitos-pills">
+          <div className="lista-pills">
             {[
               { value: '', label: 'Todos' },
               { value: 'clientes', label: 'Clientes' },
@@ -743,8 +743,8 @@ const Remitos = () => {
             ].map((filtro) => (
               <button
                 key={filtro.value || 'todos'}
-                className={`remitos-pill ${
-                  filtroTipo === filtro.value ? 'remitos-pill--active' : ''
+                className={`lista-pill ${
+                  filtroTipo === filtro.value ? 'lista-pill--active' : ''
                 }`}
                 onClick={() => setFiltroTipo(filtro.value)}
               >
@@ -752,18 +752,18 @@ const Remitos = () => {
               </button>
             ))}
           </div>
-          <div className="remitos-pills">
+          <div className="lista-pills">
             {FILTROS_ESTADO.map((filtro) => (
               <button
                 key={filtro.value}
-                className={`remitos-pill ${
-                  filtroEstado === filtro.value ? 'remitos-pill--active' : ''
+                className={`lista-pill ${
+                  filtroEstado === filtro.value ? 'lista-pill--active' : ''
                 }`}
                 onClick={() => setFiltroEstado(filtro.value)}
               >
                 {filtro.dot && (
                   <span
-                    className="remitos-pill__dot"
+                    className="lista-pill__dot"
                     style={{ backgroundColor: filtro.dot }}
                   />
                 )}
@@ -773,14 +773,14 @@ const Remitos = () => {
           </div>
         </div>
 
-        <div className="remitos-filtros">
-          <div className="remitos-filtros__group remitos-filtros__group--grow">
-            <label className="remitos-filtros__label">Producto</label>
-            <div className="remitos-filtros__search">
+        <div className="lista-filtros">
+          <div className="lista-filtros__group lista-filtros__group--grow">
+            <label className="lista-filtros__label">Producto</label>
+            <div className="lista-filtros__search">
               <Search size={14} />
               <input
                 type="text"
-                className="remitos-filtros__input"
+                className="lista-filtros__input"
                 placeholder="Buscar por producto..."
                 value={inputProducto}
                 onChange={(e) => setInputProducto(e.target.value)}
@@ -788,21 +788,21 @@ const Remitos = () => {
             </div>
           </div>
 
-          <div className="remitos-filtros__group">
-            <label className="remitos-filtros__label">N° Remito</label>
+          <div className="lista-filtros__group">
+            <label className="lista-filtros__label">N° Remito</label>
             <input
               type="text"
-              className="remitos-filtros__input remitos-filtros__input--numero"
+              className="lista-filtros__input lista-filtros__input--numero"
               placeholder="00000001"
               value={busquedaNumero}
               onChange={(e) => setBusquedaNumero(e.target.value)}
             />
           </div>
 
-          <div className="remitos-filtros__group">
-            <label className="remitos-filtros__label">Cliente</label>
+          <div className="lista-filtros__group">
+            <label className="lista-filtros__label">Cliente</label>
             <select
-              className="remitos-filtros__input"
+              className="lista-filtros__input"
               value={filtroCliente}
               onChange={(e) => setFiltroCliente(e.target.value)}
             >
@@ -815,10 +815,10 @@ const Remitos = () => {
             </select>
           </div>
 
-          <div className="remitos-filtros__group">
-            <label className="remitos-filtros__label">Depósito</label>
+          <div className="lista-filtros__group">
+            <label className="lista-filtros__label">Depósito</label>
             <select
-              className="remitos-filtros__input"
+              className="lista-filtros__input"
               value={filtroDeposito}
               onChange={(e) => setFiltroDeposito(e.target.value)}
             >
@@ -831,33 +831,33 @@ const Remitos = () => {
             </select>
           </div>
 
-          <div className="remitos-filtros__group">
-            <label className="remitos-filtros__label">Desde</label>
+          <div className="lista-filtros__group">
+            <label className="lista-filtros__label">Desde</label>
             <input
               type="date"
-              className="remitos-filtros__input remitos-filtros__input--fecha"
+              className="lista-filtros__input lista-filtros__input--fecha"
               value={filtroDesde}
               onChange={(e) => setFiltroDesde(e.target.value)}
             />
           </div>
 
-          <div className="remitos-filtros__group">
-            <label className="remitos-filtros__label">Hasta</label>
+          <div className="lista-filtros__group">
+            <label className="lista-filtros__label">Hasta</label>
             <input
               type="date"
-              className="remitos-filtros__input remitos-filtros__input--fecha"
+              className="lista-filtros__input lista-filtros__input--fecha"
               value={filtroHasta}
               onChange={(e) => setFiltroHasta(e.target.value)}
             />
           </div>
 
           {isAdmin && (
-            <div className="remitos-filtros__group">
-              <label className="remitos-filtros__label">
+            <div className="lista-filtros__group">
+              <label className="lista-filtros__label">
                 Ingeniero / Empleado
               </label>
               <select
-                className="remitos-filtros__input"
+                className="lista-filtros__input"
                 value={filtroIngeniero}
                 onChange={(e) => setFiltroIngeniero(e.target.value)}
               >
@@ -872,7 +872,7 @@ const Remitos = () => {
           )}
 
           <button
-            className="remitos-filtros__limpiar"
+            className="lista-filtros__limpiar"
             onClick={limpiarFiltros}
             disabled={!hayFiltros}
           >
@@ -881,10 +881,10 @@ const Remitos = () => {
         </div>
 
         {isMobile ? (
-          <div className="remitos-scroll">
+          <div className="lista-scroll">
             <div className="d-flex flex-column gap-2">
               {remitosFiltrados.length === 0 ? (
-                <p className="remitos-vacio">
+                <p className="lista-vacio">
                   {hayFiltros
                     ? 'Sin resultados para los filtros aplicados'
                     : 'Sin remitos registrados'}
@@ -893,22 +893,22 @@ const Remitos = () => {
                 remitosFiltrados.map((remito) => (
                   <div
                     key={remito.id}
-                    className={`remitos-card ${
+                    className={`lista-card ${
                       selectedRemitoId === remito.id
-                        ? 'remitos-card--selected'
+                        ? 'lista-card--selected'
                         : ''
                     }`}
-                    style={{ '--remito-status': STATUS_COLORS[remito.status] }}
+                    style={{ '--lista-status': STATUS_COLORS[remito.status] }}
                     onClick={() => handleSelectRemito(remito)}
                   >
                     <div className="d-flex justify-content-between align-items-start">
                       <div className="flex-grow-1">
                         <div className="d-flex align-items-center gap-2 mb-1">
-                          <h6 className="remitos-card__numero">
+                          <h6 className="lista-card__numero">
                             {remito.remito_number}
                           </h6>
                           <span
-                            className={`remitos-badge remitos-badge--${remito.status.toLowerCase()}`}
+                            className={`lista-badge lista-badge--${remito.status.toLowerCase()}`}
                             style={{
                               backgroundColor: STATUS_COLORS[remito.status],
                             }}
@@ -916,7 +916,7 @@ const Remitos = () => {
                             {remito.status}
                           </span>
                         </div>
-                        <small className="remitos-card__dato">
+                        <small className="lista-card__dato">
                           {remito.destination_warehouse_id
                             ? 'Interno · No Oficial'
                             : remito.type === 'OFICIAL'
@@ -924,7 +924,7 @@ const Remitos = () => {
                               : 'No Oficial'}
                           {' · '}{getNombreDeposito(remito.origin_warehouse_id)}
                         </small>
-                        <small className="remitos-card__dato">
+                        <small className="lista-card__dato">
                           {remito.destination_warehouse_id ? (
                             <ArrowLeftRight size={12} />
                           ) : (
@@ -934,7 +934,7 @@ const Remitos = () => {
                             ? `Destino: ${getDestinoRemito(remito)}`
                             : getDestinoRemito(remito)}
                         </small>
-                        <small className="remitos-card__dato">
+                        <small className="lista-card__dato">
                           <Calendar size={12} />
                           {formatDate(getFechaRemito(remito))}
                         </small>
@@ -947,9 +947,9 @@ const Remitos = () => {
             </div>
           </div>
         ) : (
-          <div className="remitos-box">
-            <div className="remitos-scroll">
-              <table className="remitos-table">
+          <div className="lista-box">
+            <div className="lista-scroll">
+              <table className="lista-table">
                 <thead>
                   <tr>
                     <th>Número</th>
@@ -964,7 +964,7 @@ const Remitos = () => {
                 <tbody>
                   {remitosFiltrados.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="remitos-vacio">
+                      <td colSpan={7} className="lista-vacio">
                         {hayFiltros
                           ? 'Sin resultados para los filtros aplicados'
                           : 'Sin remitos registrados'}
@@ -974,25 +974,25 @@ const Remitos = () => {
                     remitosFiltrados.map((remito) => (
                       <tr
                         key={remito.id}
-                        className={`remitos-table__row ${
+                        className={`lista-table__row ${
                           selectedRemitoId === remito.id
-                            ? 'remitos-table__row--selected'
+                            ? 'lista-table__row--selected'
                             : ''
                         }`}
                         style={{
-                          '--remito-status': STATUS_COLORS[remito.status],
+                          '--lista-status': STATUS_COLORS[remito.status],
                         }}
                         onClick={() => handleSelectRemito(remito)}
                       >
-                        <td className="remitos-table__numero">
+                        <td className="lista-table__numero">
                           {remito.remito_number}
                         </td>
                         <td>
                           <span
-                            className={`remitos-badge ${
+                            className={`lista-badge ${
                               remito.type === 'OFICIAL'
-                                ? 'remitos-badge--oficial'
-                                : 'remitos-badge--no-oficial'
+                                ? 'lista-badge--oficial'
+                                : 'lista-badge--no-oficial'
                             }`}
                           >
                             {remito.type === 'OFICIAL'
@@ -1003,14 +1003,14 @@ const Remitos = () => {
                         <td>{getNombreDeposito(remito.origin_warehouse_id)}</td>
                         <td>
                           {remito.destination_warehouse_id && (
-                            <span className="remitos-badge remitos-badge--neutral me-2">Interno</span>
+                            <span className="lista-badge lista-badge--neutral me-2">Interno</span>
                           )}
                           {getDestinoRemito(remito)}
                         </td>
                         <td>{formatDate(getFechaRemito(remito))}</td>
                         <td>
                           <span
-                            className={`remitos-badge remitos-badge--${remito.status.toLowerCase()}`}
+                            className={`lista-badge lista-badge--${remito.status.toLowerCase()}`}
                             style={{
                               backgroundColor: STATUS_COLORS[remito.status],
                             }}
@@ -1031,17 +1031,17 @@ const Remitos = () => {
         )}
 
         {selectedRemitoId && remitoSeleccionado ? (
-          <div className="row g-2 remitos-detalle">
+          <div className="row g-2 lista-detalle">
             <div className="col-12 col-md-7">
-              <div className="remitos-box remitos-box--fill">
-                <div className="remitos-box__header">
-                  <h4 className="remitos-box__title">
+              <div className="lista-box lista-box--fill">
+                <div className="lista-box__header">
+                  <h4 className="lista-box__title">
                     <FileText size={16} />
                     Remito digital {remitoSeleccionado.remito_number}
                   </h4>
                   <div className="d-flex align-items-center gap-2">
                     <span
-                      className={`remitos-badge remitos-badge--pill remitos-badge--${remitoSeleccionado.status.toLowerCase()}`}
+                      className={`lista-badge lista-badge--pill lista-badge--${remitoSeleccionado.status.toLowerCase()}`}
                       style={{
                         backgroundColor:
                           STATUS_COLORS[remitoSeleccionado.status],
@@ -1050,7 +1050,7 @@ const Remitos = () => {
                       {remitoSeleccionado.status}
                     </span>
                     <button
-                      className="remitos-cerrar"
+                      className="lista-cerrar"
                       title="Cerrar detalle"
                       onClick={() => setSelectedRemitoId(null)}
                     >
@@ -1059,14 +1059,14 @@ const Remitos = () => {
                   </div>
                 </div>
                 {loadingDetalle ? (
-                  <div className="remitos-box__body justify-content-center align-items-center">
+                  <div className="lista-box__body justify-content-center align-items-center">
                     <Spinner />
                   </div>
                 ) : remitoDetalle ? (
                   renderRemitoDatos()
                 ) : (
-                  <div className="remitos-box__body">
-                    <p className="remitos-vacio">
+                  <div className="lista-box__body">
+                    <p className="lista-vacio">
                       No se pudo cargar el detalle
                     </p>
                   </div>
@@ -1075,19 +1075,19 @@ const Remitos = () => {
             </div>
 
             <div className="col-12 col-md-5">
-              <div className="remitos-box remitos-box--fill">
-                <div className="remitos-box__header">
-                  <h4 className="remitos-box__title">
+              <div className="lista-box lista-box--fill">
+                <div className="lista-box__header">
+                  <h4 className="lista-box__title">
                     <ImageIcon size={16} />
                     Archivos
                   </h4>
-                  <span className="remitos-box__meta">
+                  <span className="lista-box__meta">
                     {archivos.length} archivo{archivos.length !== 1 ? 's' : ''}
                   </span>
                 </div>
-                <div className="remitos-visor">{renderRemitoImagen()}</div>
+                <div className="lista-visor">{renderRemitoImagen()}</div>
                 {archivos.length > 0 && (
-                  <div className="remitos-box__footer">
+                  <div className="lista-box__footer">
                     <Clock size={12} />
                     Último archivo: {formatDateTime(archivos[0]?.uploaded_at)}
                   </div>
@@ -1096,7 +1096,7 @@ const Remitos = () => {
             </div>
           </div>
         ) : (
-          <div className="remitos-box remitos-placeholder">
+          <div className="lista-box lista-placeholder">
             Seleccioná un remito para ver su detalle y la foto firmada.
           </div>
         )}
