@@ -47,8 +47,8 @@
 }
 
 .faltantes-modo .faltantes-chip {
-  background: var(--remitos-sel, rgba(31, 58, 46, 0.08));
-  color: var(--remitos-text, #1f3a2e);
+  background: var(--lista-sel, rgba(31, 58, 46, 0.08));
+  color: var(--lista-text, #1f3a2e);
 }
 
 /* ===== Resumen ===== */
@@ -63,8 +63,8 @@
   flex-direction: column;
   gap: 4px;
   padding: 12px 14px;
-  background: var(--remitos-panel, #f4f8f6);
-  border: 1px solid var(--remitos-border, #c6d9cd);
+  background: var(--lista-panel, #f4f8f6);
+  border: 1px solid var(--lista-border, #c6d9cd);
   border-radius: 12px;
 }
 
@@ -77,13 +77,13 @@
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--remitos-muted, #5d7a6b);
+  color: var(--lista-muted, #5d7a6b);
 }
 
 .faltantes-resumen__valor {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--remitos-text, #1f3a2e);
+  color: var(--lista-text, #1f3a2e);
 }
 
 .faltantes-resumen__card--alerta .faltantes-resumen__valor {
@@ -100,7 +100,7 @@
   align-items: center;
   gap: 6px;
   font-size: 0.8rem;
-  color: var(--remitos-text, #1f3a2e);
+  color: var(--lista-text, #1f3a2e);
   white-space: nowrap;
 }
 
@@ -110,15 +110,15 @@
   gap: 6px;
   padding: 0.45rem 0.8rem;
   font-size: 0.8rem;
-  border: 1px solid var(--remitos-border-strong, #a3beaf);
+  border: 1px solid var(--lista-border-strong, #a3beaf);
   border-radius: 8px;
-  background: var(--remitos-panel, #f4f8f6);
-  color: var(--remitos-text, #1f3a2e);
+  background: var(--lista-panel, #f4f8f6);
+  color: var(--lista-text, #1f3a2e);
   cursor: pointer;
 }
 
 .faltantes-btn:hover:not(:disabled) {
-  background: var(--remitos-sel, rgba(31, 58, 46, 0.08));
+  background: var(--lista-sel, rgba(31, 58, 46, 0.08));
 }
 
 .faltantes-btn:disabled {
@@ -133,7 +133,7 @@
   gap: 10px;
   flex-wrap: wrap;
   font-size: 0.78rem;
-  color: var(--remitos-muted, #5d7a6b);
+  color: var(--lista-muted, #5d7a6b);
 }
 
 .faltantes-chip {
@@ -166,23 +166,23 @@
 .faltantes-tabla th {
   position: sticky;
   top: 0;
-  background: var(--remitos-th, #e7efea);
-  color: var(--remitos-text, #1f3a2e);
+  background: var(--lista-th, #e7efea);
+  color: var(--lista-text, #1f3a2e);
   text-align: left;
   font-weight: 600;
   padding: 0.55rem 0.6rem;
-  border-bottom: 1px solid var(--remitos-border-strong, #a3beaf);
+  border-bottom: 1px solid var(--lista-border-strong, #a3beaf);
   white-space: nowrap;
 }
 
 .faltantes-tabla td {
   padding: 0.5rem 0.6rem;
-  border-bottom: 1px solid var(--remitos-border, #c6d9cd);
+  border-bottom: 1px solid var(--lista-border, #c6d9cd);
   vertical-align: middle;
 }
 
 .faltantes-fila:hover {
-  background: var(--remitos-hover, rgba(31, 58, 46, 0.04));
+  background: var(--lista-hover, rgba(31, 58, 46, 0.04));
 }
 
 .faltantes-fila__numero {

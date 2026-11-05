@@ -1,20 +1,20 @@
-/* ===== Tokens de paleta (menta claro) ===== */
-.remitos {
-  --remitos-bg: #e4eee8;
-  --remitos-panel: #f4f8f6;
-  --remitos-th: #e7efea;
-  --remitos-border: #c6d9cd;
-  --remitos-border-strong: #a3beaf;
-  --remitos-text: #1f3a2e;
-  --remitos-muted: #5d7a6b;
-  --remitos-hover: rgba(31, 58, 46, 0.04);
-  --remitos-sel: rgba(31, 58, 46, 0.08);
-  --remitos-visor: #cfe0d6;
-  --remitos-pill-active-bg: #1f3a2e;
-  --remitos-pill-active-text: #ffffff;
-  --remitos-blue: #1d5fb8;
-  --remitos-green: #146c43;
-  --remitos-red: #b02a37;
+/* ===== Tokens de paleta (menta claro) — compartido por listados con detalle ===== */
+.lista {
+  --lista-bg: #e4eee8;
+  --lista-panel: #f4f8f6;
+  --lista-th: #e7efea;
+  --lista-border: #c6d9cd;
+  --lista-border-strong: #a3beaf;
+  --lista-text: #1f3a2e;
+  --lista-muted: #5d7a6b;
+  --lista-hover: rgba(31, 58, 46, 0.04);
+  --lista-sel: rgba(31, 58, 46, 0.08);
+  --lista-visor: #cfe0d6;
+  --lista-pill-active-bg: #1f3a2e;
+  --lista-pill-active-text: #ffffff;
+  --lista-blue: #1d5fb8;
+  --lista-green: #146c43;
+  --lista-red: #b02a37;
 
   min-height: calc(100vh - 80px);
 }
@@ -56,43 +56,18 @@
   padding: 0.2rem;
 }
 
-/* ===== Encabezado de página (alias para compatibilidad) ===== */
-.remitos__titulo {
-  margin: 0;
-  font-weight: 700;
-  color: #1a1a2e;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.remitos__titulo-icono {
-  color: #3b82f6;
-}
-
-.remitos__subtitulo {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #6c757d;
-}
-
-.remitos .remitos__btn-nuevo--mobile {
-  gap: 0;
-  padding: 0.2rem;
-}
-
 /* ===== Superficie única ===== */
-.remitos-surface {
+.lista-surface {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  background: var(--remitos-bg);
+  background: var(--lista-bg);
   border-radius: 15px;
-  color: var(--remitos-text);
+  color: var(--lista-text);
 }
 
-.remitos-surface__header {
+.lista-surface__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -100,51 +75,51 @@
   gap: 8px;
 }
 
-.remitos-surface__title {
+.lista-surface__title {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0;
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--remitos-text);
+  color: var(--lista-text);
 }
 
 /* ===== Pills de estado ===== */
-.remitos-pills {
+.lista-pills {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
 }
 
-.remitos-pill {
+.lista-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 3px 10px;
   font-family: inherit;
   font-size: 0.72rem;
-  color: var(--remitos-text);
+  color: var(--lista-text);
   background: transparent;
-  border: 1px solid var(--remitos-border-strong);
+  border: 1px solid var(--lista-border-strong);
   border-radius: 20px;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.remitos-pill:hover {
-  background: var(--remitos-sel);
+.lista-pill:hover {
+  background: var(--lista-sel);
 }
 
-.remitos-pill--active,
-.remitos-pill--active:hover {
-  background: var(--remitos-pill-active-bg);
-  color: var(--remitos-pill-active-text);
-  border-color: var(--remitos-pill-active-bg);
+.lista-pill--active,
+.lista-pill--active:hover {
+  background: var(--lista-pill-active-bg);
+  color: var(--lista-pill-active-text);
+  border-color: var(--lista-pill-active-bg);
   font-weight: 500;
 }
 
-.remitos-pill__dot {
+.lista-pill__dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -152,53 +127,53 @@
 }
 
 /* ===== Filtros ===== */
-.remitos-filtros {
+.lista-filtros {
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
   gap: 8px;
   padding: 10px 12px;
-  background: var(--remitos-panel);
-  border: 1px solid var(--remitos-border);
+  background: var(--lista-panel);
+  border: 1px solid var(--lista-border);
   border-radius: 10px;
 }
 
-.remitos-filtros__group {
+.lista-filtros__group {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
-.remitos-filtros__group--grow {
+.lista-filtros__group--grow {
   flex: 1 1 220px;
   min-width: 180px;
 }
 
-.remitos-filtros__label {
+.lista-filtros__label {
   font-size: 0.72rem;
   font-weight: 600;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
-.remitos-filtros__search {
+.lista-filtros__search {
   display: flex;
   align-items: center;
   gap: 6px;
   height: 30px;
   padding: 0 10px;
-  color: var(--remitos-muted);
-  background: var(--remitos-bg);
-  border: 1px solid var(--remitos-border-strong);
+  color: var(--lista-muted);
+  background: var(--lista-bg);
+  border: 1px solid var(--lista-border-strong);
   border-radius: 8px;
   transition: border-color 0.15s ease;
 }
 
-.remitos-filtros__search:focus-within {
-  color: var(--remitos-text);
-  border-color: var(--remitos-pill-active-bg);
+.lista-filtros__search:focus-within {
+  color: var(--lista-text);
+  border-color: var(--lista-pill-active-bg);
 }
 
-.remitos-filtros__search .remitos-filtros__input {
+.lista-filtros__search .lista-filtros__input {
   flex: 1;
   height: 100%;
   padding: 0;
@@ -206,121 +181,121 @@
   border: 0;
 }
 
-.remitos-filtros__input {
+.lista-filtros__input {
   min-width: 130px;
   height: 30px;
   padding: 0 10px;
   font-family: inherit;
   font-size: 0.78rem;
-  color: var(--remitos-text);
-  background: var(--remitos-bg);
-  border: 1px solid var(--remitos-border-strong);
+  color: var(--lista-text);
+  background: var(--lista-bg);
+  border: 1px solid var(--lista-border-strong);
   border-radius: 8px;
   outline: none;
   transition: border-color 0.15s ease;
 }
 
-.remitos-filtros__input:focus {
-  border-color: var(--remitos-pill-active-bg);
+.lista-filtros__input:focus {
+  border-color: var(--lista-pill-active-bg);
 }
 
-.remitos-filtros__input--numero {
+.lista-filtros__input--numero {
   width: 110px;
   min-width: 110px;
 }
 
-.remitos-filtros__input--fecha {
+.lista-filtros__input--fecha {
   width: 140px;
   min-width: 140px;
 }
 
-.remitos-filtros__limpiar {
+.lista-filtros__limpiar {
   height: 30px;
   padding: 0 12px;
   font-family: inherit;
   font-size: 0.78rem;
-  color: var(--remitos-text);
+  color: var(--lista-text);
   background: transparent;
-  border: 1px solid var(--remitos-border-strong);
+  border: 1px solid var(--lista-border-strong);
   border-radius: 8px;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.remitos-filtros__limpiar:hover:not(:disabled) {
-  background: var(--remitos-sel);
+.lista-filtros__limpiar:hover:not(:disabled) {
+  background: var(--lista-sel);
 }
 
-.remitos-filtros__limpiar:disabled {
+.lista-filtros__limpiar:disabled {
   opacity: 0.45;
   cursor: default;
 }
 
 @media (max-width: 576px) {
-  .remitos-filtros__group,
-  .remitos-filtros__group--grow {
+  .lista-filtros__group,
+  .lista-filtros__group--grow {
     flex: 1 1 100%;
     width: 100%;
   }
 
-  .remitos-filtros__input,
-  .remitos-filtros__input--numero,
-  .remitos-filtros__input--fecha {
+  .lista-filtros__input,
+  .lista-filtros__input--numero,
+  .lista-filtros__input--fecha {
     width: 100%;
   }
 
-  .remitos-filtros__limpiar {
+  .lista-filtros__limpiar {
     width: 100%;
   }
 }
 
 /* ===== Paneles (tabla, remito digital, remito físico) ===== */
-.remitos-box {
-  background: var(--remitos-panel);
-  border: 1px solid var(--remitos-border);
+.lista-box {
+  background: var(--lista-panel);
+  border: 1px solid var(--lista-border);
   border-radius: 10px;
   overflow: hidden;
 }
 
-.remitos-box--fill {
+.lista-box--fill {
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 320px;
 }
 
-.remitos-box__header {
+.lista-box__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 8px;
   padding: 9px 12px;
-  border-bottom: 1px solid var(--remitos-border);
+  border-bottom: 1px solid var(--lista-border);
 }
 
-.remitos-box__title {
+.lista-box__title {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 0;
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--remitos-text);
+  color: var(--lista-text);
 }
 
-.remitos-box__meta {
+.lista-box__meta {
   font-size: 0.72rem;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
-.remitos-box__body {
+.lista-box__body {
   display: flex;
   flex-direction: column;
   flex: 1;
   padding: 12px;
 }
 
-.remitos-box__acciones {
+.lista-box__acciones {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -328,40 +303,40 @@
   padding-top: 8px;
 }
 
-.remitos-box__footer {
+.lista-box__footer {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
   font-size: 0.72rem;
-  color: var(--remitos-muted);
-  border-top: 1px solid var(--remitos-border);
+  color: var(--lista-muted);
+  border-top: 1px solid var(--lista-border);
 }
 
-.remitos-placeholder {
+.lista-placeholder {
   padding: 24px 12px;
   text-align: center;
   font-size: 0.85rem;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
 /* ===== Scroll de registros ===== */
-.remitos-scroll {
+.lista-scroll {
   max-height: 30vh;
   min-height: 150px;
   overflow: auto;
 }
 
 /* ===== Tabla (desktop) ===== */
-.remitos-table {
+.lista-table {
   width: 100%;
   margin: 0;
   font-size: 0.85rem;
-  color: var(--remitos-text);
+  color: var(--lista-text);
   border-collapse: collapse;
 }
 
-.remitos-table thead th {
+.lista-table thead th {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -369,77 +344,77 @@
   font-size: 0.72rem;
   font-weight: 500;
   text-align: left;
-  color: var(--remitos-muted);
-  background: var(--remitos-th);
+  color: var(--lista-muted);
+  background: var(--lista-th);
 }
 
-.remitos-table thead th.text-end {
+.lista-table thead th.text-end {
   text-align: right;
 }
 
-.remitos-table td {
+.lista-table td {
   padding: 7px 10px;
   vertical-align: middle;
-  border-top: 1px solid var(--remitos-border);
+  border-top: 1px solid var(--lista-border);
 }
 
-.remitos-table__row {
+.lista-table__row {
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.remitos-table__row:hover {
-  background: var(--remitos-hover);
+.lista-table__row:hover {
+  background: var(--lista-hover);
 }
 
-.remitos-table__row--selected,
-.remitos-table__row--selected:hover {
-  background: var(--remitos-sel);
-  box-shadow: inset 3px 0 0 var(--remito-status);
+.lista-table__row--selected,
+.lista-table__row--selected:hover {
+  background: var(--lista-sel);
+  box-shadow: inset 3px 0 0 var(--lista-status);
 }
 
-.remitos-table__numero {
+.lista-table__numero {
   font-weight: 600;
 }
 
-.remitos-vacio {
+.lista-vacio {
   margin: 0;
   padding: 24px 0;
   text-align: center;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
 /* ===== Cards (mobile) ===== */
-.remitos-card {
+.lista-card {
   padding: 12px;
-  background: var(--remitos-panel);
-  border: 1px solid var(--remitos-border);
+  background: var(--lista-panel);
+  border: 1px solid var(--lista-border);
   border-radius: 10px;
-  box-shadow: inset 4px 0 0 var(--remito-status);
+  box-shadow: inset 4px 0 0 var(--lista-status);
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
-.remitos-card--selected {
-  background: var(--remitos-sel);
-  border-color: var(--remitos-border-strong);
+.lista-card--selected {
+  background: var(--lista-sel);
+  border-color: var(--lista-border-strong);
 }
 
-.remitos-card__numero {
+.lista-card__numero {
   margin: 0;
   font-weight: 600;
-  color: var(--remitos-text);
+  color: var(--lista-text);
 }
 
-.remitos-card__dato {
+.lista-card__dato {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
 /* ===== Badges ===== */
-.remitos-badge {
+.lista-badge {
   display: inline-block;
   padding: 2px 7px;
   font-size: 0.72rem;
@@ -448,31 +423,31 @@
   border-radius: 6px;
 }
 
-.remitos-badge--oficial {
+.lista-badge--oficial {
   background: #146c43;
 }
 
-.remitos-badge--no-oficial {
+.lista-badge--no-oficial {
   background: #6c757d;
 }
 
-.remitos-badge--neutral {
+.lista-badge--neutral {
   background: #dfe9e3;
-  color: var(--remitos-text);
+  color: var(--lista-text);
 }
 
-.remitos-badge--pendiente {
+.lista-badge--pendiente {
   color: #412402;
 }
 
-.remitos-badge--pill {
+.lista-badge--pill {
   padding: 2px 10px;
   border-radius: 20px;
 }
 
 /* ===== Botones uniformes ===== */
-.remitos-btn {
-  --btn-color: var(--remitos-blue);
+.lista-btn {
+  --btn-color: var(--lista-blue);
 
   display: inline-flex;
   align-items: center;
@@ -492,63 +467,63 @@
   transition: background 0.15s ease;
 }
 
-.remitos-btn:hover {
+.lista-btn:hover {
   background: color-mix(in srgb, var(--btn-color) 22%, transparent);
 }
 
-.remitos-btn:focus-visible {
+.lista-btn:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--btn-color) 45%, transparent);
   outline-offset: 1px;
 }
 
-.remitos-btn--primary {
-  --btn-color: var(--remitos-blue);
+.lista-btn--primary {
+  --btn-color: var(--lista-blue);
 }
 
-.remitos-btn--success {
-  --btn-color: var(--remitos-green);
+.lista-btn--success {
+  --btn-color: var(--lista-green);
 }
 
-.remitos-btn--danger {
-  --btn-color: var(--remitos-red);
+.lista-btn--danger {
+  --btn-color: var(--lista-red);
 }
 
-.remitos-btn--icon {
+.lista-btn--icon {
   width: 28px;
   height: 28px;
   padding: 0;
 }
 
-.remitos-acciones {
+.lista-acciones {
   display: inline-flex;
   gap: 6px;
 }
 
-.remitos-acciones--col {
+.lista-acciones--col {
   flex-direction: column;
 }
 
-.remitos-cerrar {
+.lista-cerrar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 24px;
   height: 24px;
   padding: 0;
-  color: var(--remitos-muted);
-  background: var(--remitos-sel);
+  color: var(--lista-muted);
+  background: var(--lista-sel);
   border: none;
   border-radius: 50%;
   cursor: pointer;
 }
 
-.remitos-cerrar:hover {
-  color: var(--remitos-text);
-  background: var(--remitos-border);
+.lista-cerrar:hover {
+  color: var(--lista-text);
+  background: var(--lista-border);
 }
 
 /* ===== Remito digital ===== */
-.remitos-kv {
+.lista-kv {
   display: grid;
   grid-template-columns: 80px minmax(0, 1fr);
   row-gap: 4px;
@@ -556,84 +531,84 @@
   font-size: 0.85rem;
 }
 
-.remitos-kv dt {
+.lista-kv dt {
   font-weight: 400;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
-.remitos-kv dd {
+.lista-kv dd {
   margin: 0;
   font-weight: 500;
 }
 
-.remitos-items {
+.lista-items {
   width: 100%;
   margin-bottom: 8px;
   font-size: 0.85rem;
   border-collapse: collapse;
 }
 
-.remitos-items thead th {
+.lista-items thead th {
   padding: 4px 0;
   font-size: 0.72rem;
   font-weight: 500;
   text-align: left;
-  color: var(--remitos-muted);
-  border-bottom: 1px solid var(--remitos-border);
+  color: var(--lista-muted);
+  border-bottom: 1px solid var(--lista-border);
 }
 
-.remitos-items thead th.text-end {
+.lista-items thead th.text-end {
   text-align: right;
 }
 
-.remitos-items tbody td {
+.lista-items tbody td {
   padding: 7px 0;
   vertical-align: top;
-  border-bottom: 1px solid var(--remitos-border);
+  border-bottom: 1px solid var(--lista-border);
 }
 
-.remitos-items__nombre {
+.lista-items__nombre {
   font-weight: 500;
 }
 
-.remitos-items__lotes {
+.lista-items__lotes {
   font-size: 0.72rem;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
-.remitos-items__cantidad {
+.lista-items__cantidad {
   font-weight: 500;
   white-space: nowrap;
 }
 
-.remitos-items tfoot td {
+.lista-items tfoot td {
   padding: 7px 0;
   font-weight: 600;
 }
 
-.remitos-note {
+.lista-note {
   display: flex;
   align-items: flex-start;
   gap: 6px;
   margin: 2px 0 8px;
   font-size: 0.78rem;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
-.remitos-note svg {
+.lista-note svg {
   flex-shrink: 0;
   margin-top: 2px;
 }
 
-.remitos-note--ok {
-  color: var(--remitos-green);
+.lista-note--ok {
+  color: var(--lista-green);
 }
 
-.remitos-note--danger {
-  color: var(--remitos-red);
+.lista-note--danger {
+  color: var(--lista-red);
 }
 
-.remitos-note--warning {
+.lista-note--warning {
   padding: 6px 8px;
   color: #664d03;
   background: #fff3cd;
@@ -641,24 +616,24 @@
 }
 
 /* ===== Remito físico ===== */
-.remitos-visor {
+.lista-visor {
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 1;
   min-height: 240px;
-  background: var(--remitos-visor);
+  background: var(--lista-visor);
   overflow: hidden;
 }
 
-.remitos-visor__content {
+.lista-visor__content {
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
 }
 
-.remitos-visor__principal {
+.lista-visor__principal {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -669,7 +644,7 @@
   padding: 8px;
 }
 
-.remitos-visor__select {
+.lista-visor__select {
   position: absolute;
   top: 8px;
   left: 8px;
@@ -682,7 +657,7 @@
   background: #fff;
 }
 
-.remitos-visor__img {
+.lista-visor__img {
   max-width: 100%;
   max-height: 100%;
   height: auto;
@@ -690,7 +665,7 @@
   cursor: pointer;
 }
 
-.remitos-visor__footer {
+.lista-visor__footer {
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -698,14 +673,14 @@
   gap: 8px;
 }
 
-.remitos-visor__footer small {
+.lista-visor__footer small {
   font-size: 0.75rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.remitos-visor__pdfs {
+.lista-visor__pdfs {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -714,7 +689,7 @@
   background: #f8f9fa;
 }
 
-.remitos-visor__pdf-card {
+.lista-visor__pdf-card {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -726,25 +701,25 @@
   transition: background 0.15s;
 }
 
-.remitos-visor__pdf-card:hover {
+.lista-visor__pdf-card:hover {
   background: #e9ecef;
 }
 
-.remitos-visor__pdf-card i {
+.lista-visor__pdf-card i {
   font-size: 1.4rem;
   flex-shrink: 0;
 }
 
-.remitos-visor__pdf-info {
+.lista-visor__pdf-info {
   overflow: hidden;
   flex: 1;
 }
 
-.remitos-visor__pdf-info small {
+.lista-visor__pdf-info small {
   font-size: 0.78rem;
 }
 
-.remitos-visor__empty {
+.lista-visor__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -752,10 +727,10 @@
   gap: 8px;
   height: 100%;
   padding: 16px;
-  color: var(--remitos-muted);
+  color: var(--lista-muted);
 }
 
-.remitos-visor__empty p {
+.lista-visor__empty p {
   margin: 0;
   font-size: 0.85rem;
 }
