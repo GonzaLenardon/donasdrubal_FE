@@ -136,12 +136,12 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
   };
 
   return (
-    <div className="remitos faltantes">
-      <div className="remitos-filtros">
-        <div className="remitos-filtros__group">
-          <label className="remitos-filtros__label">Depósito</label>
+    <div className="lista faltantes">
+      <div className="lista-filtros">
+        <div className="lista-filtros__group">
+          <label className="lista-filtros__label">Depósito</label>
           <select
-            className="remitos-filtros__input"
+            className="lista-filtros__input"
             value={filtroDeposito}
             onChange={(e) => setFiltroDeposito(e.target.value)}
           >
@@ -155,12 +155,12 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
         </div>
 
         {ingenieros.length > 0 && (
-          <div className="remitos-filtros__group">
-            <label className="remitos-filtros__label">
+          <div className="lista-filtros__group">
+            <label className="lista-filtros__label">
               Ingeniero / Empleado
             </label>
             <select
-              className="remitos-filtros__input"
+              className="lista-filtros__input"
               value={filtroIngeniero}
               onChange={(e) => setFiltroIngeniero(e.target.value)}
             >
@@ -174,8 +174,8 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
           </div>
         )}
 
-        <div className="remitos-filtros__group">
-          <label className="remitos-filtros__label">Agrupación</label>
+        <div className="lista-filtros__group">
+          <label className="lista-filtros__label">Agrupación</label>
           <label className="faltantes-toggle">
             <input
               type="checkbox"
@@ -196,7 +196,7 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
         </label>
 
         <button
-          className="remitos-filtros__limpiar"
+          className="lista-filtros__limpiar"
           onClick={limpiarFiltros}
           disabled={!hayFiltros}
         >
@@ -278,8 +278,8 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
           </div>
 
           {grupos.length === 0 ? (
-            <div className="remitos-box">
-              <p className="remitos-vacio">
+            <div className="lista-box">
+              <p className="lista-vacio">
                 {hayFiltros
                   ? 'Sin resultados para los filtros aplicados'
                   : 'Sin remitos registrados'}
@@ -287,9 +287,9 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
             </div>
           ) : (
             grupos.map((grupo) => (
-              <div className="remitos-box" key={grupo.deposito_id}>
-                <div className="remitos-box__header">
-                  <h4 className="remitos-box__title">
+              <div className="lista-box" key={grupo.deposito_id}>
+                <div className="lista-box__header">
+                  <h4 className="lista-box__title">
                     <Layers size={16} />
                     {grupo.deposito
                       ? `${grupo.deposito.nombre} (${grupo.deposito.codigo})`
@@ -323,7 +323,7 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
                   </div>
                 </div>
 
-                <div className="remitos-scroll">
+                <div className="lista-scroll">
                   <table className="faltantes-tabla">
                     <thead>
                       <tr>
@@ -366,10 +366,10 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
                             </td>
                             <td>
                               <span
-                                className={`remitos-badge ${
+                                className={`lista-badge ${
                                   fila.type === 'OFICIAL'
-                                    ? 'remitos-badge--oficial'
-                                    : 'remitos-badge--no-oficial'
+                                    ? 'lista-badge--oficial'
+                                    : 'lista-badge--no-oficial'
                                 }`}
                               >
                                 {fila.type === 'OFICIAL' ? 'Oficial' : 'No Oficial'}
@@ -379,7 +379,7 @@ const RemitosFaltantesPanel = ({ depositos = [], ingenieros = [] }) => {
                             <td>{formatDate(fila.createdAt)}</td>
                             <td>
                               <span
-                                className={`remitos-badge remitos-badge--${(
+                                className={`lista-badge lista-badge--${(
                                   fila.status || 'PENDIENTE'
                                 ).toLowerCase()}`}
                                 style={{

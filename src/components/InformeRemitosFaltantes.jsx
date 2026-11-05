@@ -35,7 +35,7 @@ const InformeRemitosFaltantes = () => {
   if (loading) return <Spinner />;
 
   return (
-    <div className="remitos py-4">
+    <div className="lista py-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div>
           <h2 className="page-header__title">
