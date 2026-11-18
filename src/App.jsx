@@ -25,6 +25,7 @@ import Stock from './components/Stock.jsx';
 import Compras from './components/Compras.jsx';
 import Remitos from './components/Remitos.jsx';
 import Presentaciones from './components/Presentaciones.jsx';
+import Marcas from './components/Marcas.jsx';
 import Rubros from './components/Rubros.jsx';
 import Subrubros from './components/Subrubros.jsx';
 import RegistroProspecto from './components/RegistroProspecto.jsx';
@@ -99,6 +100,7 @@ function App() {
           {/* Stock / Remitos */}
           <Route path="stock/productos" element={<Productos />} />
           <Route path="stock/presentaciones" element={<Presentaciones />} />
+          <Route path="stock/marcas" element={<Marcas />} />
           <Route path="stock/rubros" element={<Rubros />} />
           <Route path="stock/subrubros" element={<Subrubros />} />
           <Route path="stock/depositos" element={<Depositos />} />

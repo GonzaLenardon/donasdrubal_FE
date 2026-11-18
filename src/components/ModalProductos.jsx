@@ -4,6 +4,7 @@ import { uploadProductImage, deleteProductImage } from '../api/productos';
 import { allRubros } from '../api/rubros';
 import { allSubrubros } from '../api/subrubros';
 import { allPresentations } from '../api/productos';
+import { allProductBrands } from '../api/productBrands';
 import { upVariant, delVariant, allVariants } from '../api/productVariants';
 
 const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
@@ -13,10 +14,12 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
     activo: true,
     rubro_id: '',
     subrubro_id: '',
+    brand_id: '',
   });
   const [rubros, setRubros] = useState([]);
   const [subrubros, setSubrubros] = useState([]);
   const [presentaciones, setPresentaciones] = useState([]);
+  const [marcas, setMarcas] = useState([]);
   const [presentacionSeleccionada, setPresentacionSeleccionada] = useState('');
   const [codigoVariante, setCodigoVariante] = useState('');
   const [variantesExistentes, setVariantesExistentes] = useState([]);
@@ -41,6 +44,7 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
         activo: producto.activo ?? true,
         rubro_id: producto.rubro_id || '',
         subrubro_id: producto.subrubro_id || '',
+        brand_id: producto.brand_id || '',
       });
       setImagePreview(producto.imagen || null);
       cargarVariantesExistentes(producto.id);
@@ -57,12 +61,14 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
 
   const cargarDatos = async () => {
     try {
-      const [resRubros, resPresentaciones] = await Promise.all([
+      const [resRubros, resPresentaciones, resMarcas] = await Promise.all([
         allRubros(),
         allPresentations(),
+        allProductBrands(),
       ]);
       setRubros(resRubros.data || []);
       setPresentaciones(resPresentaciones.data || []);
+      setMarcas(resMarcas.data || []);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     }
@@ -93,6 +99,7 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
     const newErrors = {};
     if (!form.nombre?.trim()) newErrors.nombre = 'El nombre es requerido';
     if (!form.codigo?.trim()) newErrors.codigo = 'El código es requerido';
+    if (!form.brand_id) newErrors.brand_id = 'Seleccione una marca';
     if (!producto?.id && !presentacionSeleccionada) {
       newErrors.presentaciones = 'Seleccione una presentación';
     }
@@ -110,6 +117,7 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
       setIsSubmitting(true);
 
       const payload = { ...form };
+      payload.brand_id = parseInt(form.brand_id);
       if (!producto?.id && presentacionSeleccionada) {
         payload.presentation_id = parseInt(presentacionSeleccionada);
         payload.codigo_variante = codigoVariante.trim();
@@ -242,6 +250,9 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
   };
 
   const presentacionesUsadas = variantesExistentes.map((v) => v.presentation_id);
+  const marcasDisponibles = marcas.filter(
+    (marca) => marca.activo || String(marca.id) === String(form.brand_id),
+  );
 
   return (
     <Modal show onHide={onClose} centered size="lg">
@@ -279,7 +290,33 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
               </Form.Group>
 
               <div className="row">
-                <div className="col-md-6">
+                <div className="col-md-4">
+                  <Form.Group className="mb-3">
+                    <Form.Label>Marca *</Form.Label>
+                    <Form.Select
+                      value={form.brand_id}
+                      onChange={(e) => setForm({ ...form, brand_id: e.target.value })}
+                      isInvalid={!!errors.brand_id}
+                      disabled={onlyView}
+                    >
+                      <option value="">Seleccionar</option>
+                      {marcasDisponibles.map((marca) => (
+                        <option key={marca.id} value={marca.id}>
+                          {marca.nombre}{!marca.activo ? ' (inactiva)' : ''}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Form.Control.Feedback type="invalid">
+                      {errors.brand_id}
+                    </Form.Control.Feedback>
+                    {marcasDisponibles.length === 0 && (
+                      <Form.Text className="text-muted">
+                        No hay marcas activas. Cargue una marca antes de crear productos.
+                      </Form.Text>
+                    )}
+                  </Form.Group>
+                </div>
+                <div className="col-md-4">
                   <Form.Group className="mb-3">
                     <Form.Label>Rubro</Form.Label>
                     <Form.Select
@@ -296,7 +333,7 @@ const ModalProductos = ({ producto, onlyView, onClose, onSave }) => {
                     </Form.Select>
                   </Form.Group>
                 </div>
-                <div className="col-md-6">
+                <div className="col-md-4">
                   <Form.Group className="mb-3">
                     <Form.Label>Subrubro</Form.Label>
                     <Form.Select

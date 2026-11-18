@@ -23,6 +23,7 @@ const breadcrumbNames = {
   stock: 'Stock',
   productos: 'Productos',
   presentaciones: 'Presentaciones',
+  marcas: 'Marcas',
   depositos: 'Depósitos',
   proveedores: 'Proveedores',
   saldo: 'Saldos',
