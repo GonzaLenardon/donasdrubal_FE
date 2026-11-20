@@ -38,7 +38,7 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
 
   const basicSelectores = [
     { title: 'Clientes', path: '/clientes', icon: 'bi-person-fill' },
-    /*  { title: 'Prospectos', path: '/prospectos', icon: 'bi-person-plus-fill', roles: ['Administrador', 'Ingeniero'] }, */
+     { title: 'Prospectos', path: '/prospectos', icon: 'bi-person-plus-fill', roles: ['Administrador', 'Ingeniero'] },  
     {
       title: 'Notificaciones',
       path: '/notificaciones',
@@ -80,8 +80,26 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
     },
     {
       title: 'Herramientas',
-      path: '/herramientas',
       icon: 'bi-wrench',
+      children: [
+        {
+          title: 'Calcular dosis',
+          path: '/herramientas',
+          icon: 'bi-calculator',
+        },
+        {
+          title: 'Evaluador comodato',
+          path: '/extra_tools/evaluador_comodato.html',
+          icon: 'bi-clipboard-check',
+          external: true,
+        },
+        {
+          title: 'Cotizador',
+          path: '/extra_tools/cotizador.html',
+          icon: 'bi-currency-dollar',
+          external: true,
+        },
+      ],
     },
     {
       title: 'Informes',
@@ -297,21 +315,36 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
                         <ul className="sidebar-submenu">
                           {filteredChildren.map((child, i) => (
                             <li key={i}>
-                              <Link
-                                to={child.path}
-                                className={`sidebar-link sidebar-sublink ${
-                                  location.pathname === child.path ||
-                                  location.pathname.startsWith(`${child.path}/`)
-                                    ? 'is-active'
-                                    : ''
-                                }`}
-                                onClick={closeSidebar}
-                              >
-                                <i
-                                  className={`bi ${child.icon} sidebar-icon`}
-                                />
-                                {child.title}
-                              </Link>
+                              {child.external ? (
+                                <a
+                                  href={child.path}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="sidebar-link sidebar-sublink"
+                                  onClick={closeSidebar}
+                                >
+                                  <i
+                                    className={`bi ${child.icon} sidebar-icon`}
+                                  />
+                                  {child.title}
+                                </a>
+                              ) : (
+                                <Link
+                                  to={child.path}
+                                  className={`sidebar-link sidebar-sublink ${
+                                    location.pathname === child.path ||
+                                    location.pathname.startsWith(`${child.path}/`)
+                                      ? 'is-active'
+                                      : ''
+                                  }`}
+                                  onClick={closeSidebar}
+                                >
+                                  <i
+                                    className={`bi ${child.icon} sidebar-icon`}
+                                  />
+                                  {child.title}
+                                </Link>
+                              )}
                             </li>
                           ))}
                         </ul>
