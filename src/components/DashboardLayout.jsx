@@ -28,6 +28,7 @@ const breadcrumbNames = {
   saldo: 'Saldos',
   compras: 'Compras',
   remitos: 'Remitos',
+  facturacion: 'Facturación',
 };
 
 const tabBreadcrumbNames = {

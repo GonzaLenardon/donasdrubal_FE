@@ -75,6 +75,11 @@ const Sidebar = ({ isMobileOpen, closeSidebar }) => {
           path: '/stock/remitos',
           icon: 'bi-file-earmark-text-fill',
         },
+        {
+          title: 'Facturación',
+          path: '/stock/facturacion',
+          icon: 'bi-receipt',
+        },
       ],
     },
     {

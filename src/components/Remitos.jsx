@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FileText,
   ClipboardList,
@@ -13,6 +14,7 @@ import {
   Search,
   AlertTriangle,
   ArrowLeftRight,
+  Receipt,
 } from 'lucide-react';
 import {
   allRemitos,
@@ -27,6 +29,7 @@ import { allIngenieros } from '../api/users';
 import Spinner from './Spinner';
 import ModalRemitoCatalogo from './ModalRemitoCatalogo';
 import ModalRemitoInterno from './ModalRemitoInterno';
+import ModalFactura from './ModalFactura';
 import UploadRemitoPhoto from './UploadRemitoPhoto';
 import RemitosFaltantesPanel from './RemitosFaltantesPanel';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -37,6 +40,18 @@ const STATUS_COLORS = {
   REVISION: '#3b82f6',
   COMPLETADO: '#146c43',
   ANULADO: '#dc3545',
+};
+
+const FACTURACION_COLORS = {
+  NO_FACTURADO: '#6c757d',
+  PARCIAL: '#EF9F27',
+  FACTURADO: '#146c43',
+};
+
+const FACTURACION_LABELS = {
+  NO_FACTURADO: 'Sin facturar',
+  PARCIAL: 'Parcial',
+  FACTURADO: 'Facturado',
 };
 
 const FILTROS_ESTADO = [
@@ -58,7 +73,15 @@ const normalizar = (str) =>
 
 const getFechaRemito = (remito) => remito.issued_at || remito.createdAt;
 
+const fechaHoy = () => {
+  const d = new Date();
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mes}-${dia}`;
+};
+
 const Remitos = () => {
+  const navigate = useNavigate();
   const [remitos, setRemitos] = useState([]);
   const [depositos, setDepositos] = useState([]);
   const [clientes, setClientes] = useState([]);
@@ -76,6 +99,8 @@ const Remitos = () => {
   const [filtroDesde, setFiltroDesde] = useState('');
   const [filtroHasta, setFiltroHasta] = useState('');
   const [filtroIngeniero, setFiltroIngeniero] = useState('');
+  const [filtroFacturacion, setFiltroFacturacion] = useState('');
+  const [facturaModalRemito, setFacturaModalRemito] = useState(null);
   const [ingenieros, setIngenieros] = useState([]);
   const [selectedRemitoId, setSelectedRemitoId] = useState(null);
   const [remitoDetalle, setRemitoDetalle] = useState(null);
@@ -213,7 +238,8 @@ const Remitos = () => {
       filtroDesde ||
       filtroHasta ||
       filtroIngeniero ||
-      filtroEstado,
+      filtroEstado ||
+      filtroFacturacion,
   );
 
   const limpiarFiltros = () => {
@@ -227,6 +253,7 @@ const Remitos = () => {
     setFiltroHasta('');
     setFiltroIngeniero('');
     setFiltroEstado('');
+    setFiltroFacturacion('');
   };
 
   const remitosBase = useMemo(() => {
@@ -275,6 +302,12 @@ const Remitos = () => {
         if (!asignado && remito.creadoPor?.id !== ingId) return false;
       }
 
+      if (filtroFacturacion) {
+        if (remito.destination_warehouse_id) return false;
+        const estadoFact = remito.estado_facturacion || 'NO_FACTURADO';
+        if (estadoFact !== filtroFacturacion) return false;
+      }
+
       return true;
     });
   }, [
@@ -287,6 +320,7 @@ const Remitos = () => {
     filtroDesde,
     filtroHasta,
     filtroIngeniero,
+    filtroFacturacion,
   ]);
 
   const remitosPorTipo = filtroTipo
@@ -331,17 +365,51 @@ const Remitos = () => {
     0,
   );
 
+  const renderBadgeFacturacion = (estadoFact, extraClass = '') => {
+    const estado = estadoFact || 'NO_FACTURADO';
+    return (
+      <span
+        className={`lista-badge ${extraClass}`}
+        style={{
+          backgroundColor: FACTURACION_COLORS[estado] || '#6c757d',
+        }}
+        title="Estado de facturación"
+      >
+        {FACTURACION_LABELS[estado] || estado}
+      </span>
+    );
+  };
+
+  const puedeFacturarRemito = (remito) =>
+    isAdmin &&
+    !remito.destination_warehouse_id &&
+    remito.status === 'COMPLETADO' &&
+    Number(remito.saldo_facturacion ?? 0) > 0;
+
   const renderAccionesFila = (remito, vertical = false) => {
     const esInterno = Boolean(remito.destination_warehouse_id);
     const puedeOperar = remito.status === 'PENDIENTE' || remito.status === 'REVISION';
     const puedeAnularTransferencia = esInterno && remito.status === 'COMPLETADO';
-    if (!puedeOperar && !puedeAnularTransferencia) {
+    const puedeFacturar = puedeFacturarRemito(remito);
+    if (!puedeOperar && !puedeAnularTransferencia && !puedeFacturar) {
       return null;
     }
     return (
       <div
         className={`lista-acciones ${vertical ? 'lista-acciones--col' : ''}`}
       >
+        {puedeFacturar && (
+          <button
+            className="lista-btn lista-btn--icon lista-btn--primary"
+            title="Facturar remito"
+            onClick={(e) => {
+              e.stopPropagation();
+              setFacturaModalRemito(remito);
+            }}
+          >
+            <Receipt size={14} />
+          </button>
+        )}
         {!esInterno && remito.status === 'PENDIENTE' && (
           <button
             className="lista-btn lista-btn--icon lista-btn--primary"
@@ -496,6 +564,55 @@ const Remitos = () => {
         )}
       </table>
 
+      {!remitoSeleccionado.destination_warehouse_id && (
+        <div
+          className={`lista-note ${
+            remitoSeleccionado.estado_facturacion === 'FACTURADO'
+              ? 'lista-note--ok'
+              : remitoSeleccionado.estado_facturacion === 'PARCIAL'
+                ? 'lista-note--warning'
+                : ''
+          }`}
+        >
+          <Receipt size={14} />
+          <span>
+            Facturación: {Number(remitoSeleccionado.facturado ?? 0).toFixed(2)}{' '}
+            de {Number(remitoSeleccionado.total_remitido ?? 0).toFixed(2)} (
+            {renderBadgeFacturacion(remitoSeleccionado.estado_facturacion)})
+          </span>
+        </div>
+      )}
+
+      {(remitoDetalle?.facturaciones || []).length > 0 && (
+        <table className="lista-items">
+          <thead>
+            <tr>
+              <th>Factura</th>
+              <th>Fecha</th>
+              <th className="text-end">Cantidad facturada</th>
+            </tr>
+          </thead>
+          <tbody>
+            {remitoDetalle.facturaciones.map((fact) => (
+              <tr key={fact.id}>
+                <td>
+                  {fact.factura?.numero || `#${fact.factura_id}`}
+                  <span className="lista-badge lista-badge--neutral ms-2">
+                    {fact.factura?.tipo === 'ANTICIPO'
+                      ? 'Anticipo'
+                      : 'Factura'}
+                  </span>
+                </td>
+                <td>{formatDate(fact.factura?.fecha)}</td>
+                <td className="text-end lista-items__cantidad">
+                  {parseFloat(fact.cantidad_facturada || 0).toFixed(2)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
       {(remitoSeleccionado.confirmed_at ||
         remitoSeleccionado.confirmadoPor) && (
         <div className="lista-note lista-note--ok">
@@ -534,6 +651,27 @@ const Remitos = () => {
       )}
 
       <div className="lista-box__acciones">
+        {puedeFacturarRemito(remitoSeleccionado) && (
+          <button
+            className="lista-btn lista-btn--primary"
+            onClick={() => setFacturaModalRemito(remitoSeleccionado)}
+          >
+            <Receipt size={14} /> Facturar
+          </button>
+        )}
+        {isAdmin && !remitoSeleccionado.destination_warehouse_id && (
+          <button
+            className="lista-btn"
+            title="Abrir la facturación de este cliente"
+            onClick={() =>
+              navigate(
+                `/stock/facturacion?cliente=${remitoSeleccionado.destination_client_id}&fecha=${fechaHoy()}`,
+              )
+            }
+          >
+            <Receipt size={14} /> Ir a Facturación
+          </button>
+        )}
         {(!remitoSeleccionado.destination_warehouse_id &&
           (remitoSeleccionado.status === 'PENDIENTE' || remitoSeleccionado.status === 'REVISION')) && (
           <button
@@ -682,6 +820,23 @@ const Remitos = () => {
 
         {vista === 'listado' && (
           <div className="d-flex flex-wrap justify-content-end gap-2">
+            {isAdmin && filtroCliente && (
+              <button
+                className="btn-primary"
+                onClick={() =>
+                  navigate(
+                    `/stock/facturacion?cliente=${filtroCliente}&fecha=${fechaHoy()}`,
+                  )
+                }
+                title={`Facturar los remitos de ${getNombreCliente(
+                  Number(filtroCliente),
+                )}`}
+                aria-label="Ir a la facturación del cliente"
+              >
+                <Receipt size={16} className={isMobile ? '' : 'me-2'} />
+                {!isMobile && 'Facturar remitos'}
+              </button>
+            )}
             <button
               className="btn-primary"
               onClick={() => setIsInternalOpen(true)}
@@ -832,6 +987,20 @@ const Remitos = () => {
           </div>
 
           <div className="lista-filtros__group">
+            <label className="lista-filtros__label">Facturación</label>
+            <select
+              className="lista-filtros__input"
+              value={filtroFacturacion}
+              onChange={(e) => setFiltroFacturacion(e.target.value)}
+            >
+              <option value="">Todas</option>
+              <option value="NO_FACTURADO">Sin facturar</option>
+              <option value="PARCIAL">Parcial</option>
+              <option value="FACTURADO">Facturado</option>
+            </select>
+          </div>
+
+          <div className="lista-filtros__group">
             <label className="lista-filtros__label">Desde</label>
             <input
               type="date"
@@ -915,6 +1084,8 @@ const Remitos = () => {
                           >
                             {remito.status}
                           </span>
+                          {!remito.destination_warehouse_id &&
+                            renderBadgeFacturacion(remito.estado_facturacion)}
                         </div>
                         <small className="lista-card__dato">
                           {remito.destination_warehouse_id
@@ -958,13 +1129,14 @@ const Remitos = () => {
                     <th>Destino</th>
                     <th>Fecha</th>
                     <th>Estado</th>
+                    <th>Facturación</th>
                     <th className="text-end">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {remitosFiltrados.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="lista-vacio">
+                      <td colSpan={8} className="lista-vacio">
                         {hayFiltros
                           ? 'Sin resultados para los filtros aplicados'
                           : 'Sin remitos registrados'}
@@ -1018,6 +1190,13 @@ const Remitos = () => {
                             {remito.status}
                           </span>
                         </td>
+                        <td>
+                          {remito.destination_warehouse_id ? (
+                            <span className="text-muted">—</span>
+                          ) : (
+                            renderBadgeFacturacion(remito.estado_facturacion)
+                          )}
+                        </td>
                         <td className="text-end">
                           {renderAccionesFila(remito)}
                         </td>
@@ -1049,6 +1228,11 @@ const Remitos = () => {
                     >
                       {remitoSeleccionado.status}
                     </span>
+                    {!remitoSeleccionado.destination_warehouse_id &&
+                      renderBadgeFacturacion(
+                        remitoSeleccionado.estado_facturacion,
+                        'lista-badge--pill',
+                      )}
                     <button
                       className="lista-cerrar"
                       title="Cerrar detalle"
@@ -1122,6 +1306,21 @@ const Remitos = () => {
             setIsInternalOpen(false);
             await cargarDatos();
             if (remito?.id) setSelectedRemitoId(remito.id);
+          }}
+        />
+      )}
+
+      {facturaModalRemito && (
+        <ModalFactura
+          clientes={clientes}
+          remitoInicial={facturaModalRemito}
+          onClose={() => setFacturaModalRemito(null)}
+          onSave={async () => {
+            setFacturaModalRemito(null);
+            await cargarDatos();
+            if (selectedRemitoId) {
+              cargarDetalleRemito(selectedRemitoId);
+            }
           }}
         />
       )}

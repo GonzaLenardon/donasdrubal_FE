@@ -24,6 +24,7 @@ import Proveedores from './components/Proveedores.jsx';
 import Stock from './components/Stock.jsx';
 import Compras from './components/Compras.jsx';
 import Remitos from './components/Remitos.jsx';
+import Facturacion from './components/Facturacion.jsx';
 import Presentaciones from './components/Presentaciones.jsx';
 import Rubros from './components/Rubros.jsx';
 import Subrubros from './components/Subrubros.jsx';
@@ -106,6 +107,7 @@ function App() {
           <Route path="stock/saldo" element={<Stock />} />
           <Route path="stock/compras" element={<Compras />} />
           <Route path="stock/remitos" element={<Remitos />} />
+          <Route path="stock/facturacion" element={<Facturacion />} />
 
           {/* Página no encontrada (dentro del dashboard) */}
           <Route path="*" element={<NotFound />} />

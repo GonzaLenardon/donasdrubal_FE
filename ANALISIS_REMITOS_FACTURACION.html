@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#172554" />
+    <title>Análisis de Remitos y Facturación</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #1f2937;
+        --muted: #64748b;
+        --line: #dbe3ee;
+        --surface: #ffffff;
+        --page: #f1f5f9;
+        --blue: #1d4ed8;
+        --blue-soft: #eff6ff;
+        --green: #166534;
+        --green-soft: #f0fdf4;
+        --amber: #92400e;
+        --amber-soft: #fffbeb;
+        --red: #991b1b;
+        --red-soft: #fef2f2;
+        --purple: #6b21a8;
+        --purple-soft: #faf5ff;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--ink);
+        font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .document { width: min(980px, calc(100% - 32px)); margin: 38px auto 64px; }
+      .hero {
+        padding: 34px 38px;
+        border-radius: 18px;
+        color: white;
+        background: linear-gradient(130deg, #172554, #1d4ed8 72%, #0e7490);
+        box-shadow: 0 14px 35px #1e3a8a24;
+      }
+      .eyebrow { margin: 0 0 8px; color: #bfdbfe; font-size: .78rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+      h1 { margin: 0; font-size: clamp(1.8rem, 4vw, 2.7rem); line-height: 1.15; }
+      .hero p:last-child { margin: 14px 0 0; color: #e0f2fe; max-width: 760px; }
+      .section {
+        margin-top: 22px;
+        padding: 26px 30px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+        box-shadow: 0 5px 18px #0f172a08;
+      }
+      h2 { margin: 0 0 16px; color: #172554; font-size: 1.38rem; line-height: 1.3; }
+      h3 { margin: 22px 0 8px; font-size: 1.04rem; }
+      p { margin: 9px 0; }
+      ul, ol { margin: 8px 0 0; padding-left: 22px; }
+      li + li { margin-top: 6px; }
+      .question {
+        margin: 16px 0;
+        padding: 16px 18px;
+        border-left: 4px solid var(--blue);
+        border-radius: 8px;
+        background: var(--blue-soft);
+      }
+      .question p { margin: 0; }
+      .answer {
+        margin: 10px 0 0 16px;
+        padding: 13px 16px;
+        border-left: 4px solid #16a34a;
+        border-radius: 8px;
+        background: var(--green-soft);
+      }
+      .answer strong { color: var(--green); }
+      .callout {
+        margin: 14px 0;
+        padding: 14px 17px;
+        border-radius: 10px;
+      }
+      .callout.warning { color: var(--amber); background: var(--amber-soft); border: 1px solid #fde68a; }
+      .callout.danger { color: var(--red); background: var(--red-soft); border: 1px solid #fecaca; }
+      .callout.info { color: #1e40af; background: var(--blue-soft); border: 1px solid #bfdbfe; }
+      .callout.purple { color: var(--purple); background: var(--purple-soft); border: 1px solid #e9d5ff; }
+      .tag {
+        display: inline-block;
+        margin: 2px 4px 2px 0;
+        padding: 2px 9px;
+        border-radius: 999px;
+        color: #1e40af;
+        background: #dbeafe;
+        font-size: .78rem;
+        font-weight: 700;
+        vertical-align: 1px;
+      }
+      code, .path {
+        padding: 2px 5px;
+        border-radius: 5px;
+        background: #f1f5f9;
+        color: #334155;
+        font: .88em ui-monospace, SFMono-Regular, Consolas, monospace;
+        overflow-wrap: anywhere;
+      }
+      .table-wrap { overflow-x: auto; }
+      table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+      th, td { padding: 10px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+      th { color: #1e3a8a; background: #eff6ff; font-size: .9rem; }
+      .source-list { list-style: none; padding: 0; }
+      .source-list li { padding: 10px 0; border-bottom: 1px solid #eef2f7; }
+      .source-list li:last-child { border-bottom: 0; }
+      .source-note { display: block; color: var(--muted); font-size: .9rem; }
+      .footer { margin: 18px 4px 0; color: var(--muted); font-size: .86rem; text-align: center; }
+      @media (max-width: 600px) {
+        .document { width: min(100% - 20px, 980px); margin-top: 12px; }
+        .hero, .section { padding: 22px 19px; border-radius: 13px; }
+        .answer { margin-left: 0; }
+      }
+      @media print {
+        body { background: white; }
+        .document { width: 100%; margin: 0; }
+        .hero, .section { box-shadow: none; break-inside: avoid; }
+        .section { margin-top: 12px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="document">
+      <header class="hero">
+        <p class="eyebrow">Resumen de análisis</p>
+        <h1>Remitos y Facturación</h1>
+        <p>Resumen de la necesidad planteada, el estado actual del sistema, las decisiones tomadas y los puntos comerciales que todavía requieren definición.</p>
+      </header>
+
+      <section class="section">
+        <h2>1. Necesidad planteada</h2>
+        <div class="question">
+          <p><strong>Consulta:</strong> poder facturar parcialmente productos de un remito. Por ejemplo, facturar 20 unidades del producto A y 150 litros del producto C, aunque el remito contenga más cantidad y otros productos.</p>
+        </div>
+        <div class="question">
+          <p><strong>Consulta:</strong> seleccionar varios remitos de un cliente, armar una cotización o prefactura por un importe objetivo —por ejemplo, USD 25.000— y reservarlos para que otra persona no los facture individualmente sin conocer ese análisis.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>2. Estado actual encontrado</h2>
+        <ul>
+          <li>La facturación actual guarda una cantidad facturada por remito en <code>remito_facturas.cantidad_facturada</code>; esa cantidad está expresada en unidades base, por ejemplo litros. No identifica los productos o líneas facturados.</li>
+          <li>El formulario actual permite elegir remitos y una cantidad global por remito, no cantidades por producto.</li>
+          <li>No se encontraron precios, moneda ni importes en los modelos del backend. Por eso el sistema actual no puede calcular ni validar el objetivo monetario de USD 25.000.</li>
+          <li>No existe una entidad de cotización, prefactura o reserva que bloquee remitos.</li>
+          <li>Los remitos tienen ciclo operativo propio (<code>PENDIENTE</code>, <code>REVISION</code>, <code>COMPLETADO</code>, <code>ANULADO</code>) y el estado de facturación se calcula por separado.</li>
+        </ul>
+        <div class="callout warning"><strong>Conclusión:</strong> el cambio necesita guardar facturación por línea de remito, incorporar valores monetarios y representar las reservas en el backend. La interfaz sola no puede garantizar el bloqueo ni la consistencia de saldos.</div>
+      </section>
+
+      <section class="section">
+        <h2>3. Decisiones respondidas</h2>
+        <div class="question"><p><strong>¿Cómo modelar el dinero?</strong></p></div>
+        <div class="answer"><strong>Respuesta elegida:</strong> agregar precios por producto/variante, de modo que se puedan calcular los importes de las líneas y el total monetario de la selección.</div>
+
+        <div class="question"><p><strong>¿Qué repositorios entran en el alcance?</strong></p></div>
+        <div class="answer"><strong>Respuesta elegida:</strong> frontend y backend, coordinando cambios de datos, endpoints y pantallas.</div>
+
+        <div class="question"><p><strong>¿Qué debe hacer la reserva?</strong></p></div>
+        <div class="answer"><strong>Respuesta elegida:</strong> bloqueo total para otros usuarios, con posibilidad de override de Administrador y registro de auditoría.</div>
+
+        <div class="question"><p><strong>¿Hay datos de facturación reales que preservar?</strong></p></div>
+        <div class="answer"><strong>Respuesta elegida:</strong> los datos actuales son de prueba y se pueden resetear. Antes de hacerlo hay que verificar qué migraciones corrieron en cada entorno y respetar las dependencias entre tablas.</div>
+      </section>
+
+      <section class="section">
+        <h2>4. Reglas y consideraciones revisadas</h2>
+        <ul>
+          <li><strong>Facturación parcial:</strong> cada cantidad debe referenciar el <code>remito_item_id</code> correspondiente. El saldo se controla por ítem, no solo por remito.</li>
+          <li><strong>Precio histórico:</strong> factura y prefactura deben conservar una copia de la descripción, presentación, cantidad, precio y moneda usados al calcular el importe. Cambiar el catálogo después no debería reescribir importes anteriores.</li>
+          <li><strong>Precio faltante:</strong> una línea sin precio no debe computarse como cero ni presentarse como cotización completa. Hace falta definir si se carga un precio excepcional en la cotización o si debe completarse el catálogo.</li>
+          <li><strong>Reserva:</strong> una prefactura reservada no debería poder editarse directamente. Para cambiarla, la regla más segura es liberarla, editarla y validar de nuevo antes de reservar.</li>
+          <li><strong>Concurrencia:</strong> reserva, facturación individual, conversión y override deben validar y modificar saldos dentro de transacciones con bloqueo común de los remitos involucrados.</li>
+          <li><strong>Override:</strong> además de auditar la acción, debe resolver la reserva afectada e impedir que una prefactura desactualizada se convierta después como si siguiera vigente.</li>
+          <li><strong>Conversión:</strong> al convertir una prefactura se factura lo que indiquen sus líneas y se libera la reserva; cualquier saldo no facturado debe quedar disponible.</li>
+          <li><strong>Números:</strong> el número de prefactura/cotización debe distinguirse del número del comprobante. Es preferible asignar o confirmar el número de factura al convertirla.</li>
+          <li><strong>Anticipos:</strong> al incorporar importes al módulo, los anticipos también necesitan monto y moneda; hoy no tienen remitos ni un monto persistido.</li>
+        </ul>
+        <div class="callout danger"><strong>Importante:</strong> el sistema diferencia actualmente “cantidad facturada” de “importe facturado”. La implementación debe mostrar ambas magnitudes con unidades claras para no confundir litros/unidades con dinero.</div>
+      </section>
+
+      <section class="section">
+        <h2>5. Plan propuesto</h2>
+        <p>La solución debe tratar por separado las cantidades de producto, los importes monetarios y la reserva comercial de remitos.</p>
+
+        <h3><span class="tag">Datos</span> Facturación detallada por producto</h3>
+        <ul>
+          <li>Registrar cada línea facturada vinculada al ítem específico del remito (<code>remito_item_id</code>), con cantidades facturadas y saldo calculado por ítem.</li>
+          <li>Guardar en la línea una copia histórica de producto, presentación, cantidad, precio unitario, moneda e importe. El total monetario de una factura se obtiene de sus líneas; los anticipos registran su propio monto.</li>
+          <li>Conservar la cantidad base para los cálculos de saldo. La unidad que se presenta y edita en pantalla seguirá la unidad comercial que se defina para el producto.</li>
+        </ul>
+
+        <h3><span class="tag">Flujo</span> Facturación parcial</h3>
+        <ul>
+          <li>Al seleccionar un remito, mostrar sus productos con remitido, facturado, saldo y cantidad a facturar por producto.</li>
+          <li>Calcular en vivo cantidades e importes, y mostrar por separado el total monetario y las unidades base.</li>
+          <li>Validar en el servidor que las cantidades sean positivas y no superen el saldo de cada ítem. No permitir presentar como válido un total que tenga productos sin precio.</li>
+        </ul>
+
+        <h3><span class="tag">Reserva</span> Prefactura y conversión</h3>
+        <ul>
+          <li>Crear una prefactura para un único cliente, con remitos e ítems seleccionados, cantidades, precios, moneda, importe objetivo opcional, notas y vencimiento opcional.</li>
+          <li>Una prefactura en borrador no bloquea. Al reservarla, bloquea los remitos incluidos para facturación individual; las líneas pueden ser parciales, pero la reserva es del remito completo.</li>
+          <li>Una prefactura reservada no se edita directamente: se libera, se modifica y se vuelve a validar antes de reservarla nuevamente.</li>
+          <li>Al convertirla, crear la factura desde las líneas y precios guardados en la prefactura, sin pedir que se vuelva a seleccionar o calcular todo. Liberar entonces la reserva; cualquier saldo que no se haya facturado queda disponible.</li>
+          <li>Si un Administrador usa override, registrar la acción y resolver la reserva afectada para que la prefactura no pueda convertirse luego con información desactualizada.</li>
+        </ul>
+
+        <h3><span class="tag">Integridad</span> Reglas centralizadas en backend</h3>
+        <p>Las operaciones de reservar, facturar, convertir, liberar y aplicar override deben validar cliente, estado del remito, saldo por ítem y reservas existentes dentro de transacciones con bloqueos comunes. La interfaz mostrará las reservas y su motivo, pero el bloqueo efectivo lo aplica la API.</p>
+        <div class="callout info"><strong>Resultado esperado:</strong> se puede facturar, por ejemplo, una cantidad parcial de A y otra de C; o preparar una selección de varios remitos que alcance el importe objetivo, reservarla y convertirla en factura conservando el mismo detalle.</div>
+
+        <h2 style="margin-top: 28px">6. Definiciones comerciales pendientes</h2>
+        <p>La decisión de incorporar precios está tomada, pero faltan estas reglas para fijar la unidad y el cálculo:</p>
+        <ol>
+          <li>¿El precio se cargará por presentación comercial —por ejemplo, por bidón— o por unidad base —litro/kg—?</li>
+          <li>¿Se permiten fracciones de una presentación o solo unidades enteras?</li>
+          <li>¿El precio incluye impuestos? ¿Se aplican descuentos?</li>
+          <li>¿Se permiten precios manuales excepcionales en una prefactura si falta el precio del catálogo?</li>
+          <li>¿Las reservas vencen automáticamente? Si es así, ¿cuál es el plazo predeterminado?</li>
+        </ol>
+        <div class="callout purple"><strong>Recomendación de análisis:</strong> definir la unidad comercial antes de implementar el precio. La cantidad base puede seguir usándose internamente para controlar saldos, mientras la pantalla presenta la unidad que utiliza el usuario.</div>
+      </section>
+
+      <section class="section">
+        <h2>7. Fuentes consultadas</h2>
+        <p>Referencias revisadas en el frontend y en el backend hermano:</p>
+        <ul class="source-list">
+          <li><span class="path">donAsdrubal/src/components/ModalFactura.jsx: 82–130, 264–357</span><span class="source-note">Selección actual por remito, cantidad global y validaciones.</span></li>
+          <li><span class="path">donAsdrubal/src/components/Facturacion.jsx: 112–144, 357–459</span><span class="source-note">Panel de remitos pendientes y cálculo actual de cantidades facturadas.</span></li>
+          <li><span class="path">donAsdrubal/src/components/Remitos.jsx: 259–332, 383–449, 510–614</span><span class="source-note">Filtros, condición para facturar, detalle de productos y estado de facturación.</span></li>
+          <li><span class="path">donAsdrubal/src/components/ModalProductos.jsx: 366–416</span><span class="source-note">Edición actual de variantes/presentaciones del producto.</span></li>
+          <li><span class="path">backend/src/models/remitoItems.js: 13–32</span><span class="source-note">Identidad del ítem y cantidades solicitadas/despachadas.</span></li>
+          <li><span class="path">backend/src/models/remitoFacturas.js: 14–29</span><span class="source-note">Relación actual factura-remito y cantidad facturada en unidades base.</span></li>
+          <li><span class="path">backend/src/models/facturas.js: 25–61</span><span class="source-note">Tipos y estados actuales de factura; no contiene monto ni moneda.</span></li>
+          <li><span class="path">backend/src/services/facturacionService.js: 15–99</span><span class="source-note">Cálculo derivado de total, facturado, saldo y estado por remito.</span></li>
+          <li><span class="path">backend/src/controllers/facturas.js: 147–227, 237–392</span><span class="source-note">Remitos disponibles, validación y creación actual de facturas.</span></li>
+          <li><span class="path">backend/src/controllers/remitos.js: 395–520</span><span class="source-note">Anulación de remitos y reversión de stock; los remitos de cliente completados no se anulan por este flujo.</span></li>
+          <li><span class="path">backend/src/migrations/20261106000001-create-facturas.cjs: 45–170</span><span class="source-note">Esquema y constraints actuales de facturas y remito_facturas.</span></li>
+          <li><span class="path">backend/src/services/AuditLogService.js: 32–73</span><span class="source-note">Servicio de auditoría existente para registrar acciones administrativas.</span></li>
+        </ul>
+      </section>
+
+      <p class="footer">Documento de análisis y propuesta funcional de Remitos y Facturación. Las reglas comerciales pendientes están señaladas por separado.</p>
+    </main>
+  </body>
+</html>
