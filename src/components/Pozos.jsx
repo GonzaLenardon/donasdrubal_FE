@@ -61,6 +61,13 @@ const Pozos = ({ cliente_id }) => {
     );
   };
 
+  const todosSeleccionados = pozos.length > 0 && pozos.every((pozo) => pozoId.includes(pozo.id));
+
+  const handleToggleTodosInforme = (e) => {
+    e.stopPropagation();
+    setPozoId(todosSeleccionados ? [] : pozos.map((pozo) => pozo.id));
+  };
+
   const handleAbrirModalConclusion = () => {
     setConclusion('');
     setErrorConclusion('');
@@ -214,6 +221,27 @@ const Pozos = ({ cliente_id }) => {
                   Informe
                 </button>
               </div>
+            </div>
+          )}
+
+          {pozos.length > 0 && (
+            <div className="d-flex justify-content-end mb-3">
+              <label
+                className="pcard-chk-label"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <input
+                  type="checkbox"
+                  className="pcard-chk-input"
+                  checked={todosSeleccionados}
+                  onChange={handleToggleTodosInforme}
+                  aria-label="Seleccionar todos los pozos para generar informe"
+                />
+                <span className="pcard-chk-box">
+                  <i className="bi bi-check pcard-chk-icon"></i>
+                </span>
+                <span className="pcard-chk-text">Seleccionar todos para informe</span>
+              </label>
             </div>
           )}
 
